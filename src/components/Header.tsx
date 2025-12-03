@@ -1,7 +1,6 @@
 import { Link } from '@tanstack/react-router'
-
-import { useState } from 'react'
 import { Home, Menu, X } from 'lucide-react'
+import { useState } from 'react'
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
@@ -13,6 +12,7 @@ export default function Header() {
           onClick={() => setIsOpen(true)}
           className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
           aria-label="Open menu"
+          type="button"
         >
           <Menu size={24} />
         </button>
@@ -38,6 +38,7 @@ export default function Header() {
             onClick={() => setIsOpen(false)}
             className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
             aria-label="Close menu"
+            type="button"
           >
             <X size={24} />
           </button>
