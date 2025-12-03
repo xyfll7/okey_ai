@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TranslateIndexRouteImport } from './routes/translate/index'
+import { Route as TranslateSettingsRouteImport } from './routes/translate/settings'
 
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
@@ -28,34 +29,43 @@ const TranslateIndexRoute = TranslateIndexRouteImport.update({
   path: '/translate/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TranslateSettingsRoute = TranslateSettingsRouteImport.update({
+  id: '/translate/settings',
+  path: '/translate/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/translate/settings': typeof TranslateSettingsRoute
   '/translate': typeof TranslateIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/translate/settings': typeof TranslateSettingsRoute
   '/translate': typeof TranslateIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/translate/settings': typeof TranslateSettingsRoute
   '/translate/': typeof TranslateIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/translate'
+  fullPaths: '/' | '/about' | '/translate/settings' | '/translate'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/translate'
-  id: '__root__' | '/' | '/about' | '/translate/'
+  to: '/' | '/about' | '/translate/settings' | '/translate'
+  id: '__root__' | '/' | '/about' | '/translate/settings' | '/translate/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  TranslateSettingsRoute: typeof TranslateSettingsRoute
   TranslateIndexRoute: typeof TranslateIndexRoute
 }
 
@@ -82,12 +92,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TranslateIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/translate/settings': {
+      id: '/translate/settings'
+      path: '/translate/settings'
+      fullPath: '/translate/settings'
+      preLoaderRoute: typeof TranslateSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  TranslateSettingsRoute: TranslateSettingsRoute,
   TranslateIndexRoute: TranslateIndexRoute,
 }
 export const routeTree = rootRouteImport

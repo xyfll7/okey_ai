@@ -3,10 +3,10 @@ import { emit, listen } from "@tauri-apps/api/event";
 import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/translate/")({
-	component: Translate,
+	component: RouteComponent,
 });
 
-function Translate() {
+function RouteComponent() {
 	const [aiResponse, setAiResponse] = useState<string | null>(null);
 	const [originalText, setOriginalText] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
