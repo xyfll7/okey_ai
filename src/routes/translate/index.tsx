@@ -48,7 +48,7 @@ function RouteComponent() {
 				data-tauri-drag-region
 			>
 				<Button
-					size="sm"
+					size="icon-sm"
 					variant="ghost"
 					onClick={async () => {
 						console.log("kkkkkk");
@@ -56,23 +56,25 @@ function RouteComponent() {
 					}}
 				>
 					{pin ? (
-						<Pin size={"1rem"} absoluteStrokeWidth />
+						<Pin size={"1rem"}  />
 					) : (
-						<PinOff size={"1rem"} absoluteStrokeWidth />
+						<PinOff size={"1rem"}  />
 					)}
 				</Button>
 				<Button
-					size="sm"
+					size="icon-sm"
 					variant="ghost"
 					onClick={ () => {
 						invoke<boolean>("toggle_auto_close_window");
 					}}
 				>
-					<X size={"1rem"} absoluteStrokeWidth />
+					<X size={"1rem"}  />
 				</Button>
 			</div>
 			<div className="p-4">
 				<Button>Translate</Button>
+				<Button size={"sm"}>Translate</Button>
+				<Button size={"icon-sm"}>ss</Button>
 				{originalText && (
 					<div className="mt-4">
 						<h2 className="font-semibold">Original Text:</h2>
