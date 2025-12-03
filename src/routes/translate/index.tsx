@@ -50,6 +50,7 @@ function RouteComponent() {
 				<Button
 					size="icon-sm"
 					variant="ghost"
+					className="opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
 					onClick={async () => {
 						console.log("kkkkkk");
 						setPin(await invoke<boolean>("toggle_auto_close_window"));
@@ -58,17 +59,13 @@ function RouteComponent() {
 					{pin ? (
 						<Pin size={"1rem"}  />
 					) : (
-						<PinOff size={"1rem"}  />
+						<PinOff size={"1rem"} />
 					)}
 				</Button>
-				<Button
-					size="icon-sm"
-					variant="ghost"
-					onClick={ () => {
+				<Button size={"icon-sm"} variant={"ghost"} className="opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent">
+					<X size={"1rem"} 	onClick={ () => {
 						invoke<boolean>("toggle_auto_close_window");
-					}}
-				>
-					<X size={"1rem"}  />
+					}} />
 				</Button>
 			</div>
 			<div className="p-4">
