@@ -7,6 +7,8 @@ use tauri::{
     window::Color, AppHandle, Listener, Manager, Runtime, WebviewUrl, WebviewWindowBuilder,
 };
 
+use crate::AppState;
+
 pub fn create_or_show_about_window<R: Runtime>(app: &AppHandle<R>) {
     if let Some(window) = app.get_webview_window("about") {
         let _ = window.show();
@@ -66,6 +68,8 @@ where
                 }
             });
 
+            // Get the app handle to access global state
+            let state_handle = window.app_handle().clone();
             let cancelled = Arc::new(Mutex::new(false));
             let win_clone = window.clone();
             let cancel_flag = cancelled.clone();
@@ -74,12 +78,20 @@ where
                     *cancel_flag.lock().unwrap() = false;
                     let _win = win_clone.clone();
                     let local_cancel = cancel_flag.clone();
+                    let state_handle = state_handle.clone();
                     thread::spawn(move || {
                         thread::sleep(Duration::from_millis(100));
                         if *local_cancel.lock().unwrap() {
                             return;
                         }
-                        _win.destroy().ok();
+                        // Only destroy the window if auto-close is enabled
+                        if {
+                            let state = state_handle.state::<Mutex<AppState>>();
+                            let state_guard = state.lock().unwrap();
+                            state_guard.auto_close_window
+                        } {
+                            _win.destroy().ok();
+                        }
                     });
                 }
                 tauri::WindowEvent::Focused(true) => {

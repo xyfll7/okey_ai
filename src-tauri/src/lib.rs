@@ -5,14 +5,21 @@ mod my_windows;
 mod my_reqwest;
 mod my_api;
 
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use tauri::async_runtime::RwLock;
+
+// Global state struct for auto-close window setting
+#[derive(Default)]
+pub struct AppState {
+    pub auto_close_window: bool,
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let api_manager = Arc::new(RwLock::new(crate::my_api::manager::APIManager::new()));
 
     tauri::Builder::default()
+        .manage(Mutex::new(AppState::default()))
         .manage(crate::my_api::commands::GlobalAPIManager(api_manager))
         .plugin(tauri_plugin_http::init())
         .invoke_handler(tauri::generate_handler![
@@ -20,6 +27,8 @@ pub fn run() {
             my_reqwest::http_post_example,
             my_command::greet,
             my_command::get_selection_text,
+            my_command::toggle_auto_close_window,
+            my_command::get_auto_close_window_state,
             crate::my_api::commands::initialize_api_manager,
             crate::my_api::commands::switch_model,
             crate::my_api::commands::get_current_model,
