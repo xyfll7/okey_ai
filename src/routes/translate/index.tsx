@@ -62,10 +62,11 @@ function RouteComponent() {
 						<PinOff size={"1rem"} />
 					)}
 				</Button>
-				<Button size={"icon-sm"} variant={"ghost"} className="opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent">
-					<X size={"1rem"} 	onClick={ () => {
-						invoke<boolean>("toggle_auto_close_window");
-					}} />
+				<Button  size={"icon-sm"} variant={"ghost"} className="opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
+					onClick={async () => {
+						await invoke("close_main_window");
+					}}>
+					<X size={"1rem"} />
 				</Button>
 			</div>
 			<div className="p-4">
