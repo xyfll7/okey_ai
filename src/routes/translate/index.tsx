@@ -2,7 +2,7 @@ import { IconPlus } from "@tabler/icons-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
-import { ArrowUpIcon, Pin, X } from "lucide-react";
+import { ArrowUpIcon, Pin, Scroll, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +18,7 @@ import {
 	InputGroupText,
 	InputGroupTextarea,
 } from "@/components/ui/input-group";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/translate/")({
@@ -26,8 +27,12 @@ export const Route = createFileRoute("/translate/")({
 
 function RouteComponent() {
 	const [chatList, setChatList] = useState<
-		{ from: "slef" | "ai"; content: string }[]
-	>([]);
+		{ from: "user" | "ai"; content: string }[]
+	>([
+		{ from: "ai", content: "字符串化" },
+		{ from: "ai", content: "响应" },
+		{ from: "user", content: "响应" },
+	]);
 	const [originalText, setOriginalText] = useState<string>("");
 	const [selectedText, setSelectedText] = useState<string>("");
 	useEffect(() => {
@@ -57,13 +62,7 @@ function RouteComponent() {
 			<Header className="" />
 			<div className="px-2 flex-1 bg-gray-700_ flex flex-col">
 				<div className=" flex-1">
-					{chatList.map((chat, index) => {
-						return (
-							<div key={`ai-response-${chat.from}-${index}`}>
-								{JSON.stringify(chat)}
-							</div>
-						);
-					})}
+					<ChatList chatList={chatList}></ChatList>
 				</div>
 				<div className=" mb-2">
 					<Button variant="secondary" size={"sm"} className="rounded-full">
@@ -159,5 +158,25 @@ function Header(props: React.ComponentProps<"div">) {
 				<X size={"1rem"} />
 			</Button>
 		</div>
+	);
+}
+
+function ChatList({
+	chatList,
+}: {
+	chatList: { from: "user" | "ai"; content: string }[];
+}) {
+	return (
+		<ScrollArea className="flex-1">
+			<div>
+				{chatList.map((chat, index) => {
+					return (
+						<div key={`ai-response-${chat.from}-${index}`}>
+							{JSON.stringify(chat)}
+						</div>
+					);
+				})}
+			</div>
+		</ScrollArea>
 	);
 }
