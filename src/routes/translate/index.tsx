@@ -30,27 +30,7 @@ function RouteComponent() {
 	console.log("Render Translate Route:::", ostype());
 	const [chatList, setChatList] = useState<
 		{ from: "user" | "ai"; content: string; timestamp?: Date }[]
-	>([
-		{ from: "ai", content: "字符串化", timestamp: new Date() },
-		{ from: "user", content: "响应", timestamp: new Date() },
-		{ from: "ai", content: "响应", timestamp: new Date() },
-		{ from: "user", content: "响应", timestamp: new Date() },
-		{ from: "ai", content: "响应", timestamp: new Date() },
-		{ from: "user", content: "响应", timestamp: new Date() },
-		{ from: "ai", content: "响应", timestamp: new Date() },
-		{ from: "user", content: "响应", timestamp: new Date() },
-		{ from: "ai", content: "响应", timestamp: new Date() },
-		{ from: "user", content: "响应", timestamp: new Date() },
-		{ from: "ai", content: "响应", timestamp: new Date() },
-		{ from: "user", content: "响应", timestamp: new Date() },
-		{ from: "ai", content: "响应", timestamp: new Date() },
-		{ from: "user", content: "响应", timestamp: new Date() },
-		{ from: "ai", content: "响应", timestamp: new Date() },
-		{ from: "user", content: "响应", timestamp: new Date() },
-		{ from: "ai", content: "响应", timestamp: new Date() },
-		{ from: "user", content: "响应", timestamp: new Date() },
-		{ from: "ai", content: "响应", timestamp: new Date() },
-	]);
+	>([]);
 	const [originalText, setOriginalText] = useState<string>("");
 	const [selectedText, setSelectedText] = useState<string>("");
 	useEffect(() => {
