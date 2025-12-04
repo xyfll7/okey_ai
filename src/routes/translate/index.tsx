@@ -178,7 +178,10 @@ function Header(props: React.ComponentProps<"div">) {
 					setPin(await invoke<boolean>("toggle_auto_close_window"))
 				}
 			>
-				<Pin size={"1rem"} className={pin ? "" : "text-green-300 dark:text-green-200"} />
+				<Pin
+					size={"1rem"}
+					className={pin ? "" : "text-green-300 dark:text-green-200"}
+				/>
 			</Button>
 			{_ostype === "windows" && (
 				<Button
@@ -201,22 +204,24 @@ function ChatList({
 }) {
 	return (
 		<ScrollArea className="h-full pl-2 pr-4">
-			<div className="space-y-4 pt-2">
+			<div className="space-y-2 pt-2">
 				{chatList.map((chat, index) => {
 					const isUser = chat.from === "user";
 					return (
 						<div
 							key={`chat-${chat.from}-${index}`}
-							className={`flex ${isUser ? "justify-end" : "justify-start"}`}
+							className={`flex w-full ${isUser ? "justify-end" : "justify-start"}`}
 						>
-							<div
-								className={`max-w-[80%] rounded-lg px-2 py-2 ${
-									isUser
-										? "bg-muted text-muted-foreground rounded-br-md"
-										: "text-muted-foreground rounded-bl-md"
-								}`}
-							>
-								<div className="text-sm">{chat.content}</div>
+							<div className={cn("flex flex-col ", isUser ? "items-end" : "items-start")}>
+								<div
+									className={`rounded-lg px-2 py-2 ${
+										isUser
+											? "bg-muted text-muted-foreground rounded-br-md"
+											: "text-muted-foreground rounded-bl-md"
+									}`}
+								>
+									<div className="text-sm">{chat.content}</div>
+								</div>
 							</div>
 						</div>
 					);
