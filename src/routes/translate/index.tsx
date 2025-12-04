@@ -27,11 +27,27 @@ export const Route = createFileRoute("/translate/")({
 
 function RouteComponent() {
 	const [chatList, setChatList] = useState<
-		{ from: "user" | "ai"; content: string }[]
+		{ from: "user" | "ai"; content: string; timestamp?: Date }[]
 	>([
-		{ from: "ai", content: "字符串化" },
-		{ from: "ai", content: "响应" },
-		{ from: "user", content: "响应" },
+		{ from: "ai", content: "字符串化", timestamp: new Date() },
+		{ from: "user", content: "响应", timestamp: new Date() },
+		{ from: "ai", content: "响应", timestamp: new Date() },
+		{ from: "user", content: "响应", timestamp: new Date() },
+		{ from: "ai", content: "响应", timestamp: new Date() },
+		{ from: "user", content: "响应", timestamp: new Date() },
+		{ from: "ai", content: "响应", timestamp: new Date() },
+		{ from: "user", content: "响应", timestamp: new Date() },
+		{ from: "ai", content: "响应", timestamp: new Date() },
+		{ from: "user", content: "响应", timestamp: new Date() },
+		{ from: "ai", content: "响应", timestamp: new Date() },
+		{ from: "user", content: "响应", timestamp: new Date() },
+		{ from: "ai", content: "响应", timestamp: new Date() },
+		{ from: "user", content: "响应", timestamp: new Date() },
+		{ from: "ai", content: "响应", timestamp: new Date() },
+		{ from: "user", content: "响应", timestamp: new Date() },
+		{ from: "ai", content: "响应", timestamp: new Date() },
+		{ from: "user", content: "响应", timestamp: new Date() },
+		{ from: "ai", content: "响应", timestamp: new Date() },
 	]);
 	const [originalText, setOriginalText] = useState<string>("");
 	const [selectedText, setSelectedText] = useState<string>("");
@@ -41,14 +57,14 @@ function RouteComponent() {
 			(event) => {
 				setChatList((list) => [
 					...list,
-					{ from: "ai", content: event.payload.content },
+					{ from: "ai", content: event.payload.content, timestamp: new Date() },
 				]);
 				setOriginalText(event.payload.selected_text);
 			},
 		);
 
 		const unlistenError = listen<string>("ai-error", (event) => {
-			setChatList((list) => [...list, { from: "ai", content: event.payload }]);
+			setChatList((list) => [...list, { from: "ai", content: event.payload, timestamp: new Date() }]);
 		});
 
 		emit("page_loaded", { ok: true });
@@ -58,13 +74,13 @@ function RouteComponent() {
 		};
 	}, []);
 	return (
-		<div className=" h-screen  flex flex-col">
+		<div className="h-screen max-h-screen flex flex-col ">
 			<Header className="" />
-			<div className="px-2 flex-1 bg-gray-700_ flex flex-col">
-				<div className=" flex-1">
+			<div className=" flex-1 bg-gray-700_   h-full flex flex-col overflow-hidden ">
+				<div className="mb-2 h-full flex flex-col overflow-hidden">
 					<ChatList chatList={chatList}></ChatList>
 				</div>
-				<div className=" mb-2">
+				<div className="px-2 mb-2">
 					<Button variant="secondary" size={"sm"} className="rounded-full">
 						{selectedText ? selectedText : "..."}
 					</Button>
@@ -76,6 +92,9 @@ function RouteComponent() {
 					<InputGroupTextarea
 						placeholder="Ask, Search or Chat..."
 						value={originalText}
+						onChange={(e) => {
+							setOriginalText(e.target.value);
+						}}
 						onMouseMove={(e) => {
 							const target = e.target as HTMLTextAreaElement;
 							const selectedText = target.value.substring(
@@ -164,15 +183,27 @@ function Header(props: React.ComponentProps<"div">) {
 function ChatList({
 	chatList,
 }: {
-	chatList: { from: "user" | "ai"; content: string }[];
+	chatList: { from: "user" | "ai"; content: string; timestamp?: Date }[];
 }) {
 	return (
-		<ScrollArea className="flex-1">
-			<div>
+		<ScrollArea className="h-full pl-2 pr-4">
+			<div className="space-y-4">
 				{chatList.map((chat, index) => {
+					const isUser = chat.from === "user";
 					return (
-						<div key={`ai-response-${chat.from}-${index}`}>
-							{JSON.stringify(chat)}
+						<div
+							key={`chat-${chat.from}-${index}`}
+							className={`flex ${isUser ? "justify-end" : "justify-start"}`}
+						>
+							<div
+								className={`max-w-[80%] rounded-lg px-4 py-3 ${
+									isUser
+										? "bg-primary text-primary-foreground rounded-br-md"
+										: "bg-muted text-muted-foreground rounded-bl-md"
+								}`}
+							>
+								<div className="text-sm">{chat.content}</div>
+							</div>
 						</div>
 					);
 				})}
