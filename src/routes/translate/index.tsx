@@ -178,7 +178,7 @@ function Header(props: React.ComponentProps<"div">) {
 					setPin(await invoke<boolean>("toggle_auto_close_window"))
 				}
 			>
-				<Pin size={"1rem"} className={pin ? "" : " text-green-200"} />
+				<Pin size={"1rem"} className={pin ? "" : "text-green-300 dark:text-green-200"} />
 			</Button>
 			{_ostype === "windows" && (
 				<Button
@@ -210,10 +210,10 @@ function ChatList({
 							className={`flex ${isUser ? "justify-end" : "justify-start"}`}
 						>
 							<div
-								className={`max-w-[80%] rounded-lg px-4 py-3 ${
+								className={`max-w-[80%] rounded-lg px-2 py-2 ${
 									isUser
-										? "bg-primary text-primary-foreground rounded-br-md"
-										: "bg-muted text-muted-foreground rounded-bl-md"
+										? "bg-muted text-muted-foreground rounded-br-md"
+										: "text-muted-foreground rounded-bl-md"
 								}`}
 							>
 								<div className="text-sm">{chat.content}</div>
