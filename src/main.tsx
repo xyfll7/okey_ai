@@ -7,10 +7,8 @@ import { routeTree } from "./routeTree.gen";
 
 import "./styles.css";
 
-import { initEnv } from "./lib/env.ts";
 import reportWebVitals from "./reportWebVitals.ts";
 
-initEnv();
 // Create a new router instance
 const router = createRouter({
 	routeTree,

@@ -45,7 +45,12 @@ pub struct Usage {
 }
 
 pub trait LLMClient {
-    fn chat_completion<'a>(&'a self, request: &'a ChatCompletionRequest) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<ChatCompletionResponse, String>> + Send + 'a>>;
+    fn chat_completion<'a>(
+        &'a self,
+        request: &'a ChatCompletionRequest,
+    ) -> std::pin::Pin<
+        Box<dyn std::future::Future<Output = Result<ChatCompletionResponse, String>> + Send + 'a>,
+    >;
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

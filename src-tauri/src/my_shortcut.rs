@@ -1,11 +1,10 @@
-use selection::get_text;
-use tauri::{async_runtime, AppHandle, Emitter, Manager};
-use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
 use crate::my_api::commands::GlobalAPIManager;
 use crate::my_api::traits::{ChatCompletionRequest, ChatMessage};
 use crate::my_windows::create_or_show_main_window;
+use selection::get_text;
 use serde_json;
-
+use tauri::{async_runtime, AppHandle, Emitter, Manager};
+use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
 
 pub fn setup_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     let shortcut_0 = Shortcut::new(Some(Modifiers::CONTROL), Code::KeyY);
@@ -17,22 +16,20 @@ pub fn setup_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>
 
     app.plugin(
         tauri_plugin_global_shortcut::Builder::new()
-            .with_handler(move |app: &AppHandle, shortcut, event| {
-                match event.state() {
-                    ShortcutState::Pressed => {
-                        match shortcut {
-                            s if s == &shortcut_0_clone => {
-                                handle_ctrl_u(app, &app_handle);
-                            }
-                            s if s == &shortcut_1_clone => {
-                                handle_ctrl_i(app, &app_handle);
-                            }
-                            _ => {}
+            .with_handler(
+                move |app: &AppHandle, shortcut, event| match event.state() {
+                    ShortcutState::Pressed => match shortcut {
+                        s if s == &shortcut_0_clone => {
+                            handle_ctrl_u(app, &app_handle);
                         }
-                    }
+                        s if s == &shortcut_1_clone => {
+                            handle_ctrl_i(app, &app_handle);
+                        }
+                        _ => {}
+                    },
                     _ => {}
-                }
-            })
+                },
+            )
             .build(),
     )?;
 
@@ -49,7 +46,6 @@ pub fn setup_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>
     Ok(())
 }
 
-
 fn handle_ctrl_u(_app: &AppHandle, app_handle: &AppHandle) {
     let selected_text = get_text();
 
@@ -58,11 +54,14 @@ fn handle_ctrl_u(_app: &AppHandle, app_handle: &AppHandle) {
         let api_manager_state = app_handle.state::<GlobalAPIManager>();
 
         let detected_lang = detect_language(&selected_text);
-      
+
         let translation_prompt = match detected_lang {
             "chinese" => format!("请将以下中文文本翻译成英文：\n\n{}", selected_text),
-            "english" => format!("Please translate the following English text into Chinese: \n\n{}", selected_text),
-            _ => format!("请分析以下文本并给出总结：\n\n{}", selected_text), 
+            "english" => format!(
+                "Please translate the following English text into Chinese: \n\n{}",
+                selected_text
+            ),
+            _ => format!("请分析以下文本并给出总结：\n\n{}", selected_text),
         };
 
         let request = ChatCompletionRequest {
@@ -70,7 +69,8 @@ fn handle_ctrl_u(_app: &AppHandle, app_handle: &AppHandle) {
             messages: vec![
                 ChatMessage {
                     role: "system".to_string(),
-                    content: "你是一个专业的翻译助手。请准确地进行语言翻译，保持原文的含义和语气。".to_string(),
+                    content: "你是一个专业的翻译助手。请准确地进行语言翻译，保持原文的含义和语气。"
+                        .to_string(),
                 },
                 ChatMessage {
                     role: "user".to_string(),
@@ -85,30 +85,34 @@ fn handle_ctrl_u(_app: &AppHandle, app_handle: &AppHandle) {
 
         match crate::my_api::commands::chat_completion(request, api_manager_state).await {
             Ok(response) => {
-             
                 if let Some(choice) = response.choices.first() {
-                    let content = choice.message.content.clone();  // Clone the content to own it
-                    let selected_text = selected_text.clone();    // Clone the selected_text to own it
+                    let content = choice.message.content.clone(); // Clone the content to own it
+                    let selected_text = selected_text.clone(); // Clone the selected_text to own it
                     let app_handle_clone = app_handle.clone();
-                    create_or_show_main_window(&app_handle, Some(move || {
-                        let response_data = serde_json::json!({
-                            "content": content,
-                            "selected_text": selected_text
-                        });
-                        let _ = app_handle_clone.emit("ai-response", response_data);
-                    }));
+                    create_or_show_main_window(
+                        &app_handle,
+                        Some(move || {
+                            let response_data = serde_json::json!({
+                                "content": content,
+                                "selected_text": selected_text
+                            });
+                            let _ = app_handle_clone.emit("ai-response", response_data);
+                        }),
+                    );
                 }
-            },
+            }
             Err(e) => {
                 let app_handle_clone = app_handle.clone();
                 let error_msg = e.to_string();
-                create_or_show_main_window(&app_handle, Some(move || {
-                    let _ = app_handle_clone.emit("ai-error", error_msg);
-                }));
+                create_or_show_main_window(
+                    &app_handle,
+                    Some(move || {
+                        let _ = app_handle_clone.emit("ai-error", error_msg);
+                    }),
+                );
             }
         }
     });
-
 }
 
 fn handle_ctrl_i(_app: &AppHandle, app_handle: &AppHandle) {
@@ -118,11 +122,13 @@ fn handle_ctrl_i(_app: &AppHandle, app_handle: &AppHandle) {
     let _ = app_handle.emit("global-shortcut-pressed", "open_settings");
 }
 
-
 fn detect_language(text: &str) -> &'static str {
-    let chinese_chars = text.chars().filter(|c| {
-        (*c as u32) >= 0x4e00 && (*c as u32) <= 0x9fff // 基本汉字范围
-    }).count();
+    let chinese_chars = text
+        .chars()
+        .filter(|c| {
+            (*c as u32) >= 0x4e00 && (*c as u32) <= 0x9fff // 基本汉字范围
+        })
+        .count();
 
     let total_chars = text.chars().filter(|c| !c.is_whitespace()).count();
 
@@ -131,7 +137,8 @@ fn detect_language(text: &str) -> &'static str {
     }
 
     let chinese_ratio = chinese_chars as f64 / total_chars as f64;
-    if chinese_ratio > 0.3 {  // 如果超过30%的字符是中文，则认为是中文
+    if chinese_ratio > 0.3 {
+        // 如果超过30%的字符是中文，则认为是中文
         "chinese"
     } else {
         "english"

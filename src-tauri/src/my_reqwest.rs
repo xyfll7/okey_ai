@@ -29,7 +29,7 @@ pub struct MyPostResponse {
 // GET 示例
 // -----------------------
 #[tauri::command]
-pub async fn http_get_example<R: Runtime>(_app: AppHandle<R>,) -> Result<MyGetResponse, String> {
+pub async fn http_get_example<R: Runtime>(_app: AppHandle<R>) -> Result<MyGetResponse, String> {
     let client = reqwest::Client::new();
 
     let resp = client

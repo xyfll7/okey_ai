@@ -1,8 +1,8 @@
+use crate::my_api::manager::APIManager;
+use crate::my_api::traits::{APIConfig, ChatCompletionRequest};
 use std::collections::HashMap;
 use std::sync::Arc;
-use tauri::{State, async_runtime::RwLock};
-use crate::my_api::traits::{ChatCompletionRequest, APIConfig};
-use crate::my_api::manager::APIManager;
+use tauri::{async_runtime::RwLock, State};
 
 pub struct GlobalAPIManager(pub Arc<RwLock<APIManager>>);
 

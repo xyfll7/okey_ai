@@ -1,6 +1,6 @@
-use crate::my_api::traits::{ChatCompletionRequest, ChatCompletionResponse, LLMClient, APIConfig};
-use tauri_plugin_http::reqwest;
+use crate::my_api::traits::{APIConfig, ChatCompletionRequest, ChatCompletionResponse, LLMClient};
 use serde::{Deserialize, Serialize};
+use tauri_plugin_http::reqwest;
 
 #[derive(Debug)]
 pub struct QwenClient {
@@ -18,9 +18,17 @@ impl QwenClient {
 }
 
 impl LLMClient for QwenClient {
-    fn chat_completion<'a>(&'a self, request: &'a ChatCompletionRequest) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<ChatCompletionResponse, String>> + Send + 'a>> {
+    fn chat_completion<'a>(
+        &'a self,
+        request: &'a ChatCompletionRequest,
+    ) -> std::pin::Pin<
+        Box<dyn std::future::Future<Output = Result<ChatCompletionResponse, String>> + Send + 'a>,
+    > {
         Box::pin(async move {
-            let api_url = format!("{}/compatible-mode/v1/chat/completions", self.config.base_url);
+            let api_url = format!(
+                "{}/compatible-mode/v1/chat/completions",
+                self.config.base_url
+            );
 
             let json_body = serde_json::to_string(request)
                 .map_err(|e| format!("Failed to serialize request: {}", e))?;
@@ -36,7 +44,10 @@ impl LLMClient for QwenClient {
                 .map_err(|e| format!("Failed to send request: {}", e))?;
 
             if !response.status().is_success() {
-                return Err(format!("API request failed with status信息: {}", response.status()));
+                return Err(format!(
+                    "API request failed with status信息: {}",
+                    response.status()
+                ));
             }
 
             let response_text = response
@@ -53,11 +64,15 @@ impl LLMClient for QwenClient {
                 object: qwen_response.object,
                 created: qwen_response.created,
                 model: qwen_response.model,
-                choices: qwen_response.choices.into_iter().map(|choice| crate::my_api::traits::Choice {
-                    index: choice.index,
-                    message: choice.message,
-                    finish_reason: choice.finish_reason,
-                }).collect(),
+                choices: qwen_response
+                    .choices
+                    .into_iter()
+                    .map(|choice| crate::my_api::traits::Choice {
+                        index: choice.index,
+                        message: choice.message,
+                        finish_reason: choice.finish_reason,
+                    })
+                    .collect(),
                 usage: Some(crate::my_api::traits::Usage {
                     prompt_tokens: qwen_response.usage.prompt_tokens,
                     completion_tokens: qwen_response.usage.completion_tokens,
@@ -67,7 +82,6 @@ impl LLMClient for QwenClient {
         })
     }
 }
-
 
 #[derive(Debug, Serialize, Deserialize)]
 struct QwenChatResponse {

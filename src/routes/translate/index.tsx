@@ -2,7 +2,8 @@ import { IconPlus } from "@tabler/icons-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
-import { ArrowUpIcon, Pin, Scroll, X } from "lucide-react";
+import { type as ostype } from "@tauri-apps/plugin-os";
+import { ArrowUpIcon, Pin, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,6 +27,7 @@ export const Route = createFileRoute("/translate/")({
 });
 
 function RouteComponent() {
+	console.log("Render Translate Route:::", ostype());
 	const [chatList, setChatList] = useState<
 		{ from: "user" | "ai"; content: string; timestamp?: Date }[]
 	>([
@@ -64,7 +66,10 @@ function RouteComponent() {
 		);
 
 		const unlistenError = listen<string>("ai-error", (event) => {
-			setChatList((list) => [...list, { from: "ai", content: event.payload, timestamp: new Date() }]);
+			setChatList((list) => [
+				...list,
+				{ from: "ai", content: event.payload, timestamp: new Date() },
+			]);
 		});
 
 		emit("page_loaded", { ok: true });
@@ -153,9 +158,16 @@ function Header(props: React.ComponentProps<"div">) {
 			setPin(res);
 		});
 	}, []);
+	const _ostype = ostype();
 	return (
 		<div
-			className={cn("flex items-center justify-between ", props.className)}
+			className={cn(
+				"flex items-center",
+				{ "justify-between": _ostype === "linux" },
+				{ "justify-between": _ostype === "windows" },
+				{ "justify-end": _ostype === "macos" },
+				props.className,
+			)}
 			data-tauri-drag-region
 		>
 			<Button
@@ -168,14 +180,16 @@ function Header(props: React.ComponentProps<"div">) {
 			>
 				<Pin size={"1rem"} className={pin ? "" : " text-green-200"} />
 			</Button>
-			<Button
-				size={"icon-sm"}
-				variant={"ghost"}
-				className="opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
-				onClick={() => invoke("close_main_window")}
-			>
-				<X size={"1rem"} />
-			</Button>
+			{_ostype === "windows" && (
+				<Button
+					size={"icon-sm"}
+					variant={"ghost"}
+					className="opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
+					onClick={() => invoke("close_main_window")}
+				>
+					<X size={"1rem"} />
+				</Button>
+			)}
 		</div>
 	);
 }

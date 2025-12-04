@@ -1,9 +1,9 @@
+mod my_api;
 mod my_command;
+mod my_reqwest;
 mod my_shortcut;
 mod my_tray;
 mod my_windows;
-mod my_reqwest;
-mod my_api;
 
 use std::sync::{Arc, Mutex};
 use tauri::async_runtime::RwLock;
@@ -19,6 +19,7 @@ pub fn run() {
     let api_manager = Arc::new(RwLock::new(crate::my_api::manager::APIManager::new()));
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_os::init())
         .manage(Mutex::new(AppState::default()))
         .manage(crate::my_api::commands::GlobalAPIManager(api_manager))
         .plugin(tauri_plugin_http::init())

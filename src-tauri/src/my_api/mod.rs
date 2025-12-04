@@ -1,13 +1,13 @@
-pub mod traits;
-pub mod m_qwen;
-pub mod m_deepseek;
-pub mod m_openai;
-pub mod manager;
 pub mod commands;
 pub mod example;
+pub mod m_deepseek;
+pub mod m_openai;
+pub mod m_qwen;
+pub mod manager;
+pub mod traits;
 
-use tauri::{AppHandle, Manager};
 use std::collections::HashMap;
+use tauri::{AppHandle, Manager};
 
 // Initialize the API manager with default configurations in the application setup
 pub fn setup_api_manager(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
@@ -20,15 +20,18 @@ pub fn setup_api_manager(app: &AppHandle) -> Result<(), Box<dyn std::error::Erro
             // 直接在 setup_api_manager 中实现初始化逻辑
             let configs = get_default_configs();
             // 将 HashMap 转换为 Vec 以匹配 initialize_api_manager 的参数类型
-            let configs_vec: Vec<(String, crate::my_api::traits::APIConfig)> = configs.into_iter().collect();
+            let configs_vec: Vec<(String, crate::my_api::traits::APIConfig)> =
+                configs.into_iter().collect();
 
             // 调用初始化函数
-            if let Err(e) = crate::my_api::commands::initialize_api_manager(configs_vec, api_manager_state).await {
+            if let Err(e) =
+                crate::my_api::commands::initialize_api_manager(configs_vec, api_manager_state)
+                    .await
+            {
                 eprintln!("Failed to initialize API manager: {}", e);
             } else {
                 println!("API manager initialized successfully");
             }
-
         }
     });
 

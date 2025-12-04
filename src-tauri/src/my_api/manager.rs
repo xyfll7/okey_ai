@@ -1,10 +1,10 @@
+use crate::my_api::m_deepseek::DeepSeekClient;
+use crate::my_api::m_openai::OpenAIClient;
+use crate::my_api::m_qwen::QwenClient;
+use crate::my_api::traits::{APIConfig, ChatCompletionRequest, ChatCompletionResponse, LLMClient};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tauri::async_runtime::RwLock;
-use crate::my_api::traits::{ChatCompletionRequest, ChatCompletionResponse, LLMClient, APIConfig};
-use crate::my_api::m_qwen::QwenClient;
-use crate::my_api::m_deepseek::DeepSeekClient;
-use crate::my_api::m_openai::OpenAIClient;
 
 pub struct APIManager {
     clients: Arc<RwLock<HashMap<String, Box<dyn LLMClient + Send + Sync>>>>,
@@ -40,7 +40,10 @@ impl APIManager {
         current_model.clone()
     }
 
-    pub async fn chat_completion(&self, request: &ChatCompletionRequest) -> Result<ChatCompletionResponse, String> {
+    pub async fn chat_completion(
+        &self,
+        request: &ChatCompletionRequest,
+    ) -> Result<ChatCompletionResponse, String> {
         let current_model = self.current_model.read().await;
         let clients = self.clients.read().await;
 

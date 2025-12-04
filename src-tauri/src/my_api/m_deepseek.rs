@@ -1,4 +1,4 @@
-use crate::my_api::traits::{ChatCompletionRequest, ChatCompletionResponse, LLMClient, APIConfig};
+use crate::my_api::traits::{APIConfig, ChatCompletionRequest, ChatCompletionResponse, LLMClient};
 use tauri_plugin_http::reqwest;
 
 #[derive(Debug)]
@@ -17,7 +17,12 @@ impl DeepSeekClient {
 }
 
 impl LLMClient for DeepSeekClient {
-    fn chat_completion<'a>(&'a self, request: &'a ChatCompletionRequest) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<ChatCompletionResponse, String>> + Send + 'a>> {
+    fn chat_completion<'a>(
+        &'a self,
+        request: &'a ChatCompletionRequest,
+    ) -> std::pin::Pin<
+        Box<dyn std::future::Future<Output = Result<ChatCompletionResponse, String>> + Send + 'a>,
+    > {
         Box::pin(async move {
             let api_url = format!("{}/chat/completions", self.config.base_url);
 
@@ -35,7 +40,10 @@ impl LLMClient for DeepSeekClient {
                 .map_err(|e| format!("Failed to send request: {}", e))?;
 
             if !response.status().is_success() {
-                return Err(format!("API request failed with status: {}", response.status()));
+                return Err(format!(
+                    "API request failed with status: {}",
+                    response.status()
+                ));
             }
 
             let response_text = response

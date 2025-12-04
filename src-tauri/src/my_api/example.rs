@@ -1,11 +1,11 @@
 // Example usage of the multi-model API system
-use crate::my_api::traits::{ChatCompletionRequest, ChatMessage, APIConfig};
+use crate::my_api::traits::{APIConfig, ChatCompletionRequest, ChatMessage};
 
 // This demonstrates how to initialize and use the API manager from Rust code
 #[allow(dead_code)]
 pub async fn example_usage() {
-    use std::collections::HashMap;
     use crate::my_api::manager::create_api_manager;
+    use std::collections::HashMap;
 
     // Create API configurations for different models
     let mut configs = HashMap::new();
@@ -42,7 +42,10 @@ pub async fn example_usage() {
     let api_manager = create_api_manager(configs).await;
 
     // Switch to a specific model
-    api_manager.set_current_model("qwen".to_string()).await.unwrap();
+    api_manager
+        .set_current_model("qwen".to_string())
+        .await
+        .unwrap();
 
     // Create a chat completion request
     let request = ChatCompletionRequest {
