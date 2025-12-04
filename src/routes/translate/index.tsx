@@ -201,7 +201,7 @@ function ChatList({
 }) {
 	return (
 		<ScrollArea className="h-full pl-2 pr-4">
-			<div className="space-y-4">
+			<div className="space-y-4 pt-2">
 				{chatList.map((chat, index) => {
 					const isUser = chat.from === "user";
 					return (
