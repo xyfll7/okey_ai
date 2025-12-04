@@ -1,9 +1,10 @@
-import { IconCheck, IconInfoCircle, IconPlus } from "@tabler/icons-react";
+import { IconPlus } from "@tabler/icons-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
-import { ArrowUpIcon, Pin, Search, SearchIcon, X } from "lucide-react";
+import { ArrowUpIcon, Pin, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -15,39 +16,35 @@ import {
 	InputGroup,
 	InputGroupAddon,
 	InputGroupButton,
-	InputGroupInput,
 	InputGroupText,
 	InputGroupTextarea,
 } from "@/components/ui/input-group";
 import { Separator } from "@/components/ui/separator";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/translate/")({
 	component: RouteComponent,
 });
 
 function RouteComponent() {
-	const [aiResponse, setAiResponse] = useState<string | null>(null);
-	const [originalText, setOriginalText] = useState<string | null>(null);
-	const [error, setError] = useState<string | null>(null);
+	const [chatList, setChatList] = useState<
+		{ from: "slef" | "ai"; content: string }[]
+	>([]);
+	const [originalText, setOriginalText] = useState<string>("");
+	const [selectedText, setSelectedText] = useState<string>("");
 	useEffect(() => {
 		const unlistenResponse = listen<{ content: string; selected_text: string }>(
 			"ai-response",
 			(event) => {
-				setAiResponse(event.payload.content);
+				setChatList((list) => [
+					...list,
+					{ from: "ai", content: event.payload.content },
+				]);
 				setOriginalText(event.payload.selected_text);
-				setError(null);
 			},
 		);
 
 		const unlistenError = listen<string>("ai-error", (event) => {
-			setError(event.payload);
-			setAiResponse(null);
-			setOriginalText(null);
+			setChatList((list) => [...list, { from: "ai", content: event.payload }]);
 		});
 
 		emit("page_loaded", { ok: true });
@@ -59,65 +56,74 @@ function RouteComponent() {
 	return (
 		<div className=" h-screen  flex flex-col">
 			<Header className="" />
-			<div className="flex-1 bg-gray-700_"></div>
-			<div className="px-2">
-				{/* {originalText && (
-					<div className="mt-4">
-						<p className="mt-2 p-2  rounded">{originalText}</p>
-					</div>
-				)}
-				{error ? (
-					<div className="mt-4 p-2   rounded">
-						<h2 className="font-semibold">Error:</h2>
-						<p className="mt-2">{error}</p>
-					</div>
-				) : (
-					<div className="mt-4">
-						<p className="mt-2 p-2  rounded">{aiResponse}</p>
-					</div>
-				)} */}
-				<div className="grid w-full max-w-sm gap-6">
-					<InputGroup className="mb-2">
-						<InputGroupTextarea placeholder="Ask, Search or Chat..."  onMouseMove={(e=> {
-							console.log(e)
-						})} />
-						<InputGroupAddon align="block-end">
-							<InputGroupButton
-								variant="outline"
-								className="rounded-full"
-								size="icon-xs"
-							>
-								<IconPlus />
-							</InputGroupButton>
-							<DropdownMenu>
-								<DropdownMenuTrigger asChild>
-									<InputGroupButton variant="ghost">Auto</InputGroupButton>
-								</DropdownMenuTrigger>
-								<DropdownMenuContent
-									side="top"
-									align="start"
-									className="[--radius:0.95rem]"
-								>
-									<DropdownMenuItem>Auto</DropdownMenuItem>
-									<DropdownMenuItem>Agent</DropdownMenuItem>
-									<DropdownMenuItem>Manual</DropdownMenuItem>
-								</DropdownMenuContent>
-							</DropdownMenu>
-							<InputGroupText className="ml-auto">52% used</InputGroupText>
-							<Separator orientation="vertical" className="h-4!" />
-							<InputGroupButton
-								variant="default"
-								className="rounded-full"
-								size="icon-xs"
-								disabled
-							>
-								<ArrowUpIcon />
-								<span className="sr-only">Send</span>
-							</InputGroupButton>
-						</InputGroupAddon>
-					</InputGroup>
-				
+			<div className="px-2 flex-1 bg-gray-700_ flex flex-col">
+				<div className=" flex-1">
+					{chatList.map((chat, index) => {
+						return (
+							<div key={`ai-response-${chat.from}-${index}`}>
+								{JSON.stringify(chat)}
+							</div>
+						);
+					})}
 				</div>
+				<div className=" mb-2">
+					<Button variant="secondary" size={"sm"} className="rounded-full">
+						{selectedText ? selectedText : "..."}
+					</Button>
+				</div>
+			</div>
+
+			<div className="px-2">
+				<InputGroup className="mb-2">
+					<InputGroupTextarea
+						placeholder="Ask, Search or Chat..."
+						value={originalText}
+						onMouseMove={(e) => {
+							const target = e.target as HTMLTextAreaElement;
+							const selectedText = target.value.substring(
+								target.selectionStart,
+								target.selectionEnd,
+							);
+							if (selectedText) {
+								setSelectedText(selectedText);
+							}
+						}}
+					/>
+					<InputGroupAddon align="block-end">
+						<InputGroupButton
+							variant="outline"
+							className="rounded-full"
+							size="icon-xs"
+						>
+							<IconPlus />
+						</InputGroupButton>
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<InputGroupButton variant="ghost">Auto</InputGroupButton>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent
+								side="top"
+								align="start"
+								className="[--radius:0.95rem]"
+							>
+								<DropdownMenuItem>Auto</DropdownMenuItem>
+								<DropdownMenuItem>Agent</DropdownMenuItem>
+								<DropdownMenuItem>Manual</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
+						<InputGroupText className="ml-auto">52% used</InputGroupText>
+						<Separator orientation="vertical" className="h-4!" />
+						<InputGroupButton
+							variant="default"
+							className="rounded-full"
+							size="icon-xs"
+							disabled
+						>
+							<ArrowUpIcon />
+							<span className="sr-only">Send</span>
+						</InputGroupButton>
+					</InputGroupAddon>
+				</InputGroup>
 			</div>
 		</div>
 	);
@@ -132,10 +138,7 @@ function Header(props: React.ComponentProps<"div">) {
 	}, []);
 	return (
 		<div
-			className={cn(
-				"flex items-center justify-between ",
-				props.className,
-			)}
+			className={cn("flex items-center justify-between ", props.className)}
 			data-tauri-drag-region
 		>
 			<Button
