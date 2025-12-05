@@ -130,7 +130,7 @@ function ChatList({
 	chatList: { from: "user" | "ai"; content: string; timestamp?: Date }[];
 }) {
 	return (
-		<ScrollArea className="h-full pl-2 pr-4">
+		<ScrollArea className="h-full px-2">
 			<div className="space-y-2 pt-2">
 				{chatList.map((chat, index) => {
 					const isUser = chat.from === "user";
@@ -186,10 +186,7 @@ function Inputer({
 					className=" max-h-40 scrollbar-hide"
 					placeholder="Ask, Search or Chat..."
 					value={value}
-					onChange={(e) => {
-						console.log("ccccc",e.target.value === "\n", e.target.value === "\n\n", e.target.value === "");
-						onChange(e.target.value);
-					}}
+					onChange={(e) => onChange(e.target.value)}
 					onMouseMove={(e) => {
 						const target = e.target as HTMLTextAreaElement;
 						const selectedText = target.value.substring(
@@ -200,8 +197,9 @@ function Inputer({
 							onSelect(selectedText);
 						}
 					}}
-					onKeyDown={(e)=> {
-						console.log("keydown",JSON.stringify(e))
+					onKeyDown={(e) => {
+						if (e.key === "Enter") {
+						}
 					}}
 				/>
 				<InputGroupAddon align="block-end">
