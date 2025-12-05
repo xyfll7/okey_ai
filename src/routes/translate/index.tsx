@@ -198,7 +198,12 @@ function Inputer({
 						}
 					}}
 					onKeyDown={(e) => {
-						if (e.key === "Enter") {
+						if (e.key === "Enter" && e.ctrlKey === false) {
+							invoke("chat", { message: value });
+							onChange("")
+							console.log("111111",e)
+						} else {
+							console.log("fasfasfdasdf",e)
 						}
 					}}
 				/>

@@ -1,13 +1,12 @@
 use selection::get_text;
 use std::sync::Mutex;
-use tauri::{AppHandle, Emitter, Manager, State, async_runtime};
+use tauri::{async_runtime, AppHandle, Emitter, Manager, State};
 
 use crate::{
     my_api::{
         commands::GlobalAPIManager,
         traits::{ChatCompletionRequest, ChatMessage},
     },
-    my_utils::detect_language,
     my_windows::create_or_show_main_window,
     AppState,
 };
@@ -50,37 +49,17 @@ pub fn close_main_window(app: AppHandle) -> Result<(), String> {
 }
 
 #[tauri::command]
-fn translate_selected_text(app_handle: AppHandle) {
-    let selected_text = get_text();
-
+pub fn chat(app_handle: AppHandle, message: String) {
     let app_handle = app_handle.clone();
+    let _message = message.clone(); // Clone the message before it gets moved
     async_runtime::spawn(async move {
         let api_manager_state = app_handle.state::<GlobalAPIManager>();
-
-        let detected_lang = detect_language(&selected_text);
-
-        let translation_prompt = match detected_lang {
-            "chinese" => format!("请将以下中文文本翻译成英文：\n\n{}", selected_text),
-            "english" => format!(
-                "Please translate the following English text into Chinese: \n\n{}",
-                selected_text
-            ),
-            _ => format!("请分析以下文本并给出总结：\n\n{}", selected_text),
-        };
-
         let request = ChatCompletionRequest {
             model: "qwen-plus".to_string(),
-            messages: vec![
-                ChatMessage {
-                    role: "system".to_string(),
-                    content: "你是一个专业的翻译助手。请准确地进行语言翻译，保持原文的含义和语气。"
-                        .to_string(),
-                },
-                ChatMessage {
-                    role: "user".to_string(),
-                    content: translation_prompt,
-                },
-            ],
+            messages: vec![ChatMessage {
+                role: "user".to_string(),
+                content: message, // message is moved here
+            }],
             temperature: Some(0.1),
             max_tokens: Some(500),
             top_p: Some(1.0),
@@ -91,14 +70,14 @@ fn translate_selected_text(app_handle: AppHandle) {
             Ok(response) => {
                 if let Some(choice) = response.choices.first() {
                     let content = choice.message.content.clone(); // Clone the content to own it
-                    let selected_text = selected_text.clone(); // Clone the selected_text to own it
+                    let _message = _message; // Use the pre-cloned selected_text
                     let app_handle_clone = app_handle.clone();
                     create_or_show_main_window(
                         &app_handle,
                         Some(move || {
                             let response_data = serde_json::json!({
                                 "content": content,
-                                "selected_text": selected_text
+                                "message": _message
                             });
                             let _ = app_handle_clone.emit("ai-response", response_data);
                         }),

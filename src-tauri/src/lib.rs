@@ -32,6 +32,7 @@ pub fn run() {
             my_command::toggle_auto_close_window,
             my_command::get_auto_close_window_state,
             my_command::close_main_window,
+            my_command::chat,
             crate::my_api::commands::initialize_api_manager,
             crate::my_api::commands::switch_model,
             crate::my_api::commands::get_current_model,
