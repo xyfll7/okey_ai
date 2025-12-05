@@ -1,6 +1,6 @@
-use crate::my_utils;
 use crate::my_api::commands::GlobalAPIManager;
 use crate::my_api::traits::{ChatCompletionRequest, ChatMessage};
+use crate::my_utils;
 use crate::my_windows::create_or_show_main_window;
 use selection::get_text;
 use serde_json;
@@ -49,7 +49,12 @@ pub fn setup_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>
 
 fn translate_selected_text(app_handle: &AppHandle) {
     let selected_text = get_text();
-
+    let input_data = serde_json::json!({
+           "input_time_stamp": "",
+           "input_text": selected_text
+    });
+    let input_data_clone = input_data.clone();
+    let _ = app_handle.emit("selected_text", input_data);
     let app_handle = app_handle.clone();
     async_runtime::spawn(async move {
         let api_manager_state = app_handle.state::<GlobalAPIManager>();
@@ -87,15 +92,14 @@ fn translate_selected_text(app_handle: &AppHandle) {
         match crate::my_api::commands::chat_completion(request, api_manager_state).await {
             Ok(response) => {
                 if let Some(choice) = response.choices.first() {
-                    let content = choice.message.content.clone(); // Clone the content to own it
-                    let selected_text = selected_text.clone(); // Clone the selected_text to own it
+                    let content = choice.message.content.clone();
                     let app_handle_clone = app_handle.clone();
                     create_or_show_main_window(
                         &app_handle,
                         Some(move || {
                             let response_data = serde_json::json!({
                                 "response_text": content,
-                                "input_text": selected_text
+                                "input_data": input_data_clone
                             });
                             let _ = app_handle_clone.emit("ai_response", response_data);
                         }),
@@ -119,4 +123,3 @@ fn translate_selected_text(app_handle: &AppHandle) {
 fn handle_ctrl_1(app_handle: &AppHandle) {
     let _ = app_handle.emit("global-shortcut-pressed", "open_settings");
 }
-
