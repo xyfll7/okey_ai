@@ -27,7 +27,6 @@ export const Route = createFileRoute("/translate/")({
 });
 
 function RouteComponent() {
-	console.log("Render Translate Route:::", ostype());
 	const [chatList, setChatList] = useState<
 		{ from: "user" | "ai"; content: string; timestamp?: Date }[]
 	>([]);
@@ -59,73 +58,21 @@ function RouteComponent() {
 		};
 	}, []);
 	return (
-		<div className="h-screen max-h-screen flex flex-col ">
+		<div className="h-screen max-h-screen max-w-screen flex-coh">
 			<Header className="" />
-			<div className=" flex-1 bg-gray-700_   h-full flex flex-col overflow-hidden ">
-				<div className="mb-2 h-full flex flex-col overflow-hidden">
+			<div className=" flex-1 bg-gray-700_  h-full flex-coh">
+				<div className="mb-2 h-full flex-coh">
 					<ChatList chatList={chatList}></ChatList>
-				</div>
-				<div className="px-2 mb-2">
-					<Button variant="secondary" size={"sm"} className="rounded-full">
-						{selectedText ? selectedText : "..."}
-					</Button>
 				</div>
 			</div>
 
 			<div className="px-2">
-				<InputGroup className="mb-2">
-					<InputGroupTextarea
-						placeholder="Ask, Search or Chat..."
-						value={originalText}
-						onChange={(e) => {
-							setOriginalText(e.target.value);
-						}}
-						onMouseMove={(e) => {
-							const target = e.target as HTMLTextAreaElement;
-							const selectedText = target.value.substring(
-								target.selectionStart,
-								target.selectionEnd,
-							);
-							if (selectedText) {
-								setSelectedText(selectedText);
-							}
-						}}
-					/>
-					<InputGroupAddon align="block-end">
-						<InputGroupButton
-							variant="outline"
-							className="rounded-full"
-							size="icon-xs"
-						>
-							<IconPlus />
-						</InputGroupButton>
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<InputGroupButton variant="ghost">Auto</InputGroupButton>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent
-								side="top"
-								align="start"
-								className="[--radius:0.95rem]"
-							>
-								<DropdownMenuItem>Auto</DropdownMenuItem>
-								<DropdownMenuItem>Agent</DropdownMenuItem>
-								<DropdownMenuItem>Manual</DropdownMenuItem>
-							</DropdownMenuContent>
-						</DropdownMenu>
-						<InputGroupText className="ml-auto">52% used</InputGroupText>
-						<Separator orientation="vertical" className="h-4!" />
-						<InputGroupButton
-							variant="default"
-							className="rounded-full"
-							size="icon-xs"
-							disabled
-						>
-							<ArrowUpIcon />
-							<span className="sr-only">Send</span>
-						</InputGroupButton>
-					</InputGroupAddon>
-				</InputGroup>
+				<Inputer
+					selectedText={selectedText}
+					value={originalText}
+					onChange={setOriginalText}
+					onSelect={setSelectedText}
+				/>
 			</div>
 		</div>
 	);
@@ -192,7 +139,12 @@ function ChatList({
 							key={`chat-${chat.from}-${index}`}
 							className={`flex w-full ${isUser ? "justify-end" : "justify-start"}`}
 						>
-							<div className={cn("flex flex-col ", isUser ? "items-end" : "items-start")}>
+							<div
+								className={cn(
+									"flex flex-col ",
+									isUser ? "items-end" : "items-start",
+								)}
+							>
 								<div
 									className={`rounded-lg px-2 py-2 ${
 										isUser
@@ -208,5 +160,85 @@ function ChatList({
 				})}
 			</div>
 		</ScrollArea>
+	);
+}
+
+function Inputer({
+	value,
+	selectedText,
+	onChange,
+	onSelect,
+}: {
+	value: string;
+	selectedText: string;
+	onChange: (value: string) => void;
+	onSelect: (value: string) => void;
+}) {
+	return (
+		<>
+			<div className="mb-2">
+				<Button variant="secondary" size={"sm"} className="rounded-full">
+					{selectedText ? selectedText : "..."}
+				</Button>
+			</div>
+			<InputGroup className="mb-2">
+				<InputGroupTextarea
+					className=" max-h-40 scrollbar-hide"
+					placeholder="Ask, Search or Chat..."
+					value={value}
+					onChange={(e) => {
+						console.log("ccccc",e.target.value === "\n", e.target.value === "\n\n", e.target.value === "");
+						onChange(e.target.value);
+					}}
+					onMouseMove={(e) => {
+						const target = e.target as HTMLTextAreaElement;
+						const selectedText = target.value.substring(
+							target.selectionStart,
+							target.selectionEnd,
+						);
+						if (selectedText) {
+							onSelect(selectedText);
+						}
+					}}
+					onKeyDown={(e)=> {
+						console.log("keydown",JSON.stringify(e))
+					}}
+				/>
+				<InputGroupAddon align="block-end">
+					<InputGroupButton
+						variant="outline"
+						className="rounded-full"
+						size="icon-xs"
+					>
+						<IconPlus />
+					</InputGroupButton>
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<InputGroupButton variant="ghost">Auto</InputGroupButton>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent
+							side="top"
+							align="start"
+							className="[--radius:0.95rem]"
+						>
+							<DropdownMenuItem>Auto</DropdownMenuItem>
+							<DropdownMenuItem>Agent</DropdownMenuItem>
+							<DropdownMenuItem>Manual</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
+					<InputGroupText className="ml-auto">52% used</InputGroupText>
+					<Separator orientation="vertical" className="h-4!" />
+					<InputGroupButton
+						variant="default"
+						className="rounded-full"
+						size="icon-xs"
+						disabled
+					>
+						<ArrowUpIcon />
+						<span className="sr-only">Send</span>
+					</InputGroupButton>
+				</InputGroupAddon>
+			</InputGroup>
+		</>
 	);
 }
