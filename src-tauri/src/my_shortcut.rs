@@ -2,8 +2,8 @@ use crate::my_api::commands::GlobalAPIManager;
 use crate::my_api::traits::{ChatCompletionRequest, ChatMessage};
 use crate::my_utils;
 use crate::my_windows::create_or_show_main_window;
+use crate::types::InputData;
 use selection::get_text;
-use serde_json;
 use tauri::{async_runtime, AppHandle, Emitter, Manager};
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
 
@@ -49,12 +49,13 @@ pub fn setup_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>
 
 fn translate_selected_text(app_handle: &AppHandle) {
     let selected_text = get_text();
-    let input_data = serde_json::json!({
-           "input_time_stamp": "",
-           "input_text": selected_text
-    });
+    let input_data = InputData {
+        input_time_stamp: "".to_string(),
+        input_text: selected_text.clone(),
+        response_text: None,
+    };
     let input_data_clone = input_data.clone();
-    let _ = app_handle.emit("selected_text", input_data);
+    let _ = app_handle.emit("selected_text", &input_data);
     let app_handle = app_handle.clone();
     async_runtime::spawn(async move {
         let api_manager_state = app_handle.state::<GlobalAPIManager>();
@@ -97,11 +98,9 @@ fn translate_selected_text(app_handle: &AppHandle) {
                     create_or_show_main_window(
                         &app_handle,
                         Some(move || {
-                            let response_data = serde_json::json!({
-                                "response_text": content,
-                                "input_data": input_data_clone
-                            });
-                            let _ = app_handle_clone.emit("ai_response", response_data);
+                            let mut input_data_with_response = input_data_clone;
+                            input_data_with_response.response_text = Some(content);
+                            let _ = app_handle_clone.emit("ai_response", &input_data_with_response);
                         }),
                     );
                 }

@@ -5,6 +5,7 @@ mod my_shortcut;
 mod my_tray;
 mod my_utils;
 mod my_windows;
+mod types;
 
 use std::sync::{Arc, Mutex};
 use tauri::async_runtime::RwLock;
