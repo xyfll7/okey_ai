@@ -3,6 +3,7 @@ mod my_command;
 mod my_reqwest;
 mod my_shortcut;
 mod my_tray;
+mod my_utils;
 mod my_windows;
 
 use std::sync::{Arc, Mutex};

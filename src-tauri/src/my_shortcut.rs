@@ -1,3 +1,4 @@
+use crate::my_utils;
 use crate::my_api::commands::GlobalAPIManager;
 use crate::my_api::traits::{ChatCompletionRequest, ChatMessage};
 use crate::my_windows::create_or_show_main_window;
@@ -17,13 +18,13 @@ pub fn setup_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>
     app.plugin(
         tauri_plugin_global_shortcut::Builder::new()
             .with_handler(
-                move |app: &AppHandle, shortcut, event| match event.state() {
+                move |_app: &AppHandle, shortcut, event| match event.state() {
                     ShortcutState::Pressed => match shortcut {
                         s if s == &shortcut_0_clone => {
-                            handle_ctrl_u(app, &app_handle);
+                            translate_selected_text(&app_handle);
                         }
                         s if s == &shortcut_1_clone => {
-                            handle_ctrl_i(app, &app_handle);
+                            handle_ctrl_1(&app_handle);
                         }
                         _ => {}
                     },
@@ -46,14 +47,14 @@ pub fn setup_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>
     Ok(())
 }
 
-fn handle_ctrl_u(_app: &AppHandle, app_handle: &AppHandle) {
+fn translate_selected_text(app_handle: &AppHandle) {
     let selected_text = get_text();
 
     let app_handle = app_handle.clone();
     async_runtime::spawn(async move {
         let api_manager_state = app_handle.state::<GlobalAPIManager>();
 
-        let detected_lang = detect_language(&selected_text);
+        let detected_lang = my_utils::detect_language(&selected_text);
 
         let translation_prompt = match detected_lang {
             "chinese" => format!("请将以下中文文本翻译成英文：\n\n{}", selected_text),
@@ -115,32 +116,7 @@ fn handle_ctrl_u(_app: &AppHandle, app_handle: &AppHandle) {
     });
 }
 
-fn handle_ctrl_i(_app: &AppHandle, app_handle: &AppHandle) {
-    println!("快捷键 Ctrl+I 被按下");
-    let text = get_text();
-    println!("选中的文本: {}", text);
+fn handle_ctrl_1(app_handle: &AppHandle) {
     let _ = app_handle.emit("global-shortcut-pressed", "open_settings");
 }
 
-fn detect_language(text: &str) -> &'static str {
-    let chinese_chars = text
-        .chars()
-        .filter(|c| {
-            (*c as u32) >= 0x4e00 && (*c as u32) <= 0x9fff // 基本汉字范围
-        })
-        .count();
-
-    let total_chars = text.chars().filter(|c| !c.is_whitespace()).count();
-
-    if total_chars == 0 {
-        return "unknown";
-    }
-
-    let chinese_ratio = chinese_chars as f64 / total_chars as f64;
-    if chinese_ratio > 0.3 {
-        // 如果超过30%的字符是中文，则认为是中文
-        "chinese"
-    } else {
-        "english"
-    }
-}
