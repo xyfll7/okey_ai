@@ -1,5 +1,3 @@
-/** biome-ignore-all lint/a11y/useSemanticElements: <explanation> */
-/** biome-ignore-all lint/a11y/useKeyWithClickEvents: <explanation> */
 import { cva, type VariantProps } from "class-variance-authority"
 import type * as React from "react"
 import { Button } from "@/components/ui/button"
