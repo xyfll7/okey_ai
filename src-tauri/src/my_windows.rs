@@ -41,6 +41,7 @@ where
                 .skip_taskbar(true)
                 .always_on_top(true)
                 .background_color(Color(0, 0, 0, 0))
+                .min_inner_size(350.0, 500.0)
                 .inner_size(400.0, 500.0);
 
         #[cfg(target_os = "macos")]
