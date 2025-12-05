@@ -49,12 +49,12 @@ pub fn close_main_window(app: AppHandle) -> Result<(), String> {
         .map_err(|e| format!("Failed to close window: {}", e))
 }
 
-#[tauri::command]
-pub fn chat(app_handle: AppHandle, input_data: InputData) {
-    let app_handle = app_handle.clone();
+#[tauri::command(rename_all = "snake_case")]
+pub fn chat(app: AppHandle, input_data: InputData) {
+    let app_clone = app.clone();
     let input_text_clone = input_data.input_text.clone(); // Clone the input_text before it gets moved
     async_runtime::spawn(async move {
-        let api_manager_state = app_handle.state::<GlobalAPIManager>();
+        let api_manager_state = app_clone.state::<GlobalAPIManager>();
         let request = ChatCompletionRequest {
             model: "qwen-plus".to_string(),
             messages: vec![ChatMessage {
@@ -71,9 +71,9 @@ pub fn chat(app_handle: AppHandle, input_data: InputData) {
             Ok(response) => {
                 if let Some(choice) = response.choices.first() {
                     let content = choice.message.content.clone(); // Clone the content to own it
-                    let app_handle_clone = app_handle.clone();
+                    let app_handle_clone = app_clone.clone();
                     create_or_show_main_window(
-                        &app_handle,
+                        &app_clone,
                         Some(move || {
                             let input_data = InputData {
                                 input_time_stamp: input_data.input_time_stamp.clone(),
@@ -86,12 +86,12 @@ pub fn chat(app_handle: AppHandle, input_data: InputData) {
                 }
             }
             Err(e) => {
-                let app_handle_clone = app_handle.clone();
+                let app_clone_clone = app_clone.clone();
                 let error_msg = e.to_string();
                 create_or_show_main_window(
-                    &app_handle,
+                    &app_clone,
                     Some(move || {
-                        let _ = app_handle_clone.emit("ai-error", error_msg);
+                        let _ = app_clone_clone.emit("ai-error", error_msg);
                     }),
                 );
             }

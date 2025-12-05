@@ -21,34 +21,43 @@ import {
 } from "@/components/ui/input-group";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import type { InputData } from "@/lib/types";
 import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/translate/")({
 	component: RouteComponent,
 });
 
 function RouteComponent() {
-	const [chatList, setChatList] = useState<
-		{ from: "user" | "ai"; response_text: string; timestamp?: Date }[]
-	>([]);
-	const [originalText, setOriginalText] = useState<string>("");
+	const [chatList, setChatList] = useState<InputData[]>([]);
+
 	const [selectedText, setSelectedText] = useState<string>("");
 	useEffect(() => {
-		const unlistenResponse = listen<{ response_text: string; selected_text: string }>(
-			"ai_response",
-			(event) => {
-				setChatList((list) => [
-					...list,
-					{ from: "ai", response_text: event.payload.response_text, timestamp: new Date() },
-				]);
-				setOriginalText(event.payload.selected_text);
-			},
-		);
+		const unlistenResponse = listen<InputData>("ai_response", ({ payload }) => {
+			setChatList((list) => {
+				const existingIndex = list.findIndex(
+					(item) =>
+						item.input_time_stamp === payload.input_time_stamp &&
+						item.input_text === payload.input_text,
+				);
+
+				if (existingIndex !== -1) {
+					const updatedList = [...list];
+					updatedList[existingIndex] = payload;
+					return updatedList;
+				} else {
+					return [...list, payload];
+				}
+			});
+		});
 
 		const unlistenError = listen<string>("ai-error", (event) => {
-			setChatList((list) => [
-				...list,
-				{ from: "ai", response_text: event.payload, timestamp: new Date() },
-			]);
+			// Handle error by adding an error message to the chat list
+			const errorPayload: InputData = {
+				input_time_stamp: Date.now().toString(),
+				input_text: "Error occurred",
+				response_text: event.payload,
+			};
+			setChatList((list) => [...list, errorPayload]);
 		});
 
 		emit("page_loaded", { ok: true });
@@ -60,18 +69,29 @@ function RouteComponent() {
 	return (
 		<div className="h-screen max-h-screen max-w-screen flex-coh">
 			<Header className="" />
-			<div className=" flex-1 bg-gray-700_  h-full flex-coh">
-				<div className="mb-2 h-full flex-coh">
-					<ChatList chatList={chatList}></ChatList>
-				</div>
+			<div className="mb-2 h-full flex-coh">
+				<ChatList chatList={chatList}></ChatList>
 			</div>
-
+			<div className="px-2 mb-2">
+				<Button variant="secondary" size={"sm"} className="rounded-full">
+					{selectedText ? selectedText : "..."}
+				</Button>
+			</div>
 			<div className="px-2">
 				<Inputer
-					selectedText={selectedText}
-					value={originalText}
-					onChange={setOriginalText}
-					onSelect={setSelectedText}
+					onEnter={(e) => {
+						setChatList((list) => [
+							...list,
+							{
+								input_time_stamp: Date.now().toString(),
+								input_text: e,
+								response_text: "",
+							},
+						]);
+					}}
+					onSelect={(e) => {
+						setSelectedText(e);
+					}}
 				/>
 			</div>
 		</div>
@@ -124,35 +144,24 @@ function Header(props: React.ComponentProps<"div">) {
 	);
 }
 
-function ChatList({
-	chatList,
-}: {
-	chatList: { from: "user" | "ai"; response_text: string; timestamp?: Date }[];
-}) {
+function ChatList({ chatList }: { chatList: InputData[] }) {
 	return (
 		<ScrollArea className="h-full px-2">
 			<div className="space-y-2 pt-2">
 				{chatList.map((chat, index) => {
-					const isUser = chat.from === "user";
 					return (
 						<div
-							key={`chat-${chat.from}-${index}`}
-							className={`flex w-full ${isUser ? "justify-end" : "justify-start"}`}
+							key={`chat-${chat.input_time_stamp}-${index}`}
+							className={`flex w-full justify-start`}
 						>
-							<div
-								className={cn(
-									"flex flex-col ",
-									isUser ? "items-end" : "items-start",
-								)}
-							>
+							<div className={cn("flex flex-col ", "items-start")}>
 								<div
-									className={`rounded-lg px-2 py-2 ${
-										isUser
-											? "bg-muted text-muted-foreground rounded-br-md"
-											: "text-muted-foreground rounded-bl-md"
-									}`}
+									className={`rounded-lg px-2 py-2 text-muted-foreground rounded-bl-md`}
 								>
-									<div className="text-sm">{chat.response_text}</div>
+									<div className="text-sm">{chat.input_text}</div>
+									<div className="text-sm">
+										{chat.response_text ? chat.response_text : "..."}
+									</div>
 								</div>
 							</div>
 						</div>
@@ -164,97 +173,90 @@ function ChatList({
 }
 
 function Inputer({
-	value,
-	selectedText,
-	onChange,
+	onEnter,
 	onSelect,
 }: {
-	value: string;
-	selectedText: string;
-	onChange: (value: string) => void;
-	onSelect: (value: string) => void;
+	onEnter: (message: string) => void;
+	onSelect: (message: string) => void;
 }) {
+	const [value, setValue] = useState("");
 	return (
-		<>
-			<div className="mb-2">
-				<Button variant="secondary" size={"sm"} className="rounded-full">
-					{selectedText ? selectedText : "..."}
-				</Button>
-			</div>
-			<InputGroup className="mb-2">
-				<InputGroupTextarea
-					className=" max-h-40 scrollbar-hide"
-					placeholder="Ask, Search or Chat..."
-					value={value}
-					onChange={(e) => onChange(e.target.value)}
-					onMouseMove={(e) => {
+		<InputGroup className="mb-2">
+			<InputGroupTextarea
+				className=" max-h-40 scrollbar-hide"
+				placeholder="Ask, Search or Chat..."
+				value={value}
+				onChange={(e) => setValue(e.target.value)}
+				onMouseMove={(e) => {
+					const target = e.target as HTMLTextAreaElement;
+					const selectedText = target.value.substring(
+						target.selectionStart,
+						target.selectionEnd,
+					);
+					if (selectedText) {
+						onSelect(selectedText);
+					}
+				}}
+				onKeyDown={async (e) => {
+					if (e.key === "Enter" && !e.ctrlKey) {
+						e.preventDefault();
+						onEnter(value);
+						await invoke("chat", {
+							input_data: {
+								input_time_stamp: Date.now().toString(),
+								input_text: value,
+								response_text: null,
+							},
+						});
+						setValue("");
+					}
+					if (e.key === "Enter" && e.ctrlKey) {
 						const target = e.target as HTMLTextAreaElement;
-						const selectedText = target.value.substring(
-							target.selectionStart,
-							target.selectionEnd,
-						);
-						if (selectedText) {
-							onSelect(selectedText);
-						}
-					}}
-					onKeyDown={(e) => {
-						if (e.key === "Enter" && !e.ctrlKey) {
-							e.preventDefault(); // Prevent adding a newline
-							invoke("chat", { message: value });
-							onChange("");
-						} else if (e.key === "Enter" && e.ctrlKey) {
-							// Add a newline when Ctrl+Enter is pressed
-							const target = e.target as HTMLTextAreaElement;
-							const start = target.selectionStart;
-							const end = target.selectionEnd;
-							const newValue = `${value.substring(0, start)}\n${value.substring(end)}`;
-							onChange(newValue);
-							// Move cursor to after the inserted newline
-							setTimeout(() => {
-								target.selectionStart = target.selectionEnd = start + 1;
-							}, 0);
-							e.preventDefault();
-							console.log("Ctrl+Enter pressed - added newline", e);
-						} else {
-							console.log("fasfasfdasdf", e);
-						}
-					}}
-				/>
-				<InputGroupAddon align="block-end">
-					<InputGroupButton
-						variant="outline"
-						className="rounded-full"
-						size="icon-xs"
+						const start = target.selectionStart;
+						const end = target.selectionEnd;
+						const newValue = `${value.substring(0, start)}\n${value.substring(end)}`;
+						setValue(newValue);
+						setTimeout(() => {
+							target.selectionStart = target.selectionEnd = start + 1;
+						}, 0);
+						e.preventDefault();
+					}
+				}}
+			/>
+			<InputGroupAddon align="block-end">
+				<InputGroupButton
+					variant="outline"
+					className="rounded-full"
+					size="icon-xs"
+				>
+					<IconPlus />
+				</InputGroupButton>
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<InputGroupButton variant="ghost">Auto</InputGroupButton>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent
+						side="top"
+						align="start"
+						className="[--radius:0.95rem]"
 					>
-						<IconPlus />
-					</InputGroupButton>
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<InputGroupButton variant="ghost">Auto</InputGroupButton>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent
-							side="top"
-							align="start"
-							className="[--radius:0.95rem]"
-						>
-							<DropdownMenuItem>Auto</DropdownMenuItem>
-							<DropdownMenuItem>Agent</DropdownMenuItem>
-							<DropdownMenuItem>Manual</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
-					<InputGroupText className="ml-auto">52% used</InputGroupText>
-					<Separator orientation="vertical" className="h-4!" />
-					<InputGroupButton
-						variant="default"
-						className="rounded-full"
-						size="icon-xs"
-						disabled
-					>
-						<ArrowUpIcon />
-						<span className="sr-only">Send</span>
-					</InputGroupButton>
-				</InputGroupAddon>
-			</InputGroup>
-		</>
+						<DropdownMenuItem>Auto</DropdownMenuItem>
+						<DropdownMenuItem>Agent</DropdownMenuItem>
+						<DropdownMenuItem>Manual</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
+				<InputGroupText className="ml-auto">52% used</InputGroupText>
+				<Separator orientation="vertical" className="h-4!" />
+				<InputGroupButton
+					variant="default"
+					className="rounded-full"
+					size="icon-xs"
+					disabled
+				>
+					<ArrowUpIcon />
+					<span className="sr-only">Send</span>
+				</InputGroupButton>
+			</InputGroupAddon>
+		</InputGroup>
 	);
 }

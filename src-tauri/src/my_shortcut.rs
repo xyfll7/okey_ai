@@ -60,7 +60,7 @@ fn translate_selected_text(app_handle: &AppHandle) {
         response_text: None,
     };
     let input_data_clone = input_data.clone();
-    let _ = app_handle.emit("selected_text", &input_data);
+    let _ = app_handle.emit("ai_response", &input_data);
     let app_handle = app_handle.clone();
     async_runtime::spawn(async move {
         let api_manager_state = app_handle.state::<GlobalAPIManager>();
