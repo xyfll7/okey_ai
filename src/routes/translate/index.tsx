@@ -198,12 +198,25 @@ function Inputer({
 						}
 					}}
 					onKeyDown={(e) => {
-						if (e.key === "Enter" && e.ctrlKey === false) {
+						if (e.key === "Enter" && !e.ctrlKey) {
+							e.preventDefault(); // Prevent adding a newline
 							invoke("chat", { message: value });
-							onChange("")
-							console.log("111111",e)
+							onChange("");
+						} else if (e.key === "Enter" && e.ctrlKey) {
+							// Add a newline when Ctrl+Enter is pressed
+							const target = e.target as HTMLTextAreaElement;
+							const start = target.selectionStart;
+							const end = target.selectionEnd;
+							const newValue = `${value.substring(0, start)}\n${value.substring(end)}`;
+							onChange(newValue);
+							// Move cursor to after the inserted newline
+							setTimeout(() => {
+								target.selectionStart = target.selectionEnd = start + 1;
+							}, 0);
+							e.preventDefault();
+							console.log("Ctrl+Enter pressed - added newline", e);
 						} else {
-							console.log("fasfasfdasdf",e)
+							console.log("fasfasfdasdf", e);
 						}
 					}}
 				/>
