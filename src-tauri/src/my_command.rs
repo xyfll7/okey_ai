@@ -8,6 +8,7 @@ use crate::{
         traits::{ChatCompletionRequest, ChatMessage},
     },
     my_windows::create_or_show_main_window,
+    types::InputData,
     AppState,
 };
 
@@ -49,16 +50,16 @@ pub fn close_main_window(app: AppHandle) -> Result<(), String> {
 }
 
 #[tauri::command]
-pub fn chat(app_handle: AppHandle, message: String) {
+pub fn chat(app_handle: AppHandle, input_data: InputData) {
     let app_handle = app_handle.clone();
-    let _message = message.clone(); // Clone the message before it gets moved
+    let input_text_clone = input_data.input_text.clone(); // Clone the input_text before it gets moved
     async_runtime::spawn(async move {
         let api_manager_state = app_handle.state::<GlobalAPIManager>();
         let request = ChatCompletionRequest {
             model: "qwen-plus".to_string(),
             messages: vec![ChatMessage {
                 role: "user".to_string(),
-                content: message, // message is moved here
+                content: input_text_clone, // Use the cloned value
             }],
             temperature: Some(0.1),
             max_tokens: Some(500),
@@ -70,16 +71,16 @@ pub fn chat(app_handle: AppHandle, message: String) {
             Ok(response) => {
                 if let Some(choice) = response.choices.first() {
                     let content = choice.message.content.clone(); // Clone the content to own it
-                    let _message = _message; // Use the pre-cloned selected_text
                     let app_handle_clone = app_handle.clone();
                     create_or_show_main_window(
                         &app_handle,
                         Some(move || {
-                            let response_data = serde_json::json!({
-                                "response_text": content,
-                                "input_text": _message
-                            });
-                            let _ = app_handle_clone.emit("ai_response", response_data);
+                            let input_data = InputData {
+                                input_time_stamp: input_data.input_time_stamp.clone(),
+                                input_text: input_data.input_text.clone(),
+                                response_text: Some(content),
+                            };
+                            let _ = app_handle_clone.emit("ai_response", input_data);
                         }),
                     );
                 }
