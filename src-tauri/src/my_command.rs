@@ -76,10 +76,10 @@ pub fn chat(app_handle: AppHandle, message: String) {
                         &app_handle,
                         Some(move || {
                             let response_data = serde_json::json!({
-                                "content": content,
-                                "message": _message
+                                "response_text": content,
+                                "input_text": _message
                             });
-                            let _ = app_handle_clone.emit("ai-response", response_data);
+                            let _ = app_handle_clone.emit("ai_response", response_data);
                         }),
                     );
                 }

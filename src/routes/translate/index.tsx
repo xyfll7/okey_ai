@@ -28,17 +28,17 @@ export const Route = createFileRoute("/translate/")({
 
 function RouteComponent() {
 	const [chatList, setChatList] = useState<
-		{ from: "user" | "ai"; content: string; timestamp?: Date }[]
+		{ from: "user" | "ai"; response_text: string; timestamp?: Date }[]
 	>([]);
 	const [originalText, setOriginalText] = useState<string>("");
 	const [selectedText, setSelectedText] = useState<string>("");
 	useEffect(() => {
-		const unlistenResponse = listen<{ content: string; selected_text: string }>(
-			"ai-response",
+		const unlistenResponse = listen<{ response_text: string; selected_text: string }>(
+			"ai_response",
 			(event) => {
 				setChatList((list) => [
 					...list,
-					{ from: "ai", content: event.payload.content, timestamp: new Date() },
+					{ from: "ai", response_text: event.payload.response_text, timestamp: new Date() },
 				]);
 				setOriginalText(event.payload.selected_text);
 			},
@@ -47,7 +47,7 @@ function RouteComponent() {
 		const unlistenError = listen<string>("ai-error", (event) => {
 			setChatList((list) => [
 				...list,
-				{ from: "ai", content: event.payload, timestamp: new Date() },
+				{ from: "ai", response_text: event.payload, timestamp: new Date() },
 			]);
 		});
 
@@ -127,7 +127,7 @@ function Header(props: React.ComponentProps<"div">) {
 function ChatList({
 	chatList,
 }: {
-	chatList: { from: "user" | "ai"; content: string; timestamp?: Date }[];
+	chatList: { from: "user" | "ai"; response_text: string; timestamp?: Date }[];
 }) {
 	return (
 		<ScrollArea className="h-full px-2">
@@ -152,7 +152,7 @@ function ChatList({
 											: "text-muted-foreground rounded-bl-md"
 									}`}
 								>
-									<div className="text-sm">{chat.content}</div>
+									<div className="text-sm">{chat.response_text}</div>
 								</div>
 							</div>
 						</div>

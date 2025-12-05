@@ -94,10 +94,10 @@ fn translate_selected_text(app_handle: &AppHandle) {
                         &app_handle,
                         Some(move || {
                             let response_data = serde_json::json!({
-                                "content": content,
-                                "selected_text": selected_text
+                                "response_text": content,
+                                "input_text": selected_text
                             });
-                            let _ = app_handle_clone.emit("ai-response", response_data);
+                            let _ = app_handle_clone.emit("ai_response", response_data);
                         }),
                     );
                 }
