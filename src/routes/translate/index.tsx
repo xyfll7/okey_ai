@@ -4,7 +4,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
 import { type as ostype } from "@tauri-apps/plugin-os";
 import { ArrowUpIcon, Pin, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -19,10 +19,10 @@ import {
 	InputGroupText,
 	InputGroupTextarea,
 } from "@/components/ui/input-group";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import type { InputData } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { ChatList } from "./components/ChatList";
 export const Route = createFileRoute("/translate/")({
 	component: RouteComponent,
 });
@@ -150,59 +150,6 @@ function Header(props: React.ComponentProps<"div">) {
 	);
 }
 
-function ChatList({
-	chatList,
-	onSelect,
-}: {
-	chatList: InputData[];
-	onSelect: (message: string) => void;
-}) {
-	const messagesEndRef = useRef<HTMLDivElement>(null);
-
-	function extractSelectedText() {
-		const selectedText = window.getSelection()?.toString().trim();
-		if (selectedText) {
-			onSelect(selectedText);
-		}
-	}
-
-	useEffect(() => {
-		void chatList;
-		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-	}, [chatList]);
-
-	return (
-		<ScrollArea className="h-full px-2">
-			<div
-				role="none"
-				className="space-y-2 pt-2"
-				onMouseUp={extractSelectedText}
-				onMouseMove={extractSelectedText}
-			>
-				{chatList.map((chat, index) => {
-					return (
-						<div
-							key={`chat-${chat.input_time_stamp}-${index}`}
-							className={`flex w-full justify-start`}
-						>
-							<div className={cn("flex flex-col ", "items-start")}>
-								<div
-									className={`rounded-lg px-2 py-2 text-muted-foreground rounded-bl-md`}
-								>
-									<div className="text-sm mb-2">{chat.input_text}</div>
-									<div className="text-sm">
-										{chat.response_text ? chat.response_text : "..."}
-									</div>
-								</div>
-							</div>
-						</div>
-					);
-				})}
-				<div ref={messagesEndRef} />
-			</div>
-		</ScrollArea>
-	);
-}
 
 function Inputer({
 	onEnter,
