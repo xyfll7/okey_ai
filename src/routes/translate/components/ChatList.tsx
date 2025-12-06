@@ -1,3 +1,4 @@
+import Markdown from "markdown-to-jsx";
 import { useEffect, useRef } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { InputData } from "@/lib/types";
@@ -44,7 +45,11 @@ export function ChatList({
 								>
 									<div className="text-sm mb-2">{chat.input_text}</div>
 									<div className="text-sm">
-										{chat.response_text ? chat.response_text : "..."}
+										{chat.response_text ? (
+											<Markdown>{chat.response_text}</Markdown>
+										) : (
+											"..."
+										)}
 									</div>
 								</div>
 							</div>
