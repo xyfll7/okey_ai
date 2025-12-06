@@ -167,7 +167,7 @@ function ChatList({
 	}
 
 	useEffect(() => {
-		void chatList; 
+		void chatList;
 		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 	}, [chatList]);
 
@@ -225,7 +225,12 @@ function Inputer({
 	return (
 		<InputGroup className="mb-2">
 			<InputGroupTextarea
-				className=" max-h-40 scrollbar-hide"
+				className={cn(
+					"max-h-40 scrollbar-hide",
+					"[&::-webkit-scrollbar]:hidden",
+					"[scrollbar-width:none]",
+					"[ms-overflow-style:none]",
+				)}
 				placeholder="Ask, Search or Chat..."
 				value={value}
 				onChange={(e) => setValue(e.target.value)}
