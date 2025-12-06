@@ -70,11 +70,17 @@ function RouteComponent() {
 		<div className="h-screen max-h-screen max-w-screen flex-coh">
 			<Header className="" />
 			<div className="mb-2 h-full flex-coh">
-				<ChatList chatList={chatList}></ChatList>
+				<ChatList chatList={chatList} onSelect={setSelectedText}></ChatList>
 			</div>
 			<div className="px-2 mb-2">
-				<Button variant="secondary" size={"sm"} className="rounded-full">
-					{selectedText ? selectedText : "..."}
+				<Button
+					variant="secondary"
+					size={"sm"}
+					className="rounded-full max-w-1/4 "
+				>
+					<span className="truncate">
+						{selectedText ? selectedText : "..."}
+					</span>
 				</Button>
 			</div>
 			<div className="px-2">
@@ -144,10 +150,27 @@ function Header(props: React.ComponentProps<"div">) {
 	);
 }
 
-function ChatList({ chatList }: { chatList: InputData[] }) {
+function ChatList({
+	chatList,
+	onSelect,
+}: {
+	chatList: InputData[];
+	onSelect: (message: string) => void;
+}) {
+	function extractSelectedText() {
+		const selectedText = window.getSelection()?.toString().trim();
+		if (selectedText) {
+			onSelect(selectedText);
+		}
+	}
 	return (
 		<ScrollArea className="h-full px-2">
-			<div className="space-y-2 pt-2">
+			<div
+				role="none"
+				className="space-y-2 pt-2"
+				onMouseUp={extractSelectedText}
+				onMouseMove={extractSelectedText}
+			>
 				{chatList.map((chat, index) => {
 					return (
 						<div
@@ -158,7 +181,7 @@ function ChatList({ chatList }: { chatList: InputData[] }) {
 								<div
 									className={`rounded-lg px-2 py-2 text-muted-foreground rounded-bl-md`}
 								>
-									<div className="text-sm">{chat.input_text}</div>
+									<div className="text-sm mb-2">{chat.input_text}</div>
 									<div className="text-sm">
 										{chat.response_text ? chat.response_text : "..."}
 									</div>
@@ -180,6 +203,16 @@ function Inputer({
 	onSelect: (message: string) => void;
 }) {
 	const [value, setValue] = useState("");
+	const extractSelectedText = (e: React.MouseEvent<HTMLTextAreaElement>) => {
+		const target = e.target as HTMLTextAreaElement;
+		const selectedText = target.value.substring(
+			target.selectionStart,
+			target.selectionEnd,
+		);
+		if (selectedText.trim()) {
+			onSelect(selectedText.trim());
+		}
+	};
 	return (
 		<InputGroup className="mb-2">
 			<InputGroupTextarea
@@ -187,16 +220,8 @@ function Inputer({
 				placeholder="Ask, Search or Chat..."
 				value={value}
 				onChange={(e) => setValue(e.target.value)}
-				onMouseMove={(e) => {
-					const target = e.target as HTMLTextAreaElement;
-					const selectedText = target.value.substring(
-						target.selectionStart,
-						target.selectionEnd,
-					);
-					if (selectedText) {
-						onSelect(selectedText);
-					}
-				}}
+				onMouseUp={extractSelectedText}
+				onMouseMove={extractSelectedText}
 				onKeyDown={async (e) => {
 					if (e.key === "Enter" && !e.ctrlKey) {
 						e.preventDefault();
