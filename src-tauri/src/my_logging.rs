@@ -1,10 +1,11 @@
 use log::{Level, Metadata};
 
-/// Custom log filter function to handle specific logging rules
 pub fn log_filter(metadata: &Metadata) -> bool {
-    if metadata.target() == "tao::platform_impl::platform::event_loop::runner" {
-        metadata.level() <= Level::Error
+    if metadata.level() == Level::Warn
+        && metadata.target() == "tao::platform_impl::platform::event_loop::runner"
+    {
+        false
     } else {
-        metadata.level() <= Level::Info
+        true
     }
 }
