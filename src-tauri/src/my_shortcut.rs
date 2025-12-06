@@ -50,6 +50,7 @@ pub fn setup_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>
 
 fn translate_selected_text(app_handle: &AppHandle) {
     let selected_text = get_text();
+    println!("selected_text: {}", selected_text);
     let input_data = InputData {
         input_time_stamp: SystemTime::now()
             .duration_since(UNIX_EPOCH)
