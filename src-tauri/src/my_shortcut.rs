@@ -2,7 +2,7 @@ use crate::my_api::commands::GlobalAPIManager;
 use crate::my_api::traits::{ChatCompletionRequest, ChatMessage};
 use crate::my_utils;
 use crate::my_windows::create_or_show_main_window;
-use crate::types::InputData;
+use crate::my_types::InputData;
 use selection::get_text;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::{async_runtime, AppHandle, Emitter, Manager};

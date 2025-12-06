@@ -1,3 +1,4 @@
+mod my_logging;
 mod my_api;
 mod my_command;
 mod my_reqwest;
@@ -5,7 +6,7 @@ mod my_shortcut;
 mod my_tray;
 mod my_utils;
 mod my_windows;
-mod types;
+mod my_types;
 
 use std::sync::{Arc, Mutex};
 use tauri::async_runtime::RwLock;
@@ -45,6 +46,7 @@ pub fn run() {
                 app.handle().plugin(
                     tauri_plugin_log::Builder::default()
                         .level(log::LevelFilter::Info)
+                        .filter(crate::my_logging::log_filter)
                         .build(),
                 )?;
             }

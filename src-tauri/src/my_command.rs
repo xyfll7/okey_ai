@@ -8,7 +8,7 @@ use crate::{
         traits::{ChatCompletionRequest, ChatMessage},
     },
     my_windows::create_or_show_main_window,
-    types::InputData,
+    my_types::InputData,
     AppState,
 };
 
