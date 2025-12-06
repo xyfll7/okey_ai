@@ -1,10 +1,11 @@
-import { IconPlus } from "@tabler/icons-react";
+import { IconCheck, IconCopy, IconPlus } from "@tabler/icons-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
 import { type as ostype } from "@tauri-apps/plugin-os";
 import { ArrowUpIcon, Pin, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { DIVButton } from "@/components/DIVButton";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -16,6 +17,7 @@ import {
 	InputGroup,
 	InputGroupAddon,
 	InputGroupButton,
+	InputGroupInput,
 	InputGroupText,
 	InputGroupTextarea,
 } from "@/components/ui/input-group";
@@ -73,15 +75,14 @@ function RouteComponent() {
 				<ChatList chatList={chatList} onSelect={setSelectedText}></ChatList>
 			</div>
 			<div className="px-2 mb-2">
-				<Button
-					variant="secondary"
+				<DIVButton
+					asChild
+					variant="outline"
 					size={"sm"}
-					className="rounded-full max-w-1/4 "
+					className="max-w-full"
 				>
-					<span className="truncate">
-						{selectedText ? selectedText : "..."}
-					</span>
-				</Button>
+					<div className="">{selectedText ? selectedText : "..."}</div>
+				</DIVButton>
 			</div>
 			<div className="px-2">
 				<Inputer
@@ -150,7 +151,6 @@ function Header(props: React.ComponentProps<"div">) {
 	);
 }
 
-
 function Inputer({
 	onEnter,
 	onSelect,
@@ -209,6 +209,11 @@ function Inputer({
 					}
 				}}
 			/>
+			<InputGroupAddon align="block-start">
+				<DIVButton variant="outline" size="sm" className="select-text">
+					fasdfasfasdfasdFASDFSAFASDF
+				</DIVButton>
+			</InputGroupAddon>
 			<InputGroupAddon align="block-end">
 				<InputGroupButton
 					variant="outline"
