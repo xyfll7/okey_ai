@@ -89,7 +89,7 @@ where
                         if {
                             let state = state_handle.state::<Mutex<AppState>>();
                             let state_guard = state.lock().unwrap();
-                            state_guard.auto_close_window
+                            !state_guard.auto_close_window
                         } {
                             _win.destroy().ok();
                         }

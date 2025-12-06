@@ -29,7 +29,6 @@ pub fn get_selection_text() -> String {
 pub fn toggle_auto_close_window(state: State<'_, Mutex<AppState>>) -> bool {
     let mut app_state = state.lock().unwrap();
     app_state.auto_close_window = !app_state.auto_close_window;
-    println!("auto_close_window: {}", app_state.auto_close_window);
     app_state.auto_close_window
 }
 

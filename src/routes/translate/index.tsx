@@ -133,7 +133,7 @@ function Header(props: React.ComponentProps<"div">) {
 			>
 				<Pin
 					size={"1rem"}
-					className={pin ? "" : "text-green-300 dark:text-green-200"}
+					className={cn(pin && "text-green-300 dark:text-green-200")}
 				/>
 			</Button>
 			{_ostype === "windows" && (
