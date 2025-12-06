@@ -4,7 +4,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
 import { type as ostype } from "@tauri-apps/plugin-os";
 import { ArrowUpIcon, Pin, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -157,12 +157,20 @@ function ChatList({
 	chatList: InputData[];
 	onSelect: (message: string) => void;
 }) {
+	const messagesEndRef = useRef<HTMLDivElement>(null);
+
 	function extractSelectedText() {
 		const selectedText = window.getSelection()?.toString().trim();
 		if (selectedText) {
 			onSelect(selectedText);
 		}
 	}
+
+	useEffect(() => {
+		void chatList; 
+		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+	}, [chatList]);
+
 	return (
 		<ScrollArea className="h-full px-2">
 			<div
@@ -190,6 +198,7 @@ function ChatList({
 						</div>
 					);
 				})}
+				<div ref={messagesEndRef} />
 			</div>
 		</ScrollArea>
 	);
