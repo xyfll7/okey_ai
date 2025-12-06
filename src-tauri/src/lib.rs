@@ -1,12 +1,12 @@
-mod my_logging;
 mod my_api;
 mod my_command;
+mod my_logging;
 mod my_reqwest;
 mod my_shortcut;
 mod my_tray;
+mod my_types;
 mod my_utils;
 mod my_windows;
-mod my_types;
 
 use std::sync::{Arc, Mutex};
 use tauri::async_runtime::RwLock;
@@ -35,6 +35,7 @@ pub fn run() {
             my_command::get_auto_close_window_state,
             my_command::close_main_window,
             my_command::chat,
+            my_command::detect_language,
             crate::my_api::commands::initialize_api_manager,
             crate::my_api::commands::switch_model,
             crate::my_api::commands::get_current_model,
