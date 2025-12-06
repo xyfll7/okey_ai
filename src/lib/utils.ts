@@ -6,12 +6,13 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export async function speak(text: string) {
+	console.log("speak", text);
 	if ("speechSynthesis" in window) {
 		const utterance = new SpeechSynthesisUtterance(text);
 		utterance.rate = 1.0; // 语速
 		utterance.pitch = 1.0; // 音调
 		utterance.volume = 1.0; // 音量
-		utterance.lang = await invoke<"en-US"|"zh-CN">("detect_language") ; // 语言
+		utterance.lang = await invoke<"en-US"|"zh-CN">("detect_language",{text}) ; // 语言
 		speechSynthesis.speak(utterance);
 	} else {
 		console.error("浏览器不支持 TTS");

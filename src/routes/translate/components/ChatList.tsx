@@ -1,8 +1,9 @@
+import { Volume2 } from "lucide-react";
 import Markdown from "markdown-to-jsx";
 import { useEffect, useRef } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { InputData } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { cn, speak } from "@/lib/utils";
 
 export function ChatList({
 	chatList,
@@ -43,7 +44,17 @@ export function ChatList({
 								<div
 									className={`rounded-lg px-2 py-2 text-muted-foreground rounded-bl-md`}
 								>
-									<div className="text-sm mb-2">{chat.input_text}</div>
+									<div className="mb-2">
+										<div className="inline text-sm">
+											<span className="mr-1 ">{chat.input_text}</span>
+											<Volume2
+												size={"0.875rem"}
+												className="inline translate-y-[-0.8px] text-gray-500 hover:text-gray-700 cursor-pointer"
+												onClick={()=> { speak(chat.input_text); }}
+											/>
+										</div>
+									</div>
+
 									<div className="text-sm">
 										{chat.response_text ? (
 											<Markdown>{chat.response_text}</Markdown>
