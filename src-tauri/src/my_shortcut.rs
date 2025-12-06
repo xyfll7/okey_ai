@@ -1,8 +1,8 @@
 use crate::my_api::commands::GlobalAPIManager;
 use crate::my_api::traits::{ChatCompletionRequest, ChatMessage};
+use crate::my_types::InputData;
 use crate::my_utils;
 use crate::my_windows::create_or_show_main_window;
-use crate::my_types::InputData;
 use selection::get_text;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::{async_runtime, AppHandle, Emitter, Manager};
@@ -69,8 +69,8 @@ fn translate_selected_text(app_handle: &AppHandle) {
         let detected_lang = my_utils::detect_language(&selected_text);
 
         let translation_prompt = match detected_lang {
-            "chinese" => format!("请将以下中文文本翻译成英文：\n\n{}", selected_text),
-            "english" => format!(
+            "zh-CN" => format!("请将以下中文文本翻译成英文：\n\n{}", selected_text),
+            "en-US" => format!(
                 "Please translate the following English text into Chinese: \n\n{}",
                 selected_text
             ),
