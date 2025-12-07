@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
 import { type as ostype } from "@tauri-apps/plugin-os";
-import { ArrowUpIcon, Pin, Volume2, X } from "lucide-react";
+import { ArrowUpIcon, Pin, Volume2, VolumeOff, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -107,12 +107,13 @@ function RouteComponent() {
 
 function Header(props: React.ComponentProps<"div">) {
 	const [pin, setPin] = useState(false);
+	const [autoSpeak, setAutoSpeak] = useState(false);
 	useEffect(() => {
-		invoke<boolean>("get_auto_close_window_state").then((res) => {
-			setPin(res);
-		});
+		invoke<boolean>("get_auto_close_window_state").then((res) => setPin(res));
+		invoke<boolean>("get_auto_speak_state").then((res) => setAutoSpeak(res));
 	}, []);
 	const _ostype = ostype();
+
 	return (
 		<div
 			className={cn(
@@ -124,19 +125,31 @@ function Header(props: React.ComponentProps<"div">) {
 			)}
 			data-tauri-drag-region
 		>
-			<Button
-				size="icon-sm"
-				variant="ghost"
-				className="opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
-				onClick={async () =>
-					setPin(await invoke<boolean>("toggle_auto_close_window"))
-				}
-			>
-				<Pin
-					size={"1rem"}
-					className={cn(pin && "text-green-300 dark:text-green-200")}
-				/>
-			</Button>
+			<div>
+				<Button
+					size="icon-sm"
+					variant="ghost"
+					className="opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
+					onClick={async () =>
+						setPin(await invoke<boolean>("toggle_auto_close_window"))
+					}
+				>
+					<Pin
+						size={"1rem"}
+						className={cn(pin && "text-green-300 dark:text-green-200")}
+					/>
+				</Button>
+				<Button
+					size="icon-sm"
+					variant="ghost"
+					className=" opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
+					onClick={async () =>
+						setAutoSpeak(await invoke<boolean>("toggle_auto_speak"))
+					}
+				>
+					{autoSpeak ? <Volume2 size={"1rem"} /> : <VolumeOff size={"1rem"} />}
+				</Button>
+			</div>
 			{_ostype === "windows" && (
 				<Button
 					size={"icon-sm"}

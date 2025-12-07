@@ -45,8 +45,6 @@ pub fn setup_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>
         Ok(()) => println!("快捷键 Ctrl+I 注册成功"),
         Err(e) => eprintln!("快捷键 Ctrl+I 注册失败: {:?}", e),
     }
-
-    println!("快捷键注册完成");
     Ok(())
 }
 
