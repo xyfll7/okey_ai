@@ -114,6 +114,22 @@ function Header(props: React.ComponentProps<"div">) {
 	}, []);
 	const _ostype = ostype();
 
+	const pinButton = (
+		<Button
+			size="icon-sm"
+			variant="ghost"
+			className="opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
+			onClick={async () =>
+				setPin(await invoke<boolean>("toggle_auto_close_window"))
+			}
+		>
+			<Pin
+				size={"1rem"}
+				className={cn(pin && "text-green-300 dark:text-green-200")}
+			/>
+		</Button>
+	);
+
 	return (
 		<div
 			className={cn(
@@ -126,19 +142,7 @@ function Header(props: React.ComponentProps<"div">) {
 			data-tauri-drag-region
 		>
 			<div>
-				<Button
-					size="icon-sm"
-					variant="ghost"
-					className="opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
-					onClick={async () =>
-						setPin(await invoke<boolean>("toggle_auto_close_window"))
-					}
-				>
-					<Pin
-						size={"1rem"}
-						className={cn(pin && "text-green-300 dark:text-green-200")}
-					/>
-				</Button>
+				{_ostype === "windows" && pinButton}
 				<Button
 					size="icon-sm"
 					variant="ghost"
@@ -149,6 +153,7 @@ function Header(props: React.ComponentProps<"div">) {
 				>
 					{autoSpeak ? <Volume2 size={"1rem"} /> : <VolumeOff size={"1rem"} />}
 				</Button>
+				{_ostype === "macos" && pinButton}
 			</div>
 			{_ostype === "windows" && (
 				<Button
