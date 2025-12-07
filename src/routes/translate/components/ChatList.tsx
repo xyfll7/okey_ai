@@ -57,9 +57,7 @@ export function ChatList({
 												<span className="mr-1 ">{chat.input_text}</span>
 												<Volume2
 													className="inline translate-y-[-0.8px] text-gray-500 hover:text-gray-700"
-													onClick={() => {
-														speak(chat.input_text);
-													}}
+													onClick={() => speak(chat.input_text)}
 												/>
 											</div>
 										</div>

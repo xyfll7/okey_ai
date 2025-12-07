@@ -1,6 +1,6 @@
 mod my_api;
 mod my_command;
-mod events;
+mod my_events;
 mod my_logging;
 mod my_reqwest;
 mod my_shortcut;

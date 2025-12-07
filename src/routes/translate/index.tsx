@@ -26,38 +26,42 @@ import { EVENT_NAMES } from "@/lib/events";
 import type { InputData } from "@/lib/types";
 import { cn, speak } from "@/lib/utils";
 import { ChatList } from "./components/ChatList";
+
 export const Route = createFileRoute("/translate/")({
 	component: RouteComponent,
 });
 
 function RouteComponent() {
 	const [chatList, setChatList] = useState<InputData[]>([]);
-
 	const [selectedText, setSelectedText] = useState<string>("");
 	useEffect(() => {
-		const unlistenResponse = listen<InputData>(EVENT_NAMES.AI_RESPONSE, ({ payload }) => {
-			setChatList((list) => {
-				const existingIndex = list.findIndex(
-					(item) =>
-						item.input_time_stamp === payload.input_time_stamp &&
-						item.input_text === payload.input_text,
-				);
+		const unlistenSpeak = listen<InputData>(
+			EVENT_NAMES.AUTO_SPEAK,
+			({ payload }) => {
+				speak(payload.input_text);
+			},
+		);
+		const unlistenResponse = listen<InputData>(
+			EVENT_NAMES.AI_RESPONSE,
+			({ payload }) => {
+				setChatList((list) => {
+					const existingIndex = list.findIndex(
+						(item) =>
+							item.input_time_stamp === payload.input_time_stamp &&
+							item.input_text === payload.input_text,
+					);
 
-				if (existingIndex !== -1) {
-					const updatedList = [...list];
-					updatedList[existingIndex] = payload;
-					if (payload.input_text) {
-						speak(payload.input_text);
+					if (existingIndex !== -1) {
+						const updatedList = [...list];
+						updatedList[existingIndex] = payload;
+						return updatedList;
+					} else {
+						return [...list, payload];
 					}
-					return updatedList;
-				} else {
-					return [...list, payload];
-				}
-			});
-		});
-
+				});
+			},
+		);
 		const unlistenError = listen<string>(EVENT_NAMES.AI_ERROR, (event) => {
-			// Handle error by adding an error message to the chat list
 			const errorPayload: InputData = {
 				input_time_stamp: Date.now().toString(),
 				input_text: "Error occurred",
@@ -65,9 +69,9 @@ function RouteComponent() {
 			};
 			setChatList((list) => [...list, errorPayload]);
 		});
-
 		emit(EVENT_NAMES.PAGE_LOADED, { ok: true });
 		return () => {
+			unlistenSpeak.then((fn) => fn());
 			unlistenResponse.then((fn) => fn());
 			unlistenError.then((fn) => fn());
 		};
@@ -207,16 +211,17 @@ function Inputer({
 					}
 				}}
 			/>
-			<InputGroupAddon align="block-start" className="">
-				<div className="[&_svg:not([class*='size-'])]:size-4 [&_svg]:cursor-pointer">
-					<div className="">
-						<span className={cn("mr-1", { " opacity-50": !selectedText })}>
-							{selectedText ? selectedText : "用鼠标选中需要翻译的文本"}
-						</span>
-
+			<InputGroupAddon align="block-start" className=" flex">
+				<div className="w-full [&_svg:not([class*='size-'])]:size-4 [&_svg]:cursor-pointer">
+					<div className="w-full flex items-center">
+						<div className="max-w-full truncate overflow-hidden">
+							<span className={cn("mr-1", { "opacity-50": !selectedText })}>
+								{selectedText ? selectedText : "用鼠标选中需要翻译的文本"}
+							</span>
+						</div>
 						{selectedText?.trim() && (
 							<Volume2
-								className="inline translate-y-[-0.8px] text-gray-500 hover:text-gray-700"
+								className="inline translate-y-[0.8px] min-w-4  text-gray-500 hover:text-gray-700"
 								onClick={() => {
 									if (!selectedText) return;
 									speak(selectedText);
@@ -224,13 +229,11 @@ function Inputer({
 							/>
 						)}
 					</div>
+
 					{selectedText?.trim() && (
 						<div className=" flex  flex-wrap">
 							<KbdGroup className=" flex-wrap">
-								{[
-									"单词详解",
-									"在句中的含义",
-								].map((i) => (
+								{["单词详解", "在句中的含义"].map((i) => (
 									<Kbd
 										key={i}
 										className="mt-1 cursor-pointer! mr-1 rounded-full pointer-events-auto text-nowrap"

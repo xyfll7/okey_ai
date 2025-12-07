@@ -7,7 +7,7 @@ use tauri::{
     window::Color, AppHandle, Listener, Manager, Runtime, WebviewUrl, WebviewWindowBuilder,
 };
 
-use crate::{events::event_names, AppState};
+use crate::{my_events::event_names, AppState};
 
 pub fn create_or_show_about_window<R: Runtime>(app: &AppHandle<R>) {
     if let Some(window) = app.get_webview_window("about") {

@@ -1,6 +1,6 @@
 use crate::my_api::commands::GlobalAPIManager;
 use crate::my_api::traits::{ChatCompletionRequest, ChatMessage};
-use crate::events::event_names;
+use crate::my_events::event_names;
 use crate::my_types::InputData;
 use crate::my_utils;
 use crate::my_windows::create_or_show_main_window;
@@ -65,6 +65,7 @@ fn translate_selected_text(app_handle: &AppHandle) {
         response_text: None,
     };
     let input_data_clone = input_data.clone();
+    let _ = app_handle.emit(event_names::AUTO_SPEAK, &input_data);
     let _ = app_handle.emit(event_names::AI_RESPONSE, &input_data);
     let app_handle = app_handle.clone();
     async_runtime::spawn(async move {
@@ -110,7 +111,8 @@ fn translate_selected_text(app_handle: &AppHandle) {
                         Some(move || {
                             let mut input_data_with_response = input_data_clone;
                             input_data_with_response.response_text = Some(content);
-                            let _ = app_handle_clone.emit(event_names::AI_RESPONSE, &input_data_with_response);
+                            let _ = app_handle_clone
+                                .emit(event_names::AI_RESPONSE, &input_data_with_response);
                         }),
                     );
                 }

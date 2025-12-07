@@ -7,7 +7,7 @@ use crate::{
         commands::GlobalAPIManager,
         traits::{ChatCompletionRequest, ChatMessage},
     },
-    events::event_names,
+    my_events::event_names,
     my_types, my_utils, my_windows, AppState,
 };
 
