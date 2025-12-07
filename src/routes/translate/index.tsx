@@ -39,7 +39,10 @@ function RouteComponent() {
 		const unlistenSpeak = listen<InputData>(
 			EVENT_NAMES.AUTO_SPEAK,
 			({ payload }) => {
-				speak(payload.input_text);
+				invoke<boolean>("get_auto_speak_state").then((res) => {
+					setSelectedText(payload.input_text);
+					res && speak(payload.input_text); 
+				});
 			},
 		);
 		const unlistenResponse = listen<InputData>(

@@ -4,9 +4,7 @@ use crate::my_events::event_names;
 use crate::my_types::InputData;
 use crate::my_utils;
 use crate::my_windows::create_or_show_main_window;
-use crate::AppState;
 use selection::get_text;
-use std::sync::Mutex;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::{async_runtime, AppHandle, Emitter, Manager};
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
@@ -65,14 +63,7 @@ fn translate_selected_text(app_handle: &AppHandle) {
     };
     let input_data_clone = input_data.clone();
 
-    if {
-        let state = app_handle.state::<Mutex<AppState>>();
-        let state_guard = state.lock().unwrap();
-        state_guard.auto_speak
-    } {
-        let _ = app_handle.emit(event_names::AUTO_SPEAK, &input_data);
-    }
-
+    let _ = app_handle.emit(event_names::AUTO_SPEAK, &input_data);
     let _ = app_handle.emit(event_names::AI_RESPONSE, &input_data);
     let app_handle = app_handle.clone();
     async_runtime::spawn(async move {
