@@ -7,7 +7,7 @@ use tauri::{
     window::Color, AppHandle, Listener, Manager, Runtime, WebviewUrl, WebviewWindowBuilder,
 };
 
-use crate::AppState;
+use crate::{events::event_names, AppState};
 
 pub fn create_or_show_about_window<R: Runtime>(app: &AppHandle<R>) {
     if let Some(window) = app.get_webview_window("about") {
@@ -59,7 +59,7 @@ where
             window.show().ok();
             window.set_focus().ok();
             let callback_for_listener = Arc::new(Mutex::new(callback)).clone();
-            window.listen("page_loaded", move |_event| {
+            window.listen(event_names::PAGE_LOADED, move |_event| {
                 // Execute the callback function if provided, right after the print statement
                 if let Ok(mut cb_option) = callback_for_listener.lock() {
                     if let Some(cb) = cb_option.take() {

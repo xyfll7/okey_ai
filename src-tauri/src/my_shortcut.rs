@@ -1,5 +1,6 @@
 use crate::my_api::commands::GlobalAPIManager;
 use crate::my_api::traits::{ChatCompletionRequest, ChatMessage};
+use crate::events::event_names;
 use crate::my_types::InputData;
 use crate::my_utils;
 use crate::my_windows::create_or_show_main_window;
@@ -64,7 +65,7 @@ fn translate_selected_text(app_handle: &AppHandle) {
         response_text: None,
     };
     let input_data_clone = input_data.clone();
-    let _ = app_handle.emit("ai_response", &input_data);
+    let _ = app_handle.emit(event_names::AI_RESPONSE, &input_data);
     let app_handle = app_handle.clone();
     async_runtime::spawn(async move {
         let api_manager_state = app_handle.state::<GlobalAPIManager>();
@@ -109,7 +110,7 @@ fn translate_selected_text(app_handle: &AppHandle) {
                         Some(move || {
                             let mut input_data_with_response = input_data_clone;
                             input_data_with_response.response_text = Some(content);
-                            let _ = app_handle_clone.emit("ai_response", &input_data_with_response);
+                            let _ = app_handle_clone.emit(event_names::AI_RESPONSE, &input_data_with_response);
                         }),
                     );
                 }
@@ -120,7 +121,7 @@ fn translate_selected_text(app_handle: &AppHandle) {
                 create_or_show_main_window(
                     &app_handle,
                     Some(move || {
-                        let _ = app_handle_clone.emit("ai-error", error_msg);
+                        let _ = app_handle_clone.emit(event_names::AI_ERROR, error_msg);
                     }),
                 );
             }
@@ -129,5 +130,5 @@ fn translate_selected_text(app_handle: &AppHandle) {
 }
 
 fn handle_ctrl_1(app_handle: &AppHandle) {
-    let _ = app_handle.emit("global-shortcut-pressed", "open_settings");
+    let _ = app_handle.emit(event_names::GLOBAL_SHORTCUT_PRESSED, "open_settings");
 }

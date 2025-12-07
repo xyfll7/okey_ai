@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/input-group";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { Separator } from "@/components/ui/separator";
+import { EVENT_NAMES } from "@/lib/events";
 import type { InputData } from "@/lib/types";
 import { cn, speak } from "@/lib/utils";
 import { ChatList } from "./components/ChatList";
@@ -34,7 +35,7 @@ function RouteComponent() {
 
 	const [selectedText, setSelectedText] = useState<string>("");
 	useEffect(() => {
-		const unlistenResponse = listen<InputData>("ai_response", ({ payload }) => {
+		const unlistenResponse = listen<InputData>(EVENT_NAMES.AI_RESPONSE, ({ payload }) => {
 			setChatList((list) => {
 				const existingIndex = list.findIndex(
 					(item) =>
@@ -45,6 +46,9 @@ function RouteComponent() {
 				if (existingIndex !== -1) {
 					const updatedList = [...list];
 					updatedList[existingIndex] = payload;
+					if (payload.input_text) {
+						speak(payload.input_text);
+					}
 					return updatedList;
 				} else {
 					return [...list, payload];
@@ -52,7 +56,7 @@ function RouteComponent() {
 			});
 		});
 
-		const unlistenError = listen<string>("ai-error", (event) => {
+		const unlistenError = listen<string>(EVENT_NAMES.AI_ERROR, (event) => {
 			// Handle error by adding an error message to the chat list
 			const errorPayload: InputData = {
 				input_time_stamp: Date.now().toString(),
@@ -62,7 +66,7 @@ function RouteComponent() {
 			setChatList((list) => [...list, errorPayload]);
 		});
 
-		emit("page_loaded", { ok: true });
+		emit(EVENT_NAMES.PAGE_LOADED, { ok: true });
 		return () => {
 			unlistenResponse.then((fn) => fn());
 			unlistenError.then((fn) => fn());
@@ -206,30 +210,37 @@ function Inputer({
 			<InputGroupAddon align="block-start" className="">
 				<div className="[&_svg:not([class*='size-'])]:size-4 [&_svg]:cursor-pointer">
 					<div className="">
-						<span className={cn("mr-1", { " opacity-50": !selectedText })}>{selectedText ? selectedText : "用鼠标选中需要翻译的文本"}</span>
-						
-						{ selectedText?.trim() && <Volume2
-							className="inline translate-y-[-0.8px] text-gray-500 hover:text-gray-700"
-							onClick={() => {
-								if (!selectedText) return;
-								speak(selectedText);
-							}}
-						/>}
+						<span className={cn("mr-1", { " opacity-50": !selectedText })}>
+							{selectedText ? selectedText : "用鼠标选中需要翻译的文本"}
+						</span>
+
+						{selectedText?.trim() && (
+							<Volume2
+								className="inline translate-y-[-0.8px] text-gray-500 hover:text-gray-700"
+								onClick={() => {
+									if (!selectedText) return;
+									speak(selectedText);
+								}}
+							/>
+						)}
 					</div>
-					{selectedText?.trim() && 
-					<div className=" flex  flex-wrap">
-						<KbdGroup className=" flex-wrap">
-							{["单词详解", "在句中的含义", "在句中的含义", "在句中的含义", "在句中的含义", "在句中的含义", "在句中的含义",].map((i) => (
-								<Kbd
-									key={i}
-									className="mt-1 cursor-pointer! mr-1 rounded-full pointer-events-auto text-nowrap"
-								>
-									{i}
-								</Kbd>
-							))}
-						</KbdGroup>
-					</div>
-					}
+					{selectedText?.trim() && (
+						<div className=" flex  flex-wrap">
+							<KbdGroup className=" flex-wrap">
+								{[
+									"单词详解",
+									"在句中的含义",
+								].map((i) => (
+									<Kbd
+										key={i}
+										className="mt-1 cursor-pointer! mr-1 rounded-full pointer-events-auto text-nowrap"
+									>
+										{i}
+									</Kbd>
+								))}
+							</KbdGroup>
+						</div>
+					)}
 				</div>
 			</InputGroupAddon>
 			<InputGroupAddon align="block-end">

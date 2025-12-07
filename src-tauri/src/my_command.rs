@@ -7,6 +7,7 @@ use crate::{
         commands::GlobalAPIManager,
         traits::{ChatCompletionRequest, ChatMessage},
     },
+    events::event_names,
     my_types, my_utils, my_windows, AppState,
 };
 
@@ -77,7 +78,7 @@ pub fn chat(app: AppHandle, input_data: my_types::InputData) {
                                 input_text: input_data.input_text.clone(),
                                 response_text: Some(content),
                             };
-                            let _ = app_handle_clone.emit("ai_response", input_data);
+                            let _ = app_handle_clone.emit(event_names::AI_RESPONSE, input_data);
                         }),
                     );
                 }
@@ -88,7 +89,7 @@ pub fn chat(app: AppHandle, input_data: my_types::InputData) {
                 my_windows::create_or_show_main_window(
                     &app_clone,
                     Some(move || {
-                        let _ = app_clone_clone.emit("ai-error", error_msg);
+                        let _ = app_clone_clone.emit(event_names::AI_ERROR, error_msg);
                     }),
                 );
             }
