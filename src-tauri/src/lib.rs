@@ -16,6 +16,7 @@ use tauri::async_runtime::RwLock;
 #[derive(Default)]
 pub struct AppState {
     pub auto_close_window: bool,
+    pub auto_speak: bool,
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -34,6 +35,8 @@ pub fn run() {
             my_command::get_selection_text,
             my_command::toggle_auto_close_window,
             my_command::get_auto_close_window_state,
+            my_command::toggle_auto_speak,
+            my_command::get_auto_speak_state,
             my_command::close_main_window,
             my_command::chat,
             my_command::detect_language,

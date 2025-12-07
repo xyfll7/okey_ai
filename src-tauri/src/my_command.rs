@@ -25,19 +25,6 @@ pub fn get_selection_text() -> String {
 }
 
 #[tauri::command]
-pub fn toggle_auto_close_window(state: State<'_, Mutex<AppState>>) -> bool {
-    let mut app_state = state.lock().unwrap();
-    app_state.auto_close_window = !app_state.auto_close_window;
-    app_state.auto_close_window
-}
-
-#[tauri::command]
-pub fn get_auto_close_window_state(state: State<'_, Mutex<AppState>>) -> bool {
-    let app_state = state.lock().unwrap();
-    app_state.auto_close_window
-}
-
-#[tauri::command]
 pub fn close_main_window(app: AppHandle) -> Result<(), String> {
     let window = app
         .get_webview_window("main")
@@ -101,4 +88,32 @@ pub fn chat(app: AppHandle, input_data: my_types::InputData) {
 pub fn detect_language(text: &str) -> String {
     let language = my_utils::detect_language(text);
     language.to_string()
+}
+
+// 全局状态对应的命令
+
+#[tauri::command]
+pub fn toggle_auto_close_window(state: State<'_, Mutex<AppState>>) -> bool {
+    let mut app_state = state.lock().unwrap();
+    app_state.auto_close_window = !app_state.auto_close_window;
+    app_state.auto_close_window
+}
+
+#[tauri::command]
+pub fn get_auto_close_window_state(state: State<'_, Mutex<AppState>>) -> bool {
+    let app_state = state.lock().unwrap();
+    app_state.auto_close_window
+}
+
+#[tauri::command]
+pub fn toggle_auto_speak(state: State<'_, Mutex<AppState>>) -> bool {
+    let mut app_state = state.lock().unwrap();
+    app_state.auto_speak = !app_state.auto_speak;
+    app_state.auto_speak
+}
+
+#[tauri::command]
+pub fn get_auto_speak_state(state: State<'_, Mutex<AppState>>) -> bool {
+    let app_state = state.lock().unwrap();
+    app_state.auto_speak
 }
