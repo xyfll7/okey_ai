@@ -79,7 +79,7 @@ function RouteComponent() {
 	}, []);
 	return (
 		<div className="h-screen max-h-screen max-w-screen flex-coh">
-			<Header className="" />
+			<Header />
 			<div className="mb-2 h-full flex-coh">
 				<ChatList chatList={chatList} onSelect={setSelectedText}></ChatList>
 			</div>
