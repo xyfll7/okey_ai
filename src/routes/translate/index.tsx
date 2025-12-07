@@ -1,11 +1,11 @@
-import { IconCheck, IconCopy, IconPlus } from "@tabler/icons-react";
+import { IconPlus } from "@tabler/icons-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
 import { type as ostype } from "@tauri-apps/plugin-os";
-import { ArrowUpIcon, Pin, X } from "lucide-react";
+import { ArrowUpIcon, Pin, Volume2, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { DIVButton } from "@/components/DIVButton";
+
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -17,13 +17,13 @@ import {
 	InputGroup,
 	InputGroupAddon,
 	InputGroupButton,
-	InputGroupInput,
 	InputGroupText,
 	InputGroupTextarea,
 } from "@/components/ui/input-group";
+import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { Separator } from "@/components/ui/separator";
 import type { InputData } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { cn, speak } from "@/lib/utils";
 import { ChatList } from "./components/ChatList";
 export const Route = createFileRoute("/translate/")({
 	component: RouteComponent,
@@ -74,18 +74,10 @@ function RouteComponent() {
 			<div className="mb-2 h-full flex-coh">
 				<ChatList chatList={chatList} onSelect={setSelectedText}></ChatList>
 			</div>
-			<div className="px-2 mb-2">
-				<DIVButton
-					asChild
-					variant="outline"
-					size={"sm"}
-					className="max-w-full"
-				>
-					<div className="">{selectedText ? selectedText : "..."}</div>
-				</DIVButton>
-			</div>
+
 			<div className="px-2">
 				<Inputer
+					selectedText={selectedText}
 					onEnter={(e) => {
 						setChatList((list) => [
 							...list,
@@ -154,9 +146,11 @@ function Header(props: React.ComponentProps<"div">) {
 function Inputer({
 	onEnter,
 	onSelect,
+	selectedText,
 }: {
 	onEnter: (message: string) => void;
 	onSelect: (message: string) => void;
+	selectedText?: string;
 }) {
 	const [value, setValue] = useState("");
 	const extractSelectedText = (e: React.MouseEvent<HTMLTextAreaElement>) => {
@@ -170,7 +164,7 @@ function Inputer({
 		}
 	};
 	return (
-		<InputGroup className="mb-2">
+		<InputGroup className="mb-2 [--radius:1.1rem] p-0!">
 			<InputGroupTextarea
 				className={cn(
 					"max-h-40 scrollbar-hide",
@@ -209,10 +203,31 @@ function Inputer({
 					}
 				}}
 			/>
-			<InputGroupAddon align="block-start">
-				<DIVButton variant="outline" size="sm" className="select-text">
-					fasdfasfasdfasdFASDFSAFASDF
-				</DIVButton>
+			<InputGroupAddon align="block-start" className="">
+				<div className="[&_svg:not([class*='size-'])]:size-4 [&_svg]:cursor-pointer">
+					<div className="">
+						<span className="mr-1 ">{selectedText ? selectedText : "..."}</span>
+						<Volume2
+							className="inline translate-y-[-0.8px] text-gray-500 hover:text-gray-700"
+							onClick={() => {
+								if (!selectedText) return;
+								speak(selectedText);
+							}}
+						/>
+					</div>
+					<div className=" flex  flex-wrap">
+						<KbdGroup>
+							{["单词详解", 2, 3, 4, 5].map((i) => (
+								<Kbd
+									key={i}
+									className="mt-1 cursor-pointer! mr-1 rounded-full pointer-events-auto"
+								>
+									{i}
+								</Kbd>
+							))}
+						</KbdGroup>
+					</div>
+				</div>
 			</InputGroupAddon>
 			<InputGroupAddon align="block-end">
 				<InputGroupButton
