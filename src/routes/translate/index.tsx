@@ -206,27 +206,30 @@ function Inputer({
 			<InputGroupAddon align="block-start" className="">
 				<div className="[&_svg:not([class*='size-'])]:size-4 [&_svg]:cursor-pointer">
 					<div className="">
-						<span className="mr-1 ">{selectedText ? selectedText : "..."}</span>
-						<Volume2
+						<span className={cn("mr-1", { " opacity-50": !selectedText })}>{selectedText ? selectedText : "用鼠标选中需要翻译的文本"}</span>
+						
+						{ selectedText?.trim() && <Volume2
 							className="inline translate-y-[-0.8px] text-gray-500 hover:text-gray-700"
 							onClick={() => {
 								if (!selectedText) return;
 								speak(selectedText);
 							}}
-						/>
+						/>}
 					</div>
+					{selectedText?.trim() && 
 					<div className=" flex  flex-wrap">
-						<KbdGroup>
-							{["单词详解", 2, 3, 4, 5].map((i) => (
+						<KbdGroup className=" flex-wrap">
+							{["单词详解", "在句中的含义", "在句中的含义", "在句中的含义", "在句中的含义", "在句中的含义", "在句中的含义",].map((i) => (
 								<Kbd
 									key={i}
-									className="mt-1 cursor-pointer! mr-1 rounded-full pointer-events-auto"
+									className="mt-1 cursor-pointer! mr-1 rounded-full pointer-events-auto text-nowrap"
 								>
 									{i}
 								</Kbd>
 							))}
 						</KbdGroup>
 					</div>
+					}
 				</div>
 			</InputGroupAddon>
 			<InputGroupAddon align="block-end">
