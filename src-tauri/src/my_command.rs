@@ -8,7 +8,7 @@ use crate::{
         traits::{ChatCompletionRequest, ChatMessage},
     },
     my_events::event_names,
-    my_types, my_utils, my_windows, AppState,
+    my_types, my_utils, my_windows, AppState, AutoSpeakState,
 };
 
 #[tauri::command]
@@ -106,14 +106,19 @@ pub fn get_auto_close_window_state(state: State<'_, Mutex<AppState>>) -> bool {
 }
 
 #[tauri::command]
-pub fn toggle_auto_speak(state: State<'_, Mutex<AppState>>) -> bool {
+pub fn toggle_auto_speak(state: State<'_, Mutex<AppState>>) -> AutoSpeakState {
     let mut app_state = state.lock().unwrap();
-    app_state.auto_speak = !app_state.auto_speak;
+    // Cycle through the three states: Off -> Single -> All -> Off
+    app_state.auto_speak = match app_state.auto_speak {
+        AutoSpeakState::Off => AutoSpeakState::Single,
+        AutoSpeakState::Single => AutoSpeakState::All,
+        AutoSpeakState::All => AutoSpeakState::Off,
+    };
     app_state.auto_speak
 }
 
 #[tauri::command]
-pub fn get_auto_speak_state(state: State<'_, Mutex<AppState>>) -> bool {
+pub fn get_auto_speak_state(state: State<'_, Mutex<AppState>>) -> AutoSpeakState {
     let app_state = state.lock().unwrap();
     app_state.auto_speak
 }

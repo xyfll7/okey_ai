@@ -12,11 +12,42 @@ mod my_windows;
 use std::sync::{Arc, Mutex};
 use tauri::async_runtime::RwLock;
 
+// Enum for auto speak state - three possible states
+#[derive(Default, Clone, Copy, PartialEq)]
+pub enum AutoSpeakState {
+    Off,  // Completely off
+    #[default]
+    Single,   // Read single word
+    All, // Read full sentence
+}
+
+use serde::Serialize;
+
+// Implement Display and Serialize for AutoSpeakState to return string values
+impl std::fmt::Display for AutoSpeakState {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AutoSpeakState::Off => write!(f, "off"),
+            AutoSpeakState::Single => write!(f, "single"),
+            AutoSpeakState::All => write!(f, "all"),
+        }
+    }
+}
+
+impl Serialize for AutoSpeakState {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_str(&self.to_string())
+    }
+}
+
 // Global state struct for auto-close window setting
 #[derive(Default)]
 pub struct AppState {
     pub auto_close_window: bool,
-    pub auto_speak: bool,
+    pub auto_speak: AutoSpeakState,
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

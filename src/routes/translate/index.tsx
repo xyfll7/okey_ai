@@ -3,7 +3,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
 import { type as ostype } from "@tauri-apps/plugin-os";
-import { ArrowUpIcon, Pin, Volume2, VolumeOff, X } from "lucide-react";
+import { ArrowUpIcon, Pin, Volume1, Volume2, VolumeOff, X } from "lucide-react";
+
+enum AutoSpeakState {
+	Off = "off",
+	Single = "single",
+	All = "all",
+}
+
 import Markdown from "markdown-to-jsx";
 import { useEffect, useRef, useState } from "react";
 import { DIVButton } from "@/components/DIVButton";
@@ -24,6 +31,11 @@ import {
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { EVENT_NAMES } from "@/lib/events";
 import type { InputData } from "@/lib/types";
 import { cn, speak } from "@/lib/utils";
@@ -39,9 +51,16 @@ function RouteComponent() {
 		const unlistenSpeak = listen<InputData>(
 			EVENT_NAMES.AUTO_SPEAK,
 			({ payload }) => {
-				invoke<boolean>("get_auto_speak_state").then((res) => {
+				invoke<AutoSpeakState>("get_auto_speak_state").then((res) => {
 					setSelectedText(payload.input_text);
-					res && speak(payload.input_text); 
+					const isSingleWord =
+						payload.input_text.trim().split(/\s+/).length === 1;
+					if (
+						(res === AutoSpeakState.Single && isSingleWord) ||
+						(res === AutoSpeakState.All && payload.input_text.trim().length > 0)
+					) {
+						speak(payload.input_text);
+					}
 				});
 			},
 		);
@@ -111,10 +130,14 @@ function RouteComponent() {
 
 function Header(props: React.ComponentProps<"div">) {
 	const [pin, setPin] = useState(false);
-	const [autoSpeak, setAutoSpeak] = useState(false);
+	const [autoSpeak, setAutoSpeak] = useState<AutoSpeakState>(
+		AutoSpeakState.Off,
+	); // Three possible states: off, single word, full sentence
 	useEffect(() => {
 		invoke<boolean>("get_auto_close_window_state").then((res) => setPin(res));
-		invoke<boolean>("get_auto_speak_state").then((res) => setAutoSpeak(res));
+		invoke<AutoSpeakState>("get_auto_speak_state").then((res) =>
+			setAutoSpeak(res),
+		);
 	}, []);
 	const _ostype = ostype();
 
@@ -147,16 +170,29 @@ function Header(props: React.ComponentProps<"div">) {
 		>
 			<div>
 				{_ostype === "windows" && pinButton}
-				<Button
-					size="icon-sm"
-					variant="ghost"
-					className=" opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
-					onClick={async () =>
-						setAutoSpeak(await invoke<boolean>("toggle_auto_speak"))
-					}
-				>
-					{autoSpeak ? <Volume2 size={"1rem"} /> : <VolumeOff size={"1rem"} />}
-				</Button>
+				<Tooltip>
+					<TooltipTrigger>
+						<Button
+							size="icon-sm"
+							variant="ghost"
+							className="opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
+							onClick={async () =>
+								setAutoSpeak(await invoke<AutoSpeakState>("toggle_auto_speak"))
+							}
+						>
+							{
+								{
+									[AutoSpeakState.Off]: <VolumeOff size={"1rem"} />,
+									[AutoSpeakState.Single]: <Volume1 size={"1rem"} />,
+									[AutoSpeakState.All]: <Volume2 size={"1rem"} />,
+								}[autoSpeak]
+							}
+						</Button>
+					</TooltipTrigger>
+					<TooltipContent>
+						<p>Add to library</p>
+					</TooltipContent>
+				</Tooltip>
 				{_ostype === "macos" && pinButton}
 			</div>
 			{_ostype === "windows" && (
