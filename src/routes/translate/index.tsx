@@ -190,7 +190,14 @@ function Header(props: React.ComponentProps<"div">) {
 						</Button>
 					</TooltipTrigger>
 					<TooltipContent>
-						<p>Add to library</p>
+				
+						{
+							{
+								[AutoSpeakState.Off]: "Speech off",
+								[AutoSpeakState.Single]: "Read single words only",
+								[AutoSpeakState.All]: "Read full sentences",
+							}[autoSpeak]
+						}
 					</TooltipContent>
 				</Tooltip>
 				{_ostype === "macos" && pinButton}
