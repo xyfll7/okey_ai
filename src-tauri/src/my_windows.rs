@@ -8,6 +8,8 @@ use tauri::{
 };
 
 use crate::{my_events::event_names, AppState};
+use mouse_position::mouse_position::{Mouse, Position};
+use tauri::Monitor;
 
 pub fn create_or_show_about_window<R: Runtime>(app: &AppHandle<R>) {
     if let Some(window) = app.get_webview_window("about") {
@@ -33,6 +35,12 @@ where
             cb();
         }
     } else {
+        const WINDOW_WIDTH: f64 = 400.0;
+        const WINDOW_HEIGHT: f64 = 600.0;
+        const CURSOR_OFFSET: f64 = 10.0;
+        let (adjusted_x, adjusted_y) =
+            calculate_window_position(app, WINDOW_WIDTH, WINDOW_HEIGHT, CURSOR_OFFSET);
+
         let mut builder =
             WebviewWindowBuilder::new(app, "main", WebviewUrl::App("/translate".into()))
                 .title("Main Window")
@@ -42,7 +50,8 @@ where
                 .always_on_top(true)
                 .background_color(Color(0, 0, 0, 0))
                 .min_inner_size(350.0, 600.0)
-                .inner_size(400.0, 600.0);
+                .inner_size(WINDOW_WIDTH, WINDOW_HEIGHT)
+                .position(adjusted_x, adjusted_y);
 
         #[cfg(target_os = "macos")]
         {
@@ -60,10 +69,9 @@ where
             window.set_focus().ok();
             let callback_for_listener = Arc::new(Mutex::new(callback)).clone();
             window.listen(event_names::PAGE_LOADED, move |_event| {
-                // Execute the callback function if provided, right after the print statement
                 if let Ok(mut cb_option) = callback_for_listener.lock() {
                     if let Some(cb) = cb_option.take() {
-                        drop(cb_option); // Release the lock before calling the callback
+                        drop(cb_option);
                         cb();
                     }
                 }
@@ -85,7 +93,6 @@ where
                         if *local_cancel.lock().unwrap() {
                             return;
                         }
-                        // Only destroy the window if auto-close is enabled
                         if {
                             let state = state_handle.state::<Mutex<AppState>>();
                             let state_guard = state.lock().unwrap();
@@ -106,4 +113,105 @@ where
             Ok(())
         });
     }
+}
+
+/// Helper function to find which monitor contains a specific position
+fn get_monitor_at_position<R: Runtime>(app: &AppHandle<R>, x: i32, y: i32) -> Option<Monitor> {
+    if let Ok(monitors) = app.available_monitors() {
+        for monitor in monitors {
+            let size = monitor.size();
+            let position = monitor.position();
+
+            if x >= position.x
+                && x <= (position.x + size.width as i32)
+                && y >= position.y
+                && y <= (position.y + size.height as i32)
+            {
+                return Some(monitor);
+            }
+        }
+    }
+
+    // Fallback to primary monitor if no match found
+    app.primary_monitor().ok().flatten()
+}
+
+pub fn calculate_window_position<R: Runtime>(
+    app: &AppHandle<R>,
+    width: f64,
+    height: f64,
+    cursor_offset: f64,
+) -> (f64, f64) {
+    // Get current mouse position (in physical pixels)
+    let mouse_position = match Mouse::get_mouse_position() {
+        Mouse::Position { x, y } => Position { x, y },
+        Mouse::Error => Position { x: 0, y: 0 },
+    };
+
+    // Find which monitor the mouse is currently on and calculate position
+    get_monitor_at_position(app, mouse_position.x, mouse_position.y)
+        .map(|monitor| {
+            let scale_factor = monitor.scale_factor();
+
+            // Convert physical coordinates to logical coordinates
+            let to_logical = |value: i32| value as f64 / scale_factor;
+            let to_logical_f = |value: u32| value as f64 / scale_factor;
+
+            let mouse_x = to_logical(mouse_position.x);
+            let mouse_y = to_logical(mouse_position.y);
+            let monitor_x = to_logical(monitor.position().x);
+            let monitor_y = to_logical(monitor.position().y);
+            let monitor_width = to_logical_f(monitor.size().width);
+            let monitor_height = to_logical_f(monitor.size().height);
+            let monitor_right = monitor_x + monitor_width;
+            let monitor_bottom = monitor_y + monitor_height;
+
+            // Calculate relative position within monitor (0.0 to 1.0)
+            let relative_x = (mouse_x - monitor_x) / monitor_width;
+            let relative_y = (mouse_y - monitor_y) / monitor_height;
+
+            // Smart positioning: prefer opposite side of where cursor is
+            let x = if relative_x < 0.5 {
+                // Cursor on left half -> try right side
+                let right_pos = mouse_x + cursor_offset;
+                if right_pos + width <= monitor_right {
+                    right_pos
+                } else {
+                    mouse_x - width - cursor_offset
+                }
+            } else {
+                // Cursor on right half -> try left side
+                let left_pos = mouse_x - width - cursor_offset;
+                if left_pos >= monitor_x {
+                    left_pos
+                } else {
+                    mouse_x + cursor_offset
+                }
+            };
+
+            let y = if relative_y < 0.5 {
+                // Cursor on top half -> try bottom side
+                let bottom_pos = mouse_y + cursor_offset;
+                if bottom_pos + height <= monitor_bottom {
+                    bottom_pos
+                } else {
+                    mouse_y - height - cursor_offset
+                }
+            } else {
+                // Cursor on bottom half -> try top side
+                let top_pos = mouse_y - height - cursor_offset;
+                if top_pos >= monitor_y {
+                    top_pos
+                } else {
+                    mouse_y + cursor_offset
+                }
+            };
+
+            // Clamp to monitor bounds as final safety check
+            let x = x.clamp(monitor_x, monitor_right - width);
+            let y = y.clamp(monitor_y, monitor_bottom - height);
+
+            (x, y)
+        })
+        .unwrap_or((mouse_position.x as f64, mouse_position.y as f64))
 }
