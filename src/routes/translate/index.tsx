@@ -13,7 +13,6 @@ enum AutoSpeakState {
 
 import Markdown from "markdown-to-jsx";
 import { useEffect, useRef, useState } from "react";
-import { DIVButton } from "@/components/DIVButton";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -190,7 +189,6 @@ function Header(props: React.ComponentProps<"div">) {
 						</Button>
 					</TooltipTrigger>
 					<TooltipContent>
-				
 						{
 							{
 								[AutoSpeakState.Off]: "Speech off",
@@ -374,47 +372,28 @@ function ChatList({
 		<ScrollArea className="h-full px-2">
 			<div
 				role="none"
-				className="space-y-2 pt-2"
+				className=" pt-2"
 				onMouseUp={extractSelectedText}
 				onMouseMove={extractSelectedText}
 			>
 				{chatList.map((chat, index) => {
 					return (
-						<div
-							key={`chat-${chat.input_time_stamp}-${index}`}
-							className={`flex w-full justify-start`}
-						>
-							<div className={cn("flex flex-col ", "items-start")}>
-								<div
-									className={`rounded-lg px-2 py-2 text-muted-foreground rounded-bl-md`}
-								>
-									<DIVButton
-										asChild
-										variant="ghost"
-										size={"sm"}
-										pointerEvents
-										className="max-w-full [--radius:1rem] px-0! py-0 "
-									>
-										<div>
-											<div>
-												<span className="mr-1 ">{chat.input_text}</span>
-												<Volume2
-													className="inline translate-y-[-0.8px] text-gray-500 hover:text-gray-700"
-													onClick={() => speak(chat.input_text)}
-												/>
-											</div>
-										</div>
-									</DIVButton>
-									<div className="text-sm">
-										{chat.response_text ? (
-											<Markdown>{chat.response_text}</Markdown>
-										) : (
-											"..."
-										)}
-									</div>
+							<div className="px-2 text-sm text-muted-foreground mb-2" key={`chat-${chat.input_time_stamp}-${index}`}>
+								<div className="mb-1">
+									<span className="mr-1 ">{chat.input_text}</span>
+									<Volume2
+										className="inline size-4 translate-y-[-0.8px] text-gray-500 hover:text-gray-700"
+										onClick={() => speak(chat.input_text)}
+									/>
+								</div>
+								<div className=" ">
+									{chat.response_text ? (
+										<Markdown>{chat.response_text}</Markdown>
+									) : (
+										"..."
+									)}
 								</div>
 							</div>
-						</div>
 					);
 				})}
 				<div ref={messagesEndRef} />
