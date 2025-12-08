@@ -9,6 +9,7 @@ import "./styles_my.css";
 import "./styles.css";
 
 import reportWebVitals from "./reportWebVitals.ts";
+import "./i18n/index.ts";
 
 // Create a new router instance
 const router = createRouter({

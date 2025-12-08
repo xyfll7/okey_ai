@@ -1,0 +1,22 @@
+{
+    "translation": {
+        "common": {
+            "ok": "Ok",
+            "cancel": "Cancel",
+            "save": "Save",
+            "write_clipboard": "Write to Clipboard",
+            "plugin": "Plugin",
+            "coming": "Coming soon…",
+            "clear": "Clear"
+        },
+        "languages": {
+            "auto": "Auto Detect",
+            "zh_cn": "Simplified Chinese",
+            "en": "English"
+        },
+        "translate": {
+            "translate": "Translate",
+            "press_to_set_hotkey": "Press to Set Hotkey"
+        }
+    }
+}

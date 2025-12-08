@@ -14,14 +14,9 @@ import {
 	X,
 } from "lucide-react";
 
-enum AutoSpeakState {
-	Off = "off",
-	Single = "single",
-	All = "all",
-}
-
 import Markdown from "markdown-to-jsx";
 import React, { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -45,6 +40,12 @@ import {
 import { EVENT_NAMES } from "@/lib/events";
 import type { InputData } from "@/lib/types";
 import { cn, speak } from "@/lib/utils";
+
+enum AutoSpeakState {
+	Off = "off",
+	Single = "single",
+	All = "all",
+}
 
 export const Route = createFileRoute("/translate/")({
 	component: RouteComponent,
@@ -460,12 +461,14 @@ function SelectedText({ selectedText }: { selectedText?: string }) {
 	);
 }
 
-interface HotKeyProps {
+function HotKey({
+	value = "Ctrl+K",
+	onChange,
+}: {
 	value?: string;
 	onChange?: (hotkey: string) => void;
-}
-
-function HotKey({ value = "Ctrl+K", onChange }: HotKeyProps) {
+}) {
+	const { t } = useTranslation();
 	const [isRecording, setIsRecording] = useState<boolean>(false);
 	const [keys, setKeys] = useState<string[]>([]);
 	const inputRef = useRef<HTMLButtonElement>(null);
@@ -573,14 +576,13 @@ function HotKey({ value = "Ctrl+K", onChange }: HotKeyProps) {
 								displayContent.map((key, index) => (
 									<React.Fragment key={`${key}-`}>
 										{key}
-										{index < displayContent.length - 1 && (
-											<span>+</span>
-										)}
+										{index < displayContent.length - 1 && <span>+</span>}
 									</React.Fragment>
 								))
 							) : (
-								<span className=" opacity-70">Press to Set Hotkey</span>
+								<span className=" opacity-70">{t("")}</span>
 							)}
+							<span className=" opacity-70">{t("")}</span>
 						</span>
 						{isRecording && (
 							<span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
