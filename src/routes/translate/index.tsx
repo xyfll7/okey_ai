@@ -1,9 +1,18 @@
-import { IconPlus } from "@tabler/icons-react";
 import { createFileRoute } from "@tanstack/react-router";
 import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
 import { type as ostype } from "@tauri-apps/plugin-os";
-import { ArrowUpIcon, Pin, Volume1, Volume2, VolumeOff, X } from "lucide-react";
+import {
+	ArrowUpIcon,
+	Check,
+	Clipboard,
+	Pin,
+	Plus,
+	Volume1,
+	Volume2,
+	VolumeOff,
+	X,
+} from "lucide-react";
 
 enum AutoSpeakState {
 	Off = "off",
@@ -12,7 +21,7 @@ enum AutoSpeakState {
 }
 
 import Markdown from "markdown-to-jsx";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -24,12 +33,10 @@ import {
 	InputGroup,
 	InputGroupAddon,
 	InputGroupButton,
-	InputGroupText,
 	InputGroupTextarea,
 } from "@/components/ui/input-group";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import {
 	Tooltip,
 	TooltipContent,
@@ -45,13 +52,12 @@ export const Route = createFileRoute("/translate/")({
 
 function RouteComponent() {
 	const [chatList, setChatList] = useState<InputData[]>([]);
-	const [selectedText, setSelectedText] = useState<string>("");
+
 	useEffect(() => {
 		const unlistenSpeak = listen<InputData>(
 			EVENT_NAMES.AUTO_SPEAK,
 			({ payload }) => {
 				invoke<AutoSpeakState>("get_auto_speak_state").then((res) => {
-					setSelectedText(payload.input_text);
 					const isSingleWord =
 						payload.input_text.trim().split(/\s+/).length === 1;
 					if (
@@ -102,12 +108,11 @@ function RouteComponent() {
 		<div className="h-screen max-h-screen max-w-screen flex-coh">
 			<Header />
 			<div className="mb-2 h-full flex-coh">
-				<ChatList chatList={chatList} onSelect={setSelectedText}></ChatList>
+				<ChatList chatList={chatList}></ChatList>
 			</div>
 
 			<div className="px-2">
 				<Inputer
-					selectedText={selectedText}
 					onEnter={(e) => {
 						setChatList((list) => [
 							...list,
@@ -117,9 +122,6 @@ function RouteComponent() {
 								response_text: "",
 							},
 						]);
-					}}
-					onSelect={(e) => {
-						setSelectedText(e);
 					}}
 				/>
 			</div>
@@ -140,11 +142,11 @@ function Header(props: React.ComponentProps<"div">) {
 	}, []);
 	const _ostype = ostype();
 
-	const pinButton = (
+	const PinButton = (
 		<Button
 			size="icon-sm"
 			variant="ghost"
-			className="opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
+			className=" opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
 			onClick={async () =>
 				setPin(await invoke<boolean>("toggle_auto_close_window"))
 			}
@@ -167,14 +169,15 @@ function Header(props: React.ComponentProps<"div">) {
 			)}
 			data-tauri-drag-region
 		>
-			<div>
-				{_ostype === "windows" && pinButton}
+			<div className=" flex items-center">
+				{_ostype === "windows" && PinButton}
+				{_ostype === "macos" && <HotKey />}
 				<Tooltip>
 					<TooltipTrigger>
 						<Button
 							size="icon-sm"
 							variant="ghost"
-							className="opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
+							className=" opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
 							onClick={async () =>
 								setAutoSpeak(await invoke<AutoSpeakState>("toggle_auto_speak"))
 							}
@@ -198,7 +201,8 @@ function Header(props: React.ComponentProps<"div">) {
 						}
 					</TooltipContent>
 				</Tooltip>
-				{_ostype === "macos" && pinButton}
+				{_ostype === "windows" && <HotKey />}
+				{_ostype === "macos" && PinButton}
 			</div>
 			{_ostype === "windows" && (
 				<Button
@@ -214,26 +218,8 @@ function Header(props: React.ComponentProps<"div">) {
 	);
 }
 
-function Inputer({
-	onEnter,
-	onSelect,
-	selectedText,
-}: {
-	onEnter: (message: string) => void;
-	onSelect: (message: string) => void;
-	selectedText?: string;
-}) {
+function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
 	const [value, setValue] = useState("");
-	const extractSelectedText = (e: React.MouseEvent<HTMLTextAreaElement>) => {
-		const target = e.target as HTMLTextAreaElement;
-		const selectedText = target.value.substring(
-			target.selectionStart,
-			target.selectionEnd,
-		);
-		if (selectedText.trim()) {
-			onSelect(selectedText.trim());
-		}
-	};
 	return (
 		<InputGroup className="mb-2 [--radius:1.1rem] p-0!">
 			<InputGroupTextarea
@@ -246,8 +232,6 @@ function Inputer({
 				placeholder="Ask, Search or Chat..."
 				value={value}
 				onChange={(e) => setValue(e.target.value)}
-				onMouseUp={extractSelectedText}
-				onMouseMove={extractSelectedText}
 				onKeyDown={async (e) => {
 					if (e.key === "Enter" && !e.ctrlKey) {
 						e.preventDefault();
@@ -274,49 +258,7 @@ function Inputer({
 					}
 				}}
 			/>
-			<InputGroupAddon align="block-start" className=" flex">
-				<div className="w-full [&_svg:not([class*='size-'])]:size-4 [&_svg]:cursor-pointer">
-					<div className="w-full flex items-center">
-						<div className="max-w-full truncate overflow-hidden">
-							<span className={cn("mr-1", { "opacity-50": !selectedText })}>
-								{selectedText ? selectedText : "用鼠标选中需要翻译的文本"}
-							</span>
-						</div>
-						{selectedText?.trim() && (
-							<Volume2
-								className="inline translate-y-[0.8px] min-w-4  text-gray-500 hover:text-gray-700"
-								onClick={() => {
-									if (!selectedText) return;
-									speak(selectedText);
-								}}
-							/>
-						)}
-					</div>
-
-					{selectedText?.trim() && (
-						<div className=" flex  flex-wrap">
-							<KbdGroup className=" flex-wrap">
-								{["单词详解", "在句中的含义"].map((i) => (
-									<Kbd
-										key={i}
-										className="mt-1 cursor-pointer! mr-1 rounded-full pointer-events-auto text-nowrap"
-									>
-										{i}
-									</Kbd>
-								))}
-							</KbdGroup>
-						</div>
-					)}
-				</div>
-			</InputGroupAddon>
 			<InputGroupAddon align="block-end">
-				<InputGroupButton
-					variant="outline"
-					className="rounded-full"
-					size="icon-xs"
-				>
-					<IconPlus />
-				</InputGroupButton>
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
 						<InputGroupButton variant="ghost">Auto</InputGroupButton>
@@ -331,13 +273,22 @@ function Inputer({
 						<DropdownMenuItem>Manual</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
-				<InputGroupText className="ml-auto">52% used</InputGroupText>
-				<Separator orientation="vertical" className="h-4!" />
+
 				<InputGroupButton
 					variant="default"
-					className="rounded-full"
+					className="rounded-full ml-auto"
 					size="icon-xs"
-					disabled
+					disabled={!value}
+					onClick={async () => {
+						await invoke("chat", {
+							input_data: {
+								input_time_stamp: Date.now().toString(),
+								input_text: value,
+								response_text: null,
+							},
+						});
+						setValue("");
+					}}
 				>
 					<ArrowUpIcon />
 					<span className="sr-only">Send</span>
@@ -346,22 +297,31 @@ function Inputer({
 		</InputGroup>
 	);
 }
+function Copyed({ className }: { className?: string }) {
+	const [copied, setCopied] = useState(false);
+	return (
+		<>
+			{!copied ? (
+				<Clipboard
+					className={cn(className)}
+					onClick={() => {
+						setCopied(true);
+					}}
+				/>
+			) : (
+				<Check
+					className={cn(className)}
+					onClick={() => {
+						setCopied(true);
+					}}
+				/>
+			)}
+		</>
+	);
+}
 
-function ChatList({
-	chatList,
-	onSelect,
-}: {
-	chatList: InputData[];
-	onSelect: (message: string) => void;
-}) {
+function ChatList({ chatList }: { chatList: InputData[] }) {
 	const messagesEndRef = useRef<HTMLDivElement>(null);
-
-	function extractSelectedText() {
-		const selectedText = window.getSelection()?.toString().trim();
-		if (selectedText) {
-			onSelect(selectedText);
-		}
-	}
 
 	useEffect(() => {
 		void chatList;
@@ -369,35 +329,265 @@ function ChatList({
 	}, [chatList]);
 
 	return (
-		<ScrollArea className="h-full px-2">
-			<div
-				role="none"
-				className=" pt-2"
-				onMouseUp={extractSelectedText}
-				onMouseMove={extractSelectedText}
-			>
+		<ScrollArea className="h-full ">
+			<div role="none" className="pt-2 px-2 max-w-screen flex-coh">
 				{chatList.map((chat, index) => {
 					return (
-							<div className="px-2 text-sm text-muted-foreground mb-2" key={`chat-${chat.input_time_stamp}-${index}`}>
-								<div className="mb-1">
-									<span className="mr-1 ">{chat.input_text}</span>
-									<Volume2
-										className="inline size-4 translate-y-[-0.8px] text-gray-500 hover:text-gray-700"
-										onClick={() => speak(chat.input_text)}
-									/>
-								</div>
-								<div className=" ">
-									{chat.response_text ? (
-										<Markdown>{chat.response_text}</Markdown>
-									) : (
-										"..."
-									)}
-								</div>
-							</div>
+						<MessageItem
+							key={`chat-${chat.input_time_stamp}-${index}`}
+							chat={chat}
+						/>
 					);
 				})}
 				<div ref={messagesEndRef} />
 			</div>
 		</ScrollArea>
+	);
+}
+
+// Individual message item component
+function MessageItem({ chat }: { chat: InputData }) {
+	const [selectedText, setSelectedText] = useState<string>("");
+	const containerRef = useRef<HTMLDivElement>(null);
+	const isMouseInsideRef = useRef<boolean>(false);
+
+	function extractSelectedText() {
+		// 只在鼠标在当前组件内部时才处理
+		if (!isMouseInsideRef.current) return;
+
+		const selection = window.getSelection();
+		const selectedText = selection?.toString().trim();
+
+		if (selectedText) {
+			// 检查选中的文本是否在当前组件内
+			if (selection && containerRef.current) {
+				const range = selection.getRangeAt(0);
+				if (containerRef.current.contains(range.commonAncestorContainer)) {
+					setSelectedText(selectedText);
+				}
+			}
+		}
+	}
+
+	function handleMouseEnter() {
+		isMouseInsideRef.current = true;
+	}
+
+	function handleMouseLeave() {
+		isMouseInsideRef.current = false;
+		// 鼠标移出时什么也不做，保留已选中的文本
+	}
+
+	return (
+		<div
+			ref={containerRef}
+			role="none"
+			className="px-2 text-sm text-muted-foreground mb-4 w-full"
+			onMouseUp={extractSelectedText}
+			onMouseEnter={handleMouseEnter}
+			onMouseLeave={handleMouseLeave}
+		>
+			<div className="mb-1 wrap-break-word">
+				<span className="mr-1">{chat.input_text}</span>
+				<Copyed className="mr-1 inline size-4 translate-y-[-0.8px] opacity-70 hover:opacity-100" />
+				<Volume2
+					className="inline size-4 translate-y-[-0.8px] opacity-70 hover:opacity-100"
+					onClick={() => speak(chat.input_text)}
+				/>
+			</div>
+			<div className="mb-1 wrap-break-word">
+				{chat.response_text ? <Markdown>{chat.response_text}</Markdown> : "..."}
+			</div>
+			<SelectedText selectedText={selectedText} />
+		</div>
+	);
+}
+
+function SelectedText({ selectedText }: { selectedText?: string }) {
+	if (!selectedText) return null;
+	return (
+		<div className=" w-full [&_svg:not([class*='size-'])]:size-4 [&_svg]:cursor-pointer select-none">
+			<div className="w-full flex items-center mb-1">
+				<div className="max-w-full truncate overflow-hidden">
+					<span className={cn("mr-1 opacity-50 text-sm")}>{selectedText}</span>
+				</div>
+				{selectedText?.trim() && (
+					<>
+						<Copyed
+							key={selectedText}
+							className="mr-1 inline translate-y-[0.8px] min-w-4  opacity-70 hover:opacity-100"
+						/>
+						<Volume2
+							className="mr-1 inline translate-y-[0.8px] min-w-4  opacity-70 hover:opacity-100"
+							onClick={() => {
+								if (!selectedText) return;
+								speak(selectedText);
+							}}
+						/>
+					</>
+				)}
+			</div>
+			{selectedText?.trim() && (
+				<KbdGroup className=" flex-wrap">
+					{[
+						"单词详解",
+						"在句中的含义",
+						"讲解",
+						"解读",
+						"解读",
+						"解读",
+						"解读",
+						"解读",
+						"解读",
+						"解读",
+						"解读",
+						"解读",
+						"解读",
+					].map((i) => (
+						<Kbd
+							key={i}
+							className=" cursor-pointer! rounded-full pointer-events-auto text-nowrap"
+						>
+							{i}
+						</Kbd>
+					))}
+					<Kbd className=" cursor-pointer! rounded-full pointer-events-auto text-nowrap">
+						<Plus className=" size-3" />
+					</Kbd>
+				</KbdGroup>
+			)}
+		</div>
+	);
+}
+
+interface HotKeyProps {
+	value?: string;
+	onChange?: (hotkey: string) => void;
+}
+
+function HotKey({ value = "Ctrl+K", onChange }: HotKeyProps) {
+	const [isRecording, setIsRecording] = useState<boolean>(false);
+	const [keys, setKeys] = useState<string[]>([]);
+	const inputRef = useRef<HTMLButtonElement>(null);
+
+	const parseHotkey = (hotkey: string): string[] => {
+		if (!hotkey) return [];
+		return hotkey.split("+").map((k) => k.trim());
+	};
+
+	const formatKey = (key: string): string => {
+		const keyMap: Record<string, string> = {
+			Control: "Ctrl",
+			Meta: "Cmd",
+			Alt: "Alt",
+			Shift: "Shift",
+			" ": "Space",
+		};
+		return keyMap[key] || key.toUpperCase();
+	};
+
+	const getDisplayContent = () => {
+		if (isRecording) {
+			if (keys.length > 0) {
+				return keys;
+			}
+			return null;
+		}
+		const parsedValue = parseHotkey(value);
+		return parsedValue.length > 0 ? parsedValue : null;
+	};
+
+	const displayContent = getDisplayContent();
+
+	const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+		if (!isRecording) return;
+
+		e.preventDefault();
+		e.stopPropagation();
+
+		const pressedKeys: string[] = [];
+
+		if (e.ctrlKey || e.metaKey) pressedKeys.push(e.ctrlKey ? "Ctrl" : "Cmd");
+		if (e.altKey) pressedKeys.push("Alt");
+		if (e.shiftKey) pressedKeys.push("Shift");
+
+		if (!["Control", "Alt", "Shift", "Meta"].includes(e.key)) {
+			pressedKeys.push(formatKey(e.key));
+		}
+
+		if (pressedKeys.length > 0) {
+			setKeys(pressedKeys);
+		}
+	};
+
+	const handleKeyUp = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+		if (!isRecording) return;
+
+		e.preventDefault();
+		e.stopPropagation();
+
+		if (
+			!e.ctrlKey &&
+			!e.altKey &&
+			!e.shiftKey &&
+			!e.metaKey &&
+			keys.length > 0
+		) {
+			const newHotkey = keys.join("+");
+			if (onChange) {
+				onChange(newHotkey);
+			}
+			setIsRecording(false);
+			inputRef.current?.blur();
+		}
+	};
+
+	const handleClick = () => {
+		setIsRecording(true);
+		setKeys([]);
+		inputRef.current?.focus();
+	};
+
+	const handleBlur = () => {
+		setIsRecording(false);
+		setKeys([]);
+	};
+
+	return (
+		<div className="relative inline-flex items-center gap-2">
+			<Button
+				ref={inputRef}
+				tabIndex={0}
+				className="px-1 hover:bg-transparent dark:hover:bg-transparent"
+				size="sm"
+				variant="ghost"
+				onClick={handleClick}
+				onKeyDown={handleKeyDown}
+				onKeyUp={handleKeyUp}
+				onBlur={handleBlur}
+			>
+				<KbdGroup>
+					<Kbd>
+						<span className="mr-1">
+							{displayContent ? (
+								displayContent.map((key, index) => (
+									<React.Fragment key={`${key}-`}>
+										{key}
+										{index < displayContent.length - 1 && (
+											<span>+</span>
+										)}
+									</React.Fragment>
+								))
+							) : (
+								<span className=" opacity-70">Press to Set Hotkey</span>
+							)}
+						</span>
+						{isRecording && (
+							<span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+						)}
+					</Kbd>
+				</KbdGroup>
+			</Button>
+		</div>
 	);
 }
