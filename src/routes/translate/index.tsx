@@ -580,9 +580,8 @@ function HotKey({
 									</React.Fragment>
 								))
 							) : (
-								<span className=" opacity-70">{t("")}</span>
+								<span className=" opacity-70">{t($=> $.translate.press_to_set_hotkey)}</span>
 							)}
-							<span className=" opacity-70">{t("")}</span>
 						</span>
 						{isRecording && (
 							<span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
