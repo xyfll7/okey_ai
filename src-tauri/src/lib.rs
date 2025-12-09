@@ -1,5 +1,6 @@
 mod my_api;
 mod my_command;
+mod my_config;
 mod my_events;
 mod my_logging;
 mod my_reqwest;
@@ -8,7 +9,6 @@ mod my_tray;
 mod my_types;
 mod my_utils;
 mod my_windows;
-
 use std::sync::{Arc, Mutex};
 use tauri::async_runtime::RwLock;
 use tauri_plugin_notification::NotificationExt;
@@ -89,6 +89,7 @@ pub fn run() {
             crate::my_api::commands::chat_completion,
         ])
         .setup(|app| {
+            let _ = my_config::init_config(&app.handle());
             if cfg!(debug_assertions) {
                 app.handle().plugin(
                     tauri_plugin_log::Builder::default()
@@ -97,7 +98,6 @@ pub fn run() {
                         .build(),
                 )?;
             }
-
             // 初始化 API 管理器
             crate::my_api::setup_api_manager(&app.handle())?;
 
