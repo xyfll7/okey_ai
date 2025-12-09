@@ -55,9 +55,10 @@ pub fn run() {
     let api_manager = Arc::new(RwLock::new(crate::my_api::manager::APIManager::new()));
 
     tauri::Builder::default()
-        .plugin(tauri_plugin_os::init())
         .manage(Mutex::new(AppState::default()))
         .manage(crate::my_api::commands::GlobalAPIManager(api_manager))
+        .plugin(tauri_plugin_store::Builder::new().build())
+        .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
