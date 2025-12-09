@@ -38,8 +38,13 @@ where
         const WINDOW_WIDTH: f64 = 400.0;
         const WINDOW_HEIGHT: f64 = 600.0;
         const CURSOR_OFFSET: f64 = 10.0;
-        let (adjusted_x, adjusted_y) =
-            calculate_window_position(app, WINDOW_WIDTH, WINDOW_HEIGHT, CURSOR_OFFSET);
+
+        // Use centered position if callback is None, otherwise use mouse-based positioning
+        let (adjusted_x, adjusted_y) = if callback.is_none() {
+            calculate_center_position(app, WINDOW_WIDTH, WINDOW_HEIGHT)
+        } else {
+            calculate_window_position(app, WINDOW_WIDTH, WINDOW_HEIGHT, CURSOR_OFFSET)
+        };
 
         let mut builder =
             WebviewWindowBuilder::new(app, "main", WebviewUrl::App("/translate".into()))
@@ -136,7 +141,37 @@ fn get_monitor_at_position<R: Runtime>(app: &AppHandle<R>, x: i32, y: i32) -> Op
     app.primary_monitor().ok().flatten()
 }
 
-pub fn calculate_window_position<R: Runtime>(
+/// Calculate window position centered on the primary monitor
+fn calculate_center_position<R: Runtime>(
+    app: &AppHandle<R>,
+    width: f64,
+    height: f64,
+) -> (f64, f64) {
+    // Get the primary monitor
+    if let Ok(Some(primary_monitor)) = app.primary_monitor() {
+        let scale_factor = primary_monitor.scale_factor();
+
+        // Convert physical dimensions to logical dimensions
+        let monitor_position = primary_monitor.position();
+        let monitor_size = primary_monitor.size();
+
+        let monitor_x = monitor_position.x as f64 / scale_factor;
+        let monitor_y = monitor_position.y as f64 / scale_factor;
+        let monitor_width = monitor_size.width as f64 / scale_factor;
+        let monitor_height = monitor_size.height as f64 / scale_factor;
+
+        // Calculate centered position (with monitor offset)
+        let x = monitor_x + (monitor_width - width) / 2.0;
+        let y = monitor_y + (monitor_height - height) / 2.0;
+
+        (x, y)
+    } else {
+        // Fallback to (0, 0) if primary monitor cannot be determined
+        (0.0, 0.0)
+    }
+}
+
+fn calculate_window_position<R: Runtime>(
     app: &AppHandle<R>,
     width: f64,
     height: f64,
