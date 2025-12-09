@@ -4,18 +4,13 @@ use tauri_plugin_store::StoreExt;
 
 pub fn init_config(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     let store = app.store("store.json")?;
-
-    // Note that values must be serde_json::Value instances,
-    // otherwise, they will not be compatible with the JavaScript bindings.
-    store.set("some-key", json!({ "value": 5 }));
-
-    // Get a value from the store.
-    let value = store
-        .get("some-key")
-        .expect("Failed to get value from store");
-    println!("{}", value); // {"value":5}
-
-    // Remove the store from the resource table
-    store.close_resource();
+    if let Some(value) = store.get("some-key") {
+        println!("读取到现有配置: {}", value);
+    } else {
+        println!("没有找到配置，创建默认值");
+        store.set("some-key", json!({ "value": 9 }));
+    }
+    let final_value = store.get("some-key").unwrap();
+    println!("最终配置值: {}", final_value);
     Ok(())
 }
