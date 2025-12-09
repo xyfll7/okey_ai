@@ -55,6 +55,16 @@ pub fn run() {
     let api_manager = Arc::new(RwLock::new(crate::my_api::manager::APIManager::new()));
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            use tauri_plugin_notification::NotificationExt;
+            app.notification()
+                .builder()
+                .title("okey.ai")
+                .body("okey.ai is running!")
+                .show()
+                .unwrap();
+        }))
         .manage(Mutex::new(AppState::default()))
         .manage(crate::my_api::commands::GlobalAPIManager(api_manager))
         .plugin(tauri_plugin_store::Builder::new().build())

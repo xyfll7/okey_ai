@@ -28,6 +28,8 @@ selection = "1.2.0"
 tauri-plugin-os = "2"
 mouse_position = "0.1.4"
 tauri-plugin-store = "2"
+tauri-plugin-notification = "2"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-global-shortcut = "2"
+tauri-plugin-single-instance = "2"
