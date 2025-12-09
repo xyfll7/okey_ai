@@ -11,7 +11,7 @@ mod my_windows;
 
 use std::sync::{Arc, Mutex};
 use tauri::async_runtime::RwLock;
-
+use tauri_plugin_notification::NotificationExt;
 // Enum for auto speak state - three possible states
 #[derive(Default, Clone, Copy, PartialEq)]
 pub enum AutoSpeakState {
@@ -53,11 +53,9 @@ pub struct AppState {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let api_manager = Arc::new(RwLock::new(crate::my_api::manager::APIManager::new()));
-
     tauri::Builder::default()
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
-            use tauri_plugin_notification::NotificationExt;
             app.notification()
                 .builder()
                 .title("okey.ai")
