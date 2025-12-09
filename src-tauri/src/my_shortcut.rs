@@ -1,44 +1,36 @@
 use crate::my_api::commands::GlobalAPIManager;
 use crate::my_api::traits::{ChatCompletionRequest, ChatMessage};
+use crate::my_config;
 use crate::my_events::event_names;
 use crate::my_types::InputData;
 use crate::my_utils;
-use crate::my_windows::create_or_show_main_window;
+use crate::my_windows;
 use selection::get_text;
 use std::time::{SystemTime, UNIX_EPOCH};
-use tauri::{async_runtime, AppHandle, Emitter, Manager};
-use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
-pub fn setup_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
-    let shortcut_0 = Shortcut::new(Some(Modifiers::CONTROL), Code::KeyY);
-    // let shortcut_1 = Shortcut::new(Some(Modifiers::CONTROL), Code::KeyI);
+use tauri::AppHandle;
+use tauri::{async_runtime, Emitter, Manager};
+use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
 
-    let app_handle = app.clone();
-    let shortcut_0_clone = shortcut_0.clone();
-    // let shortcut_1_clone = shortcut_1.clone();
+pub fn init_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
+    let global_config: crate::my_config::GlobalConfig = my_config::get_global_config(app)?;
 
-    app.global_shortcut()
-        .on_shortcut(shortcut_0_clone, move |_app, shortcut, event| {
-            if event.state == ShortcutState::Pressed {
-                println!("快捷键触发: {:?}", shortcut);
-                translate_selected_text(&app_handle);
-            }
-        })?;
-    // app.global_shortcut()
-    //     .on_shortcut(shortcut_1_clone, move |_app, shortcut, event| {
-    //         if event.state == ShortcutState::Pressed {
-    //             println!("快捷键触发: {:?}", shortcut);
-    //             handle_ctrl_1(&app_handle);
-    //         }
-    //     })?;
+    for shortcut in global_config.shortcuts {
+        let hot_key = shortcut.hot_key.clone();
+        let name = shortcut.name.clone();
+        app.global_shortcut()
+            .on_shortcut(hot_key.as_str(), move |app, shortcut, event| {
+                if event.state == ShortcutState::Pressed {
+                    println!("快捷键触发: {} ({})", name, shortcut);
+                    if name == "okey_ai" {
+                        translate_selected_text(&app);
+                    }
+                    if name == "test" {
+                        println!("测试快捷键被按下");
+                    }
+                }
+            })?;
+    }
 
-    // match app.global_shortcut().register(shortcut_0) {
-    //     Ok(()) => println!("快捷键 Ctrl+Y 注册成功"),
-    //     Err(e) => eprintln!("快捷键 Ctrl+Y 注册失败: {:?}", e),
-    // }
-    // match app.global_shortcut().register(shortcut_1) {
-    //     Ok(()) => println!("快捷键 Ctrl+I 注册成功"),
-    //     Err(e) => eprintln!("快捷键 Ctrl+I 注册失败: {:?}", e),
-    // }
     Ok(())
 }
 
@@ -99,7 +91,7 @@ fn translate_selected_text(app_handle: &AppHandle) {
                 if let Some(choice) = response.choices.first() {
                     let content = choice.message.content.clone();
                     let app_handle_clone = app_handle.clone();
-                    create_or_show_main_window(
+                    my_windows::create_or_show_main_window(
                         &app_handle,
                         Some(move || {
                             let _ = app_handle_clone.emit(event_names::AUTO_SPEAK, &input_data);
@@ -114,7 +106,7 @@ fn translate_selected_text(app_handle: &AppHandle) {
             Err(e) => {
                 let app_handle_clone = app_handle.clone();
                 let error_msg = e.to_string();
-                create_or_show_main_window(
+                my_windows::create_or_show_main_window(
                     &app_handle,
                     Some(move || {
                         let _ = app_handle_clone.emit(event_names::AI_ERROR, error_msg);
@@ -125,24 +117,53 @@ fn translate_selected_text(app_handle: &AppHandle) {
     });
 }
 
-// fn handle_ctrl_1(app_handle: &AppHandle) {
-//     let _ = app_handle.emit(event_names::GLOBAL_SHORTCUT_PRESSED, "open_settings");
-// }
-
 #[tauri::command]
-pub fn register_hotkey(app: AppHandle, shortcut: String) -> Result<(), String> {
-    let handle = app.clone();
+pub fn register_hotkey_okey_ai(app: AppHandle, shortcut: String) -> Result<(), String> {
+    println!("注册动态快捷键: {}", shortcut);
 
+    // Get the current configuration
+    let mut global_config: my_config::GlobalConfig =
+        my_config::get_global_config(&app).map_err(|e| format!("获取配置失败: {}", e))?;
+
+    // Find and store the old shortcut for "okey_ai" if it exists
+    let mut old_shortcut: Option<String> = None;
+    for shortcut_config in &mut global_config.shortcuts {
+        if shortcut_config.name == "okey_ai" {
+            old_shortcut = Some(shortcut_config.hot_key.clone());
+            shortcut_config.hot_key = shortcut.clone(); // Update the existing shortcut
+            break;
+        }
+    }
+
+    // If the "okey_ai" shortcut wasn't found in config, add it
+    if old_shortcut.is_none() {
+        global_config.shortcuts.push(crate::my_config::Shortcut {
+            name: "okey_ai".to_string(),
+            hot_key: shortcut.clone(),
+        });
+    }
+
+    // Save the updated configuration
+    my_config::set_global_config(&app, &global_config)
+        .map_err(|e| format!("保存配置失败: {}", e))?;
+
+    // If there was an old shortcut, unregister it specifically
+    if let Some(old_key) = old_shortcut {
+        if let Err(e) = app.global_shortcut().unregister(old_key.as_str()) {
+            println!("注销旧快捷键失败 {}: {}", old_key, e);
+        }
+    }
+
+    // Register the new shortcut
+    let shortcut_for_closure = shortcut.clone();
     app.global_shortcut()
-        .on_shortcut(shortcut.as_str(), move |_app, shortcut, event| {
+        .on_shortcut(shortcut.as_str(), move |app, _shortcut, event| {
             if event.state == ShortcutState::Pressed {
-                println!("动态快捷键触发: {}", shortcut);
-
-                // 发送事件到前端
-                let _ = handle.emit("hotkey-pressed", shortcut.to_string());
+                println!("动态快捷键触发: {}", shortcut_for_closure);
+                translate_selected_text(&app);
             }
         })
-        .map_err(|e| e.to_string())?;
+        .map_err(|e| format!("注册新快捷键失败: {}", e))?;
 
     Ok(())
 }

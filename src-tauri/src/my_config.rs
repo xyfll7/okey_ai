@@ -1,16 +1,56 @@
+use serde::{Deserialize, Serialize};
 use serde_json::json;
 use tauri::AppHandle;
 use tauri_plugin_store::StoreExt;
 
-pub fn init_config(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
-    let store = app.store("store.json")?;
-    if let Some(value) = store.get("some-key") {
-        println!("读取到现有配置: {}", value);
-    } else {
-        println!("没有找到配置，创建默认值");
-        store.set("some-key", json!({ "value": 9 }));
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Shortcut {
+    pub name: String,
+    pub hot_key: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GlobalConfig {
+    pub shortcuts: Vec<Shortcut>,
+    pub test_field: String,
+}
+
+impl Default for GlobalConfig {
+    fn default() -> Self {
+        GlobalConfig {
+            shortcuts: vec![
+                Shortcut {
+                    name: "okey_ai".to_string(),
+                    hot_key: "CmdOrCtrl+G".to_string(),
+                },
+                Shortcut {
+                    name: "test".to_string(),
+                    hot_key: "CmdOrCtrl+H".to_string(),
+                },
+            ],
+            test_field: "default_value".to_string(),
+        }
     }
-    let final_value = store.get("some-key").unwrap();
-    println!("最终配置值: {}", final_value);
-    Ok(())
+}
+
+pub fn get_global_config(app: &AppHandle) -> Result<GlobalConfig, Box<dyn std::error::Error>> {
+    let store = app.store("store.json")?;
+
+    if let Some(value) = store.get("global_config") {
+        let config: GlobalConfig = serde_json::from_value(value.clone())?;
+        Ok(config)
+    } else {
+        let defaults = GlobalConfig::default();
+        set_global_config(app, &defaults)?;
+        Ok(defaults)
+    }
+}
+
+pub fn set_global_config(
+    app: &AppHandle,
+    config: &GlobalConfig,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let store = app.store("store.json")?;
+    store.set("global_config", json!(config));
+    store.save().map_err(|e| e.into())
 }

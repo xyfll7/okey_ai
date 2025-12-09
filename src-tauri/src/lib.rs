@@ -72,7 +72,6 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             my_reqwest::http_get_example,
             my_reqwest::http_post_example,
-            my_command::greet,
             my_command::get_selection_text,
             my_command::toggle_auto_close_window,
             my_command::get_auto_close_window_state,
@@ -81,7 +80,7 @@ pub fn run() {
             my_command::close_main_window,
             my_command::chat,
             my_command::detect_language,
-            my_shortcut::register_hotkey,
+            my_shortcut::register_hotkey_okey_ai,
             crate::my_api::commands::initialize_api_manager,
             crate::my_api::commands::switch_model,
             crate::my_api::commands::get_current_model,
@@ -89,7 +88,6 @@ pub fn run() {
             crate::my_api::commands::chat_completion,
         ])
         .setup(|app| {
-            let _ = my_config::init_config(&app.handle());
             if cfg!(debug_assertions) {
                 app.handle().plugin(
                     tauri_plugin_log::Builder::default()
@@ -101,7 +99,7 @@ pub fn run() {
             // 初始化 API 管理器
             crate::my_api::setup_api_manager(&app.handle())?;
 
-            my_shortcut::setup_shortcuts(&app.handle())?;
+            my_shortcut::init_shortcuts(&app.handle())?;
             my_tray::create_tray(&app.handle())?;
 
             // 在 macOS 上隐藏 Dock 栏图标

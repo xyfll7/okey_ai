@@ -172,13 +172,11 @@ function Header(props: React.ComponentProps<"div">) {
 		>
 			<div className=" flex items-center">
 				{_ostype === "windows" && PinButton}
-				{_ostype === "macos" && <HotKey />}
+				{_ostype === "macos" && <HotKey  className="mr-3" />}
 				<Tooltip>
 					<TooltipTrigger>
-						<Button
-							size="icon-sm"
-							variant="ghost"
-							className=" opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
+						<div
+							role="none"
 							onClick={async () =>
 								setAutoSpeak(await invoke<AutoSpeakState>("toggle_auto_speak"))
 							}
@@ -190,7 +188,7 @@ function Header(props: React.ComponentProps<"div">) {
 									[AutoSpeakState.All]: <Volume2 size={"1rem"} />,
 								}[autoSpeak]
 							}
-						</Button>
+						</div>
 					</TooltipTrigger>
 					<TooltipContent>
 						{
@@ -202,7 +200,7 @@ function Header(props: React.ComponentProps<"div">) {
 						}
 					</TooltipContent>
 				</Tooltip>
-				{_ostype === "windows" && <HotKey />}
+				{_ostype === "windows" && <HotKey className="ml-3" />}
 				{_ostype === "macos" && PinButton}
 			</div>
 			{_ostype === "windows" && (
@@ -461,46 +459,23 @@ function SelectedText({ selectedText }: { selectedText?: string }) {
 	);
 }
 
-function HotKey({
-	value = "Ctrl+K",
-	onChange,
-}: {
-	value?: string;
-	onChange?: (hotkey: string) => void;
-}) {
+function HotKey({className}: {className?: string}) {
+	const [hotkey, setHotkey] = useState<string>("Ctrl+K");
 	const { t } = useTranslation();
 	const [isRecording, setIsRecording] = useState<boolean>(false);
 	const [keys, setKeys] = useState<string[]>([]);
 	const inputRef = useRef<HTMLButtonElement>(null);
 
-	const parseHotkey = (hotkey: string): string[] => {
-		if (!hotkey) return [];
-		return hotkey.split("+").map((k) => k.trim());
-	};
-
-	const formatKey = (key: string): string => {
-		const keyMap: Record<string, string> = {
-			Control: "Ctrl",
-			Meta: "Cmd",
-			Alt: "Alt",
-			Shift: "Shift",
-			" ": "Space",
-		};
-		return keyMap[key] || key.toUpperCase();
-	};
-
-	const getDisplayContent = () => {
+	const displayContent = (() => {
 		if (isRecording) {
 			if (keys.length > 0) {
 				return keys;
 			}
 			return null;
 		}
-		const parsedValue = parseHotkey(value);
+		const parsedValue = !hotkey ? [] : hotkey.split("+").map((k) => k.trim());
 		return parsedValue.length > 0 ? parsedValue : null;
-	};
-
-	const displayContent = getDisplayContent();
+	})();
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
 		if (!isRecording) return;
@@ -515,6 +490,16 @@ function HotKey({
 		if (e.shiftKey) pressedKeys.push("Shift");
 
 		if (!["Control", "Alt", "Shift", "Meta"].includes(e.key)) {
+			const formatKey = (key: string): string => {
+				const keyMap: Record<string, string> = {
+					Control: "Ctrl",
+					Meta: "Cmd",
+					Alt: "Alt",
+					Shift: "Shift",
+					" ": "Space",
+				};
+				return keyMap[key] || key.toUpperCase();
+			};
 			pressedKeys.push(formatKey(e.key));
 		}
 
@@ -525,7 +510,6 @@ function HotKey({
 
 	const handleKeyUp = (e: React.KeyboardEvent<HTMLButtonElement>) => {
 		if (!isRecording) return;
-
 		e.preventDefault();
 		e.stopPropagation();
 
@@ -537,9 +521,9 @@ function HotKey({
 			keys.length > 0
 		) {
 			const newHotkey = keys.join("+");
-			if (onChange) {
-				onChange(newHotkey);
-			}
+			console.log("New hotkey set:", newHotkey);
+			invoke(EVENT_NAMES.REGISTER_HOTKEY, { shortcut: newHotkey });
+			setHotkey(newHotkey);
 			setIsRecording(false);
 			inputRef.current?.blur();
 		}
@@ -557,7 +541,7 @@ function HotKey({
 	};
 
 	return (
-		<div className="relative inline-flex items-center gap-2">
+		<div className={cn("relative inline-flex items-center gap-2",className)}>
 			<Button
 				ref={inputRef}
 				tabIndex={0}
@@ -580,7 +564,9 @@ function HotKey({
 									</React.Fragment>
 								))
 							) : (
-								<span className=" opacity-70">{t($=> $.translate.press_to_set_hotkey)}</span>
+								<span className=" opacity-70">
+									{t(($) => $.translate.press_to_set_hotkey)}
+								</span>
 							)}
 						</span>
 						{isRecording && (
