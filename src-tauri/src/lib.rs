@@ -15,9 +15,9 @@ use tauri::async_runtime::RwLock;
 // Enum for auto speak state - three possible states
 #[derive(Default, Clone, Copy, PartialEq)]
 pub enum AutoSpeakState {
-    Off,  // Completely off
+    Off, // Completely off
     #[default]
-    Single,   // Read single word
+    Single, // Read single word
     All, // Read full sentence
 }
 
@@ -59,6 +59,7 @@ pub fn run() {
         .manage(Mutex::new(AppState::default()))
         .manage(crate::my_api::commands::GlobalAPIManager(api_manager))
         .plugin(tauri_plugin_http::init())
+        .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
             my_reqwest::http_get_example,
             my_reqwest::http_post_example,
@@ -71,6 +72,7 @@ pub fn run() {
             my_command::close_main_window,
             my_command::chat,
             my_command::detect_language,
+            my_shortcut::register_hotkey,
             crate::my_api::commands::initialize_api_manager,
             crate::my_api::commands::switch_model,
             crate::my_api::commands::get_current_model,

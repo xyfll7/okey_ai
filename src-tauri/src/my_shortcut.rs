@@ -10,39 +10,35 @@ use tauri::{async_runtime, AppHandle, Emitter, Manager};
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
 pub fn setup_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     let shortcut_0 = Shortcut::new(Some(Modifiers::CONTROL), Code::KeyY);
-    let shortcut_1 = Shortcut::new(Some(Modifiers::CONTROL), Code::KeyI);
+    // let shortcut_1 = Shortcut::new(Some(Modifiers::CONTROL), Code::KeyI);
 
     let app_handle = app.clone();
     let shortcut_0_clone = shortcut_0.clone();
-    let shortcut_1_clone = shortcut_1.clone();
+    // let shortcut_1_clone = shortcut_1.clone();
 
-    app.plugin(
-        tauri_plugin_global_shortcut::Builder::new()
-            .with_handler(
-                move |_app: &AppHandle, shortcut, event| match event.state() {
-                    ShortcutState::Pressed => match shortcut {
-                        s if s == &shortcut_0_clone => {
-                            translate_selected_text(&app_handle);
-                        }
-                        s if s == &shortcut_1_clone => {
-                            handle_ctrl_1(&app_handle);
-                        }
-                        _ => {}
-                    },
-                    _ => {}
-                },
-            )
-            .build(),
-    )?;
+    app.global_shortcut()
+        .on_shortcut(shortcut_0_clone, move |_app, shortcut, event| {
+            if event.state == ShortcutState::Pressed {
+                println!("快捷键触发: {:?}", shortcut);
+                translate_selected_text(&app_handle);
+            }
+        })?;
+    // app.global_shortcut()
+    //     .on_shortcut(shortcut_1_clone, move |_app, shortcut, event| {
+    //         if event.state == ShortcutState::Pressed {
+    //             println!("快捷键触发: {:?}", shortcut);
+    //             handle_ctrl_1(&app_handle);
+    //         }
+    //     })?;
 
-    match app.global_shortcut().register(shortcut_0) {
-        Ok(()) => println!("快捷键 Ctrl+Y 注册成功"),
-        Err(e) => eprintln!("快捷键 Ctrl+Y 注册失败: {:?}", e),
-    }
-    match app.global_shortcut().register(shortcut_1) {
-        Ok(()) => println!("快捷键 Ctrl+I 注册成功"),
-        Err(e) => eprintln!("快捷键 Ctrl+I 注册失败: {:?}", e),
-    }
+    // match app.global_shortcut().register(shortcut_0) {
+    //     Ok(()) => println!("快捷键 Ctrl+Y 注册成功"),
+    //     Err(e) => eprintln!("快捷键 Ctrl+Y 注册失败: {:?}", e),
+    // }
+    // match app.global_shortcut().register(shortcut_1) {
+    //     Ok(()) => println!("快捷键 Ctrl+I 注册成功"),
+    //     Err(e) => eprintln!("快捷键 Ctrl+I 注册失败: {:?}", e),
+    // }
     Ok(())
 }
 
@@ -129,6 +125,24 @@ fn translate_selected_text(app_handle: &AppHandle) {
     });
 }
 
-fn handle_ctrl_1(app_handle: &AppHandle) {
-    let _ = app_handle.emit(event_names::GLOBAL_SHORTCUT_PRESSED, "open_settings");
+// fn handle_ctrl_1(app_handle: &AppHandle) {
+//     let _ = app_handle.emit(event_names::GLOBAL_SHORTCUT_PRESSED, "open_settings");
+// }
+
+#[tauri::command]
+pub fn register_hotkey(app: AppHandle, shortcut: String) -> Result<(), String> {
+    let handle = app.clone();
+
+    app.global_shortcut()
+        .on_shortcut(shortcut.as_str(), move |_app, shortcut, event| {
+            if event.state == ShortcutState::Pressed {
+                println!("动态快捷键触发: {}", shortcut);
+
+                // 发送事件到前端
+                let _ = handle.emit("hotkey-pressed", shortcut.to_string());
+            }
+        })
+        .map_err(|e| e.to_string())?;
+
+    Ok(())
 }

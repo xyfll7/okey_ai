@@ -12,6 +12,6 @@ pub mod event_names {
     /// Event emitted when a page has finished loading
     pub const PAGE_LOADED: &str = "PAGE_LOADED";
 
-    /// Event emitted when a global shortcut is pressed
-    pub const GLOBAL_SHORTCUT_PRESSED: &str = "GLOBAL_SHORTCUT_PRESSED";
+    // Event emitted when a global shortcut is pressed
+    // pub const GLOBAL_SHORTCUT_PRESSED: &str = "GLOBAL_SHORTCUT_PRESSED";
 }
