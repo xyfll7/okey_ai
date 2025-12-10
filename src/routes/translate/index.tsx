@@ -59,7 +59,7 @@ function RouteComponent() {
 		const unlistenSpeak = listen<InputData>(
 			EVENT_NAMES.AUTO_SPEAK,
 			({ payload }) => {
-				invoke<AutoSpeakState>("get_auto_speak_state").then((res) => {
+				invoke<AutoSpeakState>(EVENT_NAMES.GET_AUTO_SPEAK_STATE).then((res) => {
 					const isSingleWord =
 						payload.input_text.trim().split(/\s+/).length === 1;
 					if (
@@ -132,33 +132,15 @@ function RouteComponent() {
 }
 
 function Header(props: React.ComponentProps<"div">) {
-	const [pin, setPin] = useState(false);
 	const [autoSpeak, setAutoSpeak] = useState<AutoSpeakState>(
 		AutoSpeakState.Off,
 	); // Three possible states: off, single word, full sentence
 	useEffect(() => {
-		invoke<boolean>("get_auto_close_window_state").then((res) => setPin(res));
-		invoke<AutoSpeakState>("get_auto_speak_state").then((res) =>
+		invoke<AutoSpeakState>(EVENT_NAMES.GET_AUTO_SPEAK_STATE).then((res) =>
 			setAutoSpeak(res),
 		);
 	}, []);
 	const _ostype = ostype();
-
-	const PinButton = (
-		<Button
-			size="icon-sm"
-			variant="ghost"
-			className=" opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
-			onClick={async () =>
-				setPin(await invoke<boolean>("toggle_auto_close_window"))
-			}
-		>
-			<Pin
-				size={"1rem"}
-				className={cn(pin && "text-green-300 dark:text-green-200")}
-			/>
-		</Button>
-	);
 
 	return (
 		<div
@@ -171,25 +153,42 @@ function Header(props: React.ComponentProps<"div">) {
 			)}
 			data-tauri-drag-region
 		>
-			<div className=" flex items-center">
-				{_ostype === "windows" && PinButton}
-				{_ostype === "macos" && <HotKey className="mr-3" />}
+			<div className="flex items-center">
+				{_ostype === "windows" && <PinWindow />}
+				{_ostype === "macos" && <HotKey className="mr-2.5" />}
 				<Tooltip>
-					<TooltipTrigger>
-						<div
-							role="none"
+					<TooltipTrigger asChild>
+						<Button
+							size="icon-sm"
+							variant="ghost"
+							className="opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
 							onClick={async () =>
-								setAutoSpeak(await invoke<AutoSpeakState>("toggle_auto_speak"))
+								setAutoSpeak(await invoke<AutoSpeakState>(EVENT_NAMES.TOGGLE_AUTO_SPEAK))
 							}
 						>
 							{
 								{
-									[AutoSpeakState.Off]: <VolumeOff size={"1rem"} />,
-									[AutoSpeakState.Single]: <Volume1 size={"1rem"} />,
-									[AutoSpeakState.All]: <Volume2 size={"1rem"} />,
+									[AutoSpeakState.Off]: (
+										<VolumeOff
+											className="opacity-70 hover:opacity-100"
+											size={"1rem"}
+										/>
+									),
+									[AutoSpeakState.Single]: (
+										<Volume1
+											className="opacity-70 hover:opacity-100"
+											size={"1rem"}
+										/>
+									),
+									[AutoSpeakState.All]: (
+										<Volume2
+											className="opacity-70 hover:opacity-100"
+											size={"1rem"}
+										/>
+									),
 								}[autoSpeak]
 							}
-						</div>
+						</Button>
 					</TooltipTrigger>
 					<TooltipContent>
 						{
@@ -201,15 +200,15 @@ function Header(props: React.ComponentProps<"div">) {
 						}
 					</TooltipContent>
 				</Tooltip>
-				{_ostype === "windows" && <HotKey className="ml-2" />}
-				{_ostype === "macos" && PinButton}
+				{_ostype === "windows" && <HotKey className="ml-1" />}
+				{_ostype === "macos" && <PinWindow className="" />}
 			</div>
 			{_ostype === "windows" && (
 				<Button
 					size={"icon-sm"}
 					variant={"ghost"}
 					className="opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
-					onClick={() => invoke("close_main_window")}
+					onClick={() => invoke(EVENT_NAMES.CLOSE_MAIN_WINDOW)}
 				>
 					<X size={"1rem"} />
 				</Button>
@@ -236,7 +235,7 @@ function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
 					if (e.key === "Enter" && !e.ctrlKey) {
 						e.preventDefault();
 						onEnter(value);
-						await invoke("chat", {
+						await invoke(EVENT_NAMES.CHAT, {
 							input_data: {
 								input_time_stamp: Date.now().toString(),
 								input_text: value,
@@ -280,7 +279,7 @@ function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
 					size="icon-xs"
 					disabled={!value}
 					onClick={async () => {
-						await invoke("chat", {
+						await invoke(EVENT_NAMES.CHAT, {
 							input_data: {
 								input_time_stamp: Date.now().toString(),
 								input_text: value,
@@ -457,5 +456,30 @@ function SelectedText({ selectedText }: { selectedText?: string }) {
 				</KbdGroup>
 			)}
 		</div>
+	);
+}
+
+function PinWindow({ className }: { className?: string }) {
+	const [pin, setPin] = useState(false);
+	useEffect(() => {
+		invoke<boolean>(EVENT_NAMES.GET_AUTO_CLOSE_WINDOW_STATE).then((res) => setPin(res));
+	}, []);
+	return (
+		<Button
+			size="icon-sm"
+			variant="ghost"
+			className={cn(
+				"opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent",
+				className,
+			)}
+			onClick={async () =>
+				setPin(await invoke<boolean>(EVENT_NAMES.TOGGLE_AUTO_CLOSE_WINDOW))
+			}
+		>
+			<Pin
+				size={"1rem"}
+				className={cn(pin && "text-green-300 dark:text-green-200")}
+			/>
+		</Button>
 	);
 }
