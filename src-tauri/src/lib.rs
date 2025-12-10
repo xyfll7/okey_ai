@@ -96,7 +96,7 @@ pub fn run() {
             }
             // 初始化 API 管理器
             crate::my_api::setup_api_manager(&app.handle())?;
-
+            my_config::init_global_config(&app.handle())?;
             my_shortcut::init_shortcuts(&app.handle())?;
             my_tray::create_tray(&app.handle())?;
 

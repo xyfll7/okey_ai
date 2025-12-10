@@ -17,7 +17,11 @@ pub fn init_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>>
     for shortcut in global_config.shortcuts {
         let hot_key = shortcut.hot_key.clone();
         let name = shortcut.name.clone();
-        app.global_shortcut()
+
+        let hot_key_for_message = hot_key.clone();
+        let name_for_message = name.clone();
+        match app
+            .global_shortcut()
             .on_shortcut(hot_key.as_str(), move |app, shortcut, event| {
                 if event.state == ShortcutState::Pressed {
                     println!("快捷键触发: {} ({})", name, shortcut);
@@ -28,7 +32,15 @@ pub fn init_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>>
                         println!("测试快捷键被按下");
                     }
                 }
-            })?;
+            }) {
+            Ok(_) => println!(
+                "成功注册快捷键: {} ({})",
+                name_for_message, hot_key_for_message
+            ),
+            Err(e) => {
+                eprintln!("注册快捷键失败 {}: {}", hot_key_for_message, e);
+            }
+        }
     }
 
     Ok(())
@@ -153,17 +165,20 @@ pub fn register_hotkey_okey_ai(app: AppHandle, shortcut: String) -> Result<(), S
             println!("注销旧快捷键失败 {}: {}", old_key, e);
         }
     }
-
+    println!("已注销旧快捷键");
     // Register the new shortcut
     let shortcut_for_closure = shortcut.clone();
-    app.global_shortcut()
+    match app
+        .global_shortcut()
         .on_shortcut(shortcut.as_str(), move |app, _shortcut, event| {
             if event.state == ShortcutState::Pressed {
                 println!("动态快捷键触发: {}", shortcut_for_closure);
                 translate_selected_text(&app);
             }
-        })
-        .map_err(|e| format!("注册新快捷键失败: {}", e))?;
+        }) {
+        Ok(_) => println!("成功注册动态快捷键: {}", shortcut),
+        Err(e) => return Err(format!("注册新快捷键失败: {}", e)),
+    }
 
     Ok(())
 }

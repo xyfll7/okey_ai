@@ -33,17 +33,25 @@ impl Default for GlobalConfig {
     }
 }
 
-pub fn get_global_config<R: Runtime>(app: &AppHandle<R>) -> Result<GlobalConfig, Box<dyn std::error::Error>> {
+pub fn get_global_config<R: Runtime>(
+    app: &AppHandle<R>,
+) -> Result<GlobalConfig, Box<dyn std::error::Error>> {
     let store = app.store("store.json")?;
-
     if let Some(value) = store.get("global_config") {
         let config: GlobalConfig = serde_json::from_value(value.clone())?;
         Ok(config)
     } else {
-        let defaults = GlobalConfig::default();
-        set_global_config(app, &defaults)?;
-        Ok(defaults)
+        let config = init_global_config(app)?;
+        Ok(config)
     }
+}
+
+pub fn init_global_config<R: Runtime>(
+    app: &AppHandle<R>,
+) -> Result<GlobalConfig, Box<dyn std::error::Error>> {
+    let defaults = GlobalConfig::default();
+    set_global_config(app, &defaults)?;
+    Ok(defaults)
 }
 
 pub fn set_global_config<R: Runtime>(
