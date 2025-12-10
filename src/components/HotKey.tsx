@@ -7,6 +7,7 @@ import { EVENT_NAMES } from "@/lib/events";
 import { cn } from "@/lib/utils";
 
 export default function HotKey({ className }: { className?: string }) {
+	const MODIFIER_KEYS = new Set(["Ctrl", "Cmd", "Alt", "Shift"]);
 	const [hotkey, setHotkey] = useState<string>("Ctrl+K");
 	const { t } = useTranslation();
 	const [isRecording, setIsRecording] = useState<boolean>(false);
@@ -60,6 +61,7 @@ export default function HotKey({ className }: { className?: string }) {
 		e.preventDefault();
 		e.stopPropagation();
 
+		// 只有当所有修饰键都释放，且 keys 非空时才尝试提交
 		if (
 			!e.ctrlKey &&
 			!e.altKey &&
@@ -67,11 +69,26 @@ export default function HotKey({ className }: { className?: string }) {
 			!e.metaKey &&
 			keys.length > 0
 		) {
-			const newHotkey = keys.join("+");
-			console.log("New hotkey set:", newHotkey);
-			invoke(EVENT_NAMES.REGISTER_HOTKEY, { shortcut: newHotkey });
-			setHotkey(newHotkey);
+			const hasModifier = keys.some((key) => MODIFIER_KEYS.has(key));
+			const hasNonModifier = keys.some((key) => !MODIFIER_KEYS.has(key));
+			const isValidHotkey = hasModifier && hasNonModifier;
+
+			if (isValidHotkey) {
+				const newHotkey = keys.join("+");
+				console.log("New hotkey set:", newHotkey);
+				invoke(EVENT_NAMES.REGISTER_HOTKEY, { shortcut: newHotkey });
+				setHotkey(newHotkey);
+			} else {
+				console.warn(
+					"Invalid hotkey: must include at least one modifier (Ctrl/Cmd/Alt/Shift) and one main key.",
+					keys,
+				);
+				// 可选：显示用户提示，如 toast("快捷键必须包含修饰键和主键")
+			}
+
+			// 结束录制
 			setIsRecording(false);
+			setKeys([]);
 			inputRef.current?.blur();
 		}
 	};
