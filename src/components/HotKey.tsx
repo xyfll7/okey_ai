@@ -7,7 +7,12 @@ import { EVENT_NAMES } from "@/lib/events";
 import { cn } from "@/lib/utils";
 
 export default function HotKey({ className }: { className?: string }) {
-	const MODIFIER_KEYS = new Set(["Control", "Cmd", "Alt", "Shift"]);
+	const MODIFIER_KEYS = new Set([
+		"Control",
+		"Meta",
+		"Alt",
+		"Shift",
+	]);
 	const [hotkey, setHotkey] = useState<string>("Control+KeyK");
 	const { t } = useTranslation();
 	const [isRecording, setIsRecording] = useState<boolean>(false);
@@ -22,31 +27,19 @@ export default function HotKey({ className }: { className?: string }) {
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
 		if (!isRecording) return;
-		console.log(e);
+		console.log("--------", e);
 		e.preventDefault();
 		e.stopPropagation();
 
 		const pressedKeys: string[] = [];
-		if (e.ctrlKey) pressedKeys.push(e.code);
-		if (e.metaKey) pressedKeys.push(e.code);
-		if (e.altKey) pressedKeys.push(e.code);
-		if (e.shiftKey) pressedKeys.push(e.code);
-
-		if (!["Control","ControlLeft", "Alt", "Shift", "Meta"].includes(e.code)) {
-			const formatKey = (code: string): string => {
-				const keyMap: Record<string, string> = {
-					Control: "Control",
-					Meta: "Meta",
-					Alt: "Alt",
-					Shift: "Shift",
-					Space: "Space",
-				};
-				return keyMap[code] || code;
-			};
-			pressedKeys.push(formatKey(e.code));
-		}
-
+		if (e.ctrlKey) pressedKeys.push("Control");
+		if (e.metaKey) pressedKeys.push("Meta");
+		if (e.altKey) pressedKeys.push("Alt");
+		if (e.shiftKey) pressedKeys.push("Shift");
+	
+		pressedKeys.push(e.code);
 		if (pressedKeys.length > 0) {
+			console.log("Current pressed keys:", pressedKeys);
 			setCodes(pressedKeys);
 		}
 	};
@@ -64,6 +57,7 @@ export default function HotKey({ className }: { className?: string }) {
 			!e.metaKey &&
 			codes.length > 0
 		) {
+			console.log("Finalizing hotkey with codes:", codes);
 			const hasModifier = codes.some((code) => MODIFIER_KEYS.has(code));
 			const hasNonModifier = codes.some((code) => !MODIFIER_KEYS.has(code));
 			const isValidHotkey = hasModifier && hasNonModifier;
@@ -116,14 +110,13 @@ export default function HotKey({ className }: { className?: string }) {
 				<KbdGroup>
 					<Kbd>
 						<span className="mr-1">
-							{displayContent ? (
-								displayContent.map((key, index) => (
-									<React.Fragment key={`${key}-`}>
-										{key}
-										{index < displayContent.length - 1 && <span>+</span>}
-									</React.Fragment>
-								))
-							) : (
+							{displayContent?.map((key, index) => (
+								<React.Fragment key={`key-${key}-${index.toString()}`}>
+									{key}
+									{index < displayContent.length - 1 && <span>+</span>}
+								</React.Fragment>
+							))}
+							{!displayContent && (
 								<span className=" opacity-70">
 									{t(($) => $.translate.press_to_set_hotkey)}
 								</span>
