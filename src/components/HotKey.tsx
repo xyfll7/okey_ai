@@ -15,14 +15,9 @@ export default function HotKey({ className }: { className?: string }) {
 	const inputRef = useRef<HTMLButtonElement>(null);
 
 	const displayContent = (() => {
-		if (isRecording) {
-			if (keys.length > 0) {
-				return keys;
-			}
-			return null;
-		}
-		const parsedValue = !hotkey ? [] : hotkey.split("+").map((k) => k.trim());
-		return parsedValue.length > 0 ? parsedValue : null;
+		if (isRecording) return keys.length > 0 ? keys : null;
+		const parsed = hotkey?.split("+").map((k) => k.trim()) || [];
+		return parsed.length > 0 ? parsed : null;
 	})();
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
