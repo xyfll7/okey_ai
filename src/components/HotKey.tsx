@@ -15,14 +15,9 @@ export default function HotKey({ className }: { className?: string }) {
 	const inputRef = useRef<HTMLButtonElement>(null);
 
 	const displayContent = (() => {
-		if (isRecording) {
-			if (keys.length > 0) {
-				return keys;
-			}
-			return null;
-		}
-		const parsedValue = !hotkey ? [] : hotkey.split("+").map((k) => k.trim());
-		return parsedValue.length > 0 ? parsedValue : null;
+		if (isRecording && keys.length > 0) return keys;
+		if (hotkey) return hotkey.split("+").map((k) => k.trim());
+		return null;
 	})();
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
@@ -33,7 +28,8 @@ export default function HotKey({ className }: { className?: string }) {
 
 		const pressedKeys: string[] = [];
 
-		if (e.ctrlKey || e.metaKey) pressedKeys.push(e.ctrlKey ? "Ctrl" : "Cmd");
+		if (e.ctrlKey) pressedKeys.push("Ctrl");
+		if (e.metaKey) pressedKeys.push("Cmd");
 		if (e.altKey) pressedKeys.push("Alt");
 		if (e.shiftKey) pressedKeys.push("Shift");
 
@@ -108,6 +104,7 @@ export default function HotKey({ className }: { className?: string }) {
 		<div className={cn("relative inline-flex items-center gap-2", className)}>
 			<Button
 				ref={inputRef}
+				role="button"
 				tabIndex={0}
 				className="px-1 hover:bg-transparent dark:hover:bg-transparent"
 				size="sm"
