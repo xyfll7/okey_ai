@@ -200,7 +200,7 @@ function Header(props: React.ComponentProps<"div">) {
 						}
 					</TooltipContent>
 				</Tooltip>
-				{_ostype === "windows" && <HotKey className="ml-3" />}
+				{_ostype === "windows" && <HotKey className="ml-2" />}
 				{_ostype === "macos" && PinButton}
 			</div>
 			{_ostype === "windows" && (
