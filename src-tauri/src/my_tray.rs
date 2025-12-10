@@ -1,13 +1,15 @@
-use crate::my_reqwest;
-use tauri::async_runtime;
 use tauri::{
     menu::{MenuBuilder, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
     AppHandle, Runtime,
 };
 
-use crate::my_windows::{create_or_show_about_window, create_or_show_main_window};
+use crate::{
+    my_config,
+    my_windows::{create_or_show_about_window, create_or_show_main_window},
+};
 
+/*******  ab7e53dc-7cba-45e1-8b3a-3837c9b2580a  *******/
 pub fn create_tray<R: Runtime>(app_handle: &AppHandle<R>) -> tauri::Result<()> {
     // 创建菜单项
     let show_item = MenuItem::with_id(app_handle, "show", "Show", true, None::<&str>)?;
@@ -28,7 +30,8 @@ pub fn create_tray<R: Runtime>(app_handle: &AppHandle<R>) -> tauri::Result<()> {
             create_or_show_about_window(app);
         }
         "test" => {
-            let app = app.clone(); // Clone 会得到一个 AppHandle<R>
+            let config = my_config::get_global_config(app);
+            println!("config: {:#?}", config);
         }
         "quit" => std::process::exit(0),
         _ => {}

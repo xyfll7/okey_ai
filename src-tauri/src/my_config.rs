@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use tauri::AppHandle;
+use tauri::{AppHandle, Runtime};
 use tauri_plugin_store::StoreExt;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -33,7 +33,7 @@ impl Default for GlobalConfig {
     }
 }
 
-pub fn get_global_config(app: &AppHandle) -> Result<GlobalConfig, Box<dyn std::error::Error>> {
+pub fn get_global_config<R: Runtime>(app: &AppHandle<R>) -> Result<GlobalConfig, Box<dyn std::error::Error>> {
     let store = app.store("store.json")?;
 
     if let Some(value) = store.get("global_config") {
@@ -46,8 +46,8 @@ pub fn get_global_config(app: &AppHandle) -> Result<GlobalConfig, Box<dyn std::e
     }
 }
 
-pub fn set_global_config(
-    app: &AppHandle,
+pub fn set_global_config<R: Runtime>(
+    app: &AppHandle<R>,
     config: &GlobalConfig,
 ) -> Result<(), Box<dyn std::error::Error>> {
     let store = app.store("store.json")?;
