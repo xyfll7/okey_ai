@@ -7,48 +7,47 @@ import { EVENT_NAMES } from "@/lib/events";
 import { cn } from "@/lib/utils";
 
 export default function HotKey({ className }: { className?: string }) {
-	const MODIFIER_KEYS = new Set(["Ctrl", "Cmd", "Alt", "Shift"]);
-	const [hotkey, setHotkey] = useState<string>("Ctrl+K");
+	const MODIFIER_KEYS = new Set(["Control", "Cmd", "Alt", "Shift"]);
+	const [hotkey, setHotkey] = useState<string>("Control+KeyK");
 	const { t } = useTranslation();
 	const [isRecording, setIsRecording] = useState<boolean>(false);
-	const [keys, setKeys] = useState<string[]>([]);
+	const [codes, setCodes] = useState<string[]>([]);
 	const inputRef = useRef<HTMLButtonElement>(null);
 
 	const displayContent = (() => {
-		if (isRecording && keys.length > 0) return keys;
+		if (isRecording && codes.length > 0) return codes;
 		if (hotkey) return hotkey.split("+").map((k) => k.trim());
 		return null;
 	})();
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
 		if (!isRecording) return;
-
+		console.log(e);
 		e.preventDefault();
 		e.stopPropagation();
 
 		const pressedKeys: string[] = [];
+		if (e.ctrlKey) pressedKeys.push(e.code);
+		if (e.metaKey) pressedKeys.push(e.code);
+		if (e.altKey) pressedKeys.push(e.code);
+		if (e.shiftKey) pressedKeys.push(e.code);
 
-		if (e.ctrlKey) pressedKeys.push("Ctrl");
-		if (e.metaKey) pressedKeys.push("Cmd");
-		if (e.altKey) pressedKeys.push("Alt");
-		if (e.shiftKey) pressedKeys.push("Shift");
-
-		if (!["Control", "Alt", "Shift", "Meta"].includes(e.key)) {
-			const formatKey = (key: string): string => {
+		if (!["Control","ControlLeft", "Alt", "Shift", "Meta"].includes(e.code)) {
+			const formatKey = (code: string): string => {
 				const keyMap: Record<string, string> = {
-					Control: "Ctrl",
-					Meta: "Cmd",
+					Control: "Control",
+					Meta: "Meta",
 					Alt: "Alt",
 					Shift: "Shift",
-					" ": "Space",
+					Space: "Space",
 				};
-				return keyMap[key] || key.toUpperCase();
+				return keyMap[code] || code;
 			};
-			pressedKeys.push(formatKey(e.key));
+			pressedKeys.push(formatKey(e.code));
 		}
 
 		if (pressedKeys.length > 0) {
-			setKeys(pressedKeys);
+			setCodes(pressedKeys);
 		}
 	};
 
@@ -63,41 +62,41 @@ export default function HotKey({ className }: { className?: string }) {
 			!e.altKey &&
 			!e.shiftKey &&
 			!e.metaKey &&
-			keys.length > 0
+			codes.length > 0
 		) {
-			const hasModifier = keys.some((key) => MODIFIER_KEYS.has(key));
-			const hasNonModifier = keys.some((key) => !MODIFIER_KEYS.has(key));
+			const hasModifier = codes.some((code) => MODIFIER_KEYS.has(code));
+			const hasNonModifier = codes.some((code) => !MODIFIER_KEYS.has(code));
 			const isValidHotkey = hasModifier && hasNonModifier;
 
 			if (isValidHotkey) {
-				const newHotkey = keys.join("+");
+				const newHotkey = codes.join("+");
 				console.log("New hotkey set:", newHotkey);
 				invoke(EVENT_NAMES.REGISTER_HOTKEY, { shortcut: newHotkey });
 				setHotkey(newHotkey);
 			} else {
 				console.warn(
 					"Invalid hotkey: must include at least one modifier (Ctrl/Cmd/Alt/Shift) and one main key.",
-					keys,
+					codes,
 				);
 				// 可选：显示用户提示，如 toast("快捷键必须包含修饰键和主键")
 			}
 
 			// 结束录制
 			setIsRecording(false);
-			setKeys([]);
+			setCodes([]);
 			inputRef.current?.blur();
 		}
 	};
 
 	const handleClick = () => {
 		setIsRecording(true);
-		setKeys([]);
+		setCodes([]);
 		inputRef.current?.focus();
 	};
 
 	const handleBlur = () => {
 		setIsRecording(false);
-		setKeys([]);
+		setCodes([]);
 	};
 
 	return (
