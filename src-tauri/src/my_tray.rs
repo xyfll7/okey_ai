@@ -29,18 +29,6 @@ pub fn create_tray<R: Runtime>(app_handle: &AppHandle<R>) -> tauri::Result<()> {
         }
         "test" => {
             let app = app.clone(); // Clone 会得到一个 AppHandle<R>
-            async_runtime::spawn(async move {
-                match my_reqwest::http_get_example(app).await {
-                    Ok(result) => {
-                        println!("HTTP request succeeded! Result: {:?}", result.message);
-                    }
-                    Err(e) => {
-                        eprintln!("HTTP request failed: {}", e);
-                    }
-                }
-                println!("Test menu item clicked and request completed");
-            });
-            println!("Test menu item clicked (request started)");
         }
         "quit" => std::process::exit(0),
         _ => {}

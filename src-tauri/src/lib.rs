@@ -70,8 +70,6 @@ pub fn run() {
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
-            my_reqwest::http_get_example,
-            my_reqwest::http_post_example,
             my_command::get_selection_text,
             my_command::toggle_auto_close_window,
             my_command::get_auto_close_window_state,
