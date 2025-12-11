@@ -177,7 +177,11 @@ pub fn register_hotkey_okey_ai(app: AppHandle, shortcut: String) -> Result<(), S
             }
         }) {
         Ok(_) => println!("成功注册动态快捷键: {}", shortcut),
-        Err(e) => return Err(format!("注册新快捷键失败: {}", e)),
+        Err(e) => {
+            let error_msg = format!("注册新快捷键失败: {}", e);
+            eprintln!("{}", error_msg); // Print error to stderr as well
+            return Err(error_msg);
+        }
     }
 
     Ok(())
