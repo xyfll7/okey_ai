@@ -17,15 +17,20 @@ pub struct GlobalConfig {
 
 impl Default for GlobalConfig {
     fn default() -> Self {
+        #[cfg(target_os = "macos")]
+        let cmd_ctrl_modifier = "Cmd";
+        #[cfg(not(target_os = "macos"))]
+        let cmd_ctrl_modifier = "Ctrl";
+
         GlobalConfig {
             shortcuts: vec![
                 Shortcut {
                     name: "okey_ai".to_string(),
-                    hot_key: "CmdOrCtrl+G".to_string(),
+                    hot_key: format!("{}+G", cmd_ctrl_modifier),
                 },
                 Shortcut {
                     name: "test".to_string(),
-                    hot_key: "CmdOrCtrl+H".to_string(),
+                    hot_key: format!("{}+H", cmd_ctrl_modifier),
                 },
             ],
             test_field: "default_value".to_string(),
