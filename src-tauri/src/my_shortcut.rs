@@ -14,6 +14,24 @@ use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
 pub fn register_hotkey_okey_ai(app: AppHandle, shortcut: String) -> Result<(), String> {
     println!("注册动态快捷键: {}", shortcut);
 
+    // First, try to register the new shortcut
+    let shortcut_for_closure = shortcut.clone();
+    match app
+        .global_shortcut()
+        .on_shortcut(shortcut.as_str(), move |app, _shortcut, event| {
+            if event.state == ShortcutState::Pressed {
+                println!("动态快捷键触发: {}", shortcut_for_closure);
+                translate_selected_text(&app);
+            }
+        }) {
+        Ok(_) => println!("成功注册动态快捷键: {}", shortcut),
+        Err(e) => {
+            let error_msg = format!("注册新快捷键失败: {}", e);
+            println!("{}", error_msg);
+            return Err(error_msg);
+        }
+    }
+
     // Get the current configuration
     let mut global_config: my_config::GlobalConfig =
         my_config::get_global_config(&app).map_err(|e| format!("获取配置失败: {}", e))?;
@@ -36,7 +54,7 @@ pub fn register_hotkey_okey_ai(app: AppHandle, shortcut: String) -> Result<(), S
         });
     }
 
-    // Save the updated configuration
+    // Save the updated configuration only if shortcut registration was successful
     my_config::set_global_config(&app, &global_config)
         .map_err(|e| format!("保存配置失败: {}", e))?;
 
@@ -47,23 +65,6 @@ pub fn register_hotkey_okey_ai(app: AppHandle, shortcut: String) -> Result<(), S
         }
     }
     println!("已注销旧快捷键");
-    // Register the new shortcut
-    let shortcut_for_closure = shortcut.clone();
-    match app
-        .global_shortcut()
-        .on_shortcut(shortcut.as_str(), move |app, _shortcut, event| {
-            if event.state == ShortcutState::Pressed {
-                println!("动态快捷键触发: {}", shortcut_for_closure);
-                translate_selected_text(&app);
-            }
-        }) {
-        Ok(_) => println!("成功注册动态快捷键: {}", shortcut),
-        Err(e) => {
-            let error_msg = format!("注册新快捷键失败: {}", e);
-            eprintln!("{}", error_msg); // Print error to stderr as well
-            return Err(error_msg);
-        }
-    }
 
     Ok(())
 }
