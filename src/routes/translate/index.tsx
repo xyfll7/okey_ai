@@ -40,7 +40,7 @@ import {
 } from "@/components/ui/tooltip";
 import { EVENT_NAMES } from "@/lib/events";
 import type { InputData } from "@/lib/types";
-import { cn, speak } from "@/lib/utils";
+import { cn, get_global_config, speak } from "@/lib/utils";
 
 enum AutoSpeakState {
 	Off = "off",
@@ -142,6 +142,11 @@ function Header(props: React.ComponentProps<"div">) {
 	}, []);
 	const _ostype = ostype();
 	const [hotkey, setHotkey] = useState<string>("");
+	useEffect(()=> {
+		get_global_config().then((config) => {
+			setHotkey(config?.shortcuts.find((item) => item.name === "okey_ai")?.hot_key || "");
+		})
+	},[])
 	return (
 		<div
 			className={cn(
