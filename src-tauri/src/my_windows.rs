@@ -16,7 +16,7 @@ pub fn create_or_show_input_method_editor_window<R: Runtime>(app: &AppHandle<R>)
     if let Some(window) = app.get_webview_window("input_method_editor") {
         let _ = window.show();
         let _ = window.set_focus();
-        let size = LogicalSize::new(17.0, 17.0);
+        let size = LogicalSize::new(13.0, 13.0);
         let _ = window.set_size(size);
         let _ = window.set_min_size(Some(size));
         let _ = window.set_background_color(Some(Color(0, 0, 0, 0)));
