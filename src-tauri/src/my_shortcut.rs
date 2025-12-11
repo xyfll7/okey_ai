@@ -5,11 +5,13 @@ use crate::my_events::event_names;
 use crate::my_types::InputData;
 use crate::my_utils;
 use crate::my_windows;
+use rdev::{listen, Event};
 use selection::get_text;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::AppHandle;
 use tauri::{async_runtime, Emitter, Manager};
-use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
+use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
+
 #[tauri::command]
 pub fn register_hotkey_okey_ai(app: AppHandle, shortcut: String) -> Result<(), String> {
     println!("注册动态快捷键: {}", shortcut);
@@ -98,6 +100,23 @@ pub fn init_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>>
             Err(e) => {
                 eprintln!("注册快捷键失败 {}: {}", hot_key_for_message, e);
             }
+        }
+    }
+
+    Ok(())
+}
+
+pub fn set_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
+    println!("fasdf");
+    if let Err(error) = listen(callback) {
+        println!("Error: {:?}", error)
+    }
+
+    fn callback(event: Event) {
+        println!("My callback {:?}", event);
+        match event.name {
+            Some(string) => println!("User wrote {:?}", string),
+            None => (),
         }
     }
 

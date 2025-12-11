@@ -79,6 +79,7 @@ pub fn run() {
             my_command::chat,
             my_command::detect_language,
             my_shortcut::register_hotkey_okey_ai,
+            my_shortcut::register_hotkey_okey_ai,
             crate::my_api::commands::initialize_api_manager,
             crate::my_api::commands::switch_model,
             crate::my_api::commands::get_current_model,
@@ -97,6 +98,7 @@ pub fn run() {
             // 初始化 API 管理器
             crate::my_api::setup_api_manager(&app.handle())?;
             my_config::init_global_config(&app.handle())?;
+            my_shortcut::set_shortcuts(&app.handle())?;
             my_shortcut::init_shortcuts(&app.handle())?;
             my_tray::create_tray(&app.handle())?;
 
