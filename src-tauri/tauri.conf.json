@@ -12,11 +12,9 @@
 	"app": {
 		"windows": [
 			{
-				"title": "okey_ai",
-				"label": "main",
-				"url": "/",
-				"width": 50,
-				"height": 50,
+				"title": "Input method editor",
+				"label": "input_method_editor",
+				"url": "/input_method_editor",
 				"resizable": false,
 				"fullscreen": false,
 				"visible": false,

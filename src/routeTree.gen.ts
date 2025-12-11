@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TranslateIndexRouteImport } from './routes/translate/index'
+import { Route as Input_method_editorIndexRouteImport } from './routes/input_method_editor/index'
 import { Route as TranslateSettingsRouteImport } from './routes/translate/settings'
 
 const AboutRoute = AboutRouteImport.update({
@@ -29,6 +30,12 @@ const TranslateIndexRoute = TranslateIndexRouteImport.update({
   path: '/translate/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Input_method_editorIndexRoute =
+  Input_method_editorIndexRouteImport.update({
+    id: '/input_method_editor/',
+    path: '/input_method_editor/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const TranslateSettingsRoute = TranslateSettingsRouteImport.update({
   id: '/translate/settings',
   path: '/translate/settings',
@@ -39,12 +46,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/translate/settings': typeof TranslateSettingsRoute
+  '/input_method_editor': typeof Input_method_editorIndexRoute
   '/translate': typeof TranslateIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/translate/settings': typeof TranslateSettingsRoute
+  '/input_method_editor': typeof Input_method_editorIndexRoute
   '/translate': typeof TranslateIndexRoute
 }
 export interface FileRoutesById {
@@ -52,20 +61,38 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/translate/settings': typeof TranslateSettingsRoute
+  '/input_method_editor/': typeof Input_method_editorIndexRoute
   '/translate/': typeof TranslateIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/translate/settings' | '/translate'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/translate/settings'
+    | '/input_method_editor'
+    | '/translate'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/translate/settings' | '/translate'
-  id: '__root__' | '/' | '/about' | '/translate/settings' | '/translate/'
+  to:
+    | '/'
+    | '/about'
+    | '/translate/settings'
+    | '/input_method_editor'
+    | '/translate'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/translate/settings'
+    | '/input_method_editor/'
+    | '/translate/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   TranslateSettingsRoute: typeof TranslateSettingsRoute
+  Input_method_editorIndexRoute: typeof Input_method_editorIndexRoute
   TranslateIndexRoute: typeof TranslateIndexRoute
 }
 
@@ -92,6 +119,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TranslateIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/input_method_editor/': {
+      id: '/input_method_editor/'
+      path: '/input_method_editor'
+      fullPath: '/input_method_editor'
+      preLoaderRoute: typeof Input_method_editorIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/translate/settings': {
       id: '/translate/settings'
       path: '/translate/settings'
@@ -106,6 +140,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   TranslateSettingsRoute: TranslateSettingsRoute,
+  Input_method_editorIndexRoute: Input_method_editorIndexRoute,
   TranslateIndexRoute: TranslateIndexRoute,
 }
 export const routeTree = rootRouteImport

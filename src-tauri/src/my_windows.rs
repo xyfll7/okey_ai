@@ -13,17 +13,23 @@ use mouse_position::mouse_position::{Mouse, Position};
 use tauri::Monitor;
 
 pub fn create_or_show_main_window<R: Runtime>(app: &AppHandle<R>) {
-    if let Some(window) = app.get_webview_window("main") {
+    if let Some(window) = app.get_webview_window("input_method_editor") {
         let _ = window.show();
         let _ = window.set_focus();
-        let size = LogicalSize::new(10.0, 10.0);
+        let size = LogicalSize::new(17.0, 17.0);
         let _ = window.set_size(size);
         let _ = window.set_min_size(Some(size));
     } else {
-        let _ = WebviewWindowBuilder::new(app, "main", WebviewUrl::App("/".into()))
-            .title("Main")
-            .resizable(false)
-            .build();
+        let _ = WebviewWindowBuilder::new(
+            app,
+            "Input method editor",
+            WebviewUrl::App("/input_method_editor".into()),
+        )
+        .title("input_method_editor")
+        .resizable(false)
+        .min_inner_size(17.0, 17.0)
+        .inner_size(17.0, 17.0)
+        .build();
     }
 }
 
