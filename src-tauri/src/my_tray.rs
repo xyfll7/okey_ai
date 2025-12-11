@@ -4,10 +4,7 @@ use tauri::{
     AppHandle, Runtime,
 };
 
-use crate::{
-    my_config,
-    my_windows::{create_or_show_about_window, create_or_show_main_window},
-};
+use crate::{my_config, my_windows};
 
 /*******  ab7e53dc-7cba-45e1-8b3a-3837c9b2580a  *******/
 pub fn create_tray<R: Runtime>(app_handle: &AppHandle<R>) -> tauri::Result<()> {
@@ -27,9 +24,10 @@ pub fn create_tray<R: Runtime>(app_handle: &AppHandle<R>) -> tauri::Result<()> {
     // 菜单点击事件
     app_handle.on_menu_event(|app, event| match event.id().as_ref() {
         "show" => {
-            create_or_show_about_window(app);
+            my_windows::create_or_show_about_window(app);
         }
         "test" => {
+            my_windows::create_or_show_main_window(app);
             let config = my_config::get_global_config(app);
             println!("config: {:#?}", config);
         }
@@ -51,7 +49,10 @@ pub fn create_tray<R: Runtime>(app_handle: &AppHandle<R>) -> tauri::Result<()> {
             {
                 match button {
                     MouseButton::Left => {
-                        create_or_show_main_window(&tray.app_handle(), None as Option<fn()>);
+                        my_windows::create_or_show_translate_window(
+                            &tray.app_handle(),
+                            None as Option<fn()>,
+                        );
                     }
                     _ => {}
                 }

@@ -103,7 +103,7 @@ fn translate_selected_text(app_handle: &AppHandle) {
                 if let Some(choice) = response.choices.first() {
                     let content = choice.message.content.clone();
                     let app_handle_clone = app_handle.clone();
-                    my_windows::create_or_show_main_window(
+                    my_windows::create_or_show_translate_window(
                         &app_handle,
                         Some(move || {
                             let _ = app_handle_clone.emit(event_names::AUTO_SPEAK, &input_data);
@@ -118,7 +118,7 @@ fn translate_selected_text(app_handle: &AppHandle) {
             Err(e) => {
                 let app_handle_clone = app_handle.clone();
                 let error_msg = e.to_string();
-                my_windows::create_or_show_main_window(
+                my_windows::create_or_show_translate_window(
                     &app_handle,
                     Some(move || {
                         let _ = app_handle_clone.emit(event_names::AI_ERROR, error_msg);

@@ -23,11 +23,23 @@ pub fn create_or_show_about_window<R: Runtime>(app: &AppHandle<R>) {
     }
 }
 
-pub fn create_or_show_main_window<R: Runtime, F>(app: &AppHandle<R>, callback: Option<F>)
+pub fn create_or_show_main_window<R: Runtime>(app: &AppHandle<R>) {
+    if let Some(window) = app.get_webview_window("main") {
+        let _ = window.show();
+        let _ = window.set_focus();
+    } else {
+        let _ = WebviewWindowBuilder::new(app, "about", WebviewUrl::App("/about".into()))
+            .title("About")
+            .resizable(true)
+            .build();
+    }
+}
+
+pub fn create_or_show_translate_window<R: Runtime, F>(app: &AppHandle<R>, callback: Option<F>)
 where
     F: FnOnce() + Send + 'static,
 {
-    if let Some(window) = app.get_webview_window("main") {
+    if let Some(window) = app.get_webview_window("translate") {
         let _ = window.show();
         let _ = window.set_focus();
         let _ = window.set_always_on_top(true);
@@ -47,8 +59,8 @@ where
         };
 
         let mut builder =
-            WebviewWindowBuilder::new(app, "main", WebviewUrl::App("/translate".into()))
-                .title("Main Window")
+            WebviewWindowBuilder::new(app, "translate", WebviewUrl::App("/translate".into()))
+                .title("Translate Window")
                 .resizable(true)
                 .fullscreen(false)
                 .skip_taskbar(true)
