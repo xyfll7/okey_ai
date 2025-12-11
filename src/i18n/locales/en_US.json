@@ -15,8 +15,12 @@
             "en": "English"
         },
         "translate": {
-            "translate": "Translate",
-            "press_to_set_hotkey": "Press to Set Hotkey"
+            "translate": "Translate"
+        },
+        "hotkey":{
+            "press_to_set_hotkey": "Press to Set Hotkey",
+            "recording_hotkey": "recording hotkey",
+            "set_hotkey": "set hotkey"
         }
     }
 }

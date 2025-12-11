@@ -159,6 +159,7 @@ export default function HotKey({ className,hotkey="NONE", onHotkeyChange }: { cl
 				className="px-1 hover:bg-transparent dark:hover:bg-transparent"
 				size="sm"
 				variant="ghost"
+				aria-label={isRecording ? t("hotkey.recording_hotkey") : t("hotkey.set_hotkey")}
 				onClick={handleClick}
 				onKeyDown={handleKeyDown}
 				onKeyUp={handleKeyUp}
@@ -176,7 +177,7 @@ export default function HotKey({ className,hotkey="NONE", onHotkeyChange }: { cl
 								))
 							) : (
 								<span className="opacity-70">
-									{t(($) => $.translate.press_to_set_hotkey)}
+									{t("hotkey.press_to_set_hotkey")}
 								</span>
 							)}
 						</span>
