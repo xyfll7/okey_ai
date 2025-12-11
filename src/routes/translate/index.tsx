@@ -141,7 +141,7 @@ function Header(props: React.ComponentProps<"div">) {
 		);
 	}, []);
 	const _ostype = ostype();
-
+	const [hotkey, setHotkey] = useState<string>("");
 	return (
 		<div
 			className={cn(
@@ -155,7 +155,7 @@ function Header(props: React.ComponentProps<"div">) {
 		>
 			<div className="flex items-center">
 				{_ostype === "windows" && <PinWindow />}
-				{_ostype === "macos" && <HotKey className="mr-2.5" />}
+				{_ostype === "macos" && <HotKey className="mr-2.5" hotkey={hotkey} onHotkeyChange={(e)=> {setHotkey(e)}}/>}
 				<Tooltip>
 					<TooltipTrigger asChild>
 						<Button
@@ -200,7 +200,7 @@ function Header(props: React.ComponentProps<"div">) {
 						}
 					</TooltipContent>
 				</Tooltip>
-				{_ostype === "windows" && <HotKey className="ml-1" />}
+				{_ostype === "windows" && <HotKey className="ml-1" hotkey={hotkey} onHotkeyChange={(e)=> {setHotkey(e)}}/>}
 				{_ostype === "macos" && <PinWindow className="" />}
 			</div>
 			{_ostype === "windows" && (
