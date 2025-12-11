@@ -12,7 +12,7 @@ use crate::{my_events::event_names, AppState};
 use mouse_position::mouse_position::{Mouse, Position};
 use tauri::Monitor;
 
-pub fn create_or_show_main_window<R: Runtime>(app: &AppHandle<R>) {
+pub fn create_or_show_input_method_editor_window<R: Runtime>(app: &AppHandle<R>) {
     if let Some(window) = app.get_webview_window("input_method_editor") {
         let _ = window.show();
         let _ = window.set_focus();
