@@ -19,6 +19,7 @@ pub fn create_or_show_input_method_editor_window<R: Runtime>(app: &AppHandle<R>)
         let size = LogicalSize::new(17.0, 17.0);
         let _ = window.set_size(size);
         let _ = window.set_min_size(Some(size));
+        let _ = window.set_background_color(Some(Color(0, 0, 0, 0)));
     } else {
         let _ = WebviewWindowBuilder::new(
             app,
@@ -29,6 +30,7 @@ pub fn create_or_show_input_method_editor_window<R: Runtime>(app: &AppHandle<R>)
         .resizable(false)
         .min_inner_size(17.0, 17.0)
         .inner_size(17.0, 17.0)
+        .background_color(Color(0, 0, 0, 0))
         .build();
     }
 }

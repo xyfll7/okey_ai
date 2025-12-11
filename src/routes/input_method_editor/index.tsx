@@ -7,7 +7,7 @@ export const Route = createFileRoute("/input_method_editor/")({
 function RouteComponent() {
 	return (
 		<div
-			className=" bg-red-300 opacity-30  w-screen h-screen rounded-full"
+			className=" bg-red-500 opacity-70  w-screen h-screen rounded-full"
 			data-tauri-drag-region
 		></div>
 	)

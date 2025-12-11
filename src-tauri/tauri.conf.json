@@ -26,12 +26,14 @@
 				"alwaysOnTop": true,
 				"minimizable": false,
 				"maximizable": false,
-				"closable": true
+				"closable": true,
+				"titleBarStyle": "Overlay"
 			}
 		],
 		"security": {
 			"csp": null
-		}
+		},
+		"macOSPrivateApi": true  
 	},
 	"bundle": {
 		"active": true,
