@@ -15,13 +15,20 @@
 				"title": "okey_ai",
 				"label": "main",
 				"url": "/",
-				"width": 500,
-				"height": 600,
-				"resizable": true,
+				"width": 50,
+				"height": 50,
+				"resizable": false,
 				"fullscreen": false,
 				"visible": false,
 				"skipTaskbar": true,
-				"decorations": false
+				"decorations": false,
+				"transparent": true,
+				"hiddenTitle": true,
+				"shadow": false,
+				"alwaysOnTop": true,
+				"minimizable": false,
+				"maximizable": false,
+				"closable": true
 			}
 		],
 		"security": {

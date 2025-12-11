@@ -4,27 +4,31 @@ use std::{
     time::Duration,
 };
 use tauri::{
-    window::Color, AppHandle, Listener, Manager, Runtime, WebviewUrl, WebviewWindowBuilder,
+    window::Color, AppHandle, Listener, LogicalSize, Manager, Runtime, WebviewUrl,
+    WebviewWindowBuilder,
 };
 
 use crate::{my_events::event_names, AppState};
 use mouse_position::mouse_position::{Mouse, Position};
 use tauri::Monitor;
 
-pub fn create_or_show_about_window<R: Runtime>(app: &AppHandle<R>) {
-    if let Some(window) = app.get_webview_window("about") {
+pub fn create_or_show_main_window<R: Runtime>(app: &AppHandle<R>) {
+    if let Some(window) = app.get_webview_window("main") {
         let _ = window.show();
         let _ = window.set_focus();
+        let size = LogicalSize::new(10.0, 10.0);
+        let _ = window.set_size(size);
+        let _ = window.set_min_size(Some(size));
     } else {
-        let _ = WebviewWindowBuilder::new(app, "about", WebviewUrl::App("/about".into()))
-            .title("About")
-            .resizable(true)
+        let _ = WebviewWindowBuilder::new(app, "main", WebviewUrl::App("/".into()))
+            .title("Main")
+            .resizable(false)
             .build();
     }
 }
 
-pub fn create_or_show_main_window<R: Runtime>(app: &AppHandle<R>) {
-    if let Some(window) = app.get_webview_window("main") {
+pub fn create_or_show_about_window<R: Runtime>(app: &AppHandle<R>) {
+    if let Some(window) = app.get_webview_window("about") {
         let _ = window.show();
         let _ = window.set_focus();
     } else {

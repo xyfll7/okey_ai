@@ -142,11 +142,14 @@ function Header(props: React.ComponentProps<"div">) {
 	}, []);
 	const _ostype = ostype();
 	const [hotkey, setHotkey] = useState<string>("");
-	useEffect(()=> {
+	useEffect(() => {
 		get_global_config().then((config) => {
-			setHotkey(config?.shortcuts.find((item) => item.name === "okey_ai")?.hot_key || "");
-		})
-	},[])
+			setHotkey(
+				config?.shortcuts.find((item) => item.name === "okey_ai")?.hot_key ||
+					"",
+			);
+		});
+	}, []);
 	return (
 		<div
 			className={cn(
@@ -160,7 +163,15 @@ function Header(props: React.ComponentProps<"div">) {
 		>
 			<div className="flex items-center">
 				{_ostype === "windows" && <PinWindow />}
-				{_ostype === "macos" && <HotKey className="mr-2.5" hotkey={hotkey} onHotkeyChange={(e)=> {setHotkey(e)}}/>}
+				{_ostype === "macos" && (
+					<HotKey
+						className="mr-2.5"
+						hotkey={hotkey}
+						onHotkeyChange={(e) => {
+							setHotkey(e);
+						}}
+					/>
+				)}
 				<Tooltip>
 					<TooltipTrigger asChild>
 						<Button
@@ -168,29 +179,16 @@ function Header(props: React.ComponentProps<"div">) {
 							variant="ghost"
 							className="opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
 							onClick={async () =>
-								setAutoSpeak(await invoke<AutoSpeakState>(EVENT_NAMES.TOGGLE_AUTO_SPEAK))
+								setAutoSpeak(
+									await invoke<AutoSpeakState>(EVENT_NAMES.TOGGLE_AUTO_SPEAK),
+								)
 							}
 						>
 							{
 								{
-									[AutoSpeakState.Off]: (
-										<VolumeOff
-											className="opacity-70 hover:opacity-100"
-											size={"1rem"}
-										/>
-									),
-									[AutoSpeakState.Single]: (
-										<Volume1
-											className="opacity-70 hover:opacity-100"
-											size={"1rem"}
-										/>
-									),
-									[AutoSpeakState.All]: (
-										<Volume2
-											className="opacity-70 hover:opacity-100"
-											size={"1rem"}
-										/>
-									),
+									[AutoSpeakState.Off]: <VolumeOff size={"1rem"} />,
+									[AutoSpeakState.Single]: <Volume1 size={"1rem"} />,
+									[AutoSpeakState.All]: <Volume2 size={"1rem"} />,
 								}[autoSpeak]
 							}
 						</Button>
@@ -205,7 +203,15 @@ function Header(props: React.ComponentProps<"div">) {
 						}
 					</TooltipContent>
 				</Tooltip>
-				{_ostype === "windows" && <HotKey className="ml-1" hotkey={hotkey} onHotkeyChange={(e)=> {setHotkey(e)}}/>}
+				{_ostype === "windows" && (
+					<HotKey
+						className="ml-1"
+						hotkey={hotkey}
+						onHotkeyChange={(e) => {
+							setHotkey(e);
+						}}
+					/>
+				)}
 				{_ostype === "macos" && <PinWindow className="" />}
 			</div>
 			{_ostype === "windows" && (
@@ -467,7 +473,9 @@ function SelectedText({ selectedText }: { selectedText?: string }) {
 function PinWindow({ className }: { className?: string }) {
 	const [pin, setPin] = useState(false);
 	useEffect(() => {
-		invoke<boolean>(EVENT_NAMES.GET_AUTO_CLOSE_WINDOW_STATE).then((res) => setPin(res));
+		invoke<boolean>(EVENT_NAMES.GET_AUTO_CLOSE_WINDOW_STATE).then((res) =>
+			setPin(res),
+		);
 	}, []);
 	return (
 		<Button
