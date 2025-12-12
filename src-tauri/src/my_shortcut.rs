@@ -105,23 +105,25 @@ pub fn init_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>>
     Ok(())
 }
 
-pub fn set_shortcuts(_app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
-    println!("Starting keyboard listener");
-    // 在新线程中运行监听器
+pub fn set_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
+    let app_handle = app.clone();
     thread::spawn(move || {
-        println!("Listener thread started");
-        if let Err(error) = listen(callback) {
+        if let Err(error) = listen(move |event: Event| {
+            match event.event_type {
+                rdev::EventType::KeyPress(rdev::Key::ControlRight) => {
+                    println!("ControlRight pressed");
+                    my_windows::create_or_show_input_method_editor_window(&app_handle);
+                }
+                rdev::EventType::KeyRelease(rdev::Key::ControlRight) => {
+                    println!("ControlRight released");
+                    my_windows::hide_input_method_editor_window(&app_handle);
+                }
+                _ => (), // Ignore other events like mouse movements and clicks
+            }
+        }) {
             println!("Error: {:?}", error);
         }
     });
-
-    fn callback(event: Event) {
-        println!("My callback {:?}", event);
-        match event.event_type {
-            Some(string) => println!("User wrote {:?}", string),
-            None => (),
-        }
-    }
 
     Ok(())
 }

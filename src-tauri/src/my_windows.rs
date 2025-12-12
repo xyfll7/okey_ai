@@ -34,6 +34,11 @@ pub fn create_or_show_input_method_editor_window<R: Runtime>(app: &AppHandle<R>)
         .build();
     }
 }
+pub fn hide_input_method_editor_window<R: Runtime>(app: &AppHandle<R>) {
+    if let Some(window) = app.get_webview_window("input_method_editor") {
+        let _ = window.hide();
+    }
+}
 
 pub fn create_or_show_about_window<R: Runtime>(app: &AppHandle<R>) {
     if let Some(window) = app.get_webview_window("about") {
