@@ -7,6 +7,7 @@ use crate::my_utils;
 use crate::my_windows;
 use rdev::{listen, Event};
 use selection::get_text;
+use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::AppHandle;
@@ -107,24 +108,37 @@ pub fn init_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>>
 
 pub fn set_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     let app_handle = app.clone();
+    let is_pressed = Arc::new(Mutex::new(false));
+
     thread::spawn(move || {
-        if let Err(error) = listen(move |event: Event| {
-            match event.event_type {
-                rdev::EventType::KeyPress(rdev::Key::ControlRight) => {
-                    println!("ControlRight pressed");
-                    my_windows::create_or_show_input_method_editor_window(&app_handle);
+        if let Err(error) = listen(move |event: Event| match event.event_type {
+            rdev::EventType::KeyPress(rdev::Key::ControlRight) => {
+                let mut pressed = is_pressed.lock().unwrap();
+                if !*pressed {
+                    *pressed = true;
+                    if let Err(e) = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                        my_windows::create_or_show_input_method_editor_window(&app_handle);
+                    })) {
+                        eprintln!("Error creating window: {:?}", e);
+                    }
                 }
-                rdev::EventType::KeyRelease(rdev::Key::ControlRight) => {
-                    println!("ControlRight released");
-                    my_windows::hide_input_method_editor_window(&app_handle);
-                }
-                _ => (), // Ignore other events like mouse movements and clicks
             }
+            rdev::EventType::KeyRelease(rdev::Key::ControlRight) => {
+                let mut pressed = is_pressed.lock().unwrap();
+                if *pressed {
+                    *pressed = false;
+                    if let Err(e) = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                        my_windows::hide_input_method_editor_window(&app_handle);
+                    })) {
+                        eprintln!("Error hiding window: {:?}", e);
+                    }
+                }
+            }
+            _ => (),
         }) {
             println!("Error: {:?}", error);
         }
     });
-
     Ok(())
 }
 
