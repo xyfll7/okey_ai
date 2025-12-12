@@ -7,6 +7,7 @@ use crate::my_utils;
 use crate::my_windows;
 use rdev::{listen, Event};
 use selection::get_text;
+use std::thread;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::AppHandle;
 use tauri::{async_runtime, Emitter, Manager};
@@ -105,14 +106,18 @@ pub fn init_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>>
 }
 
 pub fn set_shortcuts(_app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
-    println!("fasdf1111");
-    if let Err(error) = listen(callback) {
-        println!("Error: {:?}", error)
-    }
+    println!("Starting keyboard listener");
+    // 在新线程中运行监听器
+    thread::spawn(move || {
+        println!("Listener thread started");
+        if let Err(error) = listen(callback) {
+            println!("Error: {:?}", error);
+        }
+    });
 
     fn callback(event: Event) {
         println!("My callback {:?}", event);
-        match event.name {
+        match event.event_type {
             Some(string) => println!("User wrote {:?}", string),
             None => (),
         }
