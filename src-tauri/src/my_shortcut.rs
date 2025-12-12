@@ -10,12 +10,10 @@ use selection::get_text;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::AppHandle;
 use tauri::{async_runtime, Emitter, Manager};
-use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
+use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
 
 #[tauri::command]
 pub fn register_hotkey_okey_ai(app: AppHandle, shortcut: String) -> Result<(), String> {
-    println!("注册动态快捷键: {}", shortcut);
-
     // First, try to register the new shortcut
     let shortcut_for_closure = shortcut.clone();
     match app
@@ -106,7 +104,7 @@ pub fn init_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>>
     Ok(())
 }
 
-pub fn set_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
+pub fn set_shortcuts(_app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     println!("fasdf");
     if let Err(error) = listen(callback) {
         println!("Error: {:?}", error)
