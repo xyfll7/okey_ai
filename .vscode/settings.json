@@ -32,14 +32,12 @@
   "editor.codeActionsOnSave": {
     "source.organizeImports.biome": "explicit"
   },
-  "tailwindCSS.files.exclude": [
-    "**/src/components/ui/**"
-  ],
+  "tailwindCSS.files.exclude": ["**/src/components/ui/**"],
   "files.associations": {
     "*.css": "tailwindcss"
   },
   "[rust]": {
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "rust-lang.rust-analyzer"
-  },
+  }
 }

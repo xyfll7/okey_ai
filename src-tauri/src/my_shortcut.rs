@@ -105,7 +105,7 @@ pub fn init_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>>
 }
 
 pub fn set_shortcuts(_app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
-    println!("fasdf");
+    println!("fasdf1111");
     if let Err(error) = listen(callback) {
         println!("Error: {:?}", error)
     }

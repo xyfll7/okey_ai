@@ -1,0 +1,16 @@
+// Project-local debug tasks
+//
+// For more documentation on how to configure debug tasks,
+// see: https://zed.dev/docs/debugger
+[
+  {
+    "label": "Launch Tauri Dev(zed)",
+    "adapter": "CodeLLDB",
+    "program": "src-tauri/target/debug/app.exe",
+    "request": "launch",
+    "build": {
+      "command": "pnpm",
+      "args": ["tauri", "dev"]
+    }
+  }
+]
