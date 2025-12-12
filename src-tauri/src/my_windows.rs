@@ -4,7 +4,7 @@ use std::{
     time::Duration,
 };
 use tauri::{
-    window::Color, AppHandle, Listener, LogicalSize, Manager, Runtime, WebviewUrl,
+    window::Color, AppHandle, Listener, LogicalPosition, LogicalSize, Manager, Runtime, WebviewUrl,
     WebviewWindowBuilder,
 };
 
@@ -23,28 +23,142 @@ pub fn window_input_method_editor_show<R: Runtime>(app: &AppHandle<R>) {
         let _ = window.set_min_size(Some(size));
         let _ = window.set_background_color(Some(Color(0, 0, 0, 0)));
 
-        // Reposition existing window to bottom center
-        let (x, y) = calculate_bottom_center_position(app, WINDOW_WIDTH, WINDOW_HEIGHT);
-        let _ = window.set_position(tauri::Position::Logical(tauri::LogicalPosition { x, y }));
+        // 根据鼠标所在显示器重新定位
+        if let Some((x, y)) = calculate_position_near_cursor(app, WINDOW_WIDTH, WINDOW_HEIGHT) {
+            println!("Setting window position to: {}, {}", x, y);
+            let _ = window.set_position(tauri::Position::Logical(LogicalPosition { x, y }));
+        }
     } else {
-        let (x, y) = calculate_bottom_center_position(app, WINDOW_WIDTH, WINDOW_HEIGHT);
-
-        let _ = WebviewWindowBuilder::new(
-            app,
-            "Input method editor",
-            WebviewUrl::App("/input_method_editor".into()),
-        )
-        .title("input_method_editor")
-        .resizable(false)
-        .min_inner_size(WINDOW_WIDTH, WINDOW_HEIGHT)
-        .inner_size(WINDOW_WIDTH, WINDOW_HEIGHT)
-        .background_color(Color(0, 0, 0, 0))
-        .position(x, y)
-        .build();
+        // 创建新窗口
+        if let Some((x, y)) = calculate_position_near_cursor(app, WINDOW_WIDTH, WINDOW_HEIGHT) {
+            println!("Creating window at position: {}, {}", x, y);
+            let _ = WebviewWindowBuilder::new(
+                app,
+                "input_method_editor",
+                WebviewUrl::App("/input_method_editor".into()),
+            )
+            .title("input_method_editor")
+            .resizable(false)
+            .min_inner_size(WINDOW_WIDTH, WINDOW_HEIGHT)
+            .inner_size(WINDOW_WIDTH, WINDOW_HEIGHT)
+            .background_color(Color(0, 0, 0, 0))
+            .position(x, y)
+            .build();
+        }
     }
 }
+
+/// 根据鼠标位置计算窗口应该出现的显示器和位置
+fn calculate_position_near_cursor<R: Runtime>(
+    app: &AppHandle<R>,
+    window_width: f64,
+    window_height: f64,
+) -> Option<(f64, f64)> {
+    // 获取鼠标物理位置
+    let cursor_pos = app.cursor_position().ok()?;
+    println!(
+        "Cursor position (physical): {}, {}",
+        cursor_pos.x, cursor_pos.y
+    );
+
+    // 获取所有显示器
+    let monitors = app.available_monitors().ok()?;
+
+    // 找到包含鼠标的显示器
+    let target_monitor = monitors.into_iter().find(|monitor| {
+        let mon_pos = monitor.position();
+        let mon_size = monitor.size();
+        let scale = monitor.scale_factor();
+
+        println!(
+            "Monitor: pos=({}, {}), size=({}, {}), scale={}",
+            mon_pos.x, mon_pos.y, mon_size.width, mon_size.height, scale
+        );
+
+        // 使用物理坐标进行比较
+        let min_x = mon_pos.x as f64;
+        let max_x = (mon_pos.x + mon_size.width as i32) as f64;
+        let min_y = mon_pos.y as f64;
+        let max_y = (mon_pos.y + mon_size.height as i32) as f64;
+
+        let is_in_monitor = cursor_pos.x >= min_x
+            && cursor_pos.x < max_x
+            && cursor_pos.y >= min_y
+            && cursor_pos.y < max_y;
+
+        println!(
+            "  Range: x[{}, {}), y[{}, {}), contains cursor: {}",
+            min_x, max_x, min_y, max_y, is_in_monitor
+        );
+
+        is_in_monitor
+    })?;
+
+    // 获取显示器信息
+    let mon_pos = target_monitor.position();
+    let mon_size = target_monitor.size();
+    let scale_factor = target_monitor.scale_factor();
+
+    println!(
+        "Selected monitor: pos=({}, {}), size=({}, {}), scale={}",
+        mon_pos.x, mon_pos.y, mon_size.width, mon_size.height, scale_factor
+    );
+
+    // 转换显示器坐标和尺寸为逻辑坐标
+    let logical_monitor_x = mon_pos.x as f64 / scale_factor;
+    let logical_monitor_y = mon_pos.y as f64 / scale_factor;
+    let logical_monitor_width = mon_size.width as f64 / scale_factor;
+    let logical_monitor_height = mon_size.height as f64 / scale_factor;
+
+    println!(
+        "Logical monitor: x={}, y={}, w={}, h={}",
+        logical_monitor_x, logical_monitor_y, logical_monitor_width, logical_monitor_height
+    );
+
+    // 在逻辑坐标下计算窗口位置（底部居中）
+    let x = logical_monitor_x + (logical_monitor_width - window_width) / 2.0;
+    let y = logical_monitor_y + logical_monitor_height - window_height - 50.0;
+
+    println!("Calculated window position (logical): {}, {}", x, y);
+
+    Some((x, y))
+}
+
+/// 回退方案：使用主显示器
+fn fallback_to_primary_monitor<R: Runtime>(
+    app: &AppHandle<R>,
+    window_width: f64,
+    window_height: f64,
+) -> Option<(f64, f64)> {
+    let monitor = app.primary_monitor().ok()??;
+
+    let mon_pos = monitor.position();
+    let mon_size = monitor.size();
+    let scale_factor = monitor.scale_factor();
+
+    // 同样的逻辑：物理坐标计算后转换
+    let physical_monitor_x = mon_pos.x as f64;
+    let physical_monitor_y = mon_pos.y as f64;
+    let physical_monitor_width = mon_size.width as f64;
+    let physical_monitor_height = mon_size.height as f64;
+
+    let physical_window_width = window_width * scale_factor;
+    let physical_window_height = window_height * scale_factor;
+
+    let physical_x = physical_monitor_x + (physical_monitor_width - physical_window_width) / 2.0;
+    let physical_y =
+        physical_monitor_y + physical_monitor_height - physical_window_height - 50.0 * scale_factor;
+
+    let logical_x = physical_x / scale_factor;
+    let logical_y = physical_y / scale_factor;
+
+    Some((logical_x, logical_y))
+}
+
 pub fn window_input_method_editor_hide<R: Runtime>(app: &AppHandle<R>) {
     if let Some(window) = app.get_webview_window("input_method_editor") {
+        let size = LogicalSize::new(5, 5);
+        let _ = window.set_size(size);
         let _ = window.hide();
     }
 }
@@ -206,41 +320,6 @@ fn calculate_center_position<R: Runtime>(
     } else {
         // Fallback to (0, 0) if primary monitor cannot be determined
         (0.0, 0.0)
-    }
-}
-
-/// Calculate window position centered horizontally but positioned near the bottom of the screen
-/// This is useful for input method editors that should appear above the taskbar
-fn calculate_bottom_center_position<R: Runtime>(
-    app: &AppHandle<R>,
-    width: f64,
-    height: f64,
-) -> (f64, f64) {
-    // Get the primary monitor
-    if let Ok(Some(primary_monitor)) = app.primary_monitor() {
-        let scale_factor = primary_monitor.scale_factor();
-
-        // Convert physical dimensions to logical dimensions
-        let monitor_position = primary_monitor.position();
-        let monitor_size = primary_monitor.size();
-
-        let monitor_x = monitor_position.x as f64 / scale_factor;
-        let monitor_y = monitor_position.y as f64 / scale_factor;
-        let monitor_width = monitor_size.width as f64 / scale_factor;
-        let monitor_height = monitor_size.height as f64 / scale_factor;
-
-        // Calculate horizontal center position
-        let x = monitor_x + (monitor_width - width) / 2.0;
-
-        // Calculate vertical position near the bottom, leaving space for taskbar
-        // Using 10% of screen height as buffer for taskbar, minimum 20px
-        let taskbar_buffer = (monitor_height * 0.1).max(20.0);
-        let y = monitor_y + monitor_height - height - taskbar_buffer;
-
-        (x, y)
-    } else {
-        // Fallback to center position if primary monitor cannot be determined
-        calculate_center_position(app, width, height)
     }
 }
 

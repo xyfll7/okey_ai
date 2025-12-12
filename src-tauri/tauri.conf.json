@@ -15,8 +15,8 @@
         "title": "Input method editor",
         "label": "input_method_editor",
         "url": "/input_method_editor",
-        "width": 10,
-        "height": 10,
+        "width": 13,
+        "height": 13,
         "resizable": false,
         "fullscreen": false,
         "visible": false,
@@ -28,7 +28,6 @@
         "alwaysOnTop": true,
         "minimizable": false,
         "maximizable": false,
-        "closable": true,
         "titleBarStyle": "Overlay"
       }
     ],

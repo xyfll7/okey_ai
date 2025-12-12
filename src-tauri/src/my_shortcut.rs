@@ -117,6 +117,7 @@ pub fn set_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> 
                 if !*pressed {
                     *pressed = true;
                     if let Err(e) = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                        println!("ControlRight KeyPress");
                         my_windows::window_input_method_editor_show(&app_handle);
                     })) {
                         eprintln!("Error creating window: {:?}", e);
@@ -128,6 +129,7 @@ pub fn set_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> 
                 if *pressed {
                     *pressed = false;
                     if let Err(e) = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                        println!("ControlRight KeyRelease");
                         my_windows::window_input_method_editor_hide(&app_handle);
                     })) {
                         eprintln!("Error hiding window: {:?}", e);
