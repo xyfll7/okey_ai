@@ -113,6 +113,7 @@ pub fn set_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> 
     thread::spawn(move || {
         if let Err(error) = listen(move |event: Event| match event.event_type {
             rdev::EventType::KeyPress(rdev::Key::ControlRight) => {
+                println!("----------------");
                 let mut pressed = is_pressed.lock().unwrap();
                 if !*pressed {
                     *pressed = true;

@@ -15,19 +15,19 @@ use tauri::Monitor;
 pub fn window_input_method_editor_show<R: Runtime>(app: &AppHandle<R>) {
     const WINDOW_WIDTH: f64 = 13.0;
     const WINDOW_HEIGHT: f64 = 13.0;
+    const CURSOR_OFFSET: f64 = 0.0;
 
     if let Some(window) = app.get_webview_window("input_method_editor") {
-        let _ = window.show();
         let size = LogicalSize::new(WINDOW_WIDTH, WINDOW_HEIGHT);
         let _ = window.set_size(size);
         let _ = window.set_min_size(Some(size));
         let _ = window.set_background_color(Some(Color(0, 0, 0, 0)));
 
         // 根据鼠标所在显示器重新定位
-        if let Some((x, y)) = calculate_position_near_cursor(app, WINDOW_WIDTH, WINDOW_HEIGHT) {
-            println!("Setting window position to: {}, {}", x, y);
-            let _ = window.set_position(tauri::Position::Logical(LogicalPosition { x, y }));
-        }
+        let (x, y) = calculate_window_position(app, WINDOW_WIDTH, WINDOW_HEIGHT, CURSOR_OFFSET);
+        println!("Setting window position to: {}, {}", x, y);
+        let _ = window.set_position(tauri::Position::Logical(LogicalPosition { x, y }));
+        let _ = window.show();
     } else {
         // 创建新窗口
         if let Some((x, y)) = calculate_position_near_cursor(app, WINDOW_WIDTH, WINDOW_HEIGHT) {
