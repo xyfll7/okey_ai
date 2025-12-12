@@ -12,7 +12,7 @@ use crate::{my_events::event_names, AppState};
 use mouse_position::mouse_position::{Mouse, Position};
 use tauri::Monitor;
 
-pub fn create_or_show_input_method_editor_window<R: Runtime>(app: &AppHandle<R>) {
+pub fn window_input_method_editor_show<R: Runtime>(app: &AppHandle<R>) {
     if let Some(window) = app.get_webview_window("input_method_editor") {
         let _ = window.show();
         let size = LogicalSize::new(13.0, 13.0);
@@ -33,13 +33,13 @@ pub fn create_or_show_input_method_editor_window<R: Runtime>(app: &AppHandle<R>)
         .build();
     }
 }
-pub fn hide_input_method_editor_window<R: Runtime>(app: &AppHandle<R>) {
+pub fn window_input_method_editor_hide<R: Runtime>(app: &AppHandle<R>) {
     if let Some(window) = app.get_webview_window("input_method_editor") {
         let _ = window.hide();
     }
 }
 
-pub fn create_or_show_about_window<R: Runtime>(app: &AppHandle<R>) {
+pub fn window_about_show<R: Runtime>(app: &AppHandle<R>) {
     if let Some(window) = app.get_webview_window("about") {
         let _ = window.show();
         let _ = window.set_focus();
@@ -51,7 +51,7 @@ pub fn create_or_show_about_window<R: Runtime>(app: &AppHandle<R>) {
     }
 }
 
-pub fn create_or_show_translate_window<R: Runtime, F>(app: &AppHandle<R>, callback: Option<F>)
+pub fn window_translate_show<R: Runtime, F>(app: &AppHandle<R>, callback: Option<F>)
 where
     F: FnOnce() + Send + 'static,
 {

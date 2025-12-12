@@ -51,7 +51,7 @@ pub fn chat(app: AppHandle, input_data: my_types::InputData) {
                 if let Some(choice) = response.choices.first() {
                     let content = choice.message.content.clone(); // Clone the content to own it
                     let app_handle_clone = app_clone.clone();
-                    my_windows::create_or_show_translate_window(
+                    my_windows::window_translate_show(
                         &app_clone,
                         Some(move || {
                             let input_data = my_types::InputData {
@@ -67,7 +67,7 @@ pub fn chat(app: AppHandle, input_data: my_types::InputData) {
             Err(e) => {
                 let app_clone_clone = app_clone.clone();
                 let error_msg = e.to_string();
-                my_windows::create_or_show_translate_window(
+                my_windows::window_translate_show(
                     &app_clone,
                     Some(move || {
                         let _ = app_clone_clone.emit(event_names::AI_ERROR, error_msg);

@@ -117,7 +117,7 @@ pub fn set_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> 
                 if !*pressed {
                     *pressed = true;
                     if let Err(e) = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                        my_windows::create_or_show_input_method_editor_window(&app_handle);
+                        my_windows::window_input_method_editor_show(&app_handle);
                     })) {
                         eprintln!("Error creating window: {:?}", e);
                     }
@@ -128,7 +128,7 @@ pub fn set_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> 
                 if *pressed {
                     *pressed = false;
                     if let Err(e) = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                        my_windows::hide_input_method_editor_window(&app_handle);
+                        my_windows::window_input_method_editor_hide(&app_handle);
                     })) {
                         eprintln!("Error hiding window: {:?}", e);
                     }
@@ -199,7 +199,7 @@ fn translate_selected_text(app_handle: &AppHandle) {
                 if let Some(choice) = response.choices.first() {
                     let content = choice.message.content.clone();
                     let app_handle_clone = app_handle.clone();
-                    my_windows::create_or_show_translate_window(
+                    my_windows::window_translate_show(
                         &app_handle,
                         Some(move || {
                             let _ = app_handle_clone.emit(event_names::AUTO_SPEAK, &input_data);
@@ -214,7 +214,7 @@ fn translate_selected_text(app_handle: &AppHandle) {
             Err(e) => {
                 let app_handle_clone = app_handle.clone();
                 let error_msg = e.to_string();
-                my_windows::create_or_show_translate_window(
+                my_windows::window_translate_show(
                     &app_handle,
                     Some(move || {
                         let _ = app_handle_clone.emit(event_names::AI_ERROR, error_msg);

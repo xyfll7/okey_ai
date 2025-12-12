@@ -24,10 +24,10 @@ pub fn create_tray<R: Runtime>(app_handle: &AppHandle<R>) -> tauri::Result<()> {
     // 菜单点击事件
     app_handle.on_menu_event(|app, event| match event.id().as_ref() {
         "show" => {
-            my_windows::create_or_show_about_window(app);
+            my_windows::window_about_show(app);
         }
         "test" => {
-            my_windows::create_or_show_input_method_editor_window(app);
+            my_windows::window_input_method_editor_show(app);
             let config = my_config::get_global_config(app);
             println!("config: {:#?}", config);
         }
@@ -49,10 +49,7 @@ pub fn create_tray<R: Runtime>(app_handle: &AppHandle<R>) -> tauri::Result<()> {
             {
                 match button {
                     MouseButton::Left => {
-                        my_windows::create_or_show_translate_window(
-                            &tray.app_handle(),
-                            None as Option<fn()>,
-                        );
+                        my_windows::window_translate_show(&tray.app_handle(), None as Option<fn()>);
                     }
                     _ => {}
                 }
