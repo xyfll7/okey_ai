@@ -13,13 +13,22 @@ use mouse_position::mouse_position::{Mouse, Position};
 use tauri::Monitor;
 
 pub fn window_input_method_editor_show<R: Runtime>(app: &AppHandle<R>) {
+    const WINDOW_WIDTH: f64 = 13.0;
+    const WINDOW_HEIGHT: f64 = 13.0;
+
     if let Some(window) = app.get_webview_window("input_method_editor") {
         let _ = window.show();
-        let size = LogicalSize::new(13.0, 13.0);
+        let size = LogicalSize::new(WINDOW_WIDTH, WINDOW_HEIGHT);
         let _ = window.set_size(size);
         let _ = window.set_min_size(Some(size));
         let _ = window.set_background_color(Some(Color(0, 0, 0, 0)));
+
+        // Reposition existing window to bottom center
+        let (x, y) = calculate_bottom_center_position(app, WINDOW_WIDTH, WINDOW_HEIGHT);
+        let _ = window.set_position(tauri::Position::Logical(tauri::LogicalPosition { x, y }));
     } else {
+        let (x, y) = calculate_bottom_center_position(app, WINDOW_WIDTH, WINDOW_HEIGHT);
+
         let _ = WebviewWindowBuilder::new(
             app,
             "Input method editor",
@@ -27,9 +36,10 @@ pub fn window_input_method_editor_show<R: Runtime>(app: &AppHandle<R>) {
         )
         .title("input_method_editor")
         .resizable(false)
-        .min_inner_size(17.0, 17.0)
-        .inner_size(17.0, 17.0)
+        .min_inner_size(WINDOW_WIDTH, WINDOW_HEIGHT)
+        .inner_size(WINDOW_WIDTH, WINDOW_HEIGHT)
         .background_color(Color(0, 0, 0, 0))
+        .position(x, y)
         .build();
     }
 }
@@ -196,6 +206,41 @@ fn calculate_center_position<R: Runtime>(
     } else {
         // Fallback to (0, 0) if primary monitor cannot be determined
         (0.0, 0.0)
+    }
+}
+
+/// Calculate window position centered horizontally but positioned near the bottom of the screen
+/// This is useful for input method editors that should appear above the taskbar
+fn calculate_bottom_center_position<R: Runtime>(
+    app: &AppHandle<R>,
+    width: f64,
+    height: f64,
+) -> (f64, f64) {
+    // Get the primary monitor
+    if let Ok(Some(primary_monitor)) = app.primary_monitor() {
+        let scale_factor = primary_monitor.scale_factor();
+
+        // Convert physical dimensions to logical dimensions
+        let monitor_position = primary_monitor.position();
+        let monitor_size = primary_monitor.size();
+
+        let monitor_x = monitor_position.x as f64 / scale_factor;
+        let monitor_y = monitor_position.y as f64 / scale_factor;
+        let monitor_width = monitor_size.width as f64 / scale_factor;
+        let monitor_height = monitor_size.height as f64 / scale_factor;
+
+        // Calculate horizontal center position
+        let x = monitor_x + (monitor_width - width) / 2.0;
+
+        // Calculate vertical position near the bottom, leaving space for taskbar
+        // Using 10% of screen height as buffer for taskbar, minimum 20px
+        let taskbar_buffer = (monitor_height * 0.1).max(20.0);
+        let y = monitor_y + monitor_height - height - taskbar_buffer;
+
+        (x, y)
+    } else {
+        // Fallback to center position if primary monitor cannot be determined
+        calculate_center_position(app, width, height)
     }
 }
 
