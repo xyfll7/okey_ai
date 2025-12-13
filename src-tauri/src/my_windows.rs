@@ -13,19 +13,9 @@ use mouse_position::mouse_position::{Mouse, Position};
 use tauri::Monitor;
 
 pub fn window_input_method_editor_show<R: Runtime>(app: &AppHandle<R>) {
-    println!("显示了。。。。。。。");
     const WINDOW_WIDTH: f64 = 13.0;
     const WINDOW_HEIGHT: f64 = 13.0;
     const CURSOR_OFFSET: f64 = 0.0;
-
-    if let Some(focused_window) = app
-        .webview_windows()
-        .values()
-        .find(|w| w.is_focused().unwrap_or(false))
-    {
-        // 暂时让焦点窗口忽略鼠标事件（可选）
-        let _ = focused_window.set_ignore_cursor_events(true);
-    }
 
     if let Some(window) = app.get_webview_window("input_method_editor") {
         let size = LogicalSize::new(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -33,25 +23,10 @@ pub fn window_input_method_editor_show<R: Runtime>(app: &AppHandle<R>) {
         let _ = window.set_min_size(Some(size));
         let _ = window.set_background_color(Some(Color(0, 0, 0, 0)));
         let (x, y) = calculate_window_position(app, WINDOW_WIDTH, WINDOW_HEIGHT, CURSOR_OFFSET);
-        println!(r#"Setting window position to: {}, {}"#, x, y);
         let _ = window.set_position(tauri::Position::Logical(LogicalPosition { x, y }));
         let _ = window.show();
         let _ = window.set_focusable(true);
-        let _ = window.set_always_on_top(true); // 确保在最前面
-    } else {
-        let (x, y) = calculate_window_position(app, WINDOW_WIDTH, WINDOW_HEIGHT, CURSOR_OFFSET);
-        let _ = WebviewWindowBuilder::new(
-            app,
-            "input_method_editor",
-            WebviewUrl::App("/input_method_editor".into()),
-        )
-        .title("input_method_editor")
-        .resizable(false)
-        .min_inner_size(WINDOW_WIDTH, WINDOW_HEIGHT)
-        .inner_size(WINDOW_WIDTH, WINDOW_HEIGHT)
-        .background_color(Color(0, 0, 0, 0))
-        .position(x, y)
-        .build();
+        let _ = window.set_always_on_top(true);
     }
 }
 
