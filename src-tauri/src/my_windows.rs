@@ -4,8 +4,8 @@ use std::{
     time::Duration,
 };
 use tauri::{
-    window::Color, AppHandle, Listener, LogicalPosition, LogicalSize, Manager, Runtime, WebviewUrl,
-    WebviewWindowBuilder,
+    window::Color, AppHandle, Listener, LogicalSize, Manager, PhysicalPosition, Runtime,
+    WebviewUrl, WebviewWindowBuilder,
 };
 
 use crate::{my_events::event_names, AppState};
@@ -22,8 +22,42 @@ pub fn window_input_method_editor_show<R: Runtime>(app: &AppHandle<R>) {
         let _ = window.set_size(size);
         let _ = window.set_min_size(Some(size));
         let _ = window.set_background_color(Some(Color(0, 0, 0, 0)));
-        let (x, y) = calculate_window_position(app, WINDOW_WIDTH, WINDOW_HEIGHT, CURSOR_OFFSET);
-        let _ = window.set_position(tauri::Position::Logical(LogicalPosition { x, y }));
+
+        let (logical_x, logical_y) =
+            calculate_window_position(app, WINDOW_WIDTH, WINDOW_HEIGHT, CURSOR_OFFSET);
+
+        let mut target_scale = 1.0;
+
+        if let Ok(monitors) = window.available_monitors() {
+            for monitor in monitors {
+                let pos = monitor.position();
+                let size_mon = monitor.size();
+                let scale = monitor.scale_factor();
+
+                let mon_x = pos.x as f64 / scale;
+                let mon_y = pos.y as f64 / scale;
+                let mon_w = size_mon.width as f64 / scale;
+                let mon_h = size_mon.height as f64 / scale;
+
+                if logical_x >= mon_x
+                    && logical_x < mon_x + mon_w
+                    && logical_y >= mon_y
+                    && logical_y < mon_y + mon_h
+                {
+                    target_scale = scale;
+                    break;
+                }
+            }
+        }
+
+        let physical_x = (logical_x * target_scale) as i32;
+        let physical_y = (logical_y * target_scale) as i32;
+
+        let _ = window.set_position(tauri::Position::Physical(PhysicalPosition {
+            x: physical_x,
+            y: physical_y,
+        }));
+
         let _ = window.show();
         let _ = window.set_focusable(true);
         let _ = window.set_always_on_top(true);
@@ -31,13 +65,7 @@ pub fn window_input_method_editor_show<R: Runtime>(app: &AppHandle<R>) {
 }
 
 pub fn window_input_method_editor_hide<R: Runtime>(app: &AppHandle<R>) {
-    println!("隐藏了。。。。。。。");
     if let Some(window) = app.get_webview_window("input_method_editor") {
-        let size = LogicalSize::new(5, 5);
-        let _ = window.set_size(size);
-        let _ = window.set_focusable(false);
-        let _ = window.set_always_on_top(false);
-        let _ = window.hide();
         let _ = window.hide();
     }
 }
@@ -151,7 +179,6 @@ where
     }
 }
 
-/// Helper function to find which monitor contains a specific position
 fn get_monitor_at_position<R: Runtime>(app: &AppHandle<R>, x: i32, y: i32) -> Option<Monitor> {
     if let Ok(monitors) = app.available_monitors() {
         for monitor in monitors {
@@ -172,7 +199,6 @@ fn get_monitor_at_position<R: Runtime>(app: &AppHandle<R>, x: i32, y: i32) -> Op
     app.primary_monitor().ok().flatten()
 }
 
-/// Calculate window position centered on the primary monitor
 fn calculate_center_position<R: Runtime>(
     app: &AppHandle<R>,
     width: f64,
@@ -208,18 +234,15 @@ fn calculate_window_position<R: Runtime>(
     height: f64,
     cursor_offset: f64,
 ) -> (f64, f64) {
-    // Get current mouse position (in physical pixels)
     let mouse_position = match Mouse::get_mouse_position() {
         Mouse::Position { x, y } => Position { x, y },
         Mouse::Error => Position { x: 0, y: 0 },
     };
 
-    // Find which monitor the mouse is currently on and calculate position
-    get_monitor_at_position(app, mouse_position.x, mouse_position.y)
-        .map(|monitor| {
+    match get_monitor_at_position(app, mouse_position.x, mouse_position.y) {
+        Some(monitor) => {
             let scale_factor = monitor.scale_factor();
 
-            // Convert physical coordinates to logical coordinates
             let to_logical = |value: i32| value as f64 / scale_factor;
             let to_logical_f = |value: u32| value as f64 / scale_factor;
 
@@ -232,13 +255,10 @@ fn calculate_window_position<R: Runtime>(
             let monitor_right = monitor_x + monitor_width;
             let monitor_bottom = monitor_y + monitor_height;
 
-            // Calculate relative position within monitor (0.0 to 1.0)
             let relative_x = (mouse_x - monitor_x) / monitor_width;
             let relative_y = (mouse_y - monitor_y) / monitor_height;
 
-            // Smart positioning: prefer opposite side of where cursor is
             let x = if relative_x < 0.5 {
-                // Cursor on left half -> try right side
                 let right_pos = mouse_x + cursor_offset;
                 if right_pos + width <= monitor_right {
                     right_pos
@@ -246,7 +266,6 @@ fn calculate_window_position<R: Runtime>(
                     mouse_x - width - cursor_offset
                 }
             } else {
-                // Cursor on right half -> try left side
                 let left_pos = mouse_x - width - cursor_offset;
                 if left_pos >= monitor_x {
                     left_pos
@@ -256,7 +275,6 @@ fn calculate_window_position<R: Runtime>(
             };
 
             let y = if relative_y < 0.5 {
-                // Cursor on top half -> try bottom side
                 let bottom_pos = mouse_y + cursor_offset;
                 if bottom_pos + height <= monitor_bottom {
                     bottom_pos
@@ -264,7 +282,6 @@ fn calculate_window_position<R: Runtime>(
                     mouse_y - height - cursor_offset
                 }
             } else {
-                // Cursor on bottom half -> try top side
                 let top_pos = mouse_y - height - cursor_offset;
                 if top_pos >= monitor_y {
                     top_pos
@@ -273,11 +290,21 @@ fn calculate_window_position<R: Runtime>(
                 }
             };
 
-            // Clamp to monitor bounds as final safety check
             let x = x.clamp(monitor_x, monitor_right - width);
             let y = y.clamp(monitor_y, monitor_bottom - height);
 
             (x, y)
-        })
-        .unwrap_or((mouse_position.x as f64, mouse_position.y as f64))
+        }
+        None => {
+            if let Some(window) = app.get_webview_window("input_method_editor") {
+                if let Ok(Some(monitor)) = window.primary_monitor() {
+                    let scale = monitor.scale_factor();
+                    let logical_x = mouse_position.x as f64 / scale;
+                    let logical_y = mouse_position.y as f64 / scale;
+                    return (logical_x, logical_y);
+                }
+            }
+            (mouse_position.x as f64, mouse_position.y as f64)
+        }
+    }
 }
