@@ -5,10 +5,7 @@ use crate::my_events::event_names;
 use crate::my_types::InputData;
 use crate::my_utils;
 use crate::my_windows;
-use rdev::{listen, Event};
 use selection::get_text;
-use std::sync::{Arc, Mutex};
-use std::thread;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::AppHandle;
 use tauri::{async_runtime, Emitter, Manager};
@@ -103,45 +100,6 @@ pub fn init_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>>
         }
     }
 
-    Ok(())
-}
-
-pub fn set_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
-    let app_handle = app.clone();
-    let is_pressed = Arc::new(Mutex::new(false));
-
-    thread::spawn(move || {
-        if let Err(error) = listen(move |event: Event| match event.event_type {
-            rdev::EventType::KeyPress(rdev::Key::ControlRight) => {
-                println!("----------------");
-                let mut pressed = is_pressed.lock().unwrap();
-                if !*pressed {
-                    *pressed = true;
-                    if let Err(e) = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                        println!("ControlRight KeyPress");
-                        my_windows::window_input_method_editor_show(&app_handle);
-                    })) {
-                        eprintln!("Error creating window: {:?}", e);
-                    }
-                }
-            }
-            rdev::EventType::KeyRelease(rdev::Key::ControlRight) => {
-                let mut pressed = is_pressed.lock().unwrap();
-                if *pressed {
-                    *pressed = false;
-                    if let Err(e) = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-                        println!("ControlRight KeyRelease");
-                        my_windows::window_input_method_editor_hide(&app_handle);
-                    })) {
-                        eprintln!("Error hiding window: {:?}", e);
-                    }
-                }
-            }
-            _ => (),
-        }) {
-            println!("Error: {:?}", error);
-        }
-    });
     Ok(())
 }
 

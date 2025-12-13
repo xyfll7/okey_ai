@@ -27,7 +27,6 @@ pub fn create_tray<R: Runtime>(app_handle: &AppHandle<R>) -> tauri::Result<()> {
             my_windows::window_about_show(app);
         }
         "test" => {
-            my_windows::window_input_method_editor_show(app);
             let config = my_config::get_global_config(app);
             println!("config: {:#?}", config);
         }
