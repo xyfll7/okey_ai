@@ -186,16 +186,15 @@ fn get_monitor_at_position<R: Runtime>(app: &AppHandle<R>, x: i32, y: i32) -> Op
             let position = monitor.position();
 
             if x >= position.x
-                && x <= (position.x + size.width as i32)
+                && x < position.x + size.width as i32
                 && y >= position.y
-                && y <= (position.y + size.height as i32)
+                && y < position.y + size.height as i32
             {
                 return Some(monitor);
             }
         }
     }
 
-    // Fallback to primary monitor if no match found
     app.primary_monitor().ok().flatten()
 }
 
@@ -243,11 +242,15 @@ fn calculate_window_position<R: Runtime>(
         Some(monitor) => {
             let scale_factor = monitor.scale_factor();
 
+            // 辅助函数：物理像素转逻辑像素
             let to_logical = |value: i32| value as f64 / scale_factor;
             let to_logical_f = |value: u32| value as f64 / scale_factor;
 
+            // 鼠标位置（逻辑像素）
             let mouse_x = to_logical(mouse_position.x);
             let mouse_y = to_logical(mouse_position.y);
+
+            // 显示器边界（逻辑像素）
             let monitor_x = to_logical(monitor.position().x);
             let monitor_y = to_logical(monitor.position().y);
             let monitor_width = to_logical_f(monitor.size().width);
@@ -255,56 +258,70 @@ fn calculate_window_position<R: Runtime>(
             let monitor_right = monitor_x + monitor_width;
             let monitor_bottom = monitor_y + monitor_height;
 
+            // 鼠标在显示器中的相对位置 (0.0 ~ 1.0)
             let relative_x = (mouse_x - monitor_x) / monitor_width;
             let relative_y = (mouse_y - monitor_y) / monitor_height;
 
+            // 智能X轴定位：鼠标在左半边时窗口显示在右边，反之亦然
             let x = if relative_x < 0.5 {
+                // 鼠标在左半边，尝试放在右边
                 let right_pos = mouse_x + cursor_offset;
                 if right_pos + width <= monitor_right {
                     right_pos
                 } else {
-                    mouse_x - width - cursor_offset
+                    // 右边放不下，放在左边
+                    (mouse_x - width - cursor_offset).max(monitor_x)
                 }
             } else {
+                // 鼠标在右半边，尝试放在左边
                 let left_pos = mouse_x - width - cursor_offset;
                 if left_pos >= monitor_x {
                     left_pos
                 } else {
-                    mouse_x + cursor_offset
+                    // 左边放不下，放在右边
+                    (mouse_x + cursor_offset).min(monitor_right - width)
                 }
             };
 
+            // 智能Y轴定位：鼠标在上半边时窗口显示在下边，反之亦然
             let y = if relative_y < 0.5 {
+                // 鼠标在上半边，尝试放在下边
                 let bottom_pos = mouse_y + cursor_offset;
                 if bottom_pos + height <= monitor_bottom {
                     bottom_pos
                 } else {
-                    mouse_y - height - cursor_offset
+                    // 下边放不下，放在上边
+                    (mouse_y - height - cursor_offset).max(monitor_y)
                 }
             } else {
+                // 鼠标在下半边，尝试放在上边
                 let top_pos = mouse_y - height - cursor_offset;
                 if top_pos >= monitor_y {
                     top_pos
                 } else {
-                    mouse_y + cursor_offset
+                    // 上边放不下，放在下边
+                    (mouse_y + cursor_offset).min(monitor_bottom - height)
                 }
             };
 
+            // 最终边界夹紧（防御性编程）
             let x = x.clamp(monitor_x, monitor_right - width);
             let y = y.clamp(monitor_y, monitor_bottom - height);
 
             (x, y)
         }
         None => {
-            if let Some(window) = app.get_webview_window("input_method_editor") {
-                if let Ok(Some(monitor)) = window.primary_monitor() {
-                    let scale = monitor.scale_factor();
-                    let logical_x = mouse_position.x as f64 / scale;
-                    let logical_y = mouse_position.y as f64 / scale;
-                    return (logical_x, logical_y);
-                }
+            // 没有找到对应的显示器，使用默认逻辑
+            // 优化：尝试获取主显示器
+            if let Ok(Some(monitor)) = app.primary_monitor() {
+                let scale = monitor.scale_factor();
+                let logical_x = mouse_position.x as f64 / scale;
+                let logical_y = mouse_position.y as f64 / scale;
+                (logical_x, logical_y)
+            } else {
+                // 最后的回退：使用物理像素（可能在高DPI屏幕上不准确）
+                (mouse_position.x as f64, mouse_position.y as f64)
             }
-            (mouse_position.x as f64, mouse_position.y as f64)
         }
     }
 }
