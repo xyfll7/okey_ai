@@ -7,8 +7,8 @@ export const Route = createFileRoute("/")({
 function App() {
   return (
     <div className="w-screen h-screen " data-tauri-drag-region>
-      <Button size="sm" variant="outline">
-        Small
+      <Button size="sm" variant="link">
+        okey_ai
       </Button>
     </div>
   );
