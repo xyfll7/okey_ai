@@ -52,9 +52,12 @@ function RouteComponent() {
   }, []);
 
   return (
-    <div className="flex items-center w-screen h-screen">
+    <div className={cn("flex items-center w-screen h-screen", "bg-red-400")}>
       <div
-        className=" opacity-70  h-full w-full  rounded-full overflow-hidden"
+        className={cn(
+          "h-screen w-[100vh] rounded-full overflow-hidden",
+          "bg-gray-100",
+        )}
         data-tauri-drag-region
       >
         <AudioRecording color={cn(is ? "bg-green-700" : "bg-yellow-700")} />

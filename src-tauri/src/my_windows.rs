@@ -74,8 +74,8 @@ pub fn window_translate_bubble_show<R: Runtime, F>(app: &AppHandle<R>, callback:
 where
     F: FnOnce() + Send + 'static,
 {
-    const WINDOW_WIDTH: f64 = 13.0;
-    const WINDOW_HEIGHT: f64 = 13.0;
+    const WINDOW_WIDTH: f64 = 70.0;
+    const WINDOW_HEIGHT: f64 = 17.0;
     const CURSOR_OFFSET: f64 = 0.0;
 
     if let Some(window) = app.get_webview_window("translate_bubble") {
@@ -128,11 +128,11 @@ where
     }
 }
 
-pub fn window_translate_bubble_hide<R: Runtime>(app: &AppHandle<R>) {
-    if let Some(window) = app.get_webview_window("translate_bubble") {
-        let _ = window.hide();
-    }
-}
+// pub fn window_translate_bubble_hide<R: Runtime>(app: &AppHandle<R>) {
+//     if let Some(window) = app.get_webview_window("translate_bubble") {
+//         let _ = window.hide();
+//     }
+// }
 
 pub fn window_about_show<R: Runtime>(app: &AppHandle<R>) {
     if let Some(window) = app.get_webview_window("about") {

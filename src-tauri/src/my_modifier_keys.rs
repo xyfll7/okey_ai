@@ -49,7 +49,7 @@ pub fn set_shortcuts_for_translate_bubble(
                     }),
                 );
             } else if !is_pressed && was_pressed {
-                my_windows::window_translate_bubble_hide(&app_clone);
+                // my_windows::window_translate_bubble_hide(&app_clone);
             }
             was_pressed = is_pressed;
             thread::sleep(Duration::from_millis(10)); // 轮询间隔
