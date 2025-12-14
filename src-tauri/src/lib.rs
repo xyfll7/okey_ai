@@ -3,9 +3,9 @@ mod my_command;
 mod my_config;
 mod my_events;
 mod my_logging;
+mod my_modifier_keys;
 mod my_reqwest;
 mod my_shortcut;
-mod my_test;
 mod my_tray;
 mod my_types;
 mod my_utils;
@@ -98,8 +98,8 @@ pub fn run() {
             }
             // 初始化 API 管理器
             crate::my_api::setup_api_manager(&app.handle())?;
-            my_test::set_shortcuts(&app.handle())?;
-            my_test::set_shortcuts_for_translate_bubble(&app.handle())?;
+            my_modifier_keys::set_shortcuts(&app.handle())?;
+            my_modifier_keys::set_shortcuts_for_translate_bubble(&app.handle())?;
             my_shortcut::init_shortcuts(&app.handle())?;
             my_tray::create_tray(&app.handle())?;
 
