@@ -38,7 +38,7 @@ pub fn set_shortcuts_for_translate_bubble(
     thread::spawn(move || {
         loop {
             let keys = device_state.get_keys();
-            let is_pressed = keys.contains(&Keycode::LAlt);
+            let is_pressed = keys.contains(&Keycode::RAlt);
             if is_pressed && !was_pressed {
                 // Create a clone for use in the callback closure
                 let app_for_callback = app_clone.clone();
