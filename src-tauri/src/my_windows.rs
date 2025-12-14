@@ -120,8 +120,9 @@ where
         }));
 
         let _ = window.show();
-        // let _ = window.set_focusable(true);
         let _ = window.set_always_on_top(true);
+        // let _ = window.set_focusable(true);
+        // let _ = window.set_focus();
         if let Some(cb) = callback {
             cb();
         }
