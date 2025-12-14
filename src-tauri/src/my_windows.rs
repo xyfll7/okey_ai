@@ -147,7 +147,7 @@ where
                         let state_guard = state.lock().unwrap();
                         !state_guard.auto_close_bubble
                     } {
-                        _win.destroy().ok();
+                        _win.hide().ok();
                     }
                 });
             }
