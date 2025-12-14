@@ -12,7 +12,7 @@ function RouteComponent() {
         className=" opacity-70  h-full w-full  rounded-full overflow-hidden"
         data-tauri-drag-region
       >
-        <AudioRecording isRecording={true}></AudioRecording>
+        <AudioRecording />
       </div>
     </div>
   );
