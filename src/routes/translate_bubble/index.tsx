@@ -52,15 +52,27 @@ function RouteComponent() {
   }, []);
 
   return (
-    <div className={cn("flex items-center w-screen h-screen", "bg-red-400")}>
+    <div
+      data-tauri-drag-region
+      className={cn(
+        "flex items-center w-screen h-screen",
+        "overflow-hidden ",
+        "p-[0.1rem]",
+      )}
+    >
       <div
-        className={cn(
-          "h-screen w-[100vh] rounded-full overflow-hidden",
-          "bg-gray-100",
-        )}
         data-tauri-drag-region
+        className="flex items-center h-full border rounded-sm w-full bg-secondary"
       >
-        <AudioRecording color={cn(is ? "bg-green-700" : "bg-yellow-700")} />
+        <div
+          data-tauri-drag-region
+          className={cn(
+            "h-[70vh] w-[70vh] min-w-[70vh] rounded-full overflow-hidden mx-1",
+          )}
+        >
+          <AudioRecording color={cn(is ? "bg-green-700" : "bg-yellow-700")} />
+        </div>
+        <div>okey_ai</div>
       </div>
     </div>
   );

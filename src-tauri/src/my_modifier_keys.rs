@@ -52,7 +52,7 @@ pub fn set_shortcuts_for_translate_bubble(
                 // my_windows::window_translate_bubble_hide(&app_clone);
             }
             was_pressed = is_pressed;
-            thread::sleep(Duration::from_millis(10)); // 轮询间隔
+            thread::sleep(Duration::from_millis(100)); // 轮询间隔
         }
     });
 

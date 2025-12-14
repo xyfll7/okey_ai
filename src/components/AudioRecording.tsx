@@ -10,11 +10,18 @@ const AudioRecording = ({
   color?: string;
 }) => {
   return (
-    <div className="flex items-center justify-center w-full h-full">
+    <div
+      className="flex items-center justify-center w-full h-full"
+      data-tauri-drag-region
+    >
       {/* 波形容器 */}
-      <div className="flex items-center h-full w-full gap-[10%]">
+      <div
+        className="flex items-center h-full w-full gap-[10%]"
+        data-tauri-drag-region
+      >
         {[...Array(3)].map((_, i) => (
           <span
+            data-tauri-drag-region
             key={i}
             className={cn("  h-[60%] flex-1 rounded-full", color)}
             style={{
