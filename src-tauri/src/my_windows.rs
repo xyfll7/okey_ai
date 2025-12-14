@@ -70,6 +70,64 @@ pub fn window_input_method_editor_hide<R: Runtime>(app: &AppHandle<R>) {
     }
 }
 
+pub fn window_translate_bubble_show<R: Runtime>(app: &AppHandle<R>) {
+    const WINDOW_WIDTH: f64 = 13.0;
+    const WINDOW_HEIGHT: f64 = 13.0;
+    const CURSOR_OFFSET: f64 = 0.0;
+
+    if let Some(window) = app.get_webview_window("translate_bubble") {
+        let size = LogicalSize::new(WINDOW_WIDTH, WINDOW_HEIGHT);
+        let _ = window.set_size(size);
+        let _ = window.set_min_size(Some(size));
+        let _ = window.set_background_color(Some(Color(0, 0, 0, 0)));
+
+        let (logical_x, logical_y) =
+            calculate_window_position(app, WINDOW_WIDTH, WINDOW_HEIGHT, CURSOR_OFFSET);
+
+        let mut target_scale = 1.0;
+
+        if let Ok(monitors) = window.available_monitors() {
+            for monitor in monitors {
+                let pos = monitor.position();
+                let size_mon = monitor.size();
+                let scale = monitor.scale_factor();
+
+                let mon_x = pos.x as f64 / scale;
+                let mon_y = pos.y as f64 / scale;
+                let mon_w = size_mon.width as f64 / scale;
+                let mon_h = size_mon.height as f64 / scale;
+
+                if logical_x >= mon_x
+                    && logical_x < mon_x + mon_w
+                    && logical_y >= mon_y
+                    && logical_y < mon_y + mon_h
+                {
+                    target_scale = scale;
+                    break;
+                }
+            }
+        }
+
+        let physical_x = (logical_x * target_scale) as i32;
+        let physical_y = (logical_y * target_scale) as i32;
+
+        let _ = window.set_position(tauri::Position::Physical(PhysicalPosition {
+            x: physical_x,
+            y: physical_y,
+        }));
+
+        let _ = window.show();
+        // let _ = window.set_focusable(true);
+        let _ = window.set_always_on_top(true);
+    }
+}
+
+pub fn window_translate_bubble_hide<R: Runtime>(app: &AppHandle<R>) {
+    if let Some(window) = app.get_webview_window("translate_bubble") {
+        let _ = window.hide();
+    }
+}
+
 pub fn window_about_show<R: Runtime>(app: &AppHandle<R>) {
     if let Some(window) = app.get_webview_window("about") {
         let _ = window.show();

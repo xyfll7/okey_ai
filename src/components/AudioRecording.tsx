@@ -1,6 +1,14 @@
-import React from "react";
+import { cn } from "@/lib/utils";
 
-const AudioRecording: React.FC = () => {
+const AudioRecording = ({
+  color = "bg-red-700",
+}: {
+  /**
+   * Tailwind CSS background color class (e.g. `bg-red-500`, `bg-blue-600`)
+   * @type {string}
+   */
+  color?: string;
+}) => {
   return (
     <div className="flex items-center justify-center w-full h-full">
       {/* 波形容器 */}
@@ -8,7 +16,7 @@ const AudioRecording: React.FC = () => {
         {[...Array(3)].map((_, i) => (
           <span
             key={i}
-            className=" bg-red-600 h-[60%] flex-1 rounded-full"
+            className={cn("  h-[60%] flex-1 rounded-full", color)}
             style={{
               transformOrigin: "center",
               animation: "ios-wave 1.2s ease-in-out infinite",

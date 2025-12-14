@@ -26,3 +26,27 @@ pub fn set_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> 
 
     Ok(())
 }
+
+pub fn set_shortcuts_for_translate_bubble(
+    app: &AppHandle,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let device_state = DeviceState::new();
+    let mut was_pressed = false;
+    let app_clone = app.clone();
+
+    thread::spawn(move || {
+        loop {
+            let keys = device_state.get_keys();
+            let is_pressed = keys.contains(&Keycode::LControl);
+            if is_pressed && !was_pressed {
+                my_windows::window_translate_bubble_show(&app_clone);
+            } else if !is_pressed && was_pressed {
+                my_windows::window_translate_bubble_hide(&app_clone);
+            }
+            was_pressed = is_pressed;
+            thread::sleep(Duration::from_millis(10)); // 轮询间隔
+        }
+    });
+
+    Ok(())
+}

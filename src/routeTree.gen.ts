@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as Translate_bubbleIndexRouteImport } from './routes/translate_bubble/index'
 import { Route as TranslateIndexRouteImport } from './routes/translate/index'
 import { Route as Input_method_editorIndexRouteImport } from './routes/input_method_editor/index'
 import { Route as TranslateSettingsRouteImport } from './routes/translate/settings'
@@ -23,6 +24,11 @@ const AboutRoute = AboutRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Translate_bubbleIndexRoute = Translate_bubbleIndexRouteImport.update({
+  id: '/translate_bubble/',
+  path: '/translate_bubble/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TranslateIndexRoute = TranslateIndexRouteImport.update({
@@ -48,6 +54,7 @@ export interface FileRoutesByFullPath {
   '/translate/settings': typeof TranslateSettingsRoute
   '/input_method_editor': typeof Input_method_editorIndexRoute
   '/translate': typeof TranslateIndexRoute
+  '/translate_bubble': typeof Translate_bubbleIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -55,6 +62,7 @@ export interface FileRoutesByTo {
   '/translate/settings': typeof TranslateSettingsRoute
   '/input_method_editor': typeof Input_method_editorIndexRoute
   '/translate': typeof TranslateIndexRoute
+  '/translate_bubble': typeof Translate_bubbleIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -63,6 +71,7 @@ export interface FileRoutesById {
   '/translate/settings': typeof TranslateSettingsRoute
   '/input_method_editor/': typeof Input_method_editorIndexRoute
   '/translate/': typeof TranslateIndexRoute
+  '/translate_bubble/': typeof Translate_bubbleIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -72,6 +81,7 @@ export interface FileRouteTypes {
     | '/translate/settings'
     | '/input_method_editor'
     | '/translate'
+    | '/translate_bubble'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -79,6 +89,7 @@ export interface FileRouteTypes {
     | '/translate/settings'
     | '/input_method_editor'
     | '/translate'
+    | '/translate_bubble'
   id:
     | '__root__'
     | '/'
@@ -86,6 +97,7 @@ export interface FileRouteTypes {
     | '/translate/settings'
     | '/input_method_editor/'
     | '/translate/'
+    | '/translate_bubble/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -94,6 +106,7 @@ export interface RootRouteChildren {
   TranslateSettingsRoute: typeof TranslateSettingsRoute
   Input_method_editorIndexRoute: typeof Input_method_editorIndexRoute
   TranslateIndexRoute: typeof TranslateIndexRoute
+  Translate_bubbleIndexRoute: typeof Translate_bubbleIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -110,6 +123,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/translate_bubble/': {
+      id: '/translate_bubble/'
+      path: '/translate_bubble'
+      fullPath: '/translate_bubble'
+      preLoaderRoute: typeof Translate_bubbleIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/translate/': {
@@ -142,6 +162,7 @@ const rootRouteChildren: RootRouteChildren = {
   TranslateSettingsRoute: TranslateSettingsRoute,
   Input_method_editorIndexRoute: Input_method_editorIndexRoute,
   TranslateIndexRoute: TranslateIndexRoute,
+  Translate_bubbleIndexRoute: Translate_bubbleIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

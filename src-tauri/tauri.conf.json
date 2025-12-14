@@ -29,6 +29,25 @@
         "minimizable": false,
         "maximizable": false,
         "titleBarStyle": "Overlay"
+      },
+      {
+        "title": "Translate Bubble",
+        "label": "translate_bubble",
+        "url": "/translate_bubble",
+        "width": 13,
+        "height": 13,
+        "resizable": false,
+        "fullscreen": false,
+        "visible": false,
+        "skipTaskbar": true,
+        "decorations": false,
+        "transparent": true,
+        "hiddenTitle": true,
+        "shadow": false,
+        "alwaysOnTop": true,
+        "minimizable": false,
+        "maximizable": false,
+        "titleBarStyle": "Overlay"
       }
     ],
     "security": {
