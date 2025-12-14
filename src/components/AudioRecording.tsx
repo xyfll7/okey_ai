@@ -5,7 +5,7 @@ const AudioRecording: React.FC = () => {
     <div className="flex items-center justify-center w-full h-full">
       {/* 波形容器 */}
       <div className="flex items-center h-full w-full gap-[10%]">
-        {[...Array(4)].map((_, i) => (
+        {[...Array(3)].map((_, i) => (
           <span
             key={i}
             className="ios-bar"
@@ -19,7 +19,7 @@ const AudioRecording: React.FC = () => {
       <style>{`
         .ios-bar {
           flex: 1;
-          height: 50%;
+          height: 60%;
           background-color: #ff3b30; /* iOS 红 */
           border-radius: 9999px;
           transform-origin: center;
