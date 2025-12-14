@@ -87,16 +87,16 @@ pub fn detect_language(text: &str) -> String {
 // 全局状态对应的命令
 
 #[tauri::command]
-pub fn toggle_auto_close_window(state: State<'_, Mutex<AppState>>) -> bool {
+pub fn toggle_auto_close_translate(state: State<'_, Mutex<AppState>>) -> bool {
     let mut app_state = state.lock().unwrap();
-    app_state.auto_close_window = !app_state.auto_close_window;
-    app_state.auto_close_window
+    app_state.auto_close_translate = !app_state.auto_close_translate;
+    app_state.auto_close_translate
 }
 
 #[tauri::command]
-pub fn get_auto_close_window_state(state: State<'_, Mutex<AppState>>) -> bool {
+pub fn get_auto_close_translate_state(state: State<'_, Mutex<AppState>>) -> bool {
     let app_state = state.lock().unwrap();
-    app_state.auto_close_window
+    app_state.auto_close_translate
 }
 
 #[tauri::command]

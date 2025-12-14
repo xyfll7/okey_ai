@@ -125,6 +125,40 @@ where
         if let Some(cb) = callback {
             cb();
         }
+
+        // Get the app handle to access global state
+        let state_handle = window.app_handle().clone();
+        let cancelled = Arc::new(Mutex::new(false));
+        let win_clone = window.clone();
+        let cancel_flag = cancelled.clone();
+        window.on_window_event(move |event| match event {
+            tauri::WindowEvent::Focused(false) => {
+                *cancel_flag.lock().unwrap() = false;
+                let _win = win_clone.clone();
+                let local_cancel = cancel_flag.clone();
+                let state_handle = state_handle.clone();
+                thread::spawn(move || {
+                    thread::sleep(Duration::from_millis(100));
+                    if *local_cancel.lock().unwrap() {
+                        return;
+                    }
+                    if {
+                        let state = state_handle.state::<Mutex<AppState>>();
+                        let state_guard = state.lock().unwrap();
+                        !state_guard.auto_close_bubble
+                    } {
+                        _win.destroy().ok();
+                    }
+                });
+            }
+            tauri::WindowEvent::Focused(true) => {
+                *cancelled.lock().unwrap() = true;
+            }
+            tauri::WindowEvent::Moved(_) => {
+                *cancelled.lock().unwrap() = true;
+            }
+            _ => {}
+        });
     }
 }
 
@@ -224,7 +258,7 @@ where
                         if {
                             let state = state_handle.state::<Mutex<AppState>>();
                             let state_guard = state.lock().unwrap();
-                            !state_guard.auto_close_window
+                            !state_guard.auto_close_translate
                         } {
                             _win.destroy().ok();
                         }

@@ -47,7 +47,8 @@ impl Serialize for AutoSpeakState {
 // Global state struct for auto-close window setting
 #[derive(Default)]
 pub struct AppState {
-    pub auto_close_window: bool,
+    pub auto_close_translate: bool,
+    pub auto_close_bubble: bool,
     pub auto_speak: AutoSpeakState,
 }
 
@@ -72,8 +73,8 @@ pub fn run() {
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
             my_command::get_selection_text,
-            my_command::toggle_auto_close_window,
-            my_command::get_auto_close_window_state,
+            my_command::toggle_auto_close_translate,
+            my_command::get_auto_close_translate_state,
             my_command::toggle_auto_speak,
             my_command::get_auto_speak_state,
             my_command::close_main_window,
