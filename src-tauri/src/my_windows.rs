@@ -70,7 +70,10 @@ pub fn window_input_method_editor_hide<R: Runtime>(app: &AppHandle<R>) {
     }
 }
 
-pub fn window_translate_bubble_show<R: Runtime>(app: &AppHandle<R>) {
+pub fn window_translate_bubble_show<R: Runtime, F>(app: &AppHandle<R>, callback: Option<F>)
+where
+    F: FnOnce() + Send + 'static,
+{
     const WINDOW_WIDTH: f64 = 13.0;
     const WINDOW_HEIGHT: f64 = 13.0;
     const CURSOR_OFFSET: f64 = 0.0;
@@ -119,6 +122,9 @@ pub fn window_translate_bubble_show<R: Runtime>(app: &AppHandle<R>) {
         let _ = window.show();
         // let _ = window.set_focusable(true);
         let _ = window.set_always_on_top(true);
+        if let Some(cb) = callback {
+            cb();
+        }
     }
 }
 

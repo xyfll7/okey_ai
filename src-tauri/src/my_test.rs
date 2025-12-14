@@ -39,7 +39,7 @@ pub fn set_shortcuts_for_translate_bubble(
             let keys = device_state.get_keys();
             let is_pressed = keys.contains(&Keycode::LAlt);
             if is_pressed && !was_pressed {
-                my_windows::window_translate_bubble_show(&app_clone);
+                my_windows::window_translate_bubble_show(&app_clone, None as Option<fn()>);
             } else if !is_pressed && was_pressed {
                 my_windows::window_translate_bubble_hide(&app_clone);
             }
