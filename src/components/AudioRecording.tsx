@@ -8,11 +8,11 @@ const AudioRecording: React.FC = () => {
         {[...Array(3)].map((_, i) => (
           <span
             key={i}
-            className="ios-bar bg-red-600 h-[60%] flex-1 rounded-full"
+            className=" bg-red-600 h-[60%] flex-1 rounded-full"
             style={{
-              animationDelay: `${i * 0.12}s`,
               transformOrigin: "center",
               animation: "ios-wave 1.2s ease-in-out infinite",
+              animationDelay: `${i * 0.12}s`,
             }}
           />
         ))}
