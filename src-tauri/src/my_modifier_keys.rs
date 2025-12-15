@@ -1,7 +1,6 @@
 use crate::my_utils;
 use crate::my_windows;
-use device_query::MouseState;
-use device_query::{DeviceQuery, DeviceState, Keycode};
+use device_query::{DeviceQuery,MouseState, DeviceState, Keycode};
 use std::thread;
 use std::time::Duration;
 use tauri::AppHandle;
