@@ -17,6 +17,9 @@ impl InputMethodEditorHandler {
     }
 
     fn handle(&mut self, keys: &Vec<Keycode>, app: &AppHandle) {
+        #[cfg(target_os = "macos")]
+        let is_pressed = keys.contains(&Keycode::RCommand); // On Mac, use Right Command key
+        #[cfg(not(target_os = "macos"))]
         let is_pressed = keys.contains(&Keycode::RControl);
 
         if is_pressed && !self.was_pressed {
