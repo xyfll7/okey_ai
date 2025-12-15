@@ -4,7 +4,6 @@ mod my_config;
 mod my_events;
 mod my_logging;
 mod my_modifier_keys;
-mod my_reqwest;
 mod my_shortcut;
 mod my_tray;
 mod my_types;
