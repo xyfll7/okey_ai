@@ -163,24 +163,6 @@ where
     }
 }
 
-// pub fn window_translate_bubble_hide<R: Runtime>(app: &AppHandle<R>) {
-//     if let Some(window) = app.get_webview_window("translate_bubble") {
-//         let _ = window.hide();
-//     }
-// }
-
-pub fn window_about_show<R: Runtime>(app: &AppHandle<R>) {
-    if let Some(window) = app.get_webview_window("about") {
-        let _ = window.show();
-        let _ = window.set_focus();
-    } else {
-        let _ = WebviewWindowBuilder::new(app, "about", WebviewUrl::App("/about".into()))
-            .title("About")
-            .resizable(true)
-            .build();
-    }
-}
-
 pub fn window_translate_show<R: Runtime, F>(app: &AppHandle<R>, callback: Option<F>)
 where
     F: FnOnce() + Send + 'static,
@@ -277,6 +259,17 @@ where
     }
 }
 
+pub fn window_about_show<R: Runtime>(app: &AppHandle<R>) {
+    if let Some(window) = app.get_webview_window("about") {
+        let _ = window.show();
+        let _ = window.set_focus();
+    } else {
+        let _ = WebviewWindowBuilder::new(app, "about", WebviewUrl::App("/about".into()))
+            .title("About")
+            .resizable(true)
+            .build();
+    }
+}
 fn get_monitor_at_position<R: Runtime>(app: &AppHandle<R>, x: i32, y: i32) -> Option<Monitor> {
     if let Ok(monitors) = app.available_monitors() {
         for monitor in monitors {
