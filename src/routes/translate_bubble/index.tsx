@@ -1,14 +1,11 @@
-import AudioRecording from "@/components/AudioRecording";
 import { createFileRoute } from "@tanstack/react-router";
 import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
-
 import { useEffect, useState } from "react";
-
 import { EVENT_NAMES } from "@/lib/events";
+import AudioRecording from "@/components/AudioRecording";
 import type { InputData } from "@/lib/types";
 import { speak, cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 
 enum AutoSpeakState {
   Off = "off",
@@ -56,29 +53,38 @@ function RouteComponent() {
     <div
       data-tauri-drag-region
       className={cn(
-        "flex items-center w-screen h-screen ",
-        "overflow-hidden ",
+        "flex items-center w-screen h-screen",
+        "overflow-hidden",
         "p-px",
       )}
-      role="none"
-      onDoubleClick={(e)=>{e.preventDefault(); e.stopPropagation()}}
     >
       <div
         data-tauri-drag-region
-        className="flex items-center h-full border rounded-md w-full bg-background"
+        className="flex items-center justify-between h-full border rounded-md w-full bg-background overflow-hidden"
       >
-        <div
-          data-tauri-drag-region
-          style={{ "--avatar-size": "1rem" } as React.CSSProperties}
-          className={cn(
-            "h-(--avatar-size) w-(--avatar-size) min-w-(--avatar-size)",
-            "rounded-full overflow-hidden mx-1",
-          )}
-        >
-          <AudioRecording color={cn(is ? "bg-green-700" : "bg-yellow-700")} />
+        <div className="flex items-center w-full overflow-hidden">
+          <div
+            data-tauri-drag-region
+            style={{ "--avatar-size": "1rem" } as React.CSSProperties}
+            className={cn(
+              "h-(--avatar-size) w-(--avatar-size) min-w-(--avatar-size)",
+              "rounded-full overflow-hidden mx-1 ",
+            )}
+          >
+            <AudioRecording color={cn(is ? "bg-green-700" : "bg-yellow-700")} />
+          </div>
+          <span className="truncate w-full overflow-hidden flex-1 min-w-0">
+            测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试
+          </span>
         </div>
-         <Button className="mr-1" size={"xx"} variant={"ghost"} onClick={() => {}}>测试</Button>
-         <Button className="mr-1" size={"xx"} variant={"secondary"} onClick={() => {}}>测试</Button>
+        {/*<Button
+          className="mr-1"
+          size={"xx"}
+          variant={"secondary"}
+          onClick={() => {}}
+        >
+          测试
+        </Button>*/}
       </div>
     </div>
   );
