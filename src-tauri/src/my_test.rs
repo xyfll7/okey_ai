@@ -9,7 +9,6 @@ pub fn test<R: Runtime>(app: &AppHandle<R>) {
     thread::spawn(move || {
         let _ = listen(move |event| match event.event_type {
             EventType::KeyPress(key) => match key {
-                rdev::Key::ControlLeft => {}
                 _ => {
                     println!("Key pressed: {:?}", key);
                 }
