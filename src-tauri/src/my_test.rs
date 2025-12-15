@@ -9,13 +9,7 @@ pub fn test<R: Runtime>(app: &AppHandle<R>) {
     thread::spawn(move || {
         let _ = listen(move |event| match event.event_type {
             EventType::KeyPress(key) => match key {
-                rdev::Key::ControlLeft => {
-                    println!("ControlLeft pressed");
-                    my_windows::window_translate_bubble_show(
-                        &app_handle,
-                        Some(|| println!("Callback executed")),
-                    );
-                }
+                rdev::Key::ControlLeft => {}
                 _ => {
                     println!("Key pressed: {:?}", key);
                 }
