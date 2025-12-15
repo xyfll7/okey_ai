@@ -43,6 +43,9 @@ impl TranslateBubbleHandler {
     }
 
     fn handle(&mut self, keys: &Vec<Keycode>, app: &AppHandle) {
+        #[cfg(target_os = "macos")]
+        let is_pressed = keys.contains(&Keycode::ROption); // On Mac, use Right Option key
+        #[cfg(not(target_os = "macos"))]
         let is_pressed = keys.contains(&Keycode::RAlt);
 
         if is_pressed && !self.was_pressed {
