@@ -97,13 +97,14 @@ pub fn run() {
                         .build(),
                 )?;
             }
+
             // 初始化 API 管理器
             my_api::setup_api_manager(&app.handle())?;
-            my_modifier_keys::init_global_input_listener(&app.handle())?;
+            // my_modifier_keys::init_global_input_listener(&app.handle())?;
             my_shortcut::init_shortcuts(&app.handle())?;
-            crate::my_test::test();
-            my_tray::create_tray(&app.handle())?;
 
+            my_tray::create_tray(&app.handle())?;
+            crate::my_test::test();
             // 在 macOS 上隐藏 Dock 栏图标
             #[cfg(target_os = "macos")]
             {
