@@ -104,7 +104,7 @@ pub fn run() {
             my_shortcut::init_shortcuts(&app.handle())?;
 
             my_tray::create_tray(&app.handle())?;
-            crate::my_test::test();
+            crate::my_test::test(&app.handle());
             // 在 macOS 上隐藏 Dock 栏图标
             #[cfg(target_os = "macos")]
             {
