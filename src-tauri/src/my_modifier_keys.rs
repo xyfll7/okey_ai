@@ -22,7 +22,7 @@ pub fn set_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> 
                 my_windows::window_input_method_editor_hide(&app_clone);
             }
             was_pressed = is_pressed;
-            thread::sleep(Duration::from_millis(10)); // 轮询间隔
+            thread::sleep(Duration::from_millis(100)); // 轮询间隔
         }
     });
 
@@ -102,7 +102,7 @@ pub fn init_click_outside_listener(app: &AppHandle) {
             }
 
             // 轮询间隔：20ms 足够灵敏，CPU 占用极低
-            thread::sleep(Duration::from_millis(20));
+            thread::sleep(Duration::from_millis(100));
         }
     });
 }
