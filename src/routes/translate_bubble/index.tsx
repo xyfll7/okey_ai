@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { EVENT_NAMES } from "@/lib/events";
 import type { InputData } from "@/lib/types";
 import { speak, cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 enum AutoSpeakState {
   Off = "off",
@@ -40,7 +41,7 @@ function RouteComponent() {
     );
     const unlistenResponse = listen<InputData>(
       EVENT_NAMES.AI_RESPONSE,
-      ({}) => {},
+      () => {},
     );
     const unlistenError = listen<string>(EVENT_NAMES.AI_ERROR, () => {});
     emit(EVENT_NAMES.PAGE_LOADED, { ok: true });
@@ -55,24 +56,29 @@ function RouteComponent() {
     <div
       data-tauri-drag-region
       className={cn(
-        "flex items-center w-screen h-screen",
+        "flex items-center w-screen h-screen ",
         "overflow-hidden ",
-        "p-[0.1rem]",
+        "p-px",
       )}
+      role="none"
+      onDoubleClick={(e)=>{e.preventDefault(); e.stopPropagation()}}
     >
       <div
         data-tauri-drag-region
-        className="flex items-center h-full border rounded-sm w-full bg-secondary"
+        className="flex items-center h-full border rounded-md w-full bg-background"
       >
         <div
           data-tauri-drag-region
+          style={{ "--avatar-size": "1rem" } as React.CSSProperties}
           className={cn(
-            "h-[70vh] w-[70vh] min-w-[70vh] rounded-full overflow-hidden mx-1",
+            "h-(--avatar-size) w-(--avatar-size) min-w-(--avatar-size)",
+            "rounded-full overflow-hidden mx-1",
           )}
         >
           <AudioRecording color={cn(is ? "bg-green-700" : "bg-yellow-700")} />
         </div>
-        <div>okey_ai</div>
+         <Button className="mr-1" size={"xx"} variant={"ghost"} onClick={() => {}}>测试</Button>
+         <Button className="mr-1" size={"xx"} variant={"secondary"} onClick={() => {}}>测试</Button>
       </div>
     </div>
   );
