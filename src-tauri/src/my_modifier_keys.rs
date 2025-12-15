@@ -41,7 +41,8 @@ pub fn set_shortcuts_for_translate_bubble(
             let keys = device_state.get_keys();
             let is_pressed = keys.contains(&Keycode::RAlt);
             if is_pressed && !was_pressed {
-                // Create a clone for use in the callback closure
+                // todo::
+            } else if !is_pressed && was_pressed {
                 let app_for_callback = app_clone.clone();
                 my_windows::window_translate_bubble_show(
                     &app_clone,
@@ -49,8 +50,6 @@ pub fn set_shortcuts_for_translate_bubble(
                         my_utils::translate_selected_text_for_translate_bubble(&app_for_callback);
                     }),
                 );
-            } else if !is_pressed && was_pressed {
-                // my_windows::window_translate_bubble_hide(&app_clone);
             }
             was_pressed = is_pressed;
             thread::sleep(Duration::from_millis(100)); // 轮询间隔

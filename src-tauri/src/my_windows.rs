@@ -76,7 +76,7 @@ where
 {
     const WINDOW_WIDTH: f64 = 170.0;
     const WINDOW_HEIGHT: f64 = 30.0;
-    const CURSOR_OFFSET: f64 = 0.0;
+    const CURSOR_OFFSET: f64 = 17.0;
 
     if let Some(window) = app.get_webview_window("translate_bubble") {
         let size = LogicalSize::new(WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -270,6 +270,7 @@ pub fn window_about_show<R: Runtime>(app: &AppHandle<R>) {
             .build();
     }
 }
+
 fn get_monitor_at_position<R: Runtime>(app: &AppHandle<R>, x: i32, y: i32) -> Option<Monitor> {
     if let Ok(monitors) = app.available_monitors() {
         for monitor in monitors {
