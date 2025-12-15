@@ -98,9 +98,7 @@ pub fn run() {
             }
             // 初始化 API 管理器
             crate::my_api::setup_api_manager(&app.handle())?;
-            my_modifier_keys::set_shortcuts(&app.handle())?;
-            my_modifier_keys::set_shortcuts_for_translate_bubble(&app.handle())?;
-            my_modifier_keys::init_click_outside_listener(&app.handle());
+            my_modifier_keys::init_global_input_listener(&app.handle())?;
             my_shortcut::init_shortcuts(&app.handle())?;
             my_tray::create_tray(&app.handle())?;
 
