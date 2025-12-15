@@ -3,7 +3,7 @@ use crate::my_api::traits::{ChatCompletionRequest, ChatMessage};
 use crate::my_events::event_names;
 use crate::my_types::InputData;
 use crate::my_windows;
-use selection::get_text;
+use selection;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::AppHandle;
 use tauri::{async_runtime, Emitter, Manager};
@@ -32,7 +32,7 @@ pub fn detect_language(text: &str) -> &'static str {
 }
 
 pub fn translate_selected_text(app_handle: &AppHandle) {
-    let selected_text = get_text();
+    let selected_text = selection::get_text();
     if selected_text.is_empty() {
         return;
     }
@@ -115,7 +115,7 @@ pub fn translate_selected_text(app_handle: &AppHandle) {
 }
 
 pub fn translate_selected_text_for_translate_bubble(app_handle: &AppHandle) {
-    let selected_text = get_text();
+    let selected_text = selection::get_text();
     if selected_text.is_empty() {
         return;
     }
