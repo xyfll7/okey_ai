@@ -49,6 +49,8 @@ impl TranslateBubbleHandler {
         let is_pressed = keys.contains(&Keycode::RShift);
 
         if is_pressed && !self.was_pressed {
+            let selected_text = selection::get_text();
+            println!("Selected text---------: {}", selected_text);
             let app_for_callback = app.clone();
             my_windows::window_translate_bubble_show(
                 app,

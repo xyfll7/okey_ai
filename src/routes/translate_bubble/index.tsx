@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { EVENT_NAMES } from "@/lib/events";
 import AudioRecording from "@/components/AudioRecording";
 import type { InputData } from "@/lib/types";
-import { speak, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 enum AutoSpeakState {
   Off = "off",
@@ -32,7 +32,7 @@ function RouteComponent() {
             (res === AutoSpeakState.Single && isSingleWord) ||
             (res === AutoSpeakState.All && payload.input_text.trim().length > 0)
           ) {
-            speak(payload.input_text);
+            // speak(payload.input_text);
           }
         });
       },
