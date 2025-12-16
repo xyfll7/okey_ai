@@ -18,6 +18,7 @@ export const Route = createFileRoute("/translate_bubble/")({
 
 function RouteComponent() {
   const [is, setIs] = useState(false);
+  const [chat, setChat] = useState<InputData>();
   useEffect(() => {
     const unlistenSpeak = listen<InputData>(
       EVENT_NAMES.AUTO_SPEAK,
@@ -38,7 +39,7 @@ function RouteComponent() {
     );
     const unlistenResponse = listen<InputData>(
       EVENT_NAMES.AI_RESPONSE,
-      () => {},
+      ({ payload }) => setChat(payload),
     );
     const unlistenError = listen<string>(EVENT_NAMES.AI_ERROR, () => {});
     emit(EVENT_NAMES.PAGE_LOADED, { ok: true });
@@ -74,7 +75,7 @@ function RouteComponent() {
             <AudioRecording color={cn(is ? "bg-green-700" : "bg-yellow-700")} />
           </div>
           <span className="truncate w-full overflow-hidden flex-1 min-w-0">
-            测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试测试
+            {chat?.response_text ?? "..."}
           </span>
         </div>
         {/*<Button
