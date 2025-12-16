@@ -159,6 +159,7 @@ where
                 .skip_taskbar(true)
                 .always_on_top(true)
                 .min_inner_size(350.0, 600.0)
+                .background_color(Color(0, 0, 0, 1))
                 .inner_size(WINDOW_WIDTH, WINDOW_HEIGHT)
                 .position(adjusted_x, adjusted_y);
 
