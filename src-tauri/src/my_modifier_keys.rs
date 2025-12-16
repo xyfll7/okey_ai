@@ -46,7 +46,7 @@ impl TranslateBubbleHandler {
         #[cfg(target_os = "macos")]
         let is_pressed = keys.contains(&Keycode::ROption); // On Mac, use Right Option key
         #[cfg(not(target_os = "macos"))]
-        let is_pressed = keys.contains(&Keycode::RAlt);
+        let is_pressed = keys.contains(&Keycode::RShift);
 
         if is_pressed && !self.was_pressed {
             let app_for_callback = app.clone();
