@@ -48,7 +48,7 @@ impl TranslateBubbleHandler {
 
     fn handle(&mut self, keys: &[Keycode], app: &AppHandle) {
         #[cfg(target_os = "macos")]
-        let is_pressed = keys.contains(&Keycode::LCommand); // On Mac, use Right Command key
+        let is_pressed = keys.contains(&Keycode::Command); // On Mac, use Right Command key
         #[cfg(not(target_os = "macos"))]
         let is_pressed = keys.contains(&Keycode::LControl);
 
