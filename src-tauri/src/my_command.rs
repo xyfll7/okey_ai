@@ -84,8 +84,6 @@ pub fn detect_language(text: &str) -> String {
     language.to_string()
 }
 
-// 全局状态对应的命令
-
 #[tauri::command]
 pub fn toggle_auto_close_translate(state: State<'_, Mutex<AppState>>) -> bool {
     let mut app_state = state.lock().unwrap();
