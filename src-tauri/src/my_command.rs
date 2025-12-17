@@ -117,7 +117,13 @@ pub fn get_auto_speak_state(state: State<'_, Mutex<AppState>>) -> AutoSpeakState
     app_state.auto_speak
 }
 
-#[tauri::command]
-pub async fn command_window_translate_show(app: AppHandle) {
-    my_windows::window_translate_show(&app, None as Option<fn()>);
+#[tauri::command(rename_all = "snake_case")]
+pub async fn command_window_translate_show(app: AppHandle, input_data: my_types::InputData) {
+    let app_clone = app.clone();
+    my_windows::window_translate_show(
+        &app,
+        Some(move || {
+            let _ = app_clone.emit(event_names::AI_RESPONSE, input_data);
+        }),
+    );
 }

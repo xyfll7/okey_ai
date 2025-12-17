@@ -232,8 +232,8 @@ function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
 							input_data: {
 								input_time_stamp: Date.now().toString(),
 								input_text: value,
-								response_text: null,
-							},
+								response_text: "",
+							} as InputData,
 						});
 						setValue("");
 					}
@@ -276,8 +276,8 @@ function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
 							input_data: {
 								input_time_stamp: Date.now().toString(),
 								input_text: value,
-								response_text: null,
-							},
+								response_text: "",
+							} as InputData,
 						});
 						setValue("");
 					}}

@@ -102,7 +102,7 @@ function RouteComponent() {
 					size={"icon-xs"}
 					variant={"ghost"}
 					onClick={async() => {
-							await invoke<AutoSpeakState>(EVENT_NAMES.COMMAND_WINDOW_TRANSLATE_SHOW)
+							await invoke(EVENT_NAMES.COMMAND_WINDOW_TRANSLATE_SHOW,{ input_data: chat } )
 					}}
 				>
 					<Maximize2 />
