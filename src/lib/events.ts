@@ -4,6 +4,7 @@
 export const EVENT_NAMES = {
   // from Tauri backend
   AUTO_SPEAK: "AUTO_SPEAK",
+  AUTO_SPEAK_BUBBLE: "AUTO_SPEAK_BUBBLE",
   AI_RESPONSE: "AI_RESPONSE",
   AI_ERROR: "AI_ERROR",
   // to Tauri backend

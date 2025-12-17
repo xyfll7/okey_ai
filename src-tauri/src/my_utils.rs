@@ -119,7 +119,7 @@ pub fn translate_selected_text_for_translate_bubble(app_handle: &AppHandle) {
     if selected_text.is_empty() {
         return;
     }
-    println!("selected_text: {}", selected_text);
+
     let input_data = InputData {
         input_time_stamp: SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -130,8 +130,7 @@ pub fn translate_selected_text_for_translate_bubble(app_handle: &AppHandle) {
         response_text: None,
     };
     let input_data_clone = input_data.clone();
-
-    let _ = app_handle.emit(event_names::AI_RESPONSE, &input_data);
+    let _ = app_handle.emit(event_names::AUTO_SPEAK_BUBBLE, &input_data);
     let app_handle = app_handle.clone();
     async_runtime::spawn(async move {
         let api_manager_state = app_handle.state::<GlobalAPIManager>();
@@ -171,7 +170,7 @@ pub fn translate_selected_text_for_translate_bubble(app_handle: &AppHandle) {
                 if let Some(choice) = response.choices.first() {
                     let content = choice.message.content.clone();
                     let app_handle_clone = app_handle.clone();
-                    let _ = app_handle_clone.emit(event_names::AUTO_SPEAK, &input_data);
+                    let _ = app_handle_clone.emit(event_names::AI_RESPONSE, &input_data);
                     let mut input_data_with_response = input_data_clone;
                     input_data_with_response.response_text = Some(content);
                     let _ =

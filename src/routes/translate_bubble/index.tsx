@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
-import { useEffect, useState } from "react";
-import { EVENT_NAMES } from "@/lib/events";
-import AudioRecording from "@/components/AudioRecording";
-import type { InputData } from "@/lib/types";
-import { speak, cn } from "@/lib/utils";
 import { Maximize2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import AudioRecording from "@/components/AudioRecording";
 import { Button } from "@/components/ui/button";
+import { EVENT_NAMES } from "@/lib/events";
+import type { InputData } from "@/lib/types";
+import { cn, speak } from "@/lib/utils";
 
 enum AutoSpeakState {
   Off = "off",
@@ -23,7 +23,7 @@ function RouteComponent() {
   const [chat, setChat] = useState<InputData>();
   useEffect(() => {
     const unlistenSpeak = listen<InputData>(
-      EVENT_NAMES.AUTO_SPEAK,
+      EVENT_NAMES.AUTO_SPEAK_BUBBLE,
       ({ payload }) => {
         setIs(true);
         invoke<AutoSpeakState>(EVENT_NAMES.GET_AUTO_SPEAK_STATE).then((res) => {
@@ -35,6 +35,7 @@ function RouteComponent() {
             (res === AutoSpeakState.All && payload.input_text.trim().length > 0)
           ) {
             speak(payload.input_text);
+            setChat(payload);
           }
         });
       },
