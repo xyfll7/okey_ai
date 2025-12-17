@@ -58,7 +58,7 @@ impl TranslateBubbleHandler {
             if let Some(last_press_time) = self.last_press {
                 let elapsed = now.duration_since(last_press_time);
 
-                if elapsed.as_millis() < 500 {
+                if elapsed.as_millis() < 700 {
                     // 通常双击间隔为 300-500ms，800ms 略长
                     self.trigger_action(app);
                     self.last_press = None; // 触发后清空

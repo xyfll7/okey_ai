@@ -5,6 +5,7 @@ use crate::my_types::InputData;
 use crate::my_windows;
 use selection;
 use std::time::{SystemTime, UNIX_EPOCH};
+use tauri::LogicalSize;
 use tauri::{async_runtime, Emitter, Manager};
 use tauri::{AppHandle, Runtime};
 
@@ -178,9 +179,20 @@ pub fn translate_selected_text_for_translate_bubble(app_handle: &AppHandle) {
                     let app_handle_clone = app_handle.clone();
                     let _ = app_handle_clone.emit(event_names::AI_RESPONSE, &input_data);
                     let mut input_data_with_response = input_data.clone();
-                    input_data_with_response.response_text = Some(content);
+                    input_data_with_response.response_text = Some(content.clone()); // 克隆内容以供后续使用
                     let _ =
                         app_handle_clone.emit(event_names::AI_RESPONSE, &input_data_with_response);
+                    let window = app_handle_clone.get_webview_window("translate_bubble");
+                    if let Some(window) = window {
+                        // 根据响应文本的实际长度动态调整窗口宽度
+                        // 假设每个字符大约占8像素宽度（可根据实际需求调整）
+                        let text_length = content.chars().count();
+                        // 最小宽度为100，最大宽度为500，根据字符数线性增长
+                        let width = 100.0 + (text_length as f64 * 8.0).min(400.0);
+                        let height = 33.0; // 保持高度不变
+                        let size = LogicalSize::new(width, height);
+                        let _ = window.set_size(size);
+                    }
                 }
             }
             Err(e) => {
