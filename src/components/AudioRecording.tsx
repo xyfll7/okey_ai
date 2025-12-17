@@ -19,10 +19,10 @@ const AudioRecording = ({
         className="flex items-center h-full w-full gap-[10%]"
         data-tauri-drag-region
       >
-        {[...Array(3)].map((_, i) => (
+        {[...Array(3)].map((e, i) => (
           <span
             data-tauri-drag-region
-            key={i}
+            key={e}
             className={cn("  h-[60%] flex-1 rounded-full", color)}
             style={{
               transformOrigin: "center",

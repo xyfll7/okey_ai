@@ -7,3 +7,9 @@ export interface InputData {
   input_text: string;
   response_text?: string;
 }
+
+export enum AutoSpeakState {
+  Off = "off",
+  Single = "single",
+  All = "all",
+}
