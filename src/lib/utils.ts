@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { Store } from "@tauri-apps/plugin-store";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import type { GlobalConfig } from "@/@types";
 import { EVENT_NAMES } from "./events";
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));

@@ -1,9 +1,9 @@
-interface Shortcut {
+export interface Shortcut {
   name: string;
   hot_key: string;
 }
 
-interface GlobalConfig {
+export interface GlobalConfig {
   shortcuts: Shortcut[];
   test_field: string;
 }
