@@ -132,6 +132,10 @@ pub fn window_translate_show<R: Runtime, F>(app: &AppHandle<R>, callback: Option
 where
     F: FnOnce() + Send + 'static,
 {
+    if let Some(window) = app.get_webview_window("translate_bubble") {
+        let _ = window.hide();
+    }
+
     if let Some(window) = app.get_webview_window("translate") {
         let _ = window.show();
         let _ = window.set_focus();
