@@ -118,7 +118,6 @@ pub fn get_auto_speak_state(state: State<'_, Mutex<AppState>>) -> AutoSpeakState
 }
 
 #[tauri::command]
-pub fn command_window_translate_show(app: AppHandle) {
-    let app_clone = app.clone();
+pub async fn command_window_translate_show(app: AppHandle) {
     my_windows::window_translate_show(&app, None as Option<fn()>);
 }
