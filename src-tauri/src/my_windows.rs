@@ -8,7 +8,7 @@ use tauri::{
     WebviewUrl, WebviewWindowBuilder,
 };
 
-use crate::{my_events::event_names, AppState};
+use crate::{my_events::event_names, my_utils, AppState};
 use mouse_position::mouse_position::{Mouse, Position};
 use tauri::Monitor;
 
@@ -134,6 +134,7 @@ where
 {
     if let Some(window) = app.get_webview_window("translate_bubble") {
         let _ = window.hide();
+        let _ = my_utils::create_input_data_and_emit(app, "");
     }
 
     if let Some(window) = app.get_webview_window("translate") {

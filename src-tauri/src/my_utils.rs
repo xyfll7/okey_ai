@@ -5,8 +5,25 @@ use crate::my_types::InputData;
 use crate::my_windows;
 use selection;
 use std::time::{SystemTime, UNIX_EPOCH};
-use tauri::AppHandle;
 use tauri::{async_runtime, Emitter, Manager};
+use tauri::{AppHandle, Runtime};
+
+pub fn create_input_data_and_emit<R: Runtime>(
+    app_handle: &AppHandle<R>,
+    selected_text: &str,
+) -> InputData {
+    let input_data = InputData {
+        input_time_stamp: SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_millis()
+            .to_string(),
+        input_text: selected_text.to_string(),
+        response_text: None,
+    };
+    let _ = app_handle.emit(event_names::AUTO_SPEAK_BUBBLE, &input_data);
+    input_data
+}
 
 pub fn detect_language(text: &str) -> &'static str {
     let chinese_chars = text
@@ -119,18 +136,7 @@ pub fn translate_selected_text_for_translate_bubble(app_handle: &AppHandle) {
     if selected_text.is_empty() {
         return;
     }
-
-    let input_data = InputData {
-        input_time_stamp: SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .as_millis()
-            .to_string(),
-        input_text: selected_text.clone(),
-        response_text: None,
-    };
-    let input_data_clone = input_data.clone();
-    let _ = app_handle.emit(event_names::AUTO_SPEAK_BUBBLE, &input_data);
+    let input_data = create_input_data_and_emit(&app_handle, &selected_text);
     let app_handle = app_handle.clone();
     async_runtime::spawn(async move {
         let api_manager_state = app_handle.state::<GlobalAPIManager>();
@@ -171,7 +177,7 @@ pub fn translate_selected_text_for_translate_bubble(app_handle: &AppHandle) {
                     let content = choice.message.content.clone();
                     let app_handle_clone = app_handle.clone();
                     let _ = app_handle_clone.emit(event_names::AI_RESPONSE, &input_data);
-                    let mut input_data_with_response = input_data_clone;
+                    let mut input_data_with_response = input_data.clone();
                     input_data_with_response.response_text = Some(content);
                     let _ =
                         app_handle_clone.emit(event_names::AI_RESPONSE, &input_data_with_response);
