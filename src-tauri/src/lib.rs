@@ -77,6 +77,7 @@ pub fn run() {
             my_command::get_auto_close_translate_state,
             my_command::toggle_auto_speak,
             my_command::get_auto_speak_state,
+            my_command::command_window_translate_show,
             my_command::close_main_window,
             my_command::chat,
             my_command::detect_language,

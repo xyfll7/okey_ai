@@ -101,8 +101,8 @@ function RouteComponent() {
 					className="opacity-70  hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
 					size={"icon-xs"}
 					variant={"ghost"}
-					onClick={() => {
-						console.log("12321311111111111111111111111111.............");
+					onClick={async() => {
+							await invoke<AutoSpeakState>(EVENT_NAMES.COMMAND_WINDOW_TRANSLATE_SHOW)
 					}}
 				>
 					<Maximize2 />
