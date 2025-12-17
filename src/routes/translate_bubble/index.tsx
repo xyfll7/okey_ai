@@ -5,7 +5,9 @@ import { useEffect, useState } from "react";
 import { EVENT_NAMES } from "@/lib/events";
 import AudioRecording from "@/components/AudioRecording";
 import type { InputData } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { speak, cn } from "@/lib/utils";
+import { Maximize2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 enum AutoSpeakState {
   Off = "off",
@@ -32,7 +34,7 @@ function RouteComponent() {
             (res === AutoSpeakState.Single && isSingleWord) ||
             (res === AutoSpeakState.All && payload.input_text.trim().length > 0)
           ) {
-            // speak(payload.input_text);
+            speak(payload.input_text);
           }
         });
       },
@@ -63,7 +65,7 @@ function RouteComponent() {
         data-tauri-drag-region
         className="flex items-center justify-between h-full border rounded-md w-full bg-background overflow-hidden"
       >
-        <div className="flex items-center w-full overflow-hidden">
+        <div className="flex items-center w-full min-h-full overflow-hidden">
           <div
             data-tauri-drag-region
             style={{ "--avatar-size": "1rem" } as React.CSSProperties}
@@ -74,18 +76,22 @@ function RouteComponent() {
           >
             <AudioRecording color={cn(is ? "bg-green-700" : "bg-yellow-700")} />
           </div>
-          <span className="truncate w-full overflow-hidden flex-1 min-w-0">
+          <div className="flex items-center min-h-full truncate overflow-hidden flex-1 w-full min-w-0">
             {chat?.response_text ?? "..."}
-          </span>
+            <div className="h-8 min-w-2xs" data-tauri-drag-region></div>
+          </div>
         </div>
-        {/*<Button
+        <Button
           className="mr-1"
           size={"xx"}
-          variant={"secondary"}
-          onClick={() => {}}
+          variant={"ghost"}
+          onClick={() => {
+            console.log("12321311111111111111111111111111.............");
+          }}
+          data-tauri-drag-region
         >
-          测试
-        </Button>*/}
+          <Maximize2 />
+        </Button>
       </div>
     </div>
   );
