@@ -79,14 +79,8 @@ function RouteComponent() {
 						</Button>
 					</div>
 
-					<div className="flex text-sm items-center min-h-full truncate overflow-hidden flex-1 w-full min-w-0">
-						{chat?.response_text ?? (
-							<Ellipsis
-								size={""}
-								className=" size-3.5 min-w-3.5"
-								absoluteStrokeWidth
-							/>
-						)}
+					<div className="text-muted-foreground  flex text-sm items-center min-h-full truncate overflow-hidden flex-1 w-full min-w-0">
+						{chat?.response_text ?? <span>...</span> }
 						<div className="h-8 min-w-2xs" data-tauri-drag-region></div>
 					</div>
 				</div>
