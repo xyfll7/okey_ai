@@ -46,7 +46,7 @@ impl TranslateBubbleHandler {
         }
     }
 
-    fn handle(&mut self, keys: &Vec<Keycode>, app: &AppHandle) {
+    fn handle(&mut self, keys: &[Keycode], app: &AppHandle) {
         #[cfg(target_os = "macos")]
         let is_pressed = keys.contains(&Keycode::LCommand); // On Mac, use Right Command key
         #[cfg(not(target_os = "macos"))]
@@ -55,33 +55,50 @@ impl TranslateBubbleHandler {
         let now = std::time::Instant::now();
 
         if is_pressed && !self.was_pressed {
-            if let Some(last_press) = self.last_press {
-                println!("Selected text---------");
-                let elapsed = now.duration_since(last_press);
-                if elapsed.as_millis() < 800 {
-                    let selected_text = selection::get_text();
-                    println!("Selected text---------: {}", selected_text);
-                    let app_for_callback = app.clone();
-                    my_windows::window_translate_bubble_show(
-                        app,
-                        Some(move || {
-                            my_utils::translate_selected_text_for_translate_bubble(
-                                &app_for_callback,
-                            );
-                        }),
-                    );
-                    self.last_press = None; // Reset to prevent triple click from triggering
-                    return;
+            if let Some(last_press_time) = self.last_press {
+                let elapsed = now.duration_since(last_press_time);
+
+                if elapsed.as_millis() < 500 {
+                    // 通常双击间隔为 300-500ms，800ms 略长
+                    self.trigger_action(app);
+                    self.last_press = None; // 触发后清空
+                } else {
+                    // 间隔太长，视为新的一次点击
+                    self.last_press = Some(now);
+                }
+            } else {
+                // 第一次按下
+                self.last_press = Some(now);
+            }
+        }
+
+        // 3. 关键修正：松开按键时不重置 last_press
+        // 只有当距离上次按下的时间已经彻底超时，才考虑在后续逻辑中清理（或者靠上面的 else 处理）
+        if !is_pressed {
+            // 这里可以添加逻辑：如果距离上次按下超过 1 秒还没第二次按下，可以清空以节省内存（可选）
+            if let Some(t) = self.last_press {
+                if now.duration_since(t).as_millis() > 1000 {
+                    self.last_press = None;
                 }
             }
-            // First press or too long since last press - just record the time
-            self.last_press = Some(now);
-        } else if !is_pressed {
-            // Key released, reset state if needed
-            self.last_press = None;
         }
 
         self.was_pressed = is_pressed;
+    }
+
+    fn trigger_action(&self, app: &AppHandle) {
+        let selected_text = selection::get_text();
+        if selected_text.is_empty() {
+            return;
+        }
+
+        let app_clone = app.clone();
+        my_windows::window_translate_bubble_show(
+            app,
+            Some(move || {
+                my_utils::translate_selected_text_for_translate_bubble(&app_clone);
+            }),
+        );
     }
 }
 
@@ -154,7 +171,7 @@ pub fn init_global_input_listener(app: &AppHandle) -> Result<(), Box<dyn std::er
             click_handler.handle(&mouse, &app_clone);
 
             // 统一的轮询间隔
-            thread::sleep(Duration::from_millis(100));
+            thread::sleep(Duration::from_millis(70));
         }
     });
 
