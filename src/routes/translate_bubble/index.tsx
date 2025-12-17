@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
-import { Ellipsis, GripVertical, Maximize2 } from "lucide-react";
+import { GripVertical, Maximize2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import AutoSpeakVolume from "@/components/AutoSpeakVolume";
 import { Button } from "@/components/ui/button";
@@ -62,7 +62,10 @@ function RouteComponent() {
 					data-tauri-drag-region
 				>
 					{/* <AudioRecording color={cn(is ? "bg-green-700" : "bg-yellow-700")} /> */}
-					<div className=" flex items-center cursor-grab  active:cursor-grabbing" data-tauri-drag-region>
+					<div
+						className=" flex items-center cursor-grab  active:cursor-grabbing"
+						data-tauri-drag-region
+					>
 						<Button
 							className="opacity-70  hover:bg-transparent dark:hover:bg-transparent cursor-grab  active:cursor-grabbing"
 							size={"icon-xs"}
@@ -79,8 +82,8 @@ function RouteComponent() {
 						</Button>
 					</div>
 
-					<div className="text-muted-foreground  flex text-sm items-center min-h-full truncate overflow-hidden flex-1 w-full min-w-0">
-						{chat?.response_text ?? <span>...</span> }
+					<div className="flex text-sm items-center min-h-full truncate overflow-hidden flex-1 w-full min-w-0">
+						{chat?.response_text ?? <span>...</span>}
 						<div className="h-8 min-w-2xs" data-tauri-drag-region></div>
 					</div>
 				</div>
