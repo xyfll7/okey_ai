@@ -84,7 +84,7 @@ function RouteComponent() {
         </div>
         <Button
           className="mr-1"
-          size={"xx"}
+          size={"xs"}
           variant={"ghost"}
           onClick={() => {
             console.log("12321311111111111111111111111111.............");
