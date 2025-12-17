@@ -35,29 +35,50 @@ impl InputMethodEditorHandler {
 // 业务逻辑2: 翻译气泡快捷键
 struct TranslateBubbleHandler {
     was_pressed: bool,
+    last_press: Option<std::time::Instant>,
 }
 
 impl TranslateBubbleHandler {
     fn new() -> Self {
-        Self { was_pressed: false }
+        Self {
+            was_pressed: false,
+            last_press: None,
+        }
     }
 
     fn handle(&mut self, keys: &Vec<Keycode>, app: &AppHandle) {
         #[cfg(target_os = "macos")]
-        let is_pressed = keys.contains(&Keycode::ROption); // On Mac, use Right Option key
+        let is_pressed = keys.contains(&Keycode::LCommand); // On Mac, use Right Command key
         #[cfg(not(target_os = "macos"))]
-        let is_pressed = keys.contains(&Keycode::RShift);
+        let is_pressed = keys.contains(&Keycode::LControl);
+
+        let now = std::time::Instant::now();
 
         if is_pressed && !self.was_pressed {
-            let selected_text = selection::get_text();
-            println!("Selected text---------: {}", selected_text);
-            let app_for_callback = app.clone();
-            my_windows::window_translate_bubble_show(
-                app,
-                Some(move || {
-                    my_utils::translate_selected_text_for_translate_bubble(&app_for_callback);
-                }),
-            );
+            if let Some(last_press) = self.last_press {
+                println!("Selected text---------");
+                let elapsed = now.duration_since(last_press);
+                if elapsed.as_millis() < 800 {
+                    let selected_text = selection::get_text();
+                    println!("Selected text---------: {}", selected_text);
+                    let app_for_callback = app.clone();
+                    my_windows::window_translate_bubble_show(
+                        app,
+                        Some(move || {
+                            my_utils::translate_selected_text_for_translate_bubble(
+                                &app_for_callback,
+                            );
+                        }),
+                    );
+                    self.last_press = None; // Reset to prevent triple click from triggering
+                    return;
+                }
+            }
+            // First press or too long since last press - just record the time
+            self.last_press = Some(now);
+        } else if !is_pressed {
+            // Key released, reset state if needed
+            self.last_press = None;
         }
 
         self.was_pressed = is_pressed;
