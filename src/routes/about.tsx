@@ -1,5 +1,5 @@
-import AudioRecording from "@/components/AudioRecording";
 import { createFileRoute } from "@tanstack/react-router";
+import AudioRecording from "@/components/AudioRecording";
 
 export const Route = createFileRoute("/about")({
   component: RouteComponent,
