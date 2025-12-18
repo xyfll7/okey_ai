@@ -58,21 +58,19 @@ function RouteComponent() {
 				className="flex items-center justify-between h-full border rounded-md w-full bg-background overflow-hidden "
 			>
 				<div
-					className="flex items-center w-full min-h-full overflow-hidden"
+					className="flex items-center justify-start w-full min-h-full truncate overflow-hidden"
 					data-tauri-drag-region
 				>
 					{/* <AudioRecording color={cn(is ? "bg-green-700" : "bg-yellow-700")} /> */}
 					<div
-						className=" flex items-center cursor-grab  active:cursor-grabbing"
+						className=" flex items-center cursor-grab overflow-hidden active:cursor-grabbing"
 						data-tauri-drag-region
 					>
 						<Button
 							className="opacity-70  hover:bg-transparent dark:hover:bg-transparent cursor-grab  active:cursor-grabbing"
 							size={"icon-xs"}
 							variant={"ghost"}
-							onClick={() => {
-								console.log("12321311111111111111111111111111.............");
-							}}
+							onClick={() => {}}
 							data-tauri-drag-region
 						>
 							<GripVertical
@@ -81,19 +79,19 @@ function RouteComponent() {
 							/>
 						</Button>
 					</div>
-
-					<div className="flex text-sm items-center min-h-full truncate overflow-hidden flex-1 w-full min-w-0">
-						{chat?.response_text ?? <span>...</span>}
-						<div className="h-8 min-w-2xs" data-tauri-drag-region></div>
+					<div className="text-sm min-h-full truncate overflow-hidden flex-1 ">
+						{chat?.response_text}
+						<div
+							className="h-4 min-w-2xl inline-block"
+							data-tauri-drag-region
+						>{chat?.response_text ?? "..."}</div>
 					</div>
 				</div>
 				<Button
 					className="opacity-70  hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
 					size={"icon-xs"}
 					variant={"ghost"}
-					onClick={() => {
-						console.log("12321311111111111111111111111111.............");
-					}}
+					onClick={() => {}}
 				>
 					<AutoSpeakVolume />
 				</Button>
@@ -101,8 +99,10 @@ function RouteComponent() {
 					className="opacity-70  hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
 					size={"icon-xs"}
 					variant={"ghost"}
-					onClick={async() => {
-							await invoke(EVENT_NAMES.COMMAND_WINDOW_TRANSLATE_SHOW,{ input_data: chat } )
+					onClick={async () => {
+						await invoke(EVENT_NAMES.COMMAND_WINDOW_TRANSLATE_SHOW, {
+							input_data: chat,
+						});
 					}}
 				>
 					<Maximize2 />
