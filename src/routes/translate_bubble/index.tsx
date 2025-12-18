@@ -1,9 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
-import { GripVertical, Maximize2 } from "lucide-react";
+import { GripVertical, Maximize2, Volume2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import AutoSpeakVolume from "@/components/AutoSpeakVolume";
 import Copyed from "@/components/Copyed";
 import { Button } from "@/components/ui/button";
 import { EVENT_NAMES } from "@/lib/events";
@@ -27,6 +26,7 @@ function RouteComponent() {
 						(res === AutoSpeakState.Single && isSingleWord) ||
 						(res === AutoSpeakState.All && payload.input_text.trim().length > 0)
 					) {
+						console.log("Auto speaking from translate bubble:", payload.input_text);
 						speak(payload.input_text);
 						setChat(payload);
 					}
@@ -95,22 +95,24 @@ function RouteComponent() {
 					</div>
 				</div>
 				<Button
-					className=" hover:bg-transparent dark:hover:bg-transparent"
+					className="opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
 					size={"icon-xs"}
 					variant={"ghost"}
 				>
-					<Copyed text={chat?.response_text} className="opacity-70 hover:opacity-100"/>
+					<Copyed text={chat?.response_text} />
 				</Button>
 				<Button
-					className="hover:bg-transparent dark:hover:bg-transparent"
+					className="opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
 					size={"icon-xs"}
 					variant={"ghost"}
-					onClick={() => {}}
+					onClick={()=> {
+						console.log("Speak response text:1111111", chat?.response_text);
+						speak(chat?.input_text || "")}}
 				>
-					<AutoSpeakVolume className="opacity-70 hover:opacity-100"/>
+					<Volume2 />
 				</Button>
 				<Button
-					className=" hover:bg-transparent dark:hover:bg-transparent"
+					className="opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
 					size={"icon-xs"}
 					variant={"ghost"}
 					onClick={async () => {
@@ -119,7 +121,7 @@ function RouteComponent() {
 						});
 					}}
 				>
-					<Maximize2 className="opacity-70 hover:opacity-100"/>
+					<Maximize2 />
 				</Button>
 			</div>
 		</div>

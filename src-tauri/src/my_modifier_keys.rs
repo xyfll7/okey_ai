@@ -126,7 +126,7 @@ impl ClickOutsideHandler {
 
                         // 如果点击在外部 → 隐藏窗口
                         if !inside {
-                            let _ = window.hide();
+                            // let _ = window.hide();
                             let _ = my_utils::create_input_data_and_emit(&app, "");
                         }
                     }
