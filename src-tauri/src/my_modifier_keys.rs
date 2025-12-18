@@ -48,7 +48,7 @@ impl TranslateBubbleHandler {
 
     fn handle(&mut self, keys: &[Keycode], app: &AppHandle) {
         #[cfg(target_os = "macos")]
-        let is_pressed = keys.contains(&Keycode::Command); // On Mac, use Right Command key
+        let is_pressed = keys.contains(&Keycode::Command);
         #[cfg(not(target_os = "macos"))]
         let is_pressed = keys.contains(&Keycode::LControl);
 
@@ -58,8 +58,8 @@ impl TranslateBubbleHandler {
             if let Some(last_press_time) = self.last_press {
                 let elapsed = now.duration_since(last_press_time);
 
-                if elapsed.as_millis() < 500 {
-                    // 通常双击间隔为 300-500ms，800ms 略长
+                if elapsed.as_millis() < 600 {
+                    // 双击间隔有效，触发动作
                     self.trigger_action(app);
                     self.last_press = None; // 触发后清空
                 } else {
@@ -69,17 +69,6 @@ impl TranslateBubbleHandler {
             } else {
                 // 第一次按下
                 self.last_press = Some(now);
-            }
-        }
-
-        // 3. 关键修正：松开按键时不重置 last_press
-        // 只有当距离上次按下的时间已经彻底超时，才考虑在后续逻辑中清理（或者靠上面的 else 处理）
-        if !is_pressed {
-            // 这里可以添加逻辑：如果距离上次按下超过 1 秒还没第二次按下，可以清空以节省内存（可选）
-            if let Some(t) = self.last_press {
-                if now.duration_since(t).as_millis() > 1000 {
-                    self.last_press = None;
-                }
             }
         }
 
@@ -101,7 +90,6 @@ impl TranslateBubbleHandler {
         );
     }
 }
-
 // 业务逻辑3: 点击外部监听器
 struct ClickOutsideHandler {
     prev_left_pressed: bool,
