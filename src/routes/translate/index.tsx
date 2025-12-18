@@ -353,9 +353,9 @@ function MessageItem({ chat }: { chat: InputData }) {
 		>
 			<div className="mb-1 wrap-break-word">
 				<span className="mr-1">{chat.input_text}</span>
-				<Copyed text={chat.input_text} className="mr-1 inline size-4 translate-y-[-0.8px] opacity-70 hover:opacity-100" />
+				<Copyed text={chat.input_text} className="mr-1 inline size-3.5 translate-y-[-0.8px] opacity-70 hover:opacity-100" />
 				<Volume2
-					className="inline size-4 translate-y-[-0.8px] opacity-70 hover:opacity-100"
+					className="inline size-3.5 translate-y-[-0.8px] opacity-70 hover:opacity-100"
 					onClick={() => speak(chat.input_text)}
 				/>
 			</div>
@@ -380,10 +380,10 @@ function SelectedText({ selectedText }: { selectedText?: string }) {
 						<Copyed
 							key={selectedText}
 							text={selectedText}
-							className="mr-1 inline translate-y-[0.8px] min-w-4  opacity-70 hover:opacity-100"
+							className="mr-1 inline translate-y-[0.8px] size-3.5 min-w-3.5  opacity-70 hover:opacity-100"
 						/>
 						<Volume2
-							className="mr-1 inline translate-y-[0.8px] min-w-4  opacity-70 hover:opacity-100"
+							className="mr-1 inline translate-y-[0.8px] size-3.5 min-w-3.5  opacity-70 hover:opacity-100"
 							onClick={() => {
 								if (!selectedText) return;
 								speak(selectedText);

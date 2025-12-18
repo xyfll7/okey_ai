@@ -95,23 +95,22 @@ function RouteComponent() {
 					</div>
 				</div>
 				<Button
-					className="opacity-70  hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
+					className=" hover:bg-transparent dark:hover:bg-transparent"
 					size={"icon-xs"}
 					variant={"ghost"}
 				>
-					<Copyed text={chat?.response_text} />
+					<Copyed text={chat?.response_text} className="opacity-70 hover:opacity-100"/>
 				</Button>
-			
 				<Button
-					className="opacity-70  hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
+					className="hover:bg-transparent dark:hover:bg-transparent"
 					size={"icon-xs"}
 					variant={"ghost"}
 					onClick={() => {}}
 				>
-					<AutoSpeakVolume />
+					<AutoSpeakVolume className="opacity-70 hover:opacity-100"/>
 				</Button>
 				<Button
-					className="opacity-70  hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
+					className=" hover:bg-transparent dark:hover:bg-transparent"
 					size={"icon-xs"}
 					variant={"ghost"}
 					onClick={async () => {
@@ -120,7 +119,7 @@ function RouteComponent() {
 						});
 					}}
 				>
-					<Maximize2 />
+					<Maximize2 className="opacity-70 hover:opacity-100"/>
 				</Button>
 			</div>
 		</div>

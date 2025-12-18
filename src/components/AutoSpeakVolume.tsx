@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { EVENT_NAMES } from "@/lib/events";
 import { AutoSpeakState } from "@/lib/types";
 
-const AutoSpeakVolume = () => {
+const AutoSpeakVolume = ({className}:{className?:string}) => {
 	const [autoSpeak, setAutoSpeak] = useState<AutoSpeakState>(
 		AutoSpeakState.Off,
 	);
@@ -25,9 +25,9 @@ const AutoSpeakVolume = () => {
 		>
 			{
 				{
-					[AutoSpeakState.Off]: <VolumeOff  />,
-					[AutoSpeakState.Single]: <Volume1  />,
-					[AutoSpeakState.All]: <Volume2  />,
+					[AutoSpeakState.Off]: <VolumeOff className={className} />,
+					[AutoSpeakState.Single]: <Volume1 className={className} />,
+					[AutoSpeakState.All]: <Volume2 className={className} />,
 				}[autoSpeak]
 			}
 		</div>
