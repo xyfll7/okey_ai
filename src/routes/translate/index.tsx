@@ -2,20 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
 import { type as ostype } from "@tauri-apps/plugin-os";
-import {
-	ArrowUpIcon,
-	Check,
-	Copy,
-	Pin,
-	Plus,
-	Volume2,
-	X,
-} from "lucide-react";
+import { ArrowUpIcon,  Pin, Plus, Volume2, X } from "lucide-react";
 
 import Markdown from "markdown-to-jsx";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import AutoSpeakVolume from "@/components/AutoSpeakVolume";
+import Copyed from "@/components/Copyed";
 import HotKey from "@/components/HotKey";
 import { Button } from "@/components/ui/button";
 import {
@@ -289,28 +282,7 @@ function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
 		</InputGroup>
 	);
 }
-function Copyed({ className }: { className?: string }) {
-	const [copied, setCopied] = useState(false);
-	return (
-		<>
-			{!copied ? (
-				<Copy
-					className={cn(className)}
-					onClick={() => {
-						setCopied(true);
-					}}
-				/>
-			) : (
-				<Check
-					className={cn(className)}
-					onClick={() => {
-						setCopied(true);
-					}}
-				/>
-			)}
-		</>
-	);
-}
+
 
 function ChatList({ chatList }: { chatList: InputData[] }) {
 	const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -381,7 +353,7 @@ function MessageItem({ chat }: { chat: InputData }) {
 		>
 			<div className="mb-1 wrap-break-word">
 				<span className="mr-1">{chat.input_text}</span>
-				<Copyed className="mr-1 inline size-4 translate-y-[-0.8px] opacity-70 hover:opacity-100" />
+				<Copyed text={chat.input_text} className="mr-1 inline size-4 translate-y-[-0.8px] opacity-70 hover:opacity-100" />
 				<Volume2
 					className="inline size-4 translate-y-[-0.8px] opacity-70 hover:opacity-100"
 					onClick={() => speak(chat.input_text)}
@@ -407,6 +379,7 @@ function SelectedText({ selectedText }: { selectedText?: string }) {
 					<>
 						<Copyed
 							key={selectedText}
+							text={selectedText}
 							className="mr-1 inline translate-y-[0.8px] min-w-4  opacity-70 hover:opacity-100"
 						/>
 						<Volume2

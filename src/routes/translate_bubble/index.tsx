@@ -4,6 +4,7 @@ import { emit, listen } from "@tauri-apps/api/event";
 import { GripVertical, Maximize2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import AutoSpeakVolume from "@/components/AutoSpeakVolume";
+import Copyed from "@/components/Copyed";
 import { Button } from "@/components/ui/button";
 import { EVENT_NAMES } from "@/lib/events";
 import { AutoSpeakState, type InputData } from "@/lib/types";
@@ -79,10 +80,28 @@ function RouteComponent() {
 							/>
 						</Button>
 					</div>
-					<div className="text-sm truncate overflow-hidden flex-1 " >
-						{chat?.response_text} {chat?.response_text? <span className=" text-transparent cursor-grab hover:cursor-grabbing" data-tauri-drag-region>...........................</span> :""}
+					<div className="text-sm truncate overflow-hidden flex-1 ">
+						{chat?.response_text}{" "}
+						{chat?.response_text ? (
+							<span
+								className=" text-transparent cursor-grab hover:cursor-grabbing"
+								data-tauri-drag-region
+							>
+								.............
+							</span>
+						) : (
+							""
+						)}
 					</div>
 				</div>
+				<Button
+					className="opacity-70  hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
+					size={"icon-xs"}
+					variant={"ghost"}
+				>
+					<Copyed text={chat?.response_text} />
+				</Button>
+			
 				<Button
 					className="opacity-70  hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
 					size={"icon-xs"}
