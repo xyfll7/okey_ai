@@ -63,7 +63,7 @@ function RouteComponent() {
 				>
 					{/* <AudioRecording color={cn(is ? "bg-green-700" : "bg-yellow-700")} /> */}
 					<div
-						className=" flex items-center cursor-grab overflow-hidden active:cursor-grabbing"
+						className="flex items-center cursor-grab overflow-hidden active:cursor-grabbing"
 						data-tauri-drag-region
 					>
 						<Button
@@ -79,12 +79,8 @@ function RouteComponent() {
 							/>
 						</Button>
 					</div>
-					<div className="text-sm min-h-full truncate overflow-hidden flex-1 ">
-						{chat?.response_text}
-						<div
-							className="h-4 min-w-2xl inline-block"
-							data-tauri-drag-region
-						>{chat?.response_text ?? "..."}</div>
+					<div className="text-sm truncate overflow-hidden flex-1 " >
+						{chat?.response_text} {chat?.response_text? <span className=" text-transparent cursor-grab hover:cursor-grabbing" data-tauri-drag-region>...........................</span> :""}
 					</div>
 				</div>
 				<Button

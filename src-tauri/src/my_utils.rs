@@ -65,7 +65,7 @@ pub fn calculate_window_size(content: &str) -> LogicalSize<f64> {
     }
     
     // 添加左右边距
-    let padding: f64 = 40.0;
+    let padding: f64 = 100.0;
     let calculated_width = total_width + padding;
     
     // 限制宽度范围：最小150，最大800
