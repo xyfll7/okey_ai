@@ -50,7 +50,7 @@ impl TranslateBubbleHandler {
         #[cfg(target_os = "macos")]
         let is_pressed = keys.contains(&Keycode::Command);
         #[cfg(not(target_os = "macos"))]
-        let is_pressed = keys.contains(&Keycode::LControl);
+        let is_pressed = keys.contains(&Keycode::RAlt);
 
         let now = std::time::Instant::now();
 
