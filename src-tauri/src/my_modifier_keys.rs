@@ -76,11 +76,6 @@ impl TranslateBubbleHandler {
     }
 
     fn trigger_action(&self, app: &AppHandle) {
-        let selected_text = selection::get_text();
-        if selected_text.is_empty() {
-            return;
-        }
-
         let app_clone = app.clone();
         my_windows::window_translate_bubble_show(
             app,
