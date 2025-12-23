@@ -2,7 +2,7 @@ use tauri::LogicalSize;
 
 // 字体配置常量
 const FONT_SIZE: f64 = 14.0; // 实际字体大小 14px
-const LINE_HEIGHT: f64 = 33.0; // 行高
+const LINE_HEIGHT: f64 = 36.0; // 行高
 
 // 调整后的字符宽度系数
 const CJK_WIDTH_RATIO: f64 = 1.0;      // 中文等宽字符

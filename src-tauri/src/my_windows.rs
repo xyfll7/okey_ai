@@ -74,7 +74,7 @@ where
     F: FnOnce() + Send + 'static,
 {
     const WINDOW_WIDTH: f64 = 170.0;
-    const WINDOW_HEIGHT: f64 = 33.0;
+    const WINDOW_HEIGHT: f64 = 36.0;
     const CURSOR_OFFSET: f64 = 17.0;
 
     if let Some(window) = app.get_webview_window("translate_bubble") {

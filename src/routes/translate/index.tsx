@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
 import { type as ostype } from "@tauri-apps/plugin-os";
-import { ArrowUpIcon,  Pin, Plus, Volume2, X } from "lucide-react";
+import { ArrowUpIcon, Pin, Plus, Volume2, X } from "lucide-react";
 
 import Markdown from "markdown-to-jsx";
 import type React from "react";
@@ -93,7 +93,7 @@ function RouteComponent() {
 		};
 	}, []);
 	return (
-		<div className="h-screen max-h-screen max-w-screen flex-coh">
+		<div className={cn("bg-background h-screen w-screen", "flex-coh ")}>
 			<Header />
 			<div className="mb-2 h-full flex-coh">
 				<ChatList chatList={chatList}></ChatList>
@@ -283,7 +283,6 @@ function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
 	);
 }
 
-
 function ChatList({ chatList }: { chatList: InputData[] }) {
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -353,7 +352,10 @@ function MessageItem({ chat }: { chat: InputData }) {
 		>
 			<div className="mb-1 wrap-break-word">
 				<span className="mr-1">{chat.input_text}</span>
-				<Copyed text={chat.input_text} className="mr-1 inline size-3.5 translate-y-[-0.8px] opacity-70 hover:opacity-100" />
+				<Copyed
+					text={chat.input_text}
+					className="mr-1 inline size-3.5 translate-y-[-0.8px] opacity-70 hover:opacity-100"
+				/>
 				<Volume2
 					className="inline size-3.5 translate-y-[-0.8px] opacity-70 hover:opacity-100"
 					onClick={() => speak(chat.input_text)}

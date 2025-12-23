@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import AudioRecording from "@/components/AudioRecording";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/input_method_editor/")({
   component: RouteComponent,
@@ -7,7 +8,7 @@ export const Route = createFileRoute("/input_method_editor/")({
 
 function RouteComponent() {
   return (
-    <div className="flex items-center w-screen h-screen">
+    <div className={cn("w-screen h-screen","flex items-center ")}>
       <div
         className=" opacity-70  h-full w-full  rounded-full overflow-hidden"
         data-tauri-drag-region

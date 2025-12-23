@@ -52,8 +52,9 @@ function RouteComponent() {
 		<div
 			data-tauri-drag-region
 			className={cn(
-				"w-screen h-screen overflow-hidden",
-				"flex items-center justify-between",
+				"bg-background h-screen w-screen",
+				"border rounded-sm",
+				"flex items-center justify-between h-full",
 			)}
 		>
 			<div
@@ -78,7 +79,7 @@ function RouteComponent() {
 					</Button>
 				</div>
 				<div className="text-sm truncate overflow-hidden flex-1  text-foreground">
-					<span className=" text-foreground">{chat?.response_text}{" "}</span>
+					<span className=" text-foreground">{chat?.response_text} </span>
 					{chat?.response_text ? (
 						<span
 							className=" text-transparent  selection:bg-transparent  cursor-grab hover:cursor-grabbing"
