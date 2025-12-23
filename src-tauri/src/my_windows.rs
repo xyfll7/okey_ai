@@ -69,23 +69,30 @@ pub fn window_input_method_editor_hide<R: Runtime>(app: &AppHandle<R>) {
     }
 }
 
+pub const WINDOW_HEIGHT_TRANSLATE_BUBBLE: f64 = 36.0;
 pub fn window_translate_bubble_show<R: Runtime, F>(app: &AppHandle<R>, callback: Option<F>)
 where
     F: FnOnce() + Send + 'static,
 {
     const WINDOW_WIDTH: f64 = 170.0;
-    const WINDOW_HEIGHT: f64 = 36.0;
     const CURSOR_OFFSET: f64 = 17.0;
 
     if let Some(window) = app.get_webview_window("translate_bubble") {
-        let size = LogicalSize::new(WINDOW_WIDTH, WINDOW_HEIGHT);
+        let size = LogicalSize::new(WINDOW_WIDTH, WINDOW_HEIGHT_TRANSLATE_BUBBLE);
         let _ = window.set_size(size);
         let _ = window.set_min_size(Some(size));
-        let _ = window.set_max_size(Some(LogicalSize::new(10_000.0, WINDOW_HEIGHT)));
+        let _ = window.set_max_size(Some(LogicalSize::new(
+            10_000.0,
+            WINDOW_HEIGHT_TRANSLATE_BUBBLE,
+        )));
         let _ = window.set_background_color(Some(Color(0, 0, 0, 0)));
 
-        let (logical_x, logical_y) =
-            calculate_window_position(app, WINDOW_WIDTH, WINDOW_HEIGHT, CURSOR_OFFSET);
+        let (logical_x, logical_y) = calculate_window_position(
+            app,
+            WINDOW_WIDTH,
+            WINDOW_HEIGHT_TRANSLATE_BUBBLE,
+            CURSOR_OFFSET,
+        );
 
         let mut target_scale = 1.0;
 

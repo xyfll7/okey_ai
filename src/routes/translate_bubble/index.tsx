@@ -54,7 +54,7 @@ function RouteComponent() {
 			className={cn(
 				"bg-background h-screen w-screen",
 				"border rounded-sm",
-				"flex items-center justify-between h-full",
+				"flex items-center justify-between",
 			)}
 		>
 			<div

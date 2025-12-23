@@ -1,8 +1,10 @@
 use tauri::LogicalSize;
 
+use crate::my_windows;
+
 // 字体配置常量
 const FONT_SIZE: f64 = 14.0; // 实际字体大小 14px
-const LINE_HEIGHT: f64 = 36.0; // 行高
+
 
 // 调整后的字符宽度系数
 const CJK_WIDTH_RATIO: f64 = 1.0;      // 中文等宽字符
@@ -89,7 +91,7 @@ pub fn calculate_text_width(content: &str) -> LogicalSize<f64> {
     // 限制宽度范围：最小150，最大800
     let width = calculated_width.clamp(150.0, 800.0);
     
-    LogicalSize::new(width, LINE_HEIGHT)
+    LogicalSize::new(width, my_windows::WINDOW_HEIGHT_TRANSLATE_BUBBLE)
 }
 
 // 可选：支持多行文本计算
@@ -108,7 +110,7 @@ pub fn calculate_multiline_text_size(content: &str, max_width: f64) -> LogicalSi
         .unwrap_or(150.0);
     
     let width = max_line_width.min(max_width);
-    let height = LINE_HEIGHT * line_count as f64;
+    let height = my_windows::WINDOW_HEIGHT_TRANSLATE_BUBBLE * line_count as f64;
     
     LogicalSize::new(width, height)
 }
