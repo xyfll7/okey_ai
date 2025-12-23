@@ -83,7 +83,7 @@ pub fn calculate_text_width(content: &str) -> LogicalSize<f64> {
     }
     
     // 添加左右边距
-    let padding: f64 = 139.0;
+    let padding: f64 = 133.0;
     let calculated_width = total_width + padding;
     
     // 限制宽度范围：最小150，最大800

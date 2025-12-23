@@ -84,10 +84,10 @@ function RouteComponent() {
 						{chat?.response_text}{" "}
 						{chat?.response_text ? (
 							<span
-								className=" text-transparent cursor-grab hover:cursor-grabbing"
+								className="  selection:bg-transparent text-transparent cursor-grab hover:cursor-grabbing"
 								data-tauri-drag-region
 							>
-								.....
+								.........................
 							</span>
 						) : (
 							""
