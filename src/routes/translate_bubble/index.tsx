@@ -49,80 +49,82 @@ function RouteComponent() {
 		};
 	}, []);
 	return (
-		<div
-			data-tauri-drag-region
-			className={cn(
-				"bg-background h-full",
-				"border rounded-md",
-				"flex items-center justify-between",
-			)}
-		>
+		<div className=" h-full p-px">
 			<div
-				className="flex items-center justify-start w-full min-h-full truncate overflow-hidden"
 				data-tauri-drag-region
+				className={cn(
+					"bg-background h-full",
+					"border rounded-md",
+					"flex items-center justify-between",
+				)}
 			>
 				<div
-					className="flex items-center cursor-grab overflow-hidden active:cursor-grabbing"
+					className="flex items-center justify-start w-full min-h-full truncate overflow-hidden"
 					data-tauri-drag-region
 				>
-					<Button
-						className="opacity-70  hover:bg-transparent dark:hover:bg-transparent cursor-grab  active:cursor-grabbing"
-						size={"icon-xs"}
-						variant={"ghost"}
-						onClick={() => {}}
+					<div
+						className="flex items-center cursor-grab overflow-hidden active:cursor-grabbing"
 						data-tauri-drag-region
 					>
-						<GripVertical
-							className=" cursor-grab  active:cursor-grabbing"
-							data-tauri-drag-region
-						/>
-					</Button>
-				</div>
-				<div className="text-sm truncate overflow-hidden flex-1  text-foreground">
-					<span className=" text-foreground">{chat?.response_text} </span>
-					{chat?.response_text ? (
-						<span
-							className=" text-transparent  selection:bg-transparent  cursor-grab hover:cursor-grabbing"
+						<Button
+							className={cn("text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground","opacity-70 hover:bg-transparent dark:hover:bg-transparent cursor-grab  active:cursor-grabbing")}
+							size={"icon-xs"}
+							variant={"ghost"}
+							onClick={() => {}}
 							data-tauri-drag-region
 						>
-							.........................
-						</span>
-					) : (
-						""
-					)}
+							<GripVertical
+								className=" cursor-grab  active:cursor-grabbing"
+								data-tauri-drag-region
+							/>
+						</Button>
+					</div>
+					<div className="text-sm truncate overflow-hidden flex-1  text-foreground">
+						<span className=" text-foreground">{chat?.response_text} </span>
+						{chat?.response_text ? (
+							<span
+								className=" text-transparent  selection:bg-transparent  cursor-grab hover:cursor-grabbing"
+								data-tauri-drag-region
+							>
+								.........................
+							</span>
+						) : (
+							""
+						)}
+					</div>
 				</div>
-			</div>
-			<div className="flex items-center">
-				<Button
-					className="opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
-					size={"icon-xs"}
-					variant={"ghost"}
-				>
-					<Copyed text={chat?.response_text} />
-				</Button>
-				<Button
-					className="opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
-					size={"icon-xs"}
-					variant={"ghost"}
-					onClick={() => {
-						console.log("Speak response text:1111111", chat?.response_text);
-						speak(chat?.input_text || "");
-					}}
-				>
-					<Volume2 />
-				</Button>
-				<Button
-					className="opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
-					size={"icon-xs"}
-					variant={"ghost"}
-					onClick={async () => {
-						await invoke(EVENT_NAMES.COMMAND_WINDOW_TRANSLATE_SHOW, {
-							input_data: chat,
-						});
-					}}
-				>
-					<Maximize2 />
-				</Button>
+				<div className="flex items-center">
+					<Button
+						className={cn(" text-muted-foreground","opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent")}
+						size={"icon-xs"}
+						variant={"ghost"}
+					>
+						<Copyed text={chat?.response_text} />
+					</Button>
+					<Button
+						className={cn(" text-muted-foreground","opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent")}
+						size={"icon-xs"}
+						variant={"ghost"}
+						onClick={() => {
+							console.log("Speak response text:1111111", chat?.response_text);
+							speak(chat?.input_text || "");
+						}}
+					>
+						<Volume2 />
+					</Button>
+					<Button
+						className={cn(" text-muted-foreground","opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent")}
+						size={"icon-xs"}
+						variant={"ghost"}
+						onClick={async () => {
+							await invoke(EVENT_NAMES.COMMAND_WINDOW_TRANSLATE_SHOW, {
+								input_data: chat,
+							});
+						}}
+					>
+						<Maximize2 />
+					</Button>
+				</div>
 			</div>
 		</div>
 	);
