@@ -34,7 +34,9 @@ if (rootElement && !rootElement.innerHTML) {
 	const root = ReactDOM.createRoot(rootElement);
 	root.render(
 		<StrictMode>
-			<div className=" bg-background rounded-sm"><RouterProvider router={router} /></div>
+			<div className="bg-background rounded-sm border h-screen w-screen">
+				<RouterProvider router={router} />
+			</div>
 		</StrictMode>,
 	);
 }
