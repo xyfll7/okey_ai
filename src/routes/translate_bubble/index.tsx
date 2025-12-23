@@ -53,7 +53,6 @@ function RouteComponent() {
 			data-tauri-drag-region
 			className={cn(
 				"w-screen h-screen overflow-hidden",
-				"border rounded-md",
 				"flex items-center justify-between",
 			)}
 		>
