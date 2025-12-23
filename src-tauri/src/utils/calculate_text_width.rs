@@ -4,12 +4,13 @@ use tauri::LogicalSize;
 const FONT_SIZE: f64 = 14.0; // 实际字体大小 14px
 const LINE_HEIGHT: f64 = 33.0; // 行高
 
-// 字符宽度系数（相对于字体大小）
-const CJK_WIDTH_RATIO: f64 = 1.0;      // 中文等宽字符，约等于 font-size
-const ASCII_WIDE_RATIO: f64 = 0.65;    // 宽字母 (W, M, w, m)
-const ASCII_NORMAL_RATIO: f64 = 0.5;   // 普通ASCII字符
-const ASCII_NARROW_RATIO: f64 = 0.25;  // 窄字符 (i, l, I, .)
-const TAB_WIDTH_RATIO: f64 = 2.0;      // 制表符宽度
+// 调整后的字符宽度系数
+const CJK_WIDTH_RATIO: f64 = 1.0;      // 中文等宽字符
+const ASCII_WIDE_RATIO: f64 = 0.7;     // 宽字母 (W, M, w, m) - 提高到0.7
+const ASCII_NORMAL_RATIO: f64 = 0.55;  // 普通ASCII字符 - 提高到0.55
+const ASCII_NARROW_RATIO: f64 = 0.35;  // 窄字符 - 提高到0.35
+const SPACE_RATIO: f64 = 0.4;          // **单独定义空格宽度**
+const TAB_WIDTH_RATIO: f64 = 2.0;
 
 pub fn calculate_text_width(content: &str) -> LogicalSize<f64> {
     let mut total_width: f64 = 0.0;
@@ -51,19 +52,25 @@ pub fn calculate_text_width(content: &str) -> LogicalSize<f64> {
             // 换行符（视为普通空格）
             '\n' | '\r' => FONT_SIZE * ASCII_NORMAL_RATIO,
             
-            // ASCII字符
+            // 在匹配逻辑中修改:
             _ if c.is_ascii() => {
                 match c {
+                    // 空格单独处理
+                    ' ' => FONT_SIZE * SPACE_RATIO,
                     // 宽字母
-                    'W' | 'M' | 'w' | 'm' | '@' | '%' | '#' 
+                    'W' | 'M' | 'w' | 'm' | '@' | '%' | '#' | '&' | '$'
                     => FONT_SIZE * ASCII_WIDE_RATIO,
                     
-                    // 窄字符
+                    // 窄字符 (移除空格)
                     'i' | 'l' | 'I' | 'j' | 't' | 'f' | 'r' |
-                    '.' | ',' | ':' | ';' | '\'' | '!' | '|' | '`' | ' '
+                    '.' | ',' | ':' | ';' | '\'' | '!' | '|' | '`'
                     => FONT_SIZE * ASCII_NARROW_RATIO,
                     
-                    // 普通字符（默认）
+                    // 数字和大部分字母
+                    '0'..='9' | 'a'..='z' | 'A'..='Z'
+                    => FONT_SIZE * ASCII_NORMAL_RATIO,
+                    
+                    // 其他ASCII符号
                     _ => FONT_SIZE * ASCII_NORMAL_RATIO,
                 }
             },
@@ -76,7 +83,7 @@ pub fn calculate_text_width(content: &str) -> LogicalSize<f64> {
     }
     
     // 添加左右边距
-    let padding: f64 = 150.0;
+    let padding: f64 = 139.0;
     let calculated_width = total_width + padding;
     
     // 限制宽度范围：最小150，最大800

@@ -87,7 +87,7 @@ function RouteComponent() {
 								className=" text-transparent cursor-grab hover:cursor-grabbing"
 								data-tauri-drag-region
 							>
-								.............
+								.....
 							</span>
 						) : (
 							""
