@@ -1,38 +1,37 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="icon" href="/favicon.ico" />
-        <meta name="theme-color" content="#000000" />
-        <meta
-            name="description"
-            content="Web site created using create-tsrouter-app"
-        />
-        <link rel="apple-touch-icon" href="/logo192.png" />
-        <link rel="manifest" href="/manifest.json" />
-        <title>Create TanStack App - okey_ai</title>
-        <!-- 添加暗色模式CSS -->
-        <style>
-            :root {
-                color-scheme: light dark;
-            }
 
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Web site created using create-tsrouter-app" />
+    <link rel="apple-touch-icon" href="/logo192.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>Create TanStack App - okey_ai</title>
+    <!-- 添加暗色模式CSS -->
+    <style>
+        :root {
+            color-scheme: light dark;
+        }
+
+        body {
+            background-color: #00000001 !important;
+            color: #000000;
+        }
+
+        @media (prefers-color-scheme: dark) {
             body {
-                background-color: var(--background, #00000001)  ;
-                color: var(--foreground,#000000) ;
+                color: #ffffff;
             }
+        }
+    </style>
+</head>
 
-            @media (prefers-color-scheme: dark) {
-                body {
-                    color: var(--foreground,#ffffff) ;
-                }
-            }
-        </style>
-    </head>
+<body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.tsx"></script>
+</body>
 
-    <body>
-        <div id="app"></div>
-        <script type="module" src="/src/main.tsx"></script>
-    </body>
 </html>
