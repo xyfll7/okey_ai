@@ -21,7 +21,7 @@ pub fn window_input_method_editor_show<R: Runtime>(app: &AppHandle<R>) {
         let size = LogicalSize::new(WINDOW_WIDTH, WINDOW_HEIGHT);
         let _ = window.set_size(size);
         let _ = window.set_min_size(Some(size));
-        let _ = window.set_background_color(Some(Color(0, 0, 0, 0)));
+        let _ = window.set_background_color(Some(Color(0, 0, 0, 1)));
 
         let (logical_x, logical_y) =
             calculate_window_position(app, WINDOW_WIDTH, WINDOW_HEIGHT, CURSOR_OFFSET);
@@ -82,7 +82,7 @@ where
         let _ = window.set_size(size);
         let _ = window.set_min_size(Some(size));
         let _ = window.set_max_size(Some(LogicalSize::new(10_000.0, WINDOW_HEIGHT)));
-        let _ = window.set_background_color(Some(Color(0, 0, 0, 0)));
+        let _ = window.set_background_color(Some(Color(0, 0, 0, 1)));
 
         let (logical_x, logical_y) =
             calculate_window_position(app, WINDOW_WIDTH, WINDOW_HEIGHT, CURSOR_OFFSET);

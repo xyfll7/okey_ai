@@ -26,7 +26,10 @@ function RouteComponent() {
 						(res === AutoSpeakState.Single && isSingleWord) ||
 						(res === AutoSpeakState.All && payload.input_text.trim().length > 0)
 					) {
-						console.log("Auto speaking from translate bubble:", payload.input_text);
+						console.log(
+							"Auto speaking from translate bubble:",
+							payload.input_text,
+						);
 						speak(payload.input_text);
 						setChat(payload);
 					}
@@ -46,50 +49,50 @@ function RouteComponent() {
 		};
 	}, []);
 	return (
+		<div
+			data-tauri-drag-region
+			className={cn(
+				"w-screen h-screen overflow-hidden",
+				"border rounded-md",
+				"flex items-center justify-between",
+			)}
+		>
 			<div
+				className="flex items-center justify-start w-full min-h-full truncate overflow-hidden"
 				data-tauri-drag-region
-				className={cn(
-					"w-screen h-screen overflow-hidden",
-					"bg-background border rounded-md",
-					"flex items-center justify-between",
-				)}
 			>
 				<div
-					className="flex items-center justify-start w-full min-h-full truncate overflow-hidden"
+					className="flex items-center cursor-grab overflow-hidden active:cursor-grabbing"
 					data-tauri-drag-region
 				>
-					{/* <AudioRecording color={cn(is ? "bg-green-700" : "bg-yellow-700")} /> */}
-					<div
-						className="flex items-center cursor-grab overflow-hidden active:cursor-grabbing"
+					<Button
+						className="opacity-70  hover:bg-transparent dark:hover:bg-transparent cursor-grab  active:cursor-grabbing"
+						size={"icon-xs"}
+						variant={"ghost"}
+						onClick={() => {}}
 						data-tauri-drag-region
 					>
-						<Button
-							className="opacity-70  hover:bg-transparent dark:hover:bg-transparent cursor-grab  active:cursor-grabbing"
-							size={"icon-xs"}
-							variant={"ghost"}
-							onClick={() => {}}
+						<GripVertical
+							className=" cursor-grab  active:cursor-grabbing"
+							data-tauri-drag-region
+						/>
+					</Button>
+				</div>
+				<div className="text-sm truncate overflow-hidden flex-1  text-foreground">
+					<span className=" text-foreground">{chat?.response_text}{" "}</span>
+					{chat?.response_text ? (
+						<span
+							className=" text-transparent  selection:bg-transparent  cursor-grab hover:cursor-grabbing"
 							data-tauri-drag-region
 						>
-							<GripVertical
-								className=" cursor-grab  active:cursor-grabbing"
-								data-tauri-drag-region
-							/>
-						</Button>
-					</div>
-					<div className="text-sm truncate overflow-hidden flex-1 ">
-						{chat?.response_text}{" "}
-						{chat?.response_text ? (
-							<span
-								className="  selection:bg-transparent text-transparent cursor-grab hover:cursor-grabbing"
-								data-tauri-drag-region
-							>
-								.........................
-							</span>
-						) : (
-							""
-						)}
-					</div>
+							.........................
+						</span>
+					) : (
+						""
+					)}
 				</div>
+			</div>
+			<div className="flex items-center">
 				<Button
 					className="opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
 					size={"icon-xs"}
@@ -101,9 +104,10 @@ function RouteComponent() {
 					className="opacity-70 hover:opacity-100 hover:bg-transparent dark:hover:bg-transparent"
 					size={"icon-xs"}
 					variant={"ghost"}
-					onClick={()=> {
+					onClick={() => {
 						console.log("Speak response text:1111111", chat?.response_text);
-						speak(chat?.input_text || "")}}
+						speak(chat?.input_text || "");
+					}}
 				>
 					<Volume2 />
 				</Button>
@@ -120,5 +124,6 @@ function RouteComponent() {
 					<Maximize2 />
 				</Button>
 			</div>
+		</div>
 	);
 }
