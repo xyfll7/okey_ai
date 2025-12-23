@@ -354,10 +354,10 @@ function MessageItem({ chat }: { chat: InputData }) {
 				<span className="mr-1">{chat.input_text}</span>
 				<Copyed
 					text={chat.input_text}
-					className="mr-1 inline size-3.5 translate-y-[-0.8px] opacity-70 hover:opacity-100"
+					className={cn("inline","mr-1 size-3.5 min-w-3.5 opacity-70 hover:opacity-100")}
 				/>
 				<Volume2
-					className="inline size-3.5 translate-y-[-0.8px] opacity-70 hover:opacity-100"
+					className={cn("inline","mr-1 size-3.5 min-w-3.5 opacity-70 hover:opacity-100")}
 					onClick={() => speak(chat.input_text)}
 				/>
 			</div>
@@ -375,23 +375,23 @@ function SelectedText({ selectedText }: { selectedText?: string }) {
 		<div className=" w-full [&_svg:not([class*='size-'])]:size-4 [&_svg]:cursor-pointer select-none">
 			<div className="w-full flex items-center mb-1">
 				<div className="max-w-full truncate overflow-hidden">
-					<span className={cn("mr-1 opacity-50 text-sm")}>{selectedText}</span>
+					<span className={cn("mr-1 opacity-50")}>{selectedText}</span>
 				</div>
 				{selectedText?.trim() && (
-					<>
 						<Copyed
 							key={selectedText}
 							text={selectedText}
-							className="mr-1 inline translate-y-[0.8px] size-3.5 min-w-3.5  opacity-70 hover:opacity-100"
+							className={cn("","mr-1 size-3.5 min-w-3.5 opacity-70 hover:opacity-100")}
 						/>
+				)}
+				{selectedText?.trim() && (
 						<Volume2
-							className="mr-1 inline translate-y-[0.8px] size-3.5 min-w-3.5  opacity-70 hover:opacity-100"
+							className={cn("","mr-1 size-3.5 min-w-3.5 opacity-70 hover:opacity-100")}
 							onClick={() => {
 								if (!selectedText) return;
 								speak(selectedText);
 							}}
 						/>
-					</>
 				)}
 			</div>
 			{selectedText?.trim() && (
