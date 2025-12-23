@@ -46,17 +46,13 @@ function RouteComponent() {
 		};
 	}, []);
 	return (
-		<div
-			data-tauri-drag-region
-			className={cn(
-				"flex items-center w-screen h-screen",
-				"overflow-hidden",
-				"p-px",
-			)}
-		>
 			<div
 				data-tauri-drag-region
-				className="flex items-center justify-between h-full border rounded-md w-full bg-background overflow-hidden "
+				className={cn(
+					"w-screen h-screen overflow-hidden",
+					"bg-background border rounded-md",
+					"flex items-center justify-between",
+				)}
 			>
 				<div
 					className="flex items-center justify-start w-full min-h-full truncate overflow-hidden"
@@ -124,6 +120,5 @@ function RouteComponent() {
 					<Maximize2 />
 				</Button>
 			</div>
-		</div>
 	);
 }
