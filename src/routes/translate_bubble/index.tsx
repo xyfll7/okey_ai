@@ -52,8 +52,8 @@ function RouteComponent() {
 		<div
 			data-tauri-drag-region
 			className={cn(
-				"bg-background h-screen w-screen",
-				"border rounded-sm",
+				"bg-background h-full",
+				"border rounded-md",
 				"flex items-center justify-between",
 			)}
 		>

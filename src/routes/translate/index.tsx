@@ -93,7 +93,7 @@ function RouteComponent() {
 		};
 	}, []);
 	return (
-		<div className={cn("bg-background h-screen w-screen", "flex-coh ")}>
+		<div className={cn("bg-background h-full", "flex-coh ")}>
 			<Header />
 			<div className="mb-2 h-full flex-coh">
 				<ChatList chatList={chatList}></ChatList>
