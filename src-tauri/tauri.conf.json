@@ -27,6 +27,7 @@
         "alwaysOnTop": true,
         "minimizable": false,
         "maximizable": false,
+        "shadow": false,
         "titleBarStyle": "Overlay"
       },
       {
@@ -46,6 +47,7 @@
         "minimizable": false,
         "maximizable": false,
         "focusable": false,
+        "shadow": false,
         "titleBarStyle": "Overlay"
       }
     ],
