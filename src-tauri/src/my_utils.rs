@@ -1,9 +1,11 @@
 use crate::my_api::commands::GlobalAPIManager;
-use crate::my_api::traits::{ChatCompletionRequest, ChatMessage};
+use crate::my_api::traits::ChatCompletionRequest;
 use crate::my_events::event_names;
 use crate::my_types::InputData;
 use crate::my_windows;
 use crate::utils;
+use crate::utils::chat_message::ChatMessage;
+use crate::utils::chat_message::ChatMessageHistory;
 use selection;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -82,26 +84,20 @@ pub fn translate_selected_text(app_handle: &AppHandle) {
             ),
             _ => format!("请分析以下文本并给出总结：\n\n{}", selected_text),
         };
-
+        let mut history = ChatMessageHistory::new();
+        history.add_system_message(
+            "你是一个专业的翻译助手。请准确地进行语言翻译，保持原文的含义和语气。".to_string(),
+        );
+        history.add_user_message(translation_prompt.to_string());
         let request = ChatCompletionRequest {
             model: "qwen-plus".to_string(),
-            messages: vec![
-                ChatMessage {
-                    role: "system".to_string(),
-                    content: "你是一个专业的翻译助手。请准确地进行语言翻译，保持原文的含义和语气。"
-                        .to_string(),
-                },
-                ChatMessage {
-                    role: "user".to_string(),
-                    content: translation_prompt,
-                },
-            ],
+            messages: history.messages.clone(),
             temperature: Some(0.1),
             max_tokens: Some(500),
             top_p: Some(1.0),
             stream: None,
         };
-
+        println!("request: {:?}", request);
         match crate::my_api::commands::chat_completion(request, api_manager_state).await {
             Ok(response) => {
                 if let Some(choice) = response.choices.first() {
@@ -158,12 +154,12 @@ pub fn translate_selected_text_for_translate_bubble(app_handle: &AppHandle) {
             model: "qwen-plus".to_string(),
             messages: vec![
                 ChatMessage {
-                    role: "system".to_string(),
+                    role: crate::utils::chat_message::Role::System,
                     content: "你是一个专业的翻译助手。请准确地进行语言翻译，保持原文的含义和语气。"
                         .to_string(),
                 },
                 ChatMessage {
-                    role: "user".to_string(),
+                    role: crate::utils::chat_message::Role::User,
                     content: translation_prompt,
                 },
             ],

@@ -1,4 +1,5 @@
 use crate::my_api::traits::{APIConfig, ChatCompletionRequest, ChatCompletionResponse, LLMClient};
+use crate::utils::chat_message::ChatMessage;
 use serde::{Deserialize, Serialize};
 use tauri_plugin_http::reqwest;
 
@@ -95,7 +96,7 @@ struct QwenChatResponse {
 
 #[derive(Debug, Serialize, Deserialize)]
 struct QwenChoice {
-    message: crate::my_api::traits::ChatMessage,
+    message: ChatMessage,
     finish_reason: String,
     index: u32,
 }

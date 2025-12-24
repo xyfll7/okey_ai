@@ -1,5 +1,6 @@
 // Example usage of the multi-model API system
-use crate::my_api::traits::{APIConfig, ChatCompletionRequest, ChatMessage};
+use crate::my_api::traits::{APIConfig, ChatCompletionRequest};
+use crate::utils::chat_message::ChatMessage;
 
 // This demonstrates how to initialize and use the API manager from Rust code
 #[allow(dead_code)]
@@ -52,11 +53,11 @@ pub async fn example_usage() {
         model: "gpt-4".to_string(),
         messages: vec![
             ChatMessage {
-                role: "system".to_string(),
+                role: crate::utils::chat_message::Role::System,
                 content: "You are a helpful assistant.".to_string(),
             },
             ChatMessage {
-                role: "user".to_string(),
+                role: crate::utils::chat_message::Role::User,
                 content: "Hello, how are you?".to_string(),
             },
         ],

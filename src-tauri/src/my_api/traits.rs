@@ -1,3 +1,4 @@
+use crate::utils::chat_message::ChatMessage;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -12,12 +13,6 @@ pub struct ChatCompletionRequest {
     pub top_p: Option<f32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub stream: Option<bool>,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct ChatMessage {
-    pub role: String,
-    pub content: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

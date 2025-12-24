@@ -1,15 +1,12 @@
-use selection::get_text;
-use std::sync::Mutex;
-use tauri::{async_runtime, AppHandle, Emitter, Manager, State};
-
+use crate::utils::chat_message::{ChatMessage, Role};
 use crate::{
-    my_api::{
-        commands::GlobalAPIManager,
-        traits::{ChatCompletionRequest, ChatMessage},
-    },
+    my_api::{commands::GlobalAPIManager, traits::ChatCompletionRequest},
     my_events::event_names,
     my_types, my_utils, my_windows, AppState, AutoSpeakState,
 };
+use selection::get_text;
+use std::sync::Mutex;
+use tauri::{async_runtime, AppHandle, Emitter, Manager, State};
 
 #[tauri::command]
 pub fn get_selection_text() -> String {
@@ -37,7 +34,7 @@ pub fn chat(app: AppHandle, input_data: my_types::InputData) {
         let request = ChatCompletionRequest {
             model: "qwen-plus".to_string(),
             messages: vec![ChatMessage {
-                role: "user".to_string(),
+                role: Role::User,
                 content: input_text_clone, // Use the cloned value
             }],
             temperature: Some(0.1),
