@@ -186,7 +186,6 @@ pub fn translate_selected_text_for_translate_bubble(app_handle: &AppHandle) {
                     let window = app_handle_clone.get_webview_window("translate_bubble");
                     if let Some(window) = window {
                         let size = utils::calculate_text_width::calculate_text_width(&content);
-                        println!("size: {:?}", size);
                         let _ = window.set_size(size);
                     }
                 }
