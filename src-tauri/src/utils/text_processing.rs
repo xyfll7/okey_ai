@@ -10,26 +10,9 @@ use selection;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use tauri::{async_runtime, Emitter, Manager};
-use tauri::{AppHandle, Runtime};
+use tauri::AppHandle;
 
-use crate::utils::language_detection;
-
-pub fn create_input_data_and_emit<R: Runtime>(
-    app_handle: &AppHandle<R>,
-    selected_text: &str,
-) -> InputData {
-    let input_data = InputData {
-        input_time_stamp: SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .as_millis()
-            .to_string(),
-        input_text: selected_text.to_string(),
-        response_text: None,
-    };
-    let _ = app_handle.emit(event_names::AUTO_SPEAK_BUBBLE, &input_data);
-    input_data
-}
+use crate::utils::{input_handling, language_detection};
 
 
 pub fn translate_selected_text(app_handle: &AppHandle) {
@@ -131,7 +114,7 @@ pub fn translate_selected_text_bubble(app_handle: &AppHandle) {
     if selected_text.is_empty() {
         return;
     }
-    let input_data = create_input_data_and_emit(&app_handle, &selected_text);
+    let input_data = input_handling::create_input_data_and_emit(&app_handle, &selected_text);
     let app_handle = app_handle.clone();
     async_runtime::spawn(async move {
         let api_manager_state = app_handle.state::<GlobalAPIManager>();

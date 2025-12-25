@@ -9,7 +9,6 @@ use tauri::{
 };
 
 use crate::{my_events::event_names, states::setting_states};
-use crate::utils::text_processing;
 use mouse_position::mouse_position::{Mouse, Position};
 use tauri::Monitor;
 
@@ -142,7 +141,7 @@ where
 {
     if let Some(window) = app.get_webview_window("translate_bubble") {
         let _ = window.hide();
-        let _ = text_processing::create_input_data_and_emit(app, "");
+        let _ = crate::utils::input_handling::create_input_data_and_emit(app, "");
     }
 
     if let Some(window) = app.get_webview_window("translate") {

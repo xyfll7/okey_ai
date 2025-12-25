@@ -122,7 +122,7 @@ impl ClickOutsideHandler {
                         // 如果点击在外部 → 隐藏窗口
                         if !inside {
                             let _ = window.hide();
-                            let _ = text_processing::create_input_data_and_emit(&app, "");
+                            let _ = crate::utils::input_handling::create_input_data_and_emit(&app, "");
                         }
                     }
                 }
