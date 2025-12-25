@@ -2,7 +2,8 @@ use crate::utils::chat_message::{ChatMessage, Role};
 use crate::{
     my_api::{commands::GlobalAPIManager, traits::ChatCompletionRequest},
     my_events::event_names,
-    my_types, my_utils, my_windows, AppState, AutoSpeakState,
+    my_state::{AppState, AutoSpeakState},
+    my_types, my_utils, my_windows,
 };
 use selection::get_text;
 use std::sync::Mutex;

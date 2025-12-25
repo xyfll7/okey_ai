@@ -11,51 +11,15 @@ mod my_types;
 mod my_utils;
 mod my_windows;
 mod utils;
-use std::sync::{Arc, Mutex};
-use tauri::async_runtime::RwLock;
+mod my_state;
+
+pub use my_state::{AppState, AutoSpeakState};
+
 use tauri_plugin_notification::NotificationExt;
-// Enum for auto speak state - three possible states
-#[derive(Default, Clone, Copy, PartialEq)]
-pub enum AutoSpeakState {
-    Off, // Completely off
-    #[default]
-    Single, // Read single word
-    All, // Read full sentence
-}
-
-use serde::Serialize;
-
-// Implement Display and Serialize for AutoSpeakState to return string values
-impl std::fmt::Display for AutoSpeakState {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            AutoSpeakState::Off => write!(f, "off"),
-            AutoSpeakState::Single => write!(f, "single"),
-            AutoSpeakState::All => write!(f, "all"),
-        }
-    }
-}
-
-impl Serialize for AutoSpeakState {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(&self.to_string())
-    }
-}
-
-// Global state struct for auto-close window setting
-#[derive(Default)]
-pub struct AppState {
-    pub auto_close_translate: bool,
-    pub auto_close_bubble: bool,
-    pub auto_speak: AutoSpeakState,
-}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let api_manager = Arc::new(RwLock::new(my_api::manager::APIManager::new()));
+    let api_manager = std::sync::Arc::new(tauri::async_runtime::RwLock::new(my_api::manager::APIManager::new()));
     tauri::Builder::default()
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
@@ -66,7 +30,7 @@ pub fn run() {
                 .show()
                 .unwrap();
         }))
-        .manage(Mutex::new(AppState::default()))
+        .manage(std::sync::Mutex::new(my_state::AppState::default()))
         .manage(my_api::commands::GlobalAPIManager(api_manager))
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_os::init())

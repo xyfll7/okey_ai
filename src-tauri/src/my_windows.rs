@@ -8,7 +8,7 @@ use tauri::{
     WebviewUrl, WebviewWindowBuilder,
 };
 
-use crate::{my_events::event_names, my_utils, AppState};
+use crate::{my_events::event_names, my_utils, my_state::AppState};
 use mouse_position::mouse_position::{Mouse, Position};
 use tauri::Monitor;
 
