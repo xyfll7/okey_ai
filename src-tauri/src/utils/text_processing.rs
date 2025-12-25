@@ -12,6 +12,8 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::{async_runtime, Emitter, Manager};
 use tauri::{AppHandle, Runtime};
 
+use crate::utils::language_detection;
+
 pub fn create_input_data_and_emit<R: Runtime>(
     app_handle: &AppHandle<R>,
     selected_text: &str,
@@ -29,28 +31,6 @@ pub fn create_input_data_and_emit<R: Runtime>(
     input_data
 }
 
-pub fn detect_language(text: &str) -> &'static str {
-    let chinese_chars = text
-        .chars()
-        .filter(|c| {
-            (*c as u32) >= 0x4e00 && (*c as u32) <= 0x9fff // 基本汉字范围
-        })
-        .count();
-
-    let total_chars = text.chars().filter(|c| !c.is_whitespace()).count();
-
-    if total_chars == 0 {
-        return "unknown";
-    }
-
-    let chinese_ratio = chinese_chars as f64 / total_chars as f64;
-    if chinese_ratio > 0.3 {
-        // 如果超过30%的字符是中文，则认为是中文
-        "zh-CN"
-    } else {
-        "en-US"
-    }
-}
 
 pub fn translate_selected_text(app_handle: &AppHandle) {
     let selected_text = selection::get_text();
@@ -75,7 +55,7 @@ pub fn translate_selected_text(app_handle: &AppHandle) {
         let api_manager_state = app_handle.state::<GlobalAPIManager>();
         let chat_history_state = app_handle.state::<chat_history::GlobalChatHistory>();
 
-        let detected_lang = detect_language(&selected_text);
+        let detected_lang = language_detection::detect_language(&selected_text);
 
         let translation_prompt = match detected_lang {
             "zh-CN" => format!("请将以下中文文本翻译成英文：\n\n{}", selected_text),
@@ -156,7 +136,7 @@ pub fn translate_selected_text_bubble(app_handle: &AppHandle) {
     async_runtime::spawn(async move {
         let api_manager_state = app_handle.state::<GlobalAPIManager>();
 
-        let detected_lang = detect_language(&selected_text);
+        let detected_lang = language_detection::detect_language(&selected_text);
 
         let translation_prompt = match detected_lang {
             "zh-CN" => format!("请将以下中文文本翻译成英文：\n\n{}", selected_text),

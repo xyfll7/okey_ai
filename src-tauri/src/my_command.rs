@@ -6,7 +6,7 @@ use crate::{
     my_windows,
     states::setting_states,
 };
-use crate::utils::text_processing;
+use crate::utils::language_detection;
 use selection::get_text;
 use std::sync::Mutex;
 use tauri::{async_runtime, AppHandle, Emitter, Manager, State};
@@ -80,7 +80,7 @@ pub fn chat(app: AppHandle, input_data: my_types::InputData) {
 
 #[tauri::command]
 pub fn detect_language(text: &str) -> String {
-    let language = text_processing::detect_language(text);
+    let language = language_detection::detect_language(text);
     language.to_string()
 }
 
