@@ -8,7 +8,6 @@ mod my_shortcut;
 mod my_test;
 mod my_tray;
 mod my_types;
-mod my_utils;
 mod my_windows;
 mod states;
 mod utils;

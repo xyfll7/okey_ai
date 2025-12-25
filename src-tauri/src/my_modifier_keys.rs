@@ -1,4 +1,4 @@
-use crate::my_utils;
+use crate::utils::text_processing;
 use crate::my_windows;
 use device_query::{DeviceQuery, DeviceState, Keycode, MouseState};
 use std::thread;
@@ -80,7 +80,7 @@ impl TranslateBubbleHandler {
         my_windows::window_translate_bubble_show(
             app,
             Some(move || {
-                my_utils::translate_selected_text_bubble(&app_clone);
+                text_processing::translate_selected_text_bubble(&app_clone);
             }),
         );
     }
@@ -122,7 +122,7 @@ impl ClickOutsideHandler {
                         // 如果点击在外部 → 隐藏窗口
                         if !inside {
                             let _ = window.hide();
-                            let _ = my_utils::create_input_data_and_emit(&app, "");
+                            let _ = text_processing::create_input_data_and_emit(&app, "");
                         }
                     }
                 }

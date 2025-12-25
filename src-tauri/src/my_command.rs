@@ -2,9 +2,11 @@ use crate::utils::chat_message::{ChatMessage, Role};
 use crate::{
     my_api::{commands::GlobalAPIManager, traits::ChatCompletionRequest},
     my_events::event_names,
-    my_types, my_utils, my_windows,
+    my_types,
+    my_windows,
     states::setting_states,
 };
+use crate::utils::text_processing;
 use selection::get_text;
 use std::sync::Mutex;
 use tauri::{async_runtime, AppHandle, Emitter, Manager, State};
@@ -78,7 +80,7 @@ pub fn chat(app: AppHandle, input_data: my_types::InputData) {
 
 #[tauri::command]
 pub fn detect_language(text: &str) -> String {
-    let language = my_utils::detect_language(text);
+    let language = text_processing::detect_language(text);
     language.to_string()
 }
 

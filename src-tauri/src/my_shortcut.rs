@@ -1,5 +1,5 @@
 use crate::my_config;
-use crate::my_utils;
+use crate::utils::text_processing;
 use tauri::AppHandle;
 use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
 
@@ -12,7 +12,7 @@ pub fn register_hotkey_okey_ai(app: AppHandle, shortcut: String) -> Result<(), S
         .on_shortcut(shortcut.as_str(), move |app, _shortcut, event| {
             if event.state == ShortcutState::Pressed {
                 println!("动态快捷键触发: {}", shortcut_for_closure);
-                crate::my_utils::translate_selected_text(&app);
+                crate::utils::text_processing::translate_selected_text(&app);
             }
         }) {
         Ok(_) => println!("成功注册动态快捷键: {}", shortcut),
@@ -75,7 +75,7 @@ pub fn init_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>>
                 if event.state == ShortcutState::Pressed {
                     println!("快捷键触发: {} ({})", name, shortcut);
                     if name == "okey_ai" {
-                        my_utils::translate_selected_text(&app);
+                        text_processing::translate_selected_text(&app);
                     }
                     if name == "test" {
                         println!("测试快捷键被按下");
