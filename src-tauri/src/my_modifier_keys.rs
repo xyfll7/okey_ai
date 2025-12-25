@@ -80,7 +80,7 @@ impl TranslateBubbleHandler {
         my_windows::window_translate_bubble_show(
             app,
             Some(move || {
-                my_utils::translate_selected_text_for_translate_bubble(&app_clone);
+                my_utils::translate_selected_text_bubble(&app_clone);
             }),
         );
     }

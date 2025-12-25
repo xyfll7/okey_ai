@@ -13,6 +13,7 @@ mod my_windows;
 mod states;
 mod utils;
 
+use states::chat_history;
 use states::setting_states;
 
 use tauri_plugin_notification::NotificationExt;
@@ -33,6 +34,7 @@ pub fn run() {
                 .unwrap();
         }))
         .manage(std::sync::Mutex::new(setting_states::AppState::default()))
+        .manage(chat_history::GlobalChatHistory::new())
         .manage(my_api::commands::GlobalAPIManager(api_manager))
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_os::init())

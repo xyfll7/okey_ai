@@ -3,9 +3,8 @@ use crate::my_api::traits::ChatCompletionRequest;
 use crate::my_events::event_names;
 use crate::my_types::InputData;
 use crate::my_windows;
+use crate::states::chat_history;
 use crate::utils;
-use crate::utils::chat_message::ChatMessage;
-use crate::utils::chat_message::ChatMessageHistory;
 use selection;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -73,6 +72,7 @@ pub fn translate_selected_text(app_handle: &AppHandle) {
     let app_handle = app_handle.clone();
     async_runtime::spawn(async move {
         let api_manager_state = app_handle.state::<GlobalAPIManager>();
+        let chat_history_state = app_handle.state::<chat_history::GlobalChatHistory>();
 
         let detected_lang = detect_language(&selected_text);
 
@@ -84,14 +84,26 @@ pub fn translate_selected_text(app_handle: &AppHandle) {
             ),
             _ => format!("请分析以下文本并给出总结：\n\n{}", selected_text),
         };
-        let mut history = ChatMessageHistory::new();
-        history.add_system_message(
-            "你是一个专业的翻译助手。请准确地进行语言翻译，保持原文的含义和语气。".to_string(),
-        );
-        history.add_user_message(translation_prompt.to_string());
+
+        // 使用全局聊天历史记录
+        let history_key = "translate_session"; // 为翻译会话设置一个键
+        chat_history_state
+            .add_system_message(
+                history_key,
+                "你是一个专业的翻译助手。请准确地进行语言翻译，保持原文的含义和语气。".to_string(),
+            )
+            .await;
+        chat_history_state
+            .add_user_message(history_key, translation_prompt.to_string())
+            .await;
+
+        let messages = chat_history_state
+            .get_messages(history_key)
+            .await
+            .unwrap_or_default();
         let request = ChatCompletionRequest {
             model: "qwen-plus".to_string(),
-            messages: history.messages.clone(),
+            messages: messages,
             temperature: Some(0.1),
             max_tokens: Some(500),
             top_p: Some(1.0),
@@ -102,6 +114,10 @@ pub fn translate_selected_text(app_handle: &AppHandle) {
             Ok(response) => {
                 if let Some(choice) = response.choices.first() {
                     let content = choice.message.content.clone();
+                    // 添加助手回复到历史记录
+                    chat_history_state
+                        .add_assistant_message(history_key, content.clone())
+                        .await;
                     let app_handle_clone = app_handle.clone();
                     my_windows::window_translate_show(
                         &app_handle,
@@ -129,7 +145,7 @@ pub fn translate_selected_text(app_handle: &AppHandle) {
     });
 }
 
-pub fn translate_selected_text_for_translate_bubble(app_handle: &AppHandle) {
+pub fn translate_selected_text_bubble(app_handle: &AppHandle) {
     let selected_text = selection::get_text();
     if selected_text.is_empty() {
         return;
@@ -138,6 +154,7 @@ pub fn translate_selected_text_for_translate_bubble(app_handle: &AppHandle) {
     let app_handle = app_handle.clone();
     async_runtime::spawn(async move {
         let api_manager_state = app_handle.state::<GlobalAPIManager>();
+        let chat_history_state = app_handle.state::<chat_history::GlobalChatHistory>();
 
         let detected_lang = detect_language(&selected_text);
 
@@ -150,19 +167,25 @@ pub fn translate_selected_text_for_translate_bubble(app_handle: &AppHandle) {
             _ => format!("请分析以下文本并给出总结：\n\n{}", selected_text),
         };
 
+        // 使用全局聊天历史记录
+        let history_key = "translate_bubble_session"; // 为翻译气泡会话设置一个键
+        chat_history_state
+            .add_system_message(
+                history_key,
+                "你是一个专业的翻译助手。请准确地进行语言翻译，保持原文的含义和语气。".to_string(),
+            )
+            .await;
+        chat_history_state
+            .add_user_message(history_key, translation_prompt.to_string())
+            .await;
+
+        let messages = chat_history_state
+            .get_messages(history_key)
+            .await
+            .unwrap_or_default();
         let request = ChatCompletionRequest {
             model: "qwen-plus".to_string(),
-            messages: vec![
-                ChatMessage {
-                    role: crate::utils::chat_message::Role::System,
-                    content: "你是一个专业的翻译助手。请准确地进行语言翻译，保持原文的含义和语气。"
-                        .to_string(),
-                },
-                ChatMessage {
-                    role: crate::utils::chat_message::Role::User,
-                    content: translation_prompt,
-                },
-            ],
+            messages: messages,
             temperature: Some(0.1),
             max_tokens: Some(500),
             top_p: Some(1.0),
@@ -173,6 +196,10 @@ pub fn translate_selected_text_for_translate_bubble(app_handle: &AppHandle) {
             Ok(response) => {
                 if let Some(choice) = response.choices.first() {
                     let content = choice.message.content.clone();
+                    // 添加助手回复到历史记录
+                    chat_history_state
+                        .add_assistant_message(history_key, content.clone())
+                        .await;
                     let app_handle_clone = app_handle.clone();
                     let _ = app_handle_clone.emit(event_names::AI_RESPONSE, &input_data);
                     let mut input_data_with_response = input_data.clone();
