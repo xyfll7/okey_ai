@@ -33,6 +33,7 @@ impl Serialize for AutoSpeakState {
 #[derive(Default)]
 pub struct AppState {
     pub auto_close_translate: bool,
+    #[allow(dead_code)]
     pub auto_close_bubble: bool,
     pub auto_speak: AutoSpeakState,
 }

@@ -76,6 +76,7 @@ impl ChatMessageHistory {
     }
 
     /// Creates a new ChatMessageHistory with initial messages
+    #[allow(dead_code)]
     pub fn with_messages(messages: Vec<ChatMessage>) -> Self {
         ChatMessageHistory { messages }
     }
@@ -103,36 +104,43 @@ impl ChatMessageHistory {
     }
 
     /// Gets the number of messages in the history
+    #[allow(dead_code)]
     pub fn len(&self) -> usize {
         self.messages.len()
     }
 
     /// Checks if the history is empty
+    #[allow(dead_code)]
     pub fn is_empty(&self) -> bool {
         self.messages.is_empty()
     }
 
     /// Gets a reference to the messages vector
+    #[allow(dead_code)]
     pub fn get_messages(&self) -> &Vec<ChatMessage> {
         &self.messages
     }
 
     /// Gets a mutable reference to the messages vector
+    #[allow(dead_code)]
     pub fn get_messages_mut(&mut self) -> &mut Vec<ChatMessage> {
         &mut self.messages
     }
 
     /// Gets a specific message by index
+    #[allow(dead_code)]
     pub fn get(&self, index: usize) -> Option<&ChatMessage> {
         self.messages.get(index)
     }
 
     /// Gets a mutable reference to a specific message by index
+    #[allow(dead_code)]
     pub fn get_mut(&mut self, index: usize) -> Option<&mut ChatMessage> {
         self.messages.get_mut(index)
     }
 
     /// Removes a message by index
+    #[allow(dead_code)]
     pub fn remove(&mut self, index: usize) -> Option<ChatMessage> {
         if index < self.messages.len() {
             Some(self.messages.remove(index))
@@ -142,26 +150,31 @@ impl ChatMessageHistory {
     }
 
     /// Clears all messages from the history
+    #[allow(dead_code)]
     pub fn clear(&mut self) {
         self.messages.clear();
     }
 
     /// Sets the entire message history
+    #[allow(dead_code)]
     pub fn set_messages(&mut self, messages: Vec<ChatMessage>) {
         self.messages = messages;
     }
 
     /// Gets the last message in the history
+    #[allow(dead_code)]
     pub fn last(&self) -> Option<&ChatMessage> {
         self.messages.last()
     }
 
     /// Gets the last message in the history as mutable
+    #[allow(dead_code)]
     pub fn last_mut(&mut self) -> Option<&mut ChatMessage> {
         self.messages.last_mut()
     }
 
     /// Gets messages of a specific role
+    #[allow(dead_code)]
     pub fn get_messages_by_role(&self, role: Role) -> Vec<&ChatMessage> {
         self.messages
             .iter()
@@ -170,11 +183,13 @@ impl ChatMessageHistory {
     }
 
     /// Gets the most recent message of a specific role
+    #[allow(dead_code)]
     pub fn get_latest_message_by_role(&self, role: Role) -> Option<&ChatMessage> {
         self.messages.iter().rev().find(|msg| msg.role == role)
     }
 
     /// Limits the history to the last N messages
+    #[allow(dead_code)]
     pub fn limit_messages(&mut self, count: usize) -> &mut Self {
         if self.messages.len() > count {
             let start_index = self.messages.len() - count;
@@ -184,6 +199,7 @@ impl ChatMessageHistory {
     }
 
     /// Prepends a system message to the beginning of the history
+    #[allow(dead_code)]
     pub fn prepend_system_message(&mut self, content: String) -> &mut Self {
         let message = ChatMessage {
             role: Role::System,
@@ -194,6 +210,7 @@ impl ChatMessageHistory {
     }
 
     /// Replaces the content of the last message if it has the specified role
+    #[allow(dead_code)]
     pub fn update_last_message(&mut self, role: Role, new_content: String) -> bool {
         if let Some(last_msg) = self.messages.last_mut() {
             if last_msg.role == role {

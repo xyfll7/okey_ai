@@ -28,11 +28,13 @@ impl ChatHistoryState {
     }
 
     /// Remove a chat history for a specific key
+    #[allow(dead_code)]
     pub fn remove_history(&mut self, key: &str) {
         self.histories.remove(key);
     }
 
     /// Clear all chat histories
+    #[allow(dead_code)]
     pub fn clear_all(&mut self) {
         self.histories.clear();
     }
@@ -53,12 +55,14 @@ impl GlobalChatHistory {
     }
 
     /// Get or create a chat history for a specific key
+    #[allow(dead_code)]
     pub async fn get_or_create_history(&self, key: &str) -> ChatMessageHistory {
         let mut state = self.0.write().await;
         state.get_or_create_history(key).clone()
     }
 
     /// Add a message to a specific chat history
+    #[allow(dead_code)]
     pub async fn add_message(
         &self,
         key: &str,
@@ -98,12 +102,14 @@ impl GlobalChatHistory {
     }
 
     /// Remove a chat history for a specific key
+    #[allow(dead_code)]
     pub async fn remove_history(&self, key: &str) {
         let mut state = self.0.write().await;
         state.remove_history(key);
     }
 
     /// Clear all chat histories
+    #[allow(dead_code)]
     pub async fn clear_all(&self) {
         let mut state = self.0.write().await;
         state.clear_all();
