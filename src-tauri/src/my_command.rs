@@ -2,8 +2,8 @@ use crate::utils::chat_message::{ChatMessage, Role};
 use crate::{
     my_api::{commands::GlobalAPIManager, traits::ChatCompletionRequest},
     my_events::event_names,
-    my_state::{AppState, AutoSpeakState},
     my_types, my_utils, my_windows,
+    states::setting_states,
 };
 use selection::get_text;
 use std::sync::Mutex;
@@ -83,32 +83,36 @@ pub fn detect_language(text: &str) -> String {
 }
 
 #[tauri::command]
-pub fn toggle_auto_close_translate(state: State<'_, Mutex<AppState>>) -> bool {
+pub fn toggle_auto_close_translate(state: State<'_, Mutex<setting_states::AppState>>) -> bool {
     let mut app_state = state.lock().unwrap();
     app_state.auto_close_translate = !app_state.auto_close_translate;
     app_state.auto_close_translate
 }
 
 #[tauri::command]
-pub fn get_auto_close_translate_state(state: State<'_, Mutex<AppState>>) -> bool {
+pub fn get_auto_close_translate_state(state: State<'_, Mutex<setting_states::AppState>>) -> bool {
     let app_state = state.lock().unwrap();
     app_state.auto_close_translate
 }
 
 #[tauri::command]
-pub fn toggle_auto_speak(state: State<'_, Mutex<AppState>>) -> AutoSpeakState {
+pub fn toggle_auto_speak(
+    state: State<'_, Mutex<setting_states::AppState>>,
+) -> setting_states::AutoSpeakState {
     let mut app_state = state.lock().unwrap();
     // Cycle through the three states: Off -> Single -> All -> Off
     app_state.auto_speak = match app_state.auto_speak {
-        AutoSpeakState::Off => AutoSpeakState::Single,
-        AutoSpeakState::Single => AutoSpeakState::All,
-        AutoSpeakState::All => AutoSpeakState::Off,
+        setting_states::AutoSpeakState::Off => setting_states::AutoSpeakState::Single,
+        setting_states::AutoSpeakState::Single => setting_states::AutoSpeakState::All,
+        setting_states::AutoSpeakState::All => setting_states::AutoSpeakState::Off,
     };
     app_state.auto_speak
 }
 
 #[tauri::command]
-pub fn get_auto_speak_state(state: State<'_, Mutex<AppState>>) -> AutoSpeakState {
+pub fn get_auto_speak_state(
+    state: State<'_, Mutex<setting_states::AppState>>,
+) -> setting_states::AutoSpeakState {
     let app_state = state.lock().unwrap();
     app_state.auto_speak
 }

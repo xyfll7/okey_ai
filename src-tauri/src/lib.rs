@@ -10,16 +10,18 @@ mod my_tray;
 mod my_types;
 mod my_utils;
 mod my_windows;
+mod states;
 mod utils;
-mod my_state;
 
-pub use my_state::{AppState, AutoSpeakState};
+use states::setting_states;
 
 use tauri_plugin_notification::NotificationExt;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let api_manager = std::sync::Arc::new(tauri::async_runtime::RwLock::new(my_api::manager::APIManager::new()));
+    let api_manager = std::sync::Arc::new(tauri::async_runtime::RwLock::new(
+        my_api::manager::APIManager::new(),
+    ));
     tauri::Builder::default()
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
@@ -30,7 +32,7 @@ pub fn run() {
                 .show()
                 .unwrap();
         }))
-        .manage(std::sync::Mutex::new(my_state::AppState::default()))
+        .manage(std::sync::Mutex::new(setting_states::AppState::default()))
         .manage(my_api::commands::GlobalAPIManager(api_manager))
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_os::init())
