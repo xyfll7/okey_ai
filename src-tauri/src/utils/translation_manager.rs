@@ -28,9 +28,7 @@ impl TranslationManager {
         self.chat_histories
             .add_system_message(
                 &session_id,
-                "你是一个专业的翻译助手。请准确地进行语言翻译，保持原文的含义和语气。\
-                 用户可能会要求你调整翻译风格、纠正翻译或重新翻译，请根据上下文理解用户意图。"
-                    .to_string(),
+                "你是一个专业的翻译助手。请准确地进行语言翻译，保持原文的含义和语气。".to_string(),
             )
             .await;
 
