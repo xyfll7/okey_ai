@@ -3,7 +3,7 @@ use crate::my_api::traits::ChatCompletionRequest;
 use crate::my_events::event_names;
 use crate::my_types::InputData;
 use crate::my_windows;
-use crate::states::chat_history;
+use crate::states::chat_histories;
 use crate::utils;
 use crate::utils::chat_message::ChatMessage;
 use selection;
@@ -46,7 +46,7 @@ pub fn translate_selected_text(app_handle: &AppHandle) {
             ),
             _ => format!("请分析以下文本并给出总结：\n\n{}", selected_text),
         };
-        let chat_history_state = app_handle.state::<chat_history::GlobalChatHistory>();
+        let chat_history_state = app_handle.state::<chat_histories::GlobalChatHistories>();
         // 使用全局聊天历史记录
         let history_key = "translate_session"; // 为翻译会话设置一个键
         chat_history_state
