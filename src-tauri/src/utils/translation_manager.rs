@@ -1,11 +1,13 @@
 use crate::states::chat_history::GlobalChatHistory;
-use crate::utils::chat_message::Role;
+use crate::utils::chat_message::{ChatMessage, Role};
+use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::sync::Arc;
 use tauri::async_runtime::RwLock;
 use uuid::Uuid;
 
-/// 翻译会话管理器 - 包装 GlobalChatHistory
+/// 翻译会话管理器
+#[derive(Clone)]
 pub struct TranslationManager {
     chat_history: Arc<GlobalChatHistory>,
     active_sessions: Arc<RwLock<HashSet<String>>>,
@@ -19,7 +21,7 @@ impl TranslationManager {
         }
     }
 
-    /// 创建新的翻译会话（打开弹窗时）
+    /// 创建新的翻译会话
     pub async fn create_session(&self) -> String {
         let session_id = format!("translate_{}", Uuid::new_v4());
 
@@ -40,13 +42,13 @@ impl TranslationManager {
         session_id
     }
 
-    /// 翻译文本（在会话中）
+    /// 翻译文本
     pub async fn translate(
         &self,
         session_id: &str,
         text: &str,
-    ) -> Result<String, Box<dyn std::error::Error>> {
-        // 验证会话是否活跃
+    ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
+        // 验证会话
         {
             let sessions = self.active_sessions.read().await;
             if !sessions.contains(session_id) {
@@ -59,15 +61,16 @@ impl TranslationManager {
             .add_user_message(session_id, text.to_string())
             .await;
 
-        // 获取完整历史
+        // 获取历史
         let messages = self
             .chat_history
             .get_messages(session_id)
             .await
             .ok_or("无法获取会话历史")?;
 
-        // 构建 API 请求（这里需要你的实际实现）
-        let response = self.call_ai_api(messages).await?;
+        // TODO: 这里调用你的 AI API
+        // 临时返回示例，你需要替换为实际的 API 调用
+        let response = format!("翻译结果: {}", text);
 
         // 保存助手回复
         self.chat_history
@@ -78,65 +81,34 @@ impl TranslationManager {
     }
 
     /// 获取会话历史
-    pub async fn get_history(
-        &self,
-        session_id: &str,
-    ) -> Option<Vec<crate::utils::chat_message::ChatMessage>> {
+    pub async fn get_history(&self, session_id: &str) -> Option<Vec<ChatMessage>> {
         self.chat_history.get_messages(session_id).await
     }
 
-    /// 关闭会话（关闭弹窗时）
+    /// 关闭会话
     pub async fn close_session(&self, session_id: &str) {
         let mut sessions = self.active_sessions.write().await;
         sessions.remove(session_id);
-        // 历史保留在 GlobalChatHistory 中
     }
 
-    /// 清理会话历史（释放内存）
+    /// 清理会话
     pub async fn cleanup_session(&self, session_id: &str) {
         self.chat_history.remove_history(session_id).await;
         let mut sessions = self.active_sessions.write().await;
         sessions.remove(session_id);
     }
 
-    /// 获取活跃会话数量
-    pub async fn active_count(&self) -> usize {
-        let sessions = self.active_sessions.read().await;
-        sessions.len()
-    }
-
-    /// 定期清理旧会话（后台任务）
+    /// 定期清理不活跃的会话
     pub async fn cleanup_inactive_sessions(&self) {
         let active = self.active_sessions.read().await;
-
-        // 获取 GlobalChatHistory 中的所有会话
         let state = self.chat_history.0.read().await;
         let all_keys: Vec<String> = state.histories.keys().cloned().collect();
-        drop(state); // 释放读锁
+        drop(state);
 
-        // 清理不活跃的翻译会话
         for key in all_keys {
             if key.starts_with("translate_") && !active.contains(&key) {
                 self.chat_history.remove_history(&key).await;
             }
         }
-    }
-
-    // 实际的 AI API 调用（需要你根据实际情况实现）
-    async fn call_ai_api(
-        &self,
-        messages: Vec<crate::utils::chat_message::ChatMessage>,
-    ) -> Result<String, Box<dyn std::error::Error>> {
-        // TODO: 实现你的 AI API 调用逻辑
-        // 例如：
-        // let request = ChatCompletionRequest {
-        //     model: "qwen-plus".to_string(),
-        //     messages,
-        //     temperature: Some(0.1),
-        //     max_tokens: Some(2000),
-        // };
-        // let response = your_api_client.chat(request).await?;
-
-        Ok("翻译结果示例".to_string())
     }
 }

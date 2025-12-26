@@ -14,8 +14,9 @@ mod utils;
 
 use states::chat_history;
 use states::setting_states;
-
+use tauri::Manager; // ← 添加这一行，非常重要！
 use tauri_plugin_notification::NotificationExt;
+use utils::translation_manager;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -74,6 +75,9 @@ pub fn run() {
 
             my_tray::create_tray(&app.handle())?;
             crate::my_test::test();
+
+            // 新增：初始化翻译管理器
+            setup_translation_manager(app)?;
             // 在 macOS 上隐藏 Dock 栏图标
             #[cfg(target_os = "macos")]
             {
@@ -90,4 +94,20 @@ pub fn run() {
                 api.prevent_exit();
             }
         })
+}
+
+// 新增：翻译管理器初始化函数
+fn setup_translation_manager(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
+    // 获取已注册的 GlobalChatHistory
+    let chat_history = app.state::<chat_history::GlobalChatHistory>();
+
+    // 创建翻译管理器（共享 GlobalChatHistory）
+    let translation_mgr = translation_manager::TranslationManager::new(std::sync::Arc::new(
+        chat_history.inner().clone(),
+    ));
+
+    // 注册到 Tauri 状态
+    app.manage(translation_mgr.clone());
+
+    Ok(())
 }
