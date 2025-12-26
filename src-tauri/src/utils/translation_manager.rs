@@ -8,14 +8,14 @@ use uuid::Uuid;
 /// 翻译会话管理器
 #[derive(Clone)]
 pub struct TranslationManager {
-    chat_history: GlobalChatHistories,
+    chat_histories: GlobalChatHistories,
     active_sessions: Arc<RwLock<HashSet<String>>>,
 }
 
 impl TranslationManager {
-    pub fn new(chat_history: &GlobalChatHistories) -> Self {
+    pub fn new(chat_histories: &GlobalChatHistories) -> Self {
         Self {
-            chat_history: chat_history.clone(), // 在这里 clone
+            chat_histories: chat_histories.clone(), // 在这里 clone
             active_sessions: Arc::new(RwLock::new(HashSet::new())),
         }
     }
@@ -25,7 +25,7 @@ impl TranslationManager {
         let session_id = format!("translate_{}", Uuid::new_v4());
 
         // 初始化系统提示
-        self.chat_history
+        self.chat_histories
             .add_system_message(
                 &session_id,
                 "你是一个专业的翻译助手。请准确地进行语言翻译，保持原文的含义和语气。\
@@ -56,13 +56,13 @@ impl TranslationManager {
         }
 
         // 添加用户消息
-        self.chat_history
+        self.chat_histories
             .add_user_message(session_id, text.to_string())
             .await;
 
         // 获取历史
         let messages = self
-            .chat_history
+            .chat_histories
             .get_messages(session_id)
             .await
             .ok_or("无法获取会话历史")?;
@@ -72,7 +72,7 @@ impl TranslationManager {
         let response = format!("翻译结果: {}", text);
 
         // 保存助手回复
-        self.chat_history
+        self.chat_histories
             .add_assistant_message(session_id, response.clone())
             .await;
 
@@ -81,7 +81,7 @@ impl TranslationManager {
 
     /// 获取会话历史
     pub async fn get_history(&self, session_id: &str) -> Option<Vec<ChatMessage>> {
-        self.chat_history.get_messages(session_id).await
+        self.chat_histories.get_messages(session_id).await
     }
 
     /// 关闭会话
@@ -92,7 +92,7 @@ impl TranslationManager {
 
     /// 清理会话
     pub async fn cleanup_session(&self, session_id: &str) {
-        self.chat_history.remove_history(session_id).await;
+        self.chat_histories.remove_history(session_id).await;
         let mut sessions = self.active_sessions.write().await;
         sessions.remove(session_id);
     }
@@ -100,13 +100,13 @@ impl TranslationManager {
     /// 定期清理不活跃的会话
     pub async fn cleanup_inactive_sessions(&self) {
         let active = self.active_sessions.read().await;
-        let state = self.chat_history.0.read().await;
+        let state = self.chat_histories.0.read().await;
         let all_keys: Vec<String> = state.histories.keys().cloned().collect();
         drop(state);
 
         for key in all_keys {
             if key.starts_with("translate_") && !active.contains(&key) {
-                self.chat_history.remove_history(&key).await;
+                self.chat_histories.remove_history(&key).await;
             }
         }
     }
