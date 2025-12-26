@@ -28,22 +28,56 @@ okey_ai/
 ├── vite.config.ts           # Vite build configuration
 ├── tsconfig.json            # TypeScript configuration
 ├── biome.json               # Biome linting and formatting config
+├── components.json          # Component library configuration
 ├── README.md                # Project documentation
 ├── index.html               # HTML entry point
+├── app-icon.png             # Application icon
+├── .node-version            # Node.js version specification
+├── .cta.json                # CTA configuration
+├── QWEN.md                  # Project documentation for Qwen AI
+├── .vscode/                 # VS Code settings
+├── .zed/                    # Zed editor settings
+├── public/                  # Public assets
 ├── src/                     # Frontend source code
 │   ├── components/          # React components
-│   ├── lib/                 # Utility functions
+│   │   ├── ui/              # UI components
+│   │   ├── AudioRecording.tsx
+│   │   ├── AutoSpeakVolume.tsx
+│   │   ├── Copyed.tsx
+│   │   ├── Header.tsx
+│   │   ├── HotKey.tsx
+│   │   └── theme-provider.tsx
 │   ├── routes/              # Route components (TanStack Router)
+│   │   ├── __root.tsx
+│   │   ├── about.tsx
+│   │   ├── index.tsx
+│   │   ├── input_method_editor/
+│   │   ├── translate/
+│   │   └── translate_bubble/
+│   ├── lib/                 # Utility functions
+│   │   ├── events.ts
+│   │   ├── types.ts
+│   │   └── utils.ts
+│   ├── @types/              # TypeScript type definitions
+│   ├── i18n/                # Internationalization files
 │   ├── main.tsx             # Application entry point
 │   ├── routeTree.gen.ts     # Generated route tree
 │   ├── styles.css           # Global styles
-│   └── reportWebVitals.ts   # Performance reporting
+│   ├── styles_my.css        # Custom styles
+│   ├── reportWebVitals.ts   # Performance reporting
+│   └── logo.svg             # Logo asset
 └── src-tauri/               # Tauri backend source code
     ├── Cargo.toml           # Rust dependencies
+    ├── Cargo.lock           # Rust lock file
     ├── tauri.conf.json      # Tauri configuration
+    ├── build.rs             # Build script
+    ├── .gitignore           # Git ignore for Rust files
     ├── src/                 # Rust source files
+    │   └── main.rs          # Rust application entry point
     ├── capabilities/        # Tauri capabilities
-    └── icons/               # Application icons
+    ├── icons/               # Application icons
+    ├── gen/                 # Generated files
+    └── target/              # Build artifacts
 ```
 
 ## Key Features
