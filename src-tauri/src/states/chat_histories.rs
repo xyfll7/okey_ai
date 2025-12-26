@@ -4,11 +4,11 @@ use std::sync::Arc;
 use tauri::async_runtime::RwLock;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ChatHistoryState {
+pub struct ChatHistoriesState {
     pub histories: std::collections::HashMap<String, ChatMessageHistory>,
 }
 
-impl ChatHistoryState {
+impl ChatHistoriesState {
     pub fn new() -> Self {
         Self {
             histories: std::collections::HashMap::new(),
@@ -40,19 +40,19 @@ impl ChatHistoryState {
     }
 }
 
-impl Default for ChatHistoryState {
+impl Default for ChatHistoriesState {
     fn default() -> Self {
         Self::new()
     }
 }
 
-/// Global chat history manager
+/// Global chat histories manager
 #[derive(Clone)] // ← 添加这一行
-pub struct GlobalChatHistory(pub Arc<RwLock<ChatHistoryState>>);
+pub struct GlobalChatHistories(pub Arc<RwLock<ChatHistoriesState>>);
 
-impl GlobalChatHistory {
+impl GlobalChatHistories {
     pub fn new() -> Self {
-        Self(Arc::new(RwLock::new(ChatHistoryState::new())))
+        Self(Arc::new(RwLock::new(ChatHistoriesState::new())))
     }
     /// Add a message to a specific chat history
     pub async fn add_message(

@@ -12,7 +12,7 @@ mod my_windows;
 mod states;
 mod utils;
 
-use states::chat_history;
+use states::chat_histories;
 use states::setting_states;
 use tauri::Manager; // ← 添加这一行，非常重要！
 use tauri_plugin_notification::NotificationExt;
@@ -34,7 +34,7 @@ pub fn run() {
                 .unwrap();
         }))
         .manage(std::sync::Mutex::new(setting_states::AppState::default()))
-        .manage(chat_history::GlobalChatHistory::new())
+        .manage(chat_histories::GlobalChatHistories::new())
         .manage(my_api::commands::GlobalAPIManager(api_manager))
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_os::init())
@@ -95,7 +95,7 @@ pub fn run() {
 }
 // ✅ 翻译管理器初始化
 fn setup_translation_manager(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
-    let chat_history = app.state::<chat_history::GlobalChatHistory>();
+    let chat_history = app.state::<chat_histories::GlobalChatHistories>();
     let translation_mgr = translation_manager::TranslationManager::new(chat_history.inner());
     app.manage(translation_mgr);
     Ok(())
