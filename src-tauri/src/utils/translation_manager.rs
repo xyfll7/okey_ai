@@ -1,6 +1,5 @@
 use crate::states::chat_history::GlobalChatHistory;
-use crate::utils::chat_message::{ChatMessage, Role};
-use serde::{Deserialize, Serialize};
+use crate::utils::chat_message::ChatMessage;
 use std::collections::HashSet;
 use std::sync::Arc;
 use tauri::async_runtime::RwLock;
@@ -9,14 +8,14 @@ use uuid::Uuid;
 /// 翻译会话管理器
 #[derive(Clone)]
 pub struct TranslationManager {
-    chat_history: Arc<GlobalChatHistory>,
+    chat_history: GlobalChatHistory,
     active_sessions: Arc<RwLock<HashSet<String>>>,
 }
 
 impl TranslationManager {
-    pub fn new(chat_history: Arc<GlobalChatHistory>) -> Self {
+    pub fn new(chat_history: &GlobalChatHistory) -> Self {
         Self {
-            chat_history,
+            chat_history: chat_history.clone(), // 在这里 clone
             active_sessions: Arc::new(RwLock::new(HashSet::new())),
         }
     }

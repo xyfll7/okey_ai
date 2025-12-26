@@ -51,7 +51,6 @@ pub fn run() {
             my_command::chat,
             my_command::detect_language,
             my_shortcut::register_hotkey_okey_ai,
-            my_shortcut::register_hotkey_okey_ai,
             my_api::commands::initialize_api_manager,
             my_api::commands::switch_model,
             my_api::commands::get_current_model,
@@ -75,8 +74,7 @@ pub fn run() {
 
             my_tray::create_tray(&app.handle())?;
             crate::my_test::test();
-
-            // 新增：初始化翻译管理器
+            // ✅ 初始化翻译管理器
             setup_translation_manager(app)?;
             // 在 macOS 上隐藏 Dock 栏图标
             #[cfg(target_os = "macos")]
@@ -95,19 +93,10 @@ pub fn run() {
             }
         })
 }
-
-// 新增：翻译管理器初始化函数
+// ✅ 翻译管理器初始化
 fn setup_translation_manager(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
-    // 获取已注册的 GlobalChatHistory
     let chat_history = app.state::<chat_history::GlobalChatHistory>();
-
-    // 创建翻译管理器（共享 GlobalChatHistory）
-    let translation_mgr = translation_manager::TranslationManager::new(std::sync::Arc::new(
-        chat_history.inner().clone(),
-    ));
-
-    // 注册到 Tauri 状态
-    app.manage(translation_mgr.clone());
-
+    let translation_mgr = translation_manager::TranslationManager::new(chat_history.inner());
+    app.manage(translation_mgr);
     Ok(())
 }

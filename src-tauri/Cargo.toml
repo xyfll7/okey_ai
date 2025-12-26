@@ -30,7 +30,7 @@ mouse_position = "0.1.4"
 tauri-plugin-store = "2"
 tauri-plugin-notification = "2"
 device_query = "4.0.1"
-uuid = {version = "1.19.0", features = ["v4"]} 
+uuid = {version = "1.19.0", features = ["v4"] } 
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-global-shortcut = "2"
