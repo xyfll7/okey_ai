@@ -1,4 +1,4 @@
-use crate::utils::text_processing;
+use crate::utils::text_translation;
 use crate::my_windows;
 use device_query::{DeviceQuery, DeviceState, Keycode, MouseState};
 use std::thread;
@@ -80,7 +80,7 @@ impl TranslateBubbleHandler {
         my_windows::window_translate_bubble_show(
             app,
             Some(move || {
-                text_processing::translate_selected_text_bubble(&app_clone);
+                text_translation::translate_selected_text_bubble(&app_clone);
             }),
         );
     }
