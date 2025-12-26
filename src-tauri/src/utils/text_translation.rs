@@ -3,9 +3,8 @@ use crate::my_api::traits::ChatCompletionRequest;
 use crate::my_events::event_names;
 use crate::my_types::InputData;
 use crate::my_windows;
-use crate::states::chat_histories;
-use crate::utils;
 use crate::utils::chat_message::ChatMessage;
+use crate::utils::{self, translation_manager};
 use selection;
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -34,8 +33,6 @@ pub fn translate_selected_text(app_handle: &AppHandle) {
     let _ = app_handle.emit(event_names::AI_RESPONSE, &input_data);
     let app_handle = app_handle.clone();
     async_runtime::spawn(async move {
-        let api_manager_state = app_handle.state::<GlobalAPIManager>();
-
         let detected_lang = language_detection::detect_language(&selected_text);
 
         let translation_prompt = match detected_lang {
@@ -46,52 +43,26 @@ pub fn translate_selected_text(app_handle: &AppHandle) {
             ),
             _ => format!("请分析以下文本并给出总结：\n\n{}", selected_text),
         };
-        let chat_history_state = app_handle.state::<chat_histories::GlobalChatHistories>();
-        // 使用全局聊天历史记录
-        let history_key = "translate_session"; // 为翻译会话设置一个键
-        chat_history_state
-            .add_system_message(
-                history_key,
-                "你是一个专业的翻译助手。请准确地进行语言翻译，保持原文的含义和语气。".to_string(),
-            )
-            .await;
-        chat_history_state
-            .add_user_message(history_key, translation_prompt.to_string())
-            .await;
+        let translation_manager = app_handle.state::<translation_manager::TranslationManager>();
 
-        let messages = chat_history_state
-            .get_messages(history_key)
+        let history_key = translation_manager.create_session().await;
+
+        match translation_manager
+            .translate(&history_key, &translation_prompt)
             .await
-            .unwrap_or_default();
-        let request = ChatCompletionRequest {
-            model: "qwen-plus".to_string(),
-            messages: messages,
-            temperature: Some(0.1),
-            max_tokens: Some(500),
-            top_p: Some(1.0),
-            stream: None,
-        };
-        println!("request: {:?}", request);
-        match crate::my_api::commands::chat_completion(request, api_manager_state).await {
-            Ok(response) => {
-                if let Some(choice) = response.choices.first() {
-                    let content = choice.message.content.clone();
-                    // 添加助手回复到历史记录
-                    chat_history_state
-                        .add_assistant_message(history_key, content.clone())
-                        .await;
-                    let app_handle_clone = app_handle.clone();
-                    my_windows::window_translate_show(
-                        &app_handle,
-                        Some(move || {
-                            let _ = app_handle_clone.emit(event_names::AUTO_SPEAK, &input_data);
-                            let mut input_data_with_response = input_data_clone;
-                            input_data_with_response.response_text = Some(content);
-                            let _ = app_handle_clone
-                                .emit(event_names::AI_RESPONSE, &input_data_with_response);
-                        }),
-                    );
-                }
+        {
+            Ok(content) => {
+                let app_handle_clone = app_handle.clone();
+                my_windows::window_translate_show(
+                    &app_handle,
+                    Some(move || {
+                        let _ = app_handle_clone.emit(event_names::AUTO_SPEAK, &input_data);
+                        let mut input_data_with_response = input_data_clone;
+                        input_data_with_response.response_text = Some(content);
+                        let _ = app_handle_clone
+                            .emit(event_names::AI_RESPONSE, &input_data_with_response);
+                    }),
+                );
             }
             Err(e) => {
                 let app_handle_clone = app_handle.clone();

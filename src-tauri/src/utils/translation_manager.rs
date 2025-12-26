@@ -1,3 +1,5 @@
+use crate::my_api::manager::APIManager;
+use crate::my_api::traits::ChatCompletionRequest;
 use crate::states::chat_histories::GlobalChatHistories;
 use crate::utils::chat_message::ChatMessage;
 use std::collections::HashSet;
@@ -10,13 +12,15 @@ use uuid::Uuid;
 pub struct TranslationManager {
     chat_histories: GlobalChatHistories,
     active_sessions: Arc<RwLock<HashSet<String>>>,
+    api_manager: Arc<RwLock<APIManager>>,
 }
 
 impl TranslationManager {
-    pub fn new(chat_histories: &GlobalChatHistories) -> Self {
+    pub fn new(chat_histories: &GlobalChatHistories, api_manager: Arc<RwLock<APIManager>>) -> Self {
         Self {
-            chat_histories: chat_histories.clone(), // 在这里 clone
+            chat_histories: chat_histories.clone(),
             active_sessions: Arc::new(RwLock::new(HashSet::new())),
+            api_manager,
         }
     }
 
@@ -65,16 +69,39 @@ impl TranslationManager {
             .await
             .ok_or("无法获取会话历史")?;
 
-        // TODO: 这里调用你的 AI API
-        // 临时返回示例，你需要替换为实际的 API 调用
-        let response = format!("翻译结果: {}", text);
+        // 构建 API 请求
+        let request = ChatCompletionRequest {
+            model: "qwen-plus".to_string(),
+            messages: messages,
+            temperature: Some(0.1),
+            max_tokens: Some(500),
+            top_p: Some(1.0),
+            stream: None,
+        };
+        println!("request: {:?}", request);
+
+        // 调用 AI API
+        let manager = self.api_manager.read().await;
+        let response = manager
+            .chat_completion(&request)
+            .await
+            .map_err(|e| format!("API 调用失败: {}", e))?;
+
+        // 提取响应内容
+        let content = response
+            .choices
+            .first()
+            .ok_or("响应中没有选择项")?
+            .message
+            .content
+            .clone();
 
         // 保存助手回复
         self.chat_histories
-            .add_assistant_message(session_id, response.clone())
+            .add_assistant_message(session_id, content.clone())
             .await;
 
-        Ok(response)
+        Ok(content)
     }
 
     /// 获取会话历史

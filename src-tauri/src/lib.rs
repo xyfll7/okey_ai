@@ -96,7 +96,9 @@ pub fn run() {
 // ✅ 翻译管理器初始化
 fn setup_translation_manager(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     let chat_history = app.state::<chat_histories::GlobalChatHistories>();
-    let translation_mgr = translation_manager::TranslationManager::new(chat_history.inner());
+    let api_manager = app.state::<my_api::commands::GlobalAPIManager>();
+    let translation_mgr =
+        translation_manager::TranslationManager::new(chat_history.inner(), api_manager.0.clone());
     app.manage(translation_mgr);
     Ok(())
 }
