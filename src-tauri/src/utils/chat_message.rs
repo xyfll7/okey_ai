@@ -103,25 +103,21 @@ impl ChatMessageHistory {
     }
 
     /// Gets the number of messages in the history
-    #[allow(dead_code)]
     pub fn len(&self) -> usize {
         self.messages.len()
     }
 
     /// Checks if the history is empty
-    #[allow(dead_code)]
     pub fn is_empty(&self) -> bool {
         self.messages.is_empty()
     }
 
     /// Gets the last message in the history
-    #[allow(dead_code)]
     pub fn last(&self) -> Option<&ChatMessage> {
         self.messages.last()
     }
 
     /// Limits the history to the last N messages
-    #[allow(dead_code)]
     pub fn limit_messages(&mut self, count: usize) -> &mut Self {
         if self.messages.len() > count {
             let start_index = self.messages.len() - count;
@@ -130,7 +126,6 @@ impl ChatMessageHistory {
         self
     }
     /// Clears all messages from the history
-    #[allow(dead_code)]
     pub fn clear(&mut self) {
         self.messages.clear();
     }
