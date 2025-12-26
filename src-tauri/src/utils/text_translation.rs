@@ -9,11 +9,10 @@ use crate::utils::chat_message::ChatMessage;
 use selection;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use tauri::{async_runtime, Emitter, Manager};
 use tauri::AppHandle;
+use tauri::{async_runtime, Emitter, Manager};
 
 use crate::utils::{input_handling, language_detection};
-
 
 pub fn translate_selected_text(app_handle: &AppHandle) {
     let selected_text = selection::get_text();
@@ -36,7 +35,6 @@ pub fn translate_selected_text(app_handle: &AppHandle) {
     let app_handle = app_handle.clone();
     async_runtime::spawn(async move {
         let api_manager_state = app_handle.state::<GlobalAPIManager>();
-        let chat_history_state = app_handle.state::<chat_history::GlobalChatHistory>();
 
         let detected_lang = language_detection::detect_language(&selected_text);
 
@@ -48,7 +46,7 @@ pub fn translate_selected_text(app_handle: &AppHandle) {
             ),
             _ => format!("请分析以下文本并给出总结：\n\n{}", selected_text),
         };
-
+        let chat_history_state = app_handle.state::<chat_history::GlobalChatHistory>();
         // 使用全局聊天历史记录
         let history_key = "translate_session"; // 为翻译会话设置一个键
         chat_history_state
