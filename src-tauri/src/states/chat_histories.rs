@@ -28,13 +28,11 @@ impl ChatHistoriesState {
     }
 
     /// Remove a chat history for a specific key
-    #[allow(dead_code)]
     pub fn remove_history(&mut self, key: &str) {
         self.histories.remove(key);
     }
 
     /// Clear all chat histories
-    #[allow(dead_code)]
     pub fn clear_all(&mut self) {
         self.histories.clear();
     }
