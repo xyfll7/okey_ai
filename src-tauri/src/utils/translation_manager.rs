@@ -2,7 +2,6 @@ use crate::my_api::manager::APIManager;
 use crate::my_api::traits::ChatCompletionRequest;
 use crate::states::chat_histories::GlobalChatHistories;
 use crate::utils::chat_message::ChatMessage;
-use std::collections::HashSet;
 use std::sync::Arc;
 use tauri::async_runtime::RwLock;
 use uuid::Uuid;
@@ -11,7 +10,7 @@ use uuid::Uuid;
 #[derive(Clone)]
 pub struct TranslationManager {
     chat_histories: GlobalChatHistories,
-    active_sessions: Arc<RwLock<HashSet<String>>>,
+    active_session_id: Arc<RwLock<Option<String>>>,
     api_manager: Arc<RwLock<APIManager>>,
 }
 
@@ -19,12 +18,12 @@ impl TranslationManager {
     pub fn new(chat_histories: &GlobalChatHistories, api_manager: Arc<RwLock<APIManager>>) -> Self {
         Self {
             chat_histories: chat_histories.clone(),
-            active_sessions: Arc::new(RwLock::new(HashSet::new())),
+            active_session_id: Arc::new(RwLock::new(None)),
             api_manager,
         }
     }
 
-    /// 创建新的翻译会话
+    /// 创建新的翻译会话（自动设为活跃）
     pub async fn create_session(&self) -> String {
         let session_id = format!("translate_{}", Uuid::new_v4());
 
@@ -36,36 +35,40 @@ impl TranslationManager {
             )
             .await;
 
-        // 记录为活跃会话
-        let mut sessions = self.active_sessions.write().await;
-        sessions.insert(session_id.clone());
+        // 设置为当前活跃会话
+        let mut active_id = self.active_session_id.write().await;
+        *active_id = Some(session_id.clone());
 
         session_id
     }
 
-    /// 翻译文本
+    /// 翻译文本（session_id 为可选参数，未提供时使用活跃会话）
     pub async fn translate(
         &self,
-        session_id: &str,
+        session_id: Option<&str>,
         text: &str,
     ) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
-        // 验证会话
-        {
-            let sessions = self.active_sessions.read().await;
-            if !sessions.contains(session_id) {
-                return Err("会话不存在或已关闭".into());
+        // 确定要使用的会话ID
+        let session_id = match session_id {
+            Some(id) => id.to_string(),
+            None => {
+                let active_id = self.active_session_id.read().await;
+                active_id
+                    .as_ref()
+                    .ok_or("未提供 session_id 且当前没有活跃会话")?
+                    .clone()
             }
-        }
+        };
 
         // 添加用户消息
         self.chat_histories
-            .add_user_message(session_id, text.to_string())
+            .add_user_message(&session_id, text.to_string())
             .await;
 
         // 获取历史
         let messages = self
             .chat_histories
-            .get_messages(session_id)
+            .get_messages(&session_id)
             .await
             .ok_or("无法获取会话历史")?;
 
@@ -98,7 +101,7 @@ impl TranslationManager {
 
         // 保存助手回复
         self.chat_histories
-            .add_assistant_message(session_id, content.clone())
+            .add_assistant_message(&session_id, content.clone())
             .await;
 
         Ok(content)
@@ -109,28 +112,51 @@ impl TranslationManager {
         self.chat_histories.get_messages(session_id).await
     }
 
-    /// 关闭会话
-    pub async fn close_session(&self, session_id: &str) {
-        let mut sessions = self.active_sessions.write().await;
-        sessions.remove(session_id);
+    /// 获取当前活跃会话ID
+    pub async fn get_active_session_id(&self) -> Option<String> {
+        let active_id = self.active_session_id.read().await;
+        active_id.clone()
     }
 
-    /// 清理会话
+    /// 关闭当前活跃会话
+    pub async fn close_active_session(&self) {
+        let mut active_id = self.active_session_id.write().await;
+        *active_id = None;
+    }
+
+    /// 清理会话（包括其历史记录）
     pub async fn cleanup_session(&self, session_id: &str) {
         self.chat_histories.remove_history(session_id).await;
-        let mut sessions = self.active_sessions.write().await;
-        sessions.remove(session_id);
+
+        // 如果清理的是当前活跃会话，则清空活跃状态
+        let mut active_id = self.active_session_id.write().await;
+        if active_id.as_ref() == Some(&session_id.to_string()) {
+            *active_id = None;
+        }
     }
 
-    /// 定期清理不活跃的会话
+    /// 定期清理所有非活跃的翻译会话
     pub async fn cleanup_inactive_sessions(&self) {
-        let active = self.active_sessions.read().await;
+        let active_id = self.active_session_id.read().await;
         let state = self.chat_histories.0.read().await;
-        let all_keys: Vec<String> = state.histories.keys().cloned().collect();
+
+        // 获取所有翻译会话的 key
+        let all_keys: Vec<String> = state
+            .histories
+            .keys()
+            .filter(|k| k.starts_with("translate_"))
+            .cloned()
+            .collect();
         drop(state);
 
+        // 清理除了当前活跃会话外的所有翻译会话
         for key in all_keys {
-            if key.starts_with("translate_") && !active.contains(&key) {
+            if let Some(active) = &*active_id {
+                if key != *active {
+                    self.chat_histories.remove_history(&key).await;
+                }
+            } else {
+                // 如果没有活跃会话，清理所有翻译会话
                 self.chat_histories.remove_history(&key).await;
             }
         }

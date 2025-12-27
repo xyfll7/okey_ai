@@ -1,12 +1,11 @@
 use crate::utils::chat_message::{ChatMessage, Role};
+use crate::utils::{language_detection, translation_manager};
 use crate::{
     my_api::{commands::GlobalAPIManager, traits::ChatCompletionRequest},
     my_events::event_names,
-    my_types,
-    my_windows,
+    my_types, my_windows,
     states::setting_states,
 };
-use crate::utils::language_detection;
 use selection::get_text;
 use std::sync::Mutex;
 use tauri::{async_runtime, AppHandle, Emitter, Manager, State};
@@ -128,4 +127,26 @@ pub async fn command_window_translate_show(app: AppHandle, input_data: my_types:
             let _ = app_clone.emit(event_names::AI_RESPONSE, input_data);
         }),
     );
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub async fn translate_specified_text(app: AppHandle, specified_text: &str) -> Result<(), String> {
+    if specified_text.is_empty() {
+        return Ok(());
+    }
+    let translation_manager = app.state::<translation_manager::TranslationManager>();
+    match translation_manager.translate(None, specified_text).await {
+        Ok(content) => {
+            println!("Translated content=========: {}", content);
+            // let _ = app.emit(event_names::AUTO_SPEAK, &input_data);
+            // let mut input_data = input_data;
+            // input_data.response_text = Some(content);
+            // let _ = app.emit(event_names::AI_RESPONSE, &input_data);
+        }
+        Err(e) => {
+            let error_msg = e.to_string();
+            let _ = app.emit(event_names::AI_ERROR, error_msg);
+        }
+    }
+    Ok(())
 }

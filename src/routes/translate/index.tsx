@@ -401,21 +401,16 @@ function SelectedText({ selectedText }: { selectedText?: string }) {
 						"在句中的含义",
 						"讲解",
 						"解读",
-						"解读",
-						"解读",
-						"解读",
-						"解读",
-						"解读",
-						"解读",
-						"解读",
-						"解读",
-						"解读",
-					].map((i) => (
+					].map((e) => (
 						<Kbd
-							key={i}
+							key={e}
 							className=" cursor-pointer! rounded-full pointer-events-auto text-nowrap"
+							onClick={()=> {
+								invoke(EVENT_NAMES.TRANSLATE_SPECIFIED_TEXT, {specified_text:`${selectedText}\n${e}`});
+								console.log("click kbd", e, selectedText, );
+							}}
 						>
-							{i}
+							{e}
 						</Kbd>
 					))}
 					<Kbd className=" cursor-pointer! rounded-full pointer-events-auto text-nowrap">

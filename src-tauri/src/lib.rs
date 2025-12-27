@@ -50,6 +50,7 @@ pub fn run() {
             my_command::close_main_window,
             my_command::chat,
             my_command::detect_language,
+            my_command::translate_specified_text,
             my_shortcut::register_hotkey_okey_ai,
             my_api::commands::initialize_api_manager,
             my_api::commands::switch_model,

@@ -44,9 +44,9 @@ pub fn translate_selected_text(app_handle: &AppHandle) {
         };
         let translation_manager = app_handle.state::<translation_manager::TranslationManager>();
 
-        let history_key = translation_manager.create_session().await;
+        let _ = translation_manager.create_session().await;
         match translation_manager
-            .translate(&history_key, &translation_prompt)
+            .translate(None, &translation_prompt)
             .await
         {
             Ok(content) => {
