@@ -28,7 +28,6 @@ pub fn translate_selected_text(app_handle: &AppHandle) {
         input_text: selected_text.clone(),
         response_text: None,
     };
-    let input_data_clone = input_data.clone();
 
     let _ = app_handle.emit(event_names::AI_RESPONSE, &input_data);
     let app_handle = app_handle.clone();
@@ -46,7 +45,6 @@ pub fn translate_selected_text(app_handle: &AppHandle) {
         let translation_manager = app_handle.state::<translation_manager::TranslationManager>();
 
         let history_key = translation_manager.create_session().await;
-
         match translation_manager
             .translate(&history_key, &translation_prompt)
             .await
@@ -57,10 +55,9 @@ pub fn translate_selected_text(app_handle: &AppHandle) {
                     &app_handle,
                     Some(move || {
                         let _ = app_handle_clone.emit(event_names::AUTO_SPEAK, &input_data);
-                        let mut input_data_with_response = input_data_clone;
-                        input_data_with_response.response_text = Some(content);
-                        let _ = app_handle_clone
-                            .emit(event_names::AI_RESPONSE, &input_data_with_response);
+                        let mut input_data = input_data;
+                        input_data.response_text = Some(content);
+                        let _ = app_handle_clone.emit(event_names::AI_RESPONSE, &input_data);
                     }),
                 );
             }
