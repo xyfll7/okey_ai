@@ -1,0 +1,7 @@
+@layer utility {
+  .flex-coh {  
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+}
