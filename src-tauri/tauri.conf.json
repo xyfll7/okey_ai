@@ -1,0 +1,70 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "okey_ai",
+  "version": "0.1.0",
+  "identifier": "com.okey.dev",
+  "build": {
+    "frontendDist": "../build",
+    "devUrl": "http://localhost:3000",
+    "beforeDevCommand": "pnpm dev",
+    "beforeBuildCommand": "pnpm build"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Input method editor",
+        "label": "input_method_editor",
+        "url": "/input_method_editor",
+        "width": 13,
+        "height": 13,
+        "resizable": false,
+        "fullscreen": false,
+        "visible": false,
+        "skipTaskbar": true,
+        "decorations": false,
+        "transparent": true,
+        "hiddenTitle": true,
+        "alwaysOnTop": true,
+        "minimizable": false,
+        "maximizable": false,
+        "shadow": false,
+        "titleBarStyle": "Overlay"
+      },
+      {
+        "title": "Translate Bubble",
+        "label": "translate_bubble",
+        "url": "/translate_bubble",
+        "width": 13,
+        "height": 13,
+        "resizable": false,
+        "fullscreen": false,
+        "visible": false,
+        "skipTaskbar": true,
+        "decorations": false,
+        "transparent": true,
+        "hiddenTitle": true,
+        "alwaysOnTop": true,
+        "minimizable": false,
+        "maximizable": false,
+        "focusable": false,
+        "shadow": false,
+        "titleBarStyle": "Overlay"
+      }
+    ],
+    "security": {
+      "csp": null
+    },
+    "macOSPrivateApi": true
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  }
+}

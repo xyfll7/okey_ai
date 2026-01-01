@@ -1,0 +1,12 @@
+{
+  "identifier": "desktop-capability",
+  "platforms": ["macOS", "windows", "linux"],
+  "windows": ["translate", "translate_bubble"],
+  "permissions": [
+    "core:default",
+    "core:window:allow-start-dragging",
+    "notification:allow-is-permission-granted",
+    "store:default",
+    "global-shortcut:default"
+  ]
+}
