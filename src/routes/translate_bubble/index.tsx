@@ -1,13 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
-import { GripVertical, Maximize2, Volume2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import Copyed from "@/components/Copyed";
 import { Button } from "@/components/ui/button";
 import { EVENT_NAMES } from "@/lib/events";
 import { AutoSpeakState, type ChatMessage } from "@/lib/types";
 import { cn, speak } from "@/lib/utils";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { DragDropVerticalIcon, ArrowExpand01Icon, VolumeHighIcon } from "@hugeicons/core-free-icons";
 
 export const Route = createFileRoute("/translate_bubble/")({
 	component: RouteComponent,
@@ -80,7 +81,9 @@ function RouteComponent() {
 							onClick={() => {}}
 							data-tauri-drag-region
 						>
-							<GripVertical
+							<HugeiconsIcon 
+								icon={DragDropVerticalIcon}
+								strokeWidth={2}
 								className="cursor-grab  active:cursor-grabbing"
 								data-tauri-drag-region
 							/>
@@ -114,7 +117,10 @@ function RouteComponent() {
 						variant={"ghost"}
 						onClick={() => speak(chat?.content || "")}
 					>
-						<Volume2 />
+						<HugeiconsIcon 
+							icon={VolumeHighIcon}
+							strokeWidth={2}
+						/>
 					</Button>
 					<Button
 						className={cn("")}
@@ -127,7 +133,10 @@ function RouteComponent() {
 							});
 						}}
 					>
-						<Maximize2 />
+						<HugeiconsIcon 
+							icon={ArrowExpand01Icon}
+							strokeWidth={2}
+						/>
 					</Button>
 				</div>
 			</div>

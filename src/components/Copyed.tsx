@@ -1,9 +1,10 @@
-import { Check, Copy } from "lucide-react";
 import { useRef, useState } from "react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { CheckmarkCircle01Icon, Copy01Icon,Tick02Icon } from "@hugeicons/core-free-icons";
 
 const Copyed = ({ text, className }: { text?: string; className?: string }) => {
 	const [copied, setCopied] = useState(false);
-	const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+	const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const handleCopy = async (e: React.MouseEvent) => {
 		e.stopPropagation(); // 阻止事件冒泡到 Button
@@ -47,7 +48,7 @@ const Copyed = ({ text, className }: { text?: string; className?: string }) => {
 			className="inline-block"
 			style={{ pointerEvents: 'auto' }} // 关键：强制启用指针事件
 		>
-			{copied ? <Check className={className} /> : <Copy className={className} />}
+			{copied ? <HugeiconsIcon icon={Tick02Icon} className={className} strokeWidth={2}/> : <HugeiconsIcon icon={Copy01Icon} className={className} strokeWidth={2}/>}
 		</div>
 	);
 };

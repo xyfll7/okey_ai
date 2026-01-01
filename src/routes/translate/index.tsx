@@ -3,7 +3,6 @@ import { useStore } from "@tanstack/react-store";
 import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
 import { type as ostype } from "@tauri-apps/plugin-os";
-import { ArrowUpIcon, Pin, Plus, Volume2, X } from "lucide-react";
 import Markdown from "markdown-to-jsx";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
@@ -34,6 +33,8 @@ import { EVENT_NAMES } from "@/lib/events";
 import { AutoSpeakState, type ChatMessage } from "@/lib/types";
 import { cn, get_global_config, speak } from "@/lib/utils";
 import { s_Selected } from "@/store";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ArrowUpIcon, Pin02Icon, Add01Icon, VolumeUpIcon, VolumeHighIcon, Cancel01Icon } from "@hugeicons/core-free-icons";
 
 export const Route = createFileRoute("/translate/")({
 	component: RouteComponent,
@@ -155,7 +156,7 @@ function Header(props: React.ComponentProps<"div">) {
 					variant={"ghost"}
 					onClick={() => invoke(EVENT_NAMES.CLOSE_MAIN_WINDOW)}
 				>
-					<X size={"1rem"} />
+					<HugeiconsIcon icon={Cancel01Icon}  strokeWidth={2}/>
 				</Button>
 			)}
 		</div>
@@ -228,7 +229,7 @@ function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
 						setValue("");
 					}}
 				>
-					<ArrowUpIcon />
+					<HugeiconsIcon icon={ArrowUpIcon} strokeWidth={2}/>
 					<span className="sr-only">Send</span>
 				</InputGroupButton>
 			</InputGroupAddon>
@@ -308,7 +309,7 @@ function MessageItem({ chat }: { chat: ChatMessage }) {
 						<Copyed text={chat.content} />
 					</Button>
 					<Button size={"icon-sm"} variant={"ghost"}>
-						<Volume2 onClick={() => speak(chat.raw ?? chat.content)} />
+						<HugeiconsIcon icon={VolumeHighIcon} strokeWidth={2} onClick={() => speak(chat.raw ?? chat.content)} />
 					</Button>
 				</div>
 			</div>
@@ -336,7 +337,9 @@ function SelectedText() {
 				)}
 				{selected.text?.trim() && (
 					<Button size={"icon-sm"} variant={"ghost"}>
-						<Volume2
+						<HugeiconsIcon 
+							icon={VolumeUpIcon}
+							strokeWidth={2}
 							className={cn("mr-1 ")}
 							onClick={() => {
 								if (!selected.text) return;
@@ -362,7 +365,7 @@ function SelectedText() {
 						</Kbd>
 					))}
 					<Kbd>
-						<Plus/>
+						<HugeiconsIcon icon={Add01Icon} strokeWidth={2}/>
 					</Kbd>
 				</KbdGroup>
 			)}
@@ -386,9 +389,10 @@ function PinWindow({ className }: { className?: string }) {
 				setPin(await invoke<boolean>(EVENT_NAMES.TOGGLE_AUTO_CLOSE_WINDOW))
 			}
 		>
-			<Pin
-				size={"1rem"}
-				className={cn(pin && "text-green-300 dark:text-green-200")}
+			<HugeiconsIcon 
+				icon={Pin02Icon}
+				strokeWidth={2}
+				className={cn(pin && "text-green-300 dark:text-green-20")}
 			/>
 		</Button>
 	);

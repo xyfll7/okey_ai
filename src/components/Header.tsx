@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
-import { Home, Menu, X } from 'lucide-react'
 import { useState } from 'react'
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Home01Icon, Menu01Icon, Cancel01Icon } from "@hugeicons/core-free-icons";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
@@ -14,7 +15,7 @@ export default function Header() {
           aria-label="Open menu"
           type="button"
         >
-          <Menu size={24} />
+          <HugeiconsIcon icon={Menu01Icon}  strokeWidth={2}/>
         </button>
         <h1 className="ml-4 text-xl font-semibold">
           <Link to="/">
@@ -40,7 +41,7 @@ export default function Header() {
             aria-label="Close menu"
             type="button"
           >
-            <X size={24} />
+            <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2}/>
           </button>
         </div>
 
@@ -54,7 +55,7 @@ export default function Header() {
                 'flex items-center gap-3 p-3 rounded-lg bg-cyan-600 hover:bg-cyan-700 transition-colors mb-2',
             }}
           >
-            <Home size={20} />
+            <HugeiconsIcon icon={Home01Icon}  strokeWidth={2}/>
             <span className="font-medium">Home</span>
           </Link>
 
