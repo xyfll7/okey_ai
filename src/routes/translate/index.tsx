@@ -339,9 +339,9 @@ function SelectedText() {
 				{selected.text?.trim() && (
 					<Button size={"icon-sm"} variant={"ghost"}>
 						<HugeiconsIcon
-							icon={VolumeUpIcon}
+							icon={VolumeHighIcon}
 							strokeWidth={2}
-							className={cn("mr-1 ")}
+							className={cn("mr-1")}
 							onClick={() => {
 								if (!selected.text) return;
 								speak(selected.text);
