@@ -98,8 +98,8 @@ function Header(props: React.ComponentProps<"div">) {
 	useEffect(() => {
 		get_global_config().then((config) => {
 			setHotkey(
-				config?.shortcuts.find((item) => item.name === "okey_ai")?.hot_key ||
-					"",
+				config?.shortcuts.find((item) => item.name === "okey_ai")?.hot_key
+				|| "",
 			);
 		});
 	}, []);
@@ -128,7 +128,7 @@ function Header(props: React.ComponentProps<"div">) {
 				)}
 				<Tooltip>
 					<TooltipTrigger asChild>
-						<Button  size="icon-sm" variant="ghost">
+						<Button size="icon-sm" variant="ghost">
 							<AutoSpeakVolume />
 						</Button>
 					</TooltipTrigger>
@@ -157,7 +157,7 @@ function Header(props: React.ComponentProps<"div">) {
 					variant={"ghost"}
 					onClick={() => invoke(EVENT_NAMES.CLOSE_MAIN_WINDOW)}
 				>
-					<HugeiconsIcon icon={Cancel01Icon}  strokeWidth={2}/>
+					<HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} />
 				</Button>
 			)}
 		</div>
@@ -230,7 +230,7 @@ function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
 						setValue("");
 					}}
 				>
-					<HugeiconsIcon icon={ArrowUpIcon} strokeWidth={2}/>
+					<HugeiconsIcon icon={ArrowUpIcon} strokeWidth={2} />
 					<span className="sr-only">Send</span>
 				</InputGroupButton>
 			</InputGroupAddon>
@@ -338,7 +338,7 @@ function SelectedText() {
 				)}
 				{selected.text?.trim() && (
 					<Button size={"icon-sm"} variant={"ghost"}>
-						<HugeiconsIcon 
+						<HugeiconsIcon
 							icon={VolumeUpIcon}
 							strokeWidth={2}
 							className={cn("mr-1 ")}
@@ -366,7 +366,7 @@ function SelectedText() {
 						</Kbd>
 					))}
 					<Kbd>
-						<HugeiconsIcon icon={Add01Icon} strokeWidth={2}/>
+						<HugeiconsIcon icon={Add01Icon} strokeWidth={2} />
 					</Kbd>
 				</KbdGroup>
 			)}
@@ -390,7 +390,7 @@ function PinWindow({ className }: { className?: string }) {
 				setPin(await invoke<boolean>(EVENT_NAMES.TOGGLE_AUTO_CLOSE_WINDOW))
 			}
 		>
-			<HugeiconsIcon 
+			<HugeiconsIcon
 				icon={Pin02Icon}
 				strokeWidth={2}
 				className={cn(pin && "text-green-300 dark:text-green-20")}
