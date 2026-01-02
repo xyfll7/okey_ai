@@ -62,7 +62,7 @@ impl TranslationManager {
                 active_id.as_ref()?.clone()
             }
         };
-        print!("Translating text in session  {}", content);
+
         // 添加用户消息
         self.chat_histories
             .add_user_message(&session_id, content.to_string(), raw)
@@ -96,10 +96,7 @@ impl TranslationManager {
             .add_assistant_message(&session_id, content.clone(), None)
             .await;
         let chat_history = self.chat_histories.get_messages(&session_id).await?;
-        println!(
-            "Assistant response:\n {}",
-            serde_json::to_string_pretty(&chat_history).unwrap()
-        );
+
         self.chat_histories.get_messages(&session_id).await
     }
 
