@@ -322,7 +322,7 @@ function SelectedText() {
 	const selected = useStore(s_Selected, (state) => state);
 	if (!selected.text) return "";
 	return (
-		<div>
+		<div className="w-full">
 			<div className="w-full flex items-center">
 				<div className="max-w-full truncate overflow-hidden">
 					<span className={cn("mr-1")}>{selected.text}</span>
@@ -349,9 +349,11 @@ function SelectedText() {
 				)}
 			</div>
 			{selected.text?.trim() && (
-				<KbdGroup className="flex-wrap">
+				<div className="flex flex-wrap">
 					{["单词详解", "在句中的含义", "详解", "解读"].map((e) => (
-						<Kbd
+						<Button
+							size={"xs"}
+							variant={"secondary"}
 							key={e}
 							onClick={() => {
 								invoke(EVENT_NAMES.TRANSLATE_SPECIFIED_TEXT, {
@@ -361,12 +363,12 @@ function SelectedText() {
 							}}
 						>
 							{e}
-						</Kbd>
+						</Button>
 					))}
-					<Kbd>
+					<Button size={"xs"} variant={"secondary"}>
 						<HugeiconsIcon icon={Add01Icon} strokeWidth={2} />
-					</Kbd>
-				</KbdGroup>
+					</Button>
+				</div>
 			)}
 		</div>
 	);
