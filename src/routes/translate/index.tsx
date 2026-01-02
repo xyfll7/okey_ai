@@ -34,7 +34,7 @@ import { AutoSpeakState, type ChatMessage } from "@/lib/types";
 import { cn, get_global_config, speak } from "@/lib/utils";
 import { s_Selected } from "@/store";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowUpIcon, Pin02Icon, Add01Icon, VolumeUpIcon, VolumeHighIcon, Cancel01Icon } from "@hugeicons/core-free-icons";
+import { ArrowUpIcon, Pin02Icon, Add01Icon, VolumeHighIcon, Cancel01Icon } from "@hugeicons/core-free-icons";
 
 export const Route = createFileRoute("/translate/")({
 	component: RouteComponent,
@@ -61,7 +61,7 @@ function RouteComponent() {
 		};
 	}, []);
 	return (
-		<div className={cn("h-full", "flex-coh")}>
+		<div className={cn("bg-background", "h-full", "flex-coh")}>
 			<Header />
 			<div className="mb-2 h-full flex-coh">
 				<ChatList chatList={chatList.filter((e) => e.role !== "system")} />
@@ -332,7 +332,6 @@ function SelectedText() {
 						<Copyed
 							key={selected.text}
 							text={selected.text}
-							className={cn("mr-1 ")}
 						/>
 					</Button>
 				)}
@@ -341,7 +340,6 @@ function SelectedText() {
 						<HugeiconsIcon
 							icon={VolumeHighIcon}
 							strokeWidth={2}
-							className={cn("mr-1")}
 							onClick={() => {
 								if (!selected.text) return;
 								speak(selected.text);
