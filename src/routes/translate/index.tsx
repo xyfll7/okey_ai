@@ -324,7 +324,7 @@ function SelectedText() {
 		<div>
 			<div className="w-full flex items-center">
 				<div className="max-w-full truncate overflow-hidden">
-					<span className={cn("mr-1 opacity-50")}>{selected.text}</span>
+					<span className={cn("mr-1")}>{selected.text}</span>
 				</div>
 				{selected.text?.trim() && (
 					<Button size={"icon-sm"} variant={"ghost"}>
