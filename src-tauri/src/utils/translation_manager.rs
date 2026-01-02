@@ -95,7 +95,6 @@ impl TranslationManager {
         self.chat_histories
             .add_assistant_message(&session_id, content.clone(), None)
             .await;
-        let chat_history = self.chat_histories.get_messages(&session_id).await?;
 
         self.chat_histories.get_messages(&session_id).await
     }
