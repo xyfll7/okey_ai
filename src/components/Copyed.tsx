@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
-import { CheckmarkCircle01Icon, Copy01Icon,Tick02Icon } from "@hugeicons/core-free-icons";
+import { Copy01Icon,Tick02Icon } from "@hugeicons/core-free-icons";
 
 const Copyed = ({ text, className }: { text?: string; className?: string }) => {
 	const [copied, setCopied] = useState(false);
