@@ -106,6 +106,7 @@ function Header(props: React.ComponentProps<"div">) {
 	return (
 		<div
 			className={cn(
+				"pt-1",
 				"flex items-center",
 				{ "justify-between": _ostype === "linux" },
 				{ "justify-between": _ostype === "windows" },
@@ -127,7 +128,7 @@ function Header(props: React.ComponentProps<"div">) {
 				)}
 				<Tooltip>
 					<TooltipTrigger asChild>
-						<Button size="icon-sm" variant="ghost">
+						<Button  size="icon-sm" variant="ghost">
 							<AutoSpeakVolume />
 						</Button>
 					</TooltipTrigger>
