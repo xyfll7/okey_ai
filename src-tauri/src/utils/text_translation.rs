@@ -68,7 +68,7 @@ pub fn translate_selected_text_bubble(app_handle: &AppHandle) {
     if selected_text.is_empty() {
         return;
     }
-
+    println!("selected_text: {}", selected_text);
     let app_handle = app_handle.clone();
     async_runtime::spawn(async move {
         let detected_lang = language_detection::detect_language(&selected_text);
