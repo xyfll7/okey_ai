@@ -308,8 +308,8 @@ function MessageItem({ chat, className }: { chat: ChatMessage, className?: strin
 					<Button size={"icon-sm"} variant={"ghost"}>
 						<Copyed text={chat.content} />
 					</Button>
-					<Button size={"icon-sm"} variant={"ghost"}>
-						<HugeiconsIcon icon={VolumeHighIcon} strokeWidth={2} onClick={() => speak(chat.raw ?? chat.content)} />
+					<Button size={"icon-sm"} variant={"ghost"} onClick={() => speak(chat.raw ?? chat.content)} >
+						<HugeiconsIcon icon={VolumeHighIcon} strokeWidth={2} />
 					</Button>
 				</div>
 			</div>
