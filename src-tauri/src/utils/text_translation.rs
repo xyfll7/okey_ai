@@ -34,7 +34,8 @@ pub fn translate_selected_text(app_handle: &AppHandle) {
                 &translation_prompt,
                 Some(selected_text),
                 |chat_history| {
-                    let _ = app_handle.emit(event_names::BUBBLE_AUTO_SPEAK, chat_history);
+                    let _ = app_handle.emit(event_names::BUBBLE_AUTO_SPEAK, &chat_history);
+                    let _ = app_handle.emit(event_names::AI_RESPONSE, &chat_history);
                 },
             )
             .await
@@ -89,7 +90,8 @@ pub fn translate_selected_text_bubble(app_handle: &AppHandle) {
                 &translation_prompt,
                 Some(selected_text),
                 |chat_history| {
-                    let _ = app_handle.emit(event_names::BUBBLE_AUTO_SPEAK, chat_history);
+                    let _ = app_handle.emit(event_names::BUBBLE_AUTO_SPEAK, &chat_history);
+                    let _ = app_handle.emit(event_names::AI_RESPONSE, &chat_history);
                 },
             )
             .await

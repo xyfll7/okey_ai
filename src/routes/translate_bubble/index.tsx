@@ -90,7 +90,7 @@ function RouteComponent() {
 						</Button>
 					</div>
 					<div className="flex text-nowrap overflow-hidden flex-1">
-						<span>{chat?.content} </span>
+						<span>{chat?.raw ?? chat?.content} </span>
 						{chat?.content ? (
 							<span
 								className="truncate text-transparent selection:bg-transparent cursor-grab hover:cursor-grabbing"
