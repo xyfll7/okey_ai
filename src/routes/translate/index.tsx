@@ -250,7 +250,7 @@ function ChatList({ chatList }: { chatList: ChatMessage[] }) {
 			<div role="none" className="pt-2 px-2 max-w-screen flex-coh">
 				{chatList.map((chat, index) => {
 					return (
-						<MessageItem key={`chat-${chat.content}-${index}`} chat={chat} />
+						<MessageItem className="mb-2" key={`chat-${chat.content}-${index}`} chat={chat} />
 					);
 				})}
 				<div ref={messagesEndRef} />
@@ -259,7 +259,7 @@ function ChatList({ chatList }: { chatList: ChatMessage[] }) {
 	);
 }
 
-function MessageItem({ chat }: { chat: ChatMessage }) {
+function MessageItem({ chat, className }: { chat: ChatMessage, className?: string }) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const isMouseInsideRef = useRef<boolean>(false);
 
@@ -297,12 +297,12 @@ function MessageItem({ chat }: { chat: ChatMessage }) {
 		<div
 			ref={containerRef}
 			role="none"
-			className="px-2 mb-4 w-full"
+			className={cn(className, "px-2 w-full")}
 			onMouseUp={extractSelectedText}
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}
 		>
-			<div className="mb-2 wrap-break-word ">
+			<div className="wrap-break-word ">
 				<Markdown className="mb-2">{chat.raw ?? chat.content}</Markdown>
 				<div className="flex items-center">
 					<Button size={"icon-sm"} variant={"ghost"}>
