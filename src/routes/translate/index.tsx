@@ -69,7 +69,7 @@ function RouteComponent() {
 
 			<div className="px-2">
 				<Inputer
-					onEnter={(e) => {
+					onEnter={() => {
 						setChatList((list) => [
 							...list,
 							{
