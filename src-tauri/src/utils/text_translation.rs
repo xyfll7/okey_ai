@@ -45,7 +45,13 @@ pub fn translate_selected_text(app_handle: &AppHandle) {
                 my_windows::window_translate_show(
                     &app_handle,
                     Some(move || {
-                        let _ = app_handle_clone.emit(event_names::AI_RESPONSE, &chat_history);
+                        let app_handle_clone_for_delay = app_handle_clone.clone();
+                        let chat_history_clone = chat_history.clone();
+                        std::thread::spawn(move || {
+                            std::thread::sleep(std::time::Duration::from_millis(100));
+                            let _ = app_handle_clone_for_delay
+                                .emit(event_names::AI_RESPONSE, &chat_history_clone);
+                        });
                     }),
                 );
             }
@@ -110,12 +116,6 @@ pub fn translate_selected_text_bubble(app_handle: &AppHandle) {
             None => {
                 let app_handle_clone = app_handle.clone();
                 let error_msg = "翻译失败".to_string();
-                my_windows::window_translate_show(
-                    &app_handle,
-                    Some(move || {
-                        let _ = app_handle_clone.emit(event_names::AI_ERROR, error_msg);
-                    }),
-                );
             }
         }
     });

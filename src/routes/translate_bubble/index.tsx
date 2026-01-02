@@ -44,7 +44,6 @@ function RouteComponent() {
 			},
 		);
 		const unlistenError = listen<string>(EVENT_NAMES.AI_ERROR, () => {});
-		emit(EVENT_NAMES.PAGE_LOADED, { ok: true });
 		return () => {
 			unlistenClean.then((fn) => fn());
 			unlistenSpeak.then((fn) => fn());

@@ -44,7 +44,10 @@ function RouteComponent() {
 	useEffect(() => {
 		const unlistenResponse = listen<ChatMessage[]>(
 			EVENT_NAMES.AI_RESPONSE,
-			({ payload }) => setChatList(payload),
+			({ payload }) => {
+				console.log("OOOOOO来了");
+				setChatList(payload)
+			},
 		);
 		const unlistenError = listen<string>(EVENT_NAMES.AI_ERROR, (event) => {
 			const errorPayload: ChatMessage = {
