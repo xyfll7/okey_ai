@@ -25,7 +25,6 @@ function RouteComponent() {
 			({ payload }) => {
 				const chat = payload.at(-1);
 				const content = chat?.raw ?? chat?.content ?? "";
-				console.log("11111", content);
 				invoke<AutoSpeakState>(EVENT_NAMES.GET_AUTO_SPEAK_STATE).then((res) => {
 					const isSingleWord = content.trim().split(/\s+/).length === 1;
 					if (
@@ -40,10 +39,11 @@ function RouteComponent() {
 		const unlistenResponse = listen<ChatMessage[]>(
 			EVENT_NAMES.AI_RESPONSE,
 			({ payload }) => {
+				console.log(":::oo", payload)
 				setChatHistory(payload);
 			},
 		);
-		const unlistenError = listen<string>(EVENT_NAMES.AI_ERROR, () => {});
+		const unlistenError = listen<string>(EVENT_NAMES.AI_ERROR, () => { });
 		return () => {
 			unlistenClean.then((fn) => fn());
 			unlistenSpeak.then((fn) => fn());
@@ -52,6 +52,7 @@ function RouteComponent() {
 		};
 	}, []);
 	const chat = chatHistory?.at(-1);
+
 	return (
 		<div className=" h-full p-px ">
 			<div
@@ -77,10 +78,10 @@ function RouteComponent() {
 							)}
 							size={"icon-sm"}
 							variant={"ghost"}
-							onClick={() => {}}
+							onClick={() => { }}
 							data-tauri-drag-region
 						>
-							<HugeiconsIcon 
+							<HugeiconsIcon
 								icon={DragDropVerticalIcon}
 								strokeWidth={2}
 								className="cursor-grab  active:cursor-grabbing"
@@ -116,7 +117,7 @@ function RouteComponent() {
 						variant={"ghost"}
 						onClick={() => speak(chat?.content || "")}
 					>
-						<HugeiconsIcon 
+						<HugeiconsIcon
 							icon={VolumeHighIcon}
 							strokeWidth={2}
 						/>
@@ -132,7 +133,7 @@ function RouteComponent() {
 							});
 						}}
 					>
-						<HugeiconsIcon 
+						<HugeiconsIcon
 							icon={ArrowExpand01Icon}
 							strokeWidth={2}
 						/>
