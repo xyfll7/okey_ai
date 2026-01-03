@@ -51,7 +51,12 @@ function RouteComponent() {
 			unlistenError.then((fn) => fn());
 		};
 	}, []);
-	const chat = chatHistory?.at(-1);
+	const chat = (() => {
+		let item = chatHistory?.at(-1);
+		if (item?.role === "assistant") {
+			return item
+		}
+	})()
 
 	return (
 		<div className=" h-full p-px ">
@@ -90,7 +95,7 @@ function RouteComponent() {
 						</Button>
 					</div>
 					<div className="flex text-nowrap overflow-hidden flex-1">
-						<span>{chat?.raw ?? chat?.content} </span>
+						<span>{chat ? (chat?.raw ?? chat?.content) : "..."} </span>
 						{chat?.content ? (
 							<span
 								className="truncate text-transparent selection:bg-transparent cursor-grab hover:cursor-grabbing"
