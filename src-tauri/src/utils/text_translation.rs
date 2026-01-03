@@ -1,14 +1,13 @@
 use crate::my_events::event_names;
 use crate::my_windows;
 use crate::utils::{self, translation_manager};
-use selection;
 use tauri::AppHandle;
 use tauri::{async_runtime, Emitter, Manager};
 
 use crate::utils::language_detection;
 
 pub fn translate_selected_text(app_handle: &AppHandle) {
-    let selected_text = selection::get_text();
+    let selected_text = crate::utils::selecte_text::get_selected_text();
     if selected_text.is_empty() {
         return;
     }
@@ -73,7 +72,7 @@ pub fn translate_selected_text(app_handle: &AppHandle) {
 }
 
 pub fn translate_selected_text_bubble(app_handle: &AppHandle) {
-    let selected_text = selection::get_text();
+    let selected_text = crate::utils::selecte_text::get_selected_text();
     if selected_text.is_empty() {
         return;
     }
