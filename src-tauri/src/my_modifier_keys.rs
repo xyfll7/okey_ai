@@ -173,14 +173,13 @@ pub fn init_global_input_listener(app: &AppHandle) -> Result<(), Box<dyn std::er
             // 获取输入状态
             let keys = device_state.get_keys();
             let mouse = device_state.get_mouse();
-
             // 分别处理三个业务逻辑
             ime_handler.handle(&keys, &app_clone);
             translate_handler.handle(&keys, &app_clone);
             click_handler.handle(&mouse, &app_clone);
 
             // 统一的轮询间隔
-            thread::sleep(Duration::from_millis(10));
+            thread::sleep(Duration::from_millis(16));
         }
     });
 
