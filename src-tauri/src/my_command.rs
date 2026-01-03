@@ -133,7 +133,7 @@ pub async fn translate_specified_text(app: AppHandle, specified_text: &str) -> R
     }
     let translation_manager = app.state::<translation_manager::TranslationManager>();
     match translation_manager
-        .translate(None, specified_text, None, |_| {})
+        .translate(None, specified_text, None, |_| async {})
         .await
     {
         Some(chat_histories) => {

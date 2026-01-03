@@ -2,6 +2,7 @@ use crate::my_api::manager::APIManager;
 use crate::my_api::traits::ChatCompletionRequest;
 use crate::states::chat_histories::GlobalChatHistories;
 use crate::utils::chat_message::ChatMessage;
+use std::future::Future;
 use std::sync::Arc;
 use tauri::async_runtime::RwLock;
 use uuid::Uuid;
@@ -44,7 +45,7 @@ impl TranslationManager {
     }
 
     /// 翻译文本（session_id 为可选参数，未提供时使用活跃会话）
-    pub async fn translate<F>(
+    pub async fn translate<F, Fut>(
         &self,
         session_id: Option<&str>,
         content: &str,
@@ -52,7 +53,8 @@ impl TranslationManager {
         callback: F,
     ) -> Option<Vec<ChatMessage>>
     where
-        F: FnOnce(Vec<ChatMessage>),
+        F: FnOnce(Vec<ChatMessage>) -> Fut,
+        Fut: Future<Output = ()> + Send + 'static,
     {
         // 确定要使用的会话ID
         let session_id = match session_id {
@@ -72,7 +74,7 @@ impl TranslationManager {
         let messages = self.chat_histories.get_messages(&session_id).await?;
 
         // 调用回调函数
-        callback(messages.clone());
+        callback(messages.clone()).await;
 
         // 构建 API 请求
         let request = ChatCompletionRequest {
