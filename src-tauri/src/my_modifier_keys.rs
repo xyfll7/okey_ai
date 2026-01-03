@@ -180,7 +180,7 @@ pub fn init_global_input_listener(app: &AppHandle) -> Result<(), Box<dyn std::er
             click_handler.handle(&mouse, &app_clone);
 
             // 统一的轮询间隔
-            thread::sleep(Duration::from_millis(16));
+            thread::sleep(Duration::from_millis(10));
         }
     });
 
