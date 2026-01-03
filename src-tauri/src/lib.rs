@@ -4,6 +4,7 @@ mod my_config;
 mod my_events;
 mod my_logging;
 mod my_modifier_keys;
+mod my_rdev;
 mod my_shortcut;
 mod my_test;
 mod my_tray;
@@ -73,6 +74,7 @@ pub fn run() {
 
             my_tray::create_tray(&app.handle())?;
             crate::my_test::test();
+            crate::my_rdev::test();
             // ✅ 初始化翻译管理器
             setup_translation_manager(app)?;
             // 在 macOS 上隐藏 Dock 栏图标
