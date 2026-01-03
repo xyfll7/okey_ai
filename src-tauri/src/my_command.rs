@@ -6,16 +6,9 @@ use crate::{
     my_windows,
     states::setting_states,
 };
-use selection::get_text;
+
 use std::sync::Mutex;
 use tauri::{async_runtime, AppHandle, Emitter, Manager, State};
-
-#[tauri::command]
-pub fn get_selection_text() -> String {
-    let text = get_text();
-    println!("{}", text);
-    text
-}
 
 #[tauri::command]
 pub fn close_main_window(app: AppHandle) -> Result<(), String> {

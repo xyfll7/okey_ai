@@ -41,7 +41,6 @@ pub fn run() {
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
-            my_command::get_selection_text,
             my_command::toggle_auto_close_translate,
             my_command::get_auto_close_translate_state,
             my_command::toggle_auto_speak,
