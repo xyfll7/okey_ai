@@ -104,7 +104,6 @@ impl TranslateBubbleHandler {
 struct ClickOutsideHandler {
     mouse_x: i32,
     mouse_y: i32,
-    prev_left_pressed: bool,
 }
 
 impl ClickOutsideHandler {
@@ -112,7 +111,6 @@ impl ClickOutsideHandler {
         Self {
             mouse_x: 0,
             mouse_y: 0,
-            prev_left_pressed: false,
         }
     }
 
@@ -121,38 +119,32 @@ impl ClickOutsideHandler {
         self.mouse_y = y as i32;
     }
 
-    fn handle(&mut self, is_left_pressed: bool, app: &AppHandle) {
+    fn handle_click(&mut self, app: &AppHandle) {
         if let Some(window) = app.get_webview_window("translate_bubble") {
             // 只有当窗口可见时才需要检测点击外部
             if window.is_visible().unwrap_or(false) {
-                // 检测到左键"按下瞬间"（从释放到按下），视为一次点击
-                if !self.prev_left_pressed && is_left_pressed {
-                    if let (Ok(pos), Ok(size)) = (window.outer_position(), window.outer_size()) {
-                        let win_x = pos.x;
-                        let win_y = pos.y;
-                        let win_w = size.width as i32;
-                        let win_h = size.height as i32;
+                if let (Ok(pos), Ok(size)) = (window.outer_position(), window.outer_size()) {
+                    let win_x = pos.x;
+                    let win_y = pos.y;
+                    let win_w = size.width as i32;
+                    let win_h = size.height as i32;
 
-                        // 判断点击是否在窗口内部
-                        let inside = self.mouse_x >= win_x
-                            && self.mouse_x <= win_x + win_w
-                            && self.mouse_y >= win_y
-                            && self.mouse_y <= win_y + win_h;
+                    // 判断点击是否在窗口内部
+                    let inside = self.mouse_x >= win_x
+                        && self.mouse_x <= win_x + win_w
+                        && self.mouse_y >= win_y
+                        && self.mouse_y <= win_y + win_h;
 
-                        // 如果点击在外部 → 隐藏窗口
-                        if !inside {
-                            let _ = window.hide();
-                            let _ = app.emit(event_names::BUBBLE_CLEAN, {});
-                        }
+                    // 如果点击在外部 → 隐藏窗口
+                    if !inside {
+                        let _ = window.hide();
+                        let _ = app.emit(event_names::BUBBLE_CLEAN, {});
                     }
                 }
-
-                self.prev_left_pressed = is_left_pressed;
             }
         }
     }
 }
-
 // 统一的初始化函数
 pub fn init_global_input_listener(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     let app_clone = app.clone();
@@ -199,10 +191,8 @@ pub fn init_global_input_listener(app: &AppHandle) -> Result<(), Box<dyn std::er
                     state.click_handler.update_mouse_position(x, y);
                 }
                 EventType::ButtonPress(Button::Left) => {
-                    state.click_handler.handle(true, &app);
-                }
-                EventType::ButtonRelease(Button::Left) => {
-                    state.click_handler.handle(false, &app);
+                    // 在按下时立即检测并处理
+                    state.click_handler.handle_click(&app);
                 }
                 _ => {}
             }
