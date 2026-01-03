@@ -54,14 +54,18 @@ impl InputMethodEditorHandler {
 // 业务逻辑2: 翻译气泡快捷键
 struct TranslateBubbleHandler {
     was_pressed: bool,
-    last_press: Option<std::time::Instant>,
+    last_press_time: Option<std::time::Instant>,
+    last_release_time: Option<std::time::Instant>,
+    double_click_timeout: u128,
 }
 
 impl TranslateBubbleHandler {
     fn new() -> Self {
         Self {
             was_pressed: false,
-            last_press: None,
+            last_press_time: None,
+            last_release_time: None,
+            double_click_timeout: 1000,
         }
     }
 
@@ -74,20 +78,21 @@ impl TranslateBubbleHandler {
         let now = std::time::Instant::now();
 
         if is_pressed && !self.was_pressed {
-            if let Some(last_press_time) = self.last_press {
-                let elapsed = now.duration_since(last_press_time);
+            self.last_press_time = Some(now);
+        }
 
-                if elapsed.as_millis() < 600 {
-                    // 双击间隔有效，触发动作
+        if !is_pressed && self.was_pressed {
+            if let Some(last_release) = self.last_release_time {
+                let elapsed = now.duration_since(last_release);
+
+                if elapsed.as_millis() < self.double_click_timeout {
                     self.trigger_action(app);
-                    self.last_press = None; // 触发后清空
+                    self.last_release_time = Some(now);
                 } else {
-                    // 间隔太长，视为新的一次点击
-                    self.last_press = Some(now);
+                    self.last_release_time = Some(now);
                 }
             } else {
-                // 第一次按下
-                self.last_press = Some(now);
+                self.last_release_time = Some(now);
             }
         }
 
@@ -104,6 +109,7 @@ impl TranslateBubbleHandler {
         );
     }
 }
+
 // 业务逻辑3: 点击外部监听器
 struct ClickOutsideHandler {
     prev_left_pressed: bool,
@@ -174,7 +180,7 @@ pub fn init_global_input_listener(app: &AppHandle) -> Result<(), Box<dyn std::er
             click_handler.handle(&mouse, &app_clone);
 
             // 统一的轮询间隔
-            thread::sleep(Duration::from_millis(70));
+            thread::sleep(Duration::from_millis(16));
         }
     });
 
