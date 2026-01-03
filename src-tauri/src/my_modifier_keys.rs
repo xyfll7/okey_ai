@@ -146,7 +146,7 @@ impl ClickOutsideHandler {
 
                         // 如果点击在外部 → 隐藏窗口
                         if !inside {
-                            // let _ = window.hide();
+                            let _ = window.hide();
                             let _ = app.emit(event_names::BUBBLE_CLEAN, {});
                         }
                     }
