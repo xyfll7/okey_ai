@@ -63,7 +63,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { HugeiconsIcon } from "@hugeicons/react";
 import { PlusSign, Bluetooth, MoreVerticalCircle01, File, Folder, FolderOpen, Code, MoreHorizontalCircle01, Search, FloppyDisk, Download, Eye, Layout, PaintBoard, Sun, Moon, Computer, User, CreditCard, Settings, Keyboard, LanguageCircle, Notification, Mail, Shield, HelpCircle, File01, Logout } from "@/components/icons/hugeicons";
 
 export function ComponentExample() {
