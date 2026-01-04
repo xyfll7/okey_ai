@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { invoke } from "@tauri-apps/api/core";
-import { emit, listen } from "@tauri-apps/api/event";
+import { listen } from "@tauri-apps/api/event";
 import { useEffect, useState } from "react";
 import Copyed from "@/components/Copyed";
 import { Button } from "@/components/ui/button";
@@ -39,7 +39,6 @@ function RouteComponent() {
 		const unlistenResponse = listen<ChatMessage[]>(
 			EVENT_NAMES.AI_RESPONSE,
 			({ payload }) => {
-				console.log(":::oo", payload)
 				setChatHistory(payload);
 			},
 		);
@@ -53,9 +52,7 @@ function RouteComponent() {
 	}, []);
 	const chat = (() => {
 		let item = chatHistory?.at(-1);
-		if (item?.role === "assistant") {
-			return item
-		}
+		return item?.role === "assistant" ? item : undefined
 	})()
 
 	return (
