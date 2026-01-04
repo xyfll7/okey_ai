@@ -2,8 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
 import { EVENT_NAMES } from "@/lib/events";
 import { AutoSpeakState } from "@/lib/types";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { VolumeLowIcon, VolumeHighIcon, VolumeOffIcon } from "@hugeicons/core-free-icons";
+import { VolumeLow, VolumeHigh, VolumeOff } from "@/components/icons/hugeicons";
 
 const AutoSpeakVolume = ({className}:{className?:string}) => {
 	const [autoSpeak, setAutoSpeak] = useState<AutoSpeakState>(
@@ -26,9 +25,9 @@ const AutoSpeakVolume = ({className}:{className?:string}) => {
 		>
 			{
 				{
-					[AutoSpeakState.Off]: <HugeiconsIcon icon={VolumeOffIcon} className={className} strokeWidth={2}/>,
-					[AutoSpeakState.Single]: <HugeiconsIcon icon={VolumeLowIcon} className={className} strokeWidth={2}/>,
-					[AutoSpeakState.All]: <HugeiconsIcon icon={VolumeHighIcon} className={className} strokeWidth={2}/>,
+					[AutoSpeakState.Off]: <VolumeOff className={className} strokeWidth={2}/>,
+					[AutoSpeakState.Single]: <VolumeLow className={className} strokeWidth={2}/>,
+					[AutoSpeakState.All]: <VolumeHigh className={className} strokeWidth={2}/>,
 				}[autoSpeak]
 			}
 		</div>

@@ -32,8 +32,7 @@ import { EVENT_NAMES } from "@/lib/events";
 import { AutoSpeakState, type ChatMessage } from "@/lib/types";
 import { cn, get_global_config, speak } from "@/lib/utils";
 import { s_Selected } from "@/store";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { ArrowUpIcon, Pin02Icon, Add01Icon, VolumeHighIcon, Cancel01Icon } from "@hugeicons/core-free-icons";
+import { ArrowUp, Pin02, Add01, VolumeHigh, Cancel01 } from "@/components/icons/hugeicons";
 
 export const Route = createFileRoute("/translate/")({
 	component: RouteComponent,
@@ -159,7 +158,7 @@ function Header(props: React.ComponentProps<"div">) {
 					variant={"ghost"}
 					onClick={() => invoke(EVENT_NAMES.CLOSE_MAIN_WINDOW)}
 				>
-					<HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} />
+					<Cancel01 strokeWidth={2} />
 				</Button>
 			)}
 		</div>
@@ -232,7 +231,7 @@ function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
 						setValue("");
 					}}
 				>
-					<HugeiconsIcon icon={ArrowUpIcon} strokeWidth={2} />
+					<ArrowUp strokeWidth={2} />
 					<span className="sr-only">Send</span>
 				</InputGroupButton>
 			</InputGroupAddon>
@@ -312,7 +311,7 @@ function MessageItem({ chat, className }: { chat: ChatMessage, className?: strin
 						<Copyed text={chat.content} />
 					</Button>
 					<Button size={"icon-sm"} variant={"ghost"} onClick={() => speak(chat.raw ?? chat.content)} >
-						<HugeiconsIcon icon={VolumeHighIcon} strokeWidth={2} />
+						<VolumeHigh strokeWidth={2} />
 					</Button>
 				</div>
 			</div>
@@ -325,7 +324,7 @@ function SelectedText() {
 	if (!selected.text) return "";
 	return (
 		<div className="w-full">
-			<div className="w-full flex items-center">
+			<div className="w-full flex items-center mb-1">
 				<div className="max-w-full truncate overflow-hidden">
 					<span className={cn("mr-1")}>{selected.text}</span>
 				</div>
@@ -339,8 +338,7 @@ function SelectedText() {
 				)}
 				{selected.text?.trim() && (
 					<Button size={"icon-sm"} variant={"ghost"}>
-						<HugeiconsIcon
-							icon={VolumeHighIcon}
+						<VolumeHigh
 							strokeWidth={2}
 							onClick={() => {
 								if (!selected.text) return;
@@ -352,10 +350,11 @@ function SelectedText() {
 			</div>
 			{selected.text?.trim() && (
 				<div className="flex flex-wrap">
-					{["单词详解", "在句中的含义", "详解", "解读"].map((e) => (
+					{["单词详解", "在句中的含义", "详解", "解读", "解读", "解读", "解读", "解读"].map((e,i) => (
 						<Button
+							className="mr-1 mb-1"
 							size={"xs"}
-							variant={"secondary"}
+							variant={"outline"}
 							key={e}
 							onClick={() => {
 								invoke(EVENT_NAMES.TRANSLATE_SPECIFIED_TEXT, {
@@ -367,8 +366,8 @@ function SelectedText() {
 							{e}
 						</Button>
 					))}
-					<Button size={"xs"} variant={"secondary"}>
-						<HugeiconsIcon icon={Add01Icon} strokeWidth={2} />
+					<Button size={"xs"} variant={"outline"}>
+						<Add01 strokeWidth={2} />
 					</Button>
 				</div>
 			)}
@@ -392,8 +391,7 @@ function PinWindow({ className }: { className?: string }) {
 				setPin(await invoke<boolean>(EVENT_NAMES.TOGGLE_AUTO_CLOSE_WINDOW))
 			}
 		>
-			<HugeiconsIcon
-				icon={Pin02Icon}
+			<Pin02
 				strokeWidth={2}
 				className={cn(pin && "text-green-300 dark:text-green-20")}
 			/>

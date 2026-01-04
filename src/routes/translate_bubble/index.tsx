@@ -7,8 +7,7 @@ import { Button } from "@/components/ui/button";
 import { EVENT_NAMES } from "@/lib/events";
 import { AutoSpeakState, type ChatMessage } from "@/lib/types";
 import { cn, speak } from "@/lib/utils";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { DragDropVerticalIcon, ArrowExpand01Icon, VolumeHighIcon } from "@hugeicons/core-free-icons";
+import { DragDropVertical, ArrowExpand01, VolumeHigh } from "@/components/icons/hugeicons";
 
 export const Route = createFileRoute("/translate_bubble/")({
 	component: RouteComponent,
@@ -84,8 +83,7 @@ function RouteComponent() {
 							onClick={() => { }}
 							data-tauri-drag-region
 						>
-							<HugeiconsIcon
-								icon={DragDropVerticalIcon}
+							<DragDropVertical
 								strokeWidth={2}
 								className="cursor-grab  active:cursor-grabbing"
 								data-tauri-drag-region
@@ -120,8 +118,7 @@ function RouteComponent() {
 						variant={"ghost"}
 						onClick={() => speak(chat?.content || "")}
 					>
-						<HugeiconsIcon
-							icon={VolumeHighIcon}
+						<VolumeHigh
 							strokeWidth={2}
 						/>
 					</Button>
@@ -136,8 +133,7 @@ function RouteComponent() {
 							});
 						}}
 					>
-						<HugeiconsIcon
-							icon={ArrowExpand01Icon}
+						<ArrowExpand01
 							strokeWidth={2}
 						/>
 					</Button>

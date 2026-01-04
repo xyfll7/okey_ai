@@ -1,6 +1,5 @@
 import { useRef, useState } from "react";
-import { HugeiconsIcon } from "@hugeicons/react";
-import { Copy01Icon,Tick02Icon } from "@hugeicons/core-free-icons";
+import { Copy01, Tick02 } from "@/components/icons/hugeicons";
 
 const Copyed = ({ text, className }: { text?: string; className?: string }) => {
 	const [copied, setCopied] = useState(false);
@@ -48,7 +47,7 @@ const Copyed = ({ text, className }: { text?: string; className?: string }) => {
 			className="inline-block"
 			style={{ pointerEvents: 'auto' }} // 关键：强制启用指针事件
 		>
-			{copied ? <HugeiconsIcon icon={Tick02Icon} className={className} strokeWidth={2}/> : <HugeiconsIcon icon={Copy01Icon} className={className} strokeWidth={2}/>}
+			{copied ? <Tick02 className={className} strokeWidth={2}/> : <Copy01 className={className} strokeWidth={2}/>}
 		</div>
 	);
 };
