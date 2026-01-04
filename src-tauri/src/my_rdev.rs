@@ -10,14 +10,12 @@ use tauri::AppHandle;
 use tauri::Emitter;
 use tauri::Manager;
 
-// 全局状态结构
 struct GlobalState {
     ime_handler: InputMethodEditorHandler,
-    translate_handler: TranslateBubbleHandler,
-    click_handler: ClickOutsideHandler,
+    translate_bubble_handler: TranslateBubbleHandler,
+    click_outside_handler: ClickOutsideHandler,
 }
 
-// 业务逻辑1: 输入法编辑器快捷键
 struct InputMethodEditorHandler {
     was_pressed: bool,
     press_start_time: Option<Instant>,
@@ -55,7 +53,6 @@ impl InputMethodEditorHandler {
     }
 }
 
-// 业务逻辑2: 翻译气泡快捷键
 struct TranslateBubbleHandler {
     was_pressed: bool,
     last_release_time: Option<Instant>,
@@ -75,12 +72,12 @@ impl TranslateBubbleHandler {
         let now = Instant::now();
 
         if !is_pressed && self.was_pressed {
-            // 按键释放时
             if let Some(last_release) = self.last_release_time {
                 let elapsed = now.duration_since(last_release);
 
                 if elapsed.as_millis() < self.double_click_timeout {
                     self.trigger_action(app);
+                    println!("弹窗打开了")
                 }
             }
             self.last_release_time = Some(now);
@@ -91,16 +88,19 @@ impl TranslateBubbleHandler {
 
     fn trigger_action(&self, app: &AppHandle) {
         let app_clone = app.clone();
-        my_windows::window_translate_bubble_show(
-            app,
-            Some(move || {
-                text_translation::translate_selected_text_bubble(&app_clone);
-            }),
-        );
+
+        thread::spawn(move || {
+            let app_clone2 = app_clone.clone();
+            my_windows::window_translate_bubble_show(
+                &app_clone,
+                Some(move || {
+                    text_translation::translate_selected_text_bubble(&app_clone2);
+                }),
+            );
+        });
     }
 }
 
-// 业务逻辑3: 点击外部监听器
 struct ClickOutsideHandler {
     mouse_x: i32,
     mouse_y: i32,
@@ -121,7 +121,6 @@ impl ClickOutsideHandler {
 
     fn handle_click(&mut self, app: &AppHandle) {
         if let Some(window) = app.get_webview_window("translate_bubble") {
-            // 只有当窗口可见时才需要检测点击外部
             if window.is_visible().unwrap_or(false) {
                 if let (Ok(pos), Ok(size)) = (window.outer_position(), window.outer_size()) {
                     let win_x = pos.x;
@@ -129,13 +128,11 @@ impl ClickOutsideHandler {
                     let win_w = size.width as i32;
                     let win_h = size.height as i32;
 
-                    // 判断点击是否在窗口内部
                     let inside = self.mouse_x >= win_x
                         && self.mouse_x <= win_x + win_w
                         && self.mouse_y >= win_y
                         && self.mouse_y <= win_y + win_h;
 
-                    // 如果点击在外部 → 隐藏窗口
                     if !inside {
                         let _ = window.hide();
                         let _ = app.emit(event_names::BUBBLE_CLEAN, {});
@@ -145,19 +142,18 @@ impl ClickOutsideHandler {
         }
     }
 }
-// 统一的初始化函数
+
 pub fn init_global_input_listener(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     let app_clone = app.clone();
 
     let global_state = Arc::new(Mutex::new(GlobalState {
         ime_handler: InputMethodEditorHandler::new(),
-        translate_handler: TranslateBubbleHandler::new(),
-        click_handler: ClickOutsideHandler::new(),
+        translate_bubble_handler: TranslateBubbleHandler::new(),
+        click_outside_handler: ClickOutsideHandler::new(),
     }));
 
     let state_clone = global_state.clone();
 
-    // rdev 事件监听线程
     thread::spawn(move || {
         let app = app_clone;
 
@@ -173,7 +169,7 @@ pub fn init_global_input_listener(app: &AppHandle) -> Result<(), Box<dyn std::er
 
                     if is_target_key {
                         state.ime_handler.handle(true, &app);
-                        state.translate_handler.handle(true, &app);
+                        state.translate_bubble_handler.handle(true, &app);
                     }
                 }
                 EventType::KeyRelease(key) => {
@@ -184,17 +180,18 @@ pub fn init_global_input_listener(app: &AppHandle) -> Result<(), Box<dyn std::er
 
                     if is_target_key {
                         state.ime_handler.handle(false, &app);
-                        state.translate_handler.handle(false, &app);
+                        state.translate_bubble_handler.handle(false, &app);
                     }
                 }
                 EventType::MouseMove { x, y } => {
-                    state.click_handler.update_mouse_position(x, y);
+                    state.click_outside_handler.update_mouse_position(x, y);
                 }
                 EventType::ButtonPress(Button::Left) => {
-                    // 在按下时立即检测并处理
-                    state.click_handler.handle_click(&app);
+                    state.click_outside_handler.handle_click(&app);
                 }
-                _ => {}
+                _ => {
+                    println!("点击了");
+                }
             }
         };
 
@@ -203,20 +200,16 @@ pub fn init_global_input_listener(app: &AppHandle) -> Result<(), Box<dyn std::er
         }
     });
 
-    // 定时器线程，用于检查长按状态
     let state_clone2 = global_state.clone();
     let app_clone2 = app.clone();
-    thread::spawn(move || {
-        loop {
-            {
-                let mut state = state_clone2.lock().unwrap();
-                // 检查长按状态（用于IME处理器）
-                if state.ime_handler.was_pressed {
-                    state.ime_handler.handle(true, &app_clone2);
-                }
+    thread::spawn(move || loop {
+        {
+            let mut state = state_clone2.lock().unwrap();
+            if state.ime_handler.was_pressed {
+                state.ime_handler.handle(true, &app_clone2);
             }
-            thread::sleep(Duration::from_millis(16));
         }
+        thread::sleep(Duration::from_millis(16));
     });
 
     Ok(())
