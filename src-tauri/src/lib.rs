@@ -2,7 +2,6 @@ mod my_api;
 mod my_command;
 mod my_config;
 mod my_events;
-mod my_logging;
 mod my_rdev;
 mod my_shortcut;
 mod my_test;
@@ -16,7 +15,6 @@ use states::chat_histories;
 use states::setting_states;
 use tauri::Manager; // ← 添加这一行，非常重要！
 use tauri_plugin_notification::NotificationExt;
-use utils::translation_manager;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -61,7 +59,7 @@ pub fn run() {
                 app.handle().plugin(
                     tauri_plugin_log::Builder::default()
                         .level(log::LevelFilter::Info)
-                        .filter(my_logging::log_filter)
+                        .filter(utils::log_filter::log_filter)
                         .build(),
                 )?;
             }
@@ -97,8 +95,10 @@ pub fn run() {
 fn setup_translation_manager(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     let chat_history = app.state::<chat_histories::GlobalChatHistories>();
     let api_manager = app.state::<my_api::commands::GlobalAPIManager>();
-    let translation_mgr =
-        translation_manager::TranslationManager::new(chat_history.inner(), api_manager.0.clone());
+    let translation_mgr = utils::translation_manager::TranslationManager::new(
+        chat_history.inner(),
+        api_manager.0.clone(),
+    );
     app.manage(translation_mgr);
     Ok(())
 }
