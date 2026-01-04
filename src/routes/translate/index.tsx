@@ -108,7 +108,7 @@ function Header(props: React.ComponentProps<"div">) {
 	return (
 		<div
 			className={cn(
-				"pt-1",
+				"p-px",
 				"flex items-center",
 				{ "justify-between": _ostype === "linux" },
 				{ "justify-between": _ostype === "windows" },
