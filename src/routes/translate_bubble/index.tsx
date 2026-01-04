@@ -84,7 +84,7 @@ function RouteComponent() {
 							data-tauri-drag-region
 						>
 							<DragDropVertical
-								strokeWidth={2}
+								strokeWidth={3}
 								className="cursor-grab  active:cursor-grabbing"
 								data-tauri-drag-region
 							/>
