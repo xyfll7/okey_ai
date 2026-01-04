@@ -189,14 +189,12 @@ pub fn init_global_input_listener(app: &AppHandle) -> Result<(), Box<dyn std::er
                 EventType::ButtonPress(Button::Left) => {
                     state.click_outside_handler.handle_click(&app);
                 }
-                _ => {
-                    println!("点击了");
-                }
+                _ => {}
             }
         };
 
         if let Err(error) = listen(callback) {
-            eprintln!("rdev监听错误: {:?}", error);
+            eprintln!("rdev Listening error: {:?}", error);
         }
     });
 
