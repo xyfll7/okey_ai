@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { EVENT_NAMES } from "@/lib/events";
 import { AutoSpeakState, type ChatMessage } from "@/lib/types";
 import { cn, speak } from "@/lib/utils";
-import { DragDropVertical, ArrowExpand01, VolumeHigh } from "@/components/icons/hugeicons";
+import { GripVertical, ArrowExpand01, VolumeHigh } from "@/components/icons/hugeicons";
 
 export const Route = createFileRoute("/translate_bubble/")({
 	component: RouteComponent,
@@ -83,7 +83,7 @@ function RouteComponent() {
 							onClick={() => { }}
 							data-tauri-drag-region
 						>
-							<DragDropVertical
+							<GripVertical
 								strokeWidth={3}
 								className="cursor-grab  active:cursor-grabbing"
 								data-tauri-drag-region
