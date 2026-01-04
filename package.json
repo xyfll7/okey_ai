@@ -35,6 +35,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "i18next": "^25.7.2",
+    "lucide-react": "^0.562.0",
     "markdown-to-jsx": "^9.3.2",
     "radix-ui": "^1.4.3",
     "react": "^19.2.0",
