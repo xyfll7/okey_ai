@@ -60,17 +60,18 @@ function RouteComponent() {
 			<div
 				data-tauri-drag-region
 				className={cn(
-					"bg-background h-full",
+					"p-0.5",
+					"bg-background",
 					"border rounded-md",
-					"flex items-center justify-between",
+					"flex justify-between",
 				)}
 			>
 				<div
-					className="flex items-center justify-start w-full min-h-full overflow-hidden"
+					className="flex items-center justify-start w-full  overflow-hidden"
 					data-tauri-drag-region
 				>
 					<div
-						className="flex items-center cursor-grab overflow-hidden active:cursor-grabbing"
+						className="flex overflow-hidden cursor-grab  active:cursor-grabbing"
 						data-tauri-drag-region
 					>
 						<Button
@@ -91,7 +92,7 @@ function RouteComponent() {
 							/>
 						</Button>
 					</div>
-					<div className="flex text-nowrap overflow-hidden flex-1">
+					<div className="flex overflow-hidden text-nowrap flex-1">
 						<span>{chat ? (chat?.raw ?? chat?.content) : "..."} </span>
 						{chat?.content ? (
 							<span
@@ -105,7 +106,7 @@ function RouteComponent() {
 						)}
 					</div>
 				</div>
-				<div className="flex items-center">
+				<div className="flex">
 					<Button
 						className={cn("")}
 						size={"icon-sm"}
