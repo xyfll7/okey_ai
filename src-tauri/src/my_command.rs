@@ -120,13 +120,22 @@ pub async fn command_window_translate_show(app: AppHandle, chat_message: Vec<Cha
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub async fn translate_specified_text(app: AppHandle, specified_text: &str) -> Result<(), String> {
-    if specified_text.is_empty() {
+pub async fn translate_specified_text(
+    app: AppHandle,
+    content: &str,
+    raw: &str,
+) -> Result<(), String> {
+    if raw.is_empty() {
         return Ok(());
     }
     let translation_manager = app.state::<translation_manager::TranslationManager>();
     match translation_manager
-        .translate(None, specified_text, None, |_| async {})
+        .translate(
+            None,
+            &format!("{raw}\n{content}"),
+            Some(raw.to_string()),
+            |_| async {},
+        )
         .await
     {
         Some(chat_histories) => {

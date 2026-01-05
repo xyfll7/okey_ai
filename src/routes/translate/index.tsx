@@ -358,9 +358,9 @@ function SelectedText() {
 							key={e}
 							onClick={() => {
 								invoke(EVENT_NAMES.TRANSLATE_SPECIFIED_TEXT, {
-									specified_text: `${selected.text}\n${e}`,
+									content: e,
+									raw: selected.text
 								});
-								console.log("click kbd", e, selected.text);
 							}}
 						>
 							{e}
