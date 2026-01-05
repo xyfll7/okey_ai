@@ -226,7 +226,7 @@ function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
 
 				<InputGroupButton
 					variant="default"
-					className="rounded-full ml-auto"
+					className="rounded-full ml-auto cursor-pointer"
 					size="icon-xs"
 					disabled={!value}
 					onClick={async () => {
