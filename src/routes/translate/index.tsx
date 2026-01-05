@@ -228,6 +228,10 @@ function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
 						<DropdownMenuItem>Manual</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
+				<Button onClick={async () => {
+					const res = await invoke(EVENT_NAMES.GET_HISTORIES) 
+					console.log("histoies：：",res)
+				}}>测试</Button>
 
 				<InputGroupButton
 					variant="default"

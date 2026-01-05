@@ -118,3 +118,13 @@ pub async fn translate_specified_text(
     }
     Ok(())
 }
+
+#[tauri::command(rename_all = "snake_case")]
+pub async fn get_histories(
+    app: AppHandle,
+) -> Result<crate::states::chat_histories::ChatHistoriesState, String> {
+    let translation_manager = app.state::<translation_manager::TranslationManager>();
+    let histories = translation_manager.get_histories().await;
+    let state = histories.0.read().await.clone();
+    Ok(state)
+}

@@ -114,6 +114,9 @@ impl TranslationManager {
 
         self.chat_histories.get_messages(&session_id).await
     }
+    pub async fn get_histories(&self) -> GlobalChatHistories {
+        self.chat_histories.clone()
+    }
 
     /// 获取当前活跃会话ID
     pub async fn get_active_session_id(&self) -> Option<String> {

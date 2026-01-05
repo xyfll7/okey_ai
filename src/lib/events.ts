@@ -19,6 +19,7 @@ export const EVENT_NAMES = {
   TOGGLE_AUTO_SPEAK: "toggle_auto_speak",
   TRANSLATE_SPECIFIED_TEXT: "translate_specified_text",
   CLOSE_MAIN_WINDOW: "close_main_window",
+  GET_HISTORIES: "get_histories",
   CHAT: "chat",
 } as const;
 
