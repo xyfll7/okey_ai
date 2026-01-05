@@ -44,7 +44,13 @@ function RouteComponent() {
 		const unlistenResponse = listen<ChatMessage[]>(
 			EVENT_NAMES.AI_RESPONSE,
 			({ payload }) => {
-				console.log("OOOOOO来了");
+				const chat = payload.at(-1)
+				if (chat?.role === "user" && chat.raw) {
+					s_Selected.setState({
+						text: chat.raw,
+						raw: chat.content,
+					});
+				}
 				setChatList(payload)
 			},
 		);
