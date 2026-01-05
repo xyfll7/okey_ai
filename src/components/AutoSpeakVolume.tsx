@@ -2,7 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { useEffect, useState } from "react";
 import { EVENT_NAMES } from "@/lib/events";
 import { AutoSpeakState } from "@/lib/types";
-import { VolumeLow, VolumeHigh, VolumeOff } from "@/components/icons/hugeicons";
+import { VolumeLow, VolumeHigh, VolumeOff } from "@/components/icons";
 
 const AutoSpeakVolume = ({className}:{className?:string}) => {
 	const [autoSpeak, setAutoSpeak] = useState<AutoSpeakState>(

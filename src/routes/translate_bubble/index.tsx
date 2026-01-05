@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { EVENT_NAMES } from "@/lib/events";
 import { AutoSpeakState, type ChatMessage } from "@/lib/types";
 import { cn, speak } from "@/lib/utils";
-import { GripVertical, ArrowExpand01, VolumeHigh } from "@/components/icons/hugeicons";
+import { GripVertical, ArrowExpand, VolumeHigh } from "@/components/icons";
 
 export const Route = createFileRoute("/translate_bubble/")({
 	component: RouteComponent,
@@ -133,7 +133,7 @@ function RouteComponent() {
 							});
 						}}
 					>
-						<ArrowExpand01
+						<ArrowExpand
 							strokeWidth={2}
 						/>
 					</Button>

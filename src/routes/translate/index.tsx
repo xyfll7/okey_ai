@@ -32,7 +32,7 @@ import { EVENT_NAMES } from "@/lib/events";
 import { AutoSpeakState, type ChatMessage } from "@/lib/types";
 import { cn, get_global_config, speak } from "@/lib/utils";
 import { s_Selected } from "@/store";
-import { ArrowUp, Pin02, Add01, VolumeHigh, Cancel01 } from "@/components/icons/hugeicons";
+import { ArrowUp, Pin, Add, VolumeHigh, Cancel } from "@/components/icons";
 
 export const Route = createFileRoute("/translate/")({
 	component: RouteComponent,
@@ -158,7 +158,7 @@ function Header(props: React.ComponentProps<"div">) {
 					variant={"ghost"}
 					onClick={() => invoke(EVENT_NAMES.CLOSE_MAIN_WINDOW)}
 				>
-					<Cancel01 strokeWidth={2} />
+					<Cancel strokeWidth={2} />
 				</Button>
 			)}
 		</div>
@@ -248,7 +248,7 @@ function ChatList({ chatList }: { chatList: ChatMessage[] }) {
 	}, [chatList]);
 
 	return (
-		<ScrollArea className="h-full ">
+		<ScrollArea className={cn("h-full")}>
 			<div role="none" className="pt-2 px-2 max-w-screen flex-coh">
 				{chatList.map((chat, index) => {
 					return (
@@ -337,20 +337,20 @@ function SelectedText() {
 					</Button>
 				)}
 				{selected.text?.trim() && (
-					<Button size={"icon-sm"} variant={"ghost"}>
+					<Button size={"icon-sm"} variant={"ghost"} onClick={() => {
+						if (!selected.text) return;
+						speak(selected.text);
+					}}>
 						<VolumeHigh
 							strokeWidth={2}
-							onClick={() => {
-								if (!selected.text) return;
-								speak(selected.text);
-							}}
+
 						/>
 					</Button>
 				)}
 			</div>
 			{selected.text?.trim() && (
 				<div className="flex flex-wrap">
-					{["单词详解", "在句中的含义", "详解", "解读", "解读", "解读", "解读", "解读"].map((e,i) => (
+					{["单词详解", "在句中的含义", "详解", "解读",].map((e, i) => (
 						<Button
 							className="mr-1 mb-1"
 							size={"xs"}
@@ -367,7 +367,7 @@ function SelectedText() {
 						</Button>
 					))}
 					<Button size={"xs"} variant={"outline"}>
-						<Add01 strokeWidth={2} />
+						<Add strokeWidth={2} />
 					</Button>
 				</div>
 			)}
@@ -391,7 +391,7 @@ function PinWindow({ className }: { className?: string }) {
 				setPin(await invoke<boolean>(EVENT_NAMES.TOGGLE_AUTO_CLOSE_WINDOW))
 			}
 		>
-			<Pin02
+			<Pin
 				strokeWidth={2}
 				className={cn(pin && "text-green-300 dark:text-green-20")}
 			/>
