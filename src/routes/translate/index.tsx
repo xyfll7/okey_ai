@@ -52,6 +52,7 @@ function RouteComponent() {
 					});
 				}
 				setChatList(payload)
+				console.log(payload)
 			},
 		);
 		const unlistenError = listen<string>(EVENT_NAMES.AI_ERROR, (event) => {
