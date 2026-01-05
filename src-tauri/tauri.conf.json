@@ -5,7 +5,7 @@
   "identifier": "com.okey.dev",
   "build": {
     "frontendDist": "../build",
-    "devUrl": "http://localhost:3000",
+    "devUrl": "http://localhost:5001",
     "beforeDevCommand": "pnpm dev",
     "beforeBuildCommand": "pnpm build"
   },
