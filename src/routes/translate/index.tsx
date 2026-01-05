@@ -51,7 +51,6 @@ function RouteComponent() {
 						raw: chat.content,
 					});
 				}
-				console.log(payload)
 				setChatList(payload)
 			},
 		);
