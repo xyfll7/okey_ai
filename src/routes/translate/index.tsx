@@ -44,13 +44,14 @@ function RouteComponent() {
 		const unlistenResponse = listen<ChatMessage[]>(
 			EVENT_NAMES.AI_RESPONSE,
 			({ payload }) => {
-				const chat = payload.at(-1)
-				if (chat?.role === "user" && chat.raw) {
+				const chat = payload.at(-1)?.role === "user" ? payload.at(-1) :payload.at(-2)
+				if (chat?.raw && chat.role === "user") {
 					s_Selected.setState({
 						text: chat.raw,
 						raw: chat.content,
 					});
 				}
+				console.log(payload)
 				setChatList(payload)
 			},
 		);
@@ -342,10 +343,7 @@ function SelectedText() {
 						if (!selected.text) return;
 						speak(selected.text);
 					}}>
-						<VolumeHigh
-							strokeWidth={2}
-
-						/>
+						<VolumeHigh strokeWidth={2} />
 					</Button>
 				)}
 			</div>
@@ -356,13 +354,13 @@ function SelectedText() {
 							className="mr-1 mb-1"
 							size={"xs"}
 							variant={"outline"}
-							key={e}
+							key={`${e}-${i}`}
 							onClick={() => {
 								invoke(EVENT_NAMES.TRANSLATE_SPECIFIED_TEXT,
 									{
 										input_data: {
 											role: "user",
-											content: selected.text,
+											content: `${selected.text}\n${e}`,
 											raw: selected.text,
 										} as ChatMessage,
 									}

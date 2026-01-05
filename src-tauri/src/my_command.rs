@@ -132,7 +132,7 @@ pub async fn translate_specified_text(
     match translation_manager
         .translate(
             None,
-            &format!("{}\n{}", raw_text, input_data.content),
+            &input_data.content,
             Some(raw_text.to_string()),
             |chat_history| {
                 let app_handle = app.clone();
