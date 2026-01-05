@@ -346,6 +346,13 @@ function SelectedText() {
 						<VolumeHigh strokeWidth={2} />
 					</Button>
 				)}
+				{selected.text?.trim() && (
+					<Button size={"icon-sm"} variant={"ghost"} onClick={() => {
+						s_Selected.setState({ text: "", raw: "" })
+					}}>
+						<Cancel strokeWidth={2} />
+					</Button>
+				)}
 			</div>
 			{selected.text?.trim() && (
 				<div className="flex flex-wrap">
