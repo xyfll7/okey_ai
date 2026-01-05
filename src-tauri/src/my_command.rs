@@ -134,7 +134,12 @@ pub async fn translate_specified_text(
             None,
             &format!("{raw}\n{content}"),
             Some(raw.to_string()),
-            |_| async {},
+            |chat_history| {
+                let app_handle = app.clone();
+                async move {
+                    let _ = app_handle.emit(event_names::AI_RESPONSE, &chat_history);
+                }
+            },
         )
         .await
     {

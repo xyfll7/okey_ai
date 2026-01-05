@@ -53,7 +53,6 @@ function RouteComponent() {
 		let item = chatHistory?.at(-1);
 		return item?.role === "assistant" ? item : undefined
 	})()
-
 	return (
 		<div className=" h-full p-px ">
 			<div
@@ -116,7 +115,10 @@ function RouteComponent() {
 						className={cn("")}
 						size={"icon-sm"}
 						variant={"ghost"}
-						onClick={() => speak(chat?.content || "")}
+						onClick={() => {
+							let chat_user = chatHistory?.at(-2);
+							speak(chat_user?.raw ?? chat_user?.content ?? "")
+						}}
 					>
 						<VolumeHigh
 							strokeWidth={2}
