@@ -176,8 +176,18 @@ function Header(props: React.ComponentProps<"div">) {
 function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
 	const [value, setValue] = useState("");
 	const selected = useStore(s_Selected, (state) => state);
+	async function send() {
+		onEnter(value);
+		await invoke(EVENT_NAMES.CHAT, {
+			input_data: {
+				role: "user",
+				content: value,
+			} as ChatMessage,
+		});
+		setValue("");
+	}
 	return (
-		<InputGroup className={cn("rounded-xl","has-[[data-slot=input-group-control]:focus-visible]:border-ring/70 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/7")}>
+		<InputGroup className={cn("rounded-xl", "has-[[data-slot=input-group-control]:focus-visible]:border-ring/70 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/7")}>
 			{selected.text && (
 				<InputGroupAddon align="block-start">
 					<SelectedText />
@@ -188,16 +198,9 @@ function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
 				value={value}
 				onChange={(e) => setValue(e.target.value)}
 				onKeyDown={async (e) => {
+					e.preventDefault();
 					if (e.key === "Enter" && !e.ctrlKey) {
-						e.preventDefault();
-						onEnter(value);
-						await invoke(EVENT_NAMES.CHAT, {
-							input_data: {
-								role: "user",
-								content: value,
-							} as ChatMessage,
-						});
-						setValue("");
+						await send()
 					}
 					if (e.key === "Enter" && e.ctrlKey) {
 						const target = e.target as HTMLTextAreaElement;
@@ -208,7 +211,7 @@ function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
 						setTimeout(() => {
 							target.selectionStart = target.selectionEnd = start + 1;
 						}, 0);
-						e.preventDefault();
+
 					}
 				}}
 			/>
@@ -229,15 +232,7 @@ function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
 					className="rounded-full ml-auto cursor-pointer"
 					size="icon-xs"
 					disabled={!value}
-					onClick={async () => {
-						await invoke(EVENT_NAMES.CHAT, {
-							input_data: {
-								role: "user",
-								content: value,
-							} as ChatMessage,
-						});
-						setValue("");
-					}}
+					onClick={async () => await send()}
 				>
 					<ArrowUp strokeWidth={2} />
 					<span className="sr-only">Send</span>
@@ -363,10 +358,15 @@ function SelectedText() {
 							variant={"outline"}
 							key={e}
 							onClick={() => {
-								invoke(EVENT_NAMES.TRANSLATE_SPECIFIED_TEXT, {
-									content: e,
-									raw: selected.text
-								});
+								invoke(EVENT_NAMES.TRANSLATE_SPECIFIED_TEXT,
+									{
+										input_data: {
+											role: "user",
+											content: selected.text,
+											raw: selected.text,
+										} as ChatMessage,
+									}
+								);
 							}}
 						>
 							{e}
@@ -376,8 +376,9 @@ function SelectedText() {
 						<Add strokeWidth={2} />
 					</Button>
 				</div>
-			)}
-		</div>
+			)
+			}
+		</div >
 	);
 }
 

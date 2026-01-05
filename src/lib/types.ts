@@ -8,8 +8,10 @@ export interface ChatMessage {
 	raw?: string;
 }
 
-export enum AutoSpeakState {
-	Off = "off",
-	Single = "single",
-	All = "all",
-}
+export const AutoSpeakState = {
+	Off: "off",
+	Single: "single",
+	All: "all",
+} as const;
+
+export type AutoSpeakState = typeof AutoSpeakState[keyof typeof AutoSpeakState];
