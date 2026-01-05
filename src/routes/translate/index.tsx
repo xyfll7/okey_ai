@@ -69,14 +69,14 @@ function RouteComponent() {
 	}, []);
 	return (
 		<div className={cn("bg-background", "h-full", "flex-coh")}>
-			<Header />
-			<div className="mb-2 h-full flex-coh">
+			<Header className="p-1" />
+			<div className="h-full flex-coh">
 				<ScrollArea className={cn("h-full")}>
-					<ChatList chatList={chatList.filter((e) => e.role !== "system")} />
+					<ChatList className="px-2 pt-2" chatList={chatList.filter((e) => e.role !== "system")} />
 				</ScrollArea>
 			</div>
 
-			<div className="px-2">
+			<div className="px-2 pb-2">
 				<Inputer
 					onEnter={() => {
 						setChatList((list) => [
@@ -115,7 +115,7 @@ function Header(props: React.ComponentProps<"div">) {
 	return (
 		<div
 			className={cn(
-				"p-px",
+
 				"flex items-center",
 				{ "justify-between": _ostype === "linux" },
 				{ "justify-between": _ostype === "windows" },
@@ -177,7 +177,7 @@ function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
 	const [value, setValue] = useState("");
 	const selected = useStore(s_Selected, (state) => state);
 	return (
-		<InputGroup className="mb-2">
+		<InputGroup className="">
 			{selected.text && (
 				<InputGroupAddon align="block-start">
 					<SelectedText />
@@ -247,7 +247,7 @@ function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
 	);
 }
 
-function ChatList({ chatList }: { chatList: ChatMessage[] }) {
+function ChatList({ chatList, className }: { className?: string; chatList: ChatMessage[] }) {
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 	useEffect(() => {
 		void chatList;
@@ -255,7 +255,7 @@ function ChatList({ chatList }: { chatList: ChatMessage[] }) {
 	}, [chatList]);
 	const lastItem = chatList.at(-1)
 	return (
-		<div role="none" className="px-2 pt-2 max-w-screen flex-coh">
+		<div role="none" className={cn(className, "max-w-screen flex-coh")}>
 			{chatList.map((chat, index) => {
 				return (
 					<MessageItem className="px-2 mb-2" key={`chat-${chat.content}-${index}`} chat={chat} />
