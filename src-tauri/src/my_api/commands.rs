@@ -42,11 +42,3 @@ pub async fn list_models(state: State<'_, GlobalAPIManager>) -> Result<Vec<Strin
     let manager = state.0.read().await;
     Ok(manager.list_available_models().await)
 }
-
-pub async fn chat_completion(
-    request: ChatCompletionRequest<'_>,
-    state: State<'_, GlobalAPIManager>,
-) -> Result<crate::my_api::traits::ChatCompletionResponse, String> {
-    let manager = state.0.read().await;
-    manager.chat_completion(&request).await
-}
