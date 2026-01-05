@@ -65,7 +65,9 @@ function RouteComponent() {
 		<div className={cn("bg-background", "h-full", "flex-coh")}>
 			<Header />
 			<div className="mb-2 h-full flex-coh">
-				<ChatList chatList={chatList.filter((e) => e.role !== "system")} />
+				<ScrollArea className={cn("h-full")}>
+					<ChatList chatList={chatList.filter((e) => e.role !== "system")} />
+				</ScrollArea>
 			</div>
 
 			<div className="px-2">
@@ -241,23 +243,21 @@ function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
 
 function ChatList({ chatList }: { chatList: ChatMessage[] }) {
 	const messagesEndRef = useRef<HTMLDivElement>(null);
-
 	useEffect(() => {
 		void chatList;
 		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 	}, [chatList]);
-
+	const lastItem = chatList.at(-1)
 	return (
-		<ScrollArea className={cn("h-full")}>
-			<div role="none" className="pt-2 px-2 max-w-screen flex-coh">
-				{chatList.map((chat, index) => {
-					return (
-						<MessageItem className="mb-2" key={`chat-${chat.content}-${index}`} chat={chat} />
-					);
-				})}
-				<div ref={messagesEndRef} />
-			</div>
-		</ScrollArea>
+		<div role="none" className="px-2 pt-2 max-w-screen flex-coh">
+			{chatList.map((chat, index) => {
+				return (
+					<MessageItem className="px-2 mb-2" key={`chat-${chat.content}-${index}`} chat={chat} />
+				);
+			})}
+			{lastItem?.role !== "assistant" && <div className="px-2">...</div>}
+			<div ref={messagesEndRef} />
+		</div>
 	);
 }
 
@@ -299,7 +299,7 @@ function MessageItem({ chat, className }: { chat: ChatMessage, className?: strin
 		<div
 			ref={containerRef}
 			role="none"
-			className={cn(className, "px-2 w-full")}
+			className={cn(className, " w-full")}
 			onMouseUp={extractSelectedText}
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}

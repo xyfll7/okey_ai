@@ -43,7 +43,7 @@ pub fn chat(app: AppHandle, chat_message: ChatMessage) {
 
         match crate::my_api::commands::chat_completion(request, api_manager_state).await {
             Ok(response) => {
-                if let Some(choice) = response.choices.first() {
+                if let Some(_choice) = response.choices.first() {
                     let app_handle_clone = app_clone.clone();
                     let chat_message = ChatMessage {
                         role: Role::User,
