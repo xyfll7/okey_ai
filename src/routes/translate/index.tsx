@@ -33,6 +33,7 @@ import { AutoSpeakState, type ChatMessage } from "@/lib/types";
 import { cn, get_global_config, speak } from "@/lib/utils";
 import { s_Selected } from "@/store";
 import { ArrowUp, Pin, Add, VolumeHigh, Cancel } from "@/components/icons";
+import { Histories } from "@/components/Histories";
 
 export const Route = createFileRoute("/translate/")({
 	component: RouteComponent,
@@ -44,7 +45,7 @@ function RouteComponent() {
 		const unlistenResponse = listen<ChatMessage[]>(
 			EVENT_NAMES.AI_RESPONSE,
 			({ payload }) => {
-				const chat = payload.at(-1)?.role === "user" ? payload.at(-1) :payload.at(-2)
+				const chat = payload.at(-1)?.role === "user" ? payload.at(-1) : payload.at(-2)
 				if (chat?.raw && chat.role === "user") {
 					s_Selected.setState({
 						text: chat.raw,
@@ -78,6 +79,7 @@ function RouteComponent() {
 			</div>
 
 			<div className="px-2 pb-2">
+
 				<Inputer
 					onEnter={() => {
 						setChatList((list) => [
@@ -228,10 +230,8 @@ function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
 						<DropdownMenuItem>Manual</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
-				<Button onClick={async () => {
-					const res = await invoke(EVENT_NAMES.GET_HISTORIES) 
-					console.log("histoies：：",res)
-				}}>测试</Button>
+			
+				<Histories></Histories>
 
 				<InputGroupButton
 					variant="default"
