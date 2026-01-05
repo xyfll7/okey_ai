@@ -128,6 +128,7 @@ function Header(props: React.ComponentProps<"div">) {
 			data-tauri-drag-region
 		>
 			<div className="flex items-center">
+						<Histories></Histories>
 				{_ostype === "windows" && <PinWindow />}
 				{_ostype === "macos" && (
 					<HotKey
@@ -231,7 +232,7 @@ function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
 					</DropdownMenuContent>
 				</DropdownMenu>
 			
-				<Histories></Histories>
+		
 
 				<InputGroupButton
 					variant="default"

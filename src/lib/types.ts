@@ -8,6 +8,14 @@ export interface ChatMessage {
 	raw?: string;
 }
 
+interface ChatMessageHistory {
+  messages: ChatMessage[];
+}
+
+export interface ChatHistories {
+  [key: string]: ChatMessageHistory;
+}
+
 export const AutoSpeakState = {
 	Off: "off",
 	Single: "single",
