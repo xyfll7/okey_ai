@@ -95,23 +95,17 @@ pub async fn translate_specified_text(
     app: AppHandle,
     chat_message: ChatMessage,
 ) -> Result<(), String> {
-    let raw_text = chat_message.raw.as_deref().unwrap_or("");
-    if raw_text.is_empty() {
+    if chat_message.content.is_empty() {
         return Ok(());
     }
     let translation_manager = app.state::<translation_manager::TranslationManager>();
     match translation_manager
-        .translate(
-            None,
-            &chat_message.content,
-            Some(raw_text.to_string()),
-            |chat_history| {
-                let app_handle = app.clone();
-                async move {
-                    let _ = app_handle.emit(event_names::AI_RESPONSE, &chat_history);
-                }
-            },
-        )
+        .translate(None, &chat_message.content, None, |chat_history| {
+            let app_handle = app.clone();
+            async move {
+                let _ = app_handle.emit(event_names::AI_RESPONSE, &chat_history);
+            }
+        })
         .await
     {
         Some(chat_histories) => {

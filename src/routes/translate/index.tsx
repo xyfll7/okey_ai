@@ -368,7 +368,6 @@ function SelectedText() {
 										chat_message: {
 											role: "user",
 											content: `${selected.text}\n${e}`,
-											raw: selected.text,
 										} as ChatMessage,
 									}
 								);
