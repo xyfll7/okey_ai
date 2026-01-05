@@ -29,7 +29,6 @@ export async function get_global_config() {
 	const store = await Store.load("store.json");
 	const config = await store.get<GlobalConfig>("global_config");
 	if (config) {
-		console.log(config);
 		return config;
 	} else {
 		console.log("val is null");
