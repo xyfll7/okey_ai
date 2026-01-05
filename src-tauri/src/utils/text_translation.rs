@@ -7,13 +7,13 @@ use tauri::{async_runtime, Emitter, Manager};
 use crate::utils::language_detection;
 
 pub fn translate_selected_text(app_handle: &AppHandle) {
-    let selected_text = crate::utils::selecte_text::get_selected_text();
-    if selected_text.is_empty() {
-        return;
-    }
-    println!("selected_text: {}", selected_text);
     let app_handle = app_handle.clone();
     async_runtime::spawn(async move {
+        let selected_text = crate::utils::selecte_text::get_selected_text();
+        if selected_text.is_empty() {
+            return;
+        }
+        println!("selected_text: {}", selected_text);
         let detected_lang = language_detection::detect_language(&selected_text);
 
         let translation_prompt = match detected_lang {
@@ -44,22 +44,22 @@ pub fn translate_selected_text(app_handle: &AppHandle) {
         {
             Some(chat_history) => {
                 let app_handle_clone = app_handle.clone();
+                let chat_history_clone = chat_history.clone();
                 my_windows::window_translate_show(
                     &app_handle,
                     Some(move || {
-                        let app_handle_clone_for_delay = app_handle_clone.clone();
-                        let chat_history_clone = chat_history.clone();
+                        let app_handle_for_thread = app_handle_clone.clone();
                         std::thread::spawn(move || {
                             std::thread::sleep(std::time::Duration::from_millis(100));
-                            let _ = app_handle_clone_for_delay
+                            let _ = app_handle_for_thread
                                 .emit(event_names::AI_RESPONSE, &chat_history_clone);
                         });
                     }),
                 );
             }
             None => {
-                let app_handle_clone = app_handle.clone();
                 let error_msg = "翻译失败".to_string();
+                let app_handle_clone = app_handle.clone();
                 my_windows::window_translate_show(
                     &app_handle,
                     Some(move || {
@@ -72,13 +72,13 @@ pub fn translate_selected_text(app_handle: &AppHandle) {
 }
 
 pub fn translate_selected_text_bubble(app_handle: &AppHandle) {
-    let selected_text = crate::utils::selecte_text::get_selected_text();
-    if selected_text.is_empty() {
-        return;
-    }
-    println!("selected_text: {}", selected_text);
     let app_handle = app_handle.clone();
     async_runtime::spawn(async move {
+        let selected_text = crate::utils::selecte_text::get_selected_text();
+        if selected_text.is_empty() {
+            return;
+        }
+        println!("selected_text: {}", selected_text);
         let detected_lang = language_detection::detect_language(&selected_text);
 
         let translation_prompt = match detected_lang {
@@ -119,8 +119,8 @@ pub fn translate_selected_text_bubble(app_handle: &AppHandle) {
                 }
             }
             None => {
-                let app_handle_clone = app_handle.clone();
                 let error_msg = "翻译失败".to_string();
+                let _ = app_handle.emit(event_names::AI_ERROR, error_msg);
             }
         }
     });
