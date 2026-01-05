@@ -179,7 +179,7 @@ function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
 	async function send() {
 		onEnter(value);
 		await invoke(EVENT_NAMES.CHAT, {
-			input_data: {
+			chat_message: {
 				role: "user",
 				content: value,
 			} as ChatMessage,
@@ -357,7 +357,7 @@ function SelectedText() {
 							onClick={() => {
 								invoke(EVENT_NAMES.TRANSLATE_SPECIFIED_TEXT,
 									{
-										input_data: {
+										chat_message: {
 											role: "user",
 											content: `${selected.text}\n${e}`,
 											raw: selected.text,

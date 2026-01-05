@@ -122,9 +122,9 @@ pub async fn command_window_translate_show(app: AppHandle, chat_message: Vec<Cha
 #[tauri::command(rename_all = "snake_case")]
 pub async fn translate_specified_text(
     app: AppHandle,
-    input_data: ChatMessage,
+    chat_message: ChatMessage,
 ) -> Result<(), String> {
-    let raw_text = input_data.raw.as_deref().unwrap_or("");
+    let raw_text = chat_message.raw.as_deref().unwrap_or("");
     if raw_text.is_empty() {
         return Ok(());
     }
@@ -132,7 +132,7 @@ pub async fn translate_specified_text(
     match translation_manager
         .translate(
             None,
-            &input_data.content,
+            &chat_message.content,
             Some(raw_text.to_string()),
             |chat_history| {
                 let app_handle = app.clone();
