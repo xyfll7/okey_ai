@@ -25,9 +25,9 @@ const AutoSpeakVolume = ({className}:{className?:string}) => {
 		>
 			{
 				{
-					[AutoSpeakState.Off]: <VolumeOff className={className} strokeWidth={2}/>,
-					[AutoSpeakState.Single]: <VolumeLow className={className} strokeWidth={2}/>,
-					[AutoSpeakState.All]: <VolumeHigh className={className} strokeWidth={2}/>,
+					[AutoSpeakState.Off]: <VolumeOff className={className}/>,
+					[AutoSpeakState.Single]: <VolumeLow className={className}/>,
+					[AutoSpeakState.All]: <VolumeHigh className={className}/>,
 				}[autoSpeak]
 			}
 		</div>

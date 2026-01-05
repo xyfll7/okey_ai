@@ -167,7 +167,7 @@ function Header(props: React.ComponentProps<"div">) {
 					variant={"ghost"}
 					onClick={() => invoke(EVENT_NAMES.CLOSE_MAIN_WINDOW)}
 				>
-					<Cancel strokeWidth={2} />
+					<Cancel />
 				</Button>
 			)}
 		</div>
@@ -236,7 +236,7 @@ function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
 					disabled={!value}
 					onClick={async () => await send()}
 				>
-					<ArrowUp strokeWidth={2} />
+					<ArrowUp />
 					<span className="sr-only">Send</span>
 				</InputGroupButton>
 			</InputGroupAddon>
@@ -314,7 +314,7 @@ function MessageItem({ chat, className }: { chat: ChatMessage, className?: strin
 						<Copyed text={chat.content} />
 					</Button>
 					<Button size={"icon-sm"} variant={"ghost"} onClick={() => speak(chat.raw ?? chat.content)} >
-						<VolumeHigh strokeWidth={2} />
+						<VolumeHigh />
 					</Button>
 				</div>
 			</div>
@@ -344,14 +344,14 @@ function SelectedText() {
 						if (!selected.text) return;
 						speak(selected.text);
 					}}>
-						<VolumeHigh strokeWidth={2} />
+						<VolumeHigh />
 					</Button>
 				)}
 				{selected.text?.trim() && (
 					<Button size={"icon-sm"} variant={"ghost"} onClick={() => {
 						s_Selected.setState({ text: "", raw: "" })
 					}}>
-						<Cancel strokeWidth={2} />
+						<Cancel />
 					</Button>
 				)}
 			</div>
@@ -378,7 +378,7 @@ function SelectedText() {
 						</Button>
 					))}
 					<Button size={"xs"} variant={"outline"}>
-						<Add strokeWidth={2} />
+						<Add />
 					</Button>
 				</div>
 			)

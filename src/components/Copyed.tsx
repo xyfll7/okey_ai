@@ -47,7 +47,7 @@ const Copyed = ({ text, className }: { text?: string; className?: string }) => {
 			className="inline-block"
 			style={{ pointerEvents: 'auto' }} // 关键：强制启用指针事件
 		>
-			{copied ? <Tick className={className} strokeWidth={2}/> : <Copy className={className} strokeWidth={2}/>}
+			{copied ? <Tick className={className}/> : <Copy className={className}/>}
 		</div>
 	);
 };
