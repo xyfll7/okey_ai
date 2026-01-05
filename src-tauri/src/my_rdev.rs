@@ -87,20 +87,16 @@ impl TranslateBubbleHandler {
 
     fn trigger_action(&self, app: &AppHandle) {
         let app_clone = app.clone();
-
-        thread::spawn(move || {
-            let app_clone2 = app_clone.clone();
-            if let Some(_) = app_clone.get_webview_window("translate") {
-                text_translation::translate_selected_text_bubble(&app_clone2);
-            } else {
-                my_windows::window_translate_bubble_show(
-                    &app_clone,
-                    Some(move || {
-                        text_translation::translate_selected_text_bubble(&app_clone2);
-                    }),
-                );
-            }
-        });
+        if let Some(_) = app_clone.get_webview_window("translate") {
+            text_translation::translate_selected_text_bubble(&app_clone);
+        } else {
+            my_windows::window_translate_bubble_show(
+                &app,
+                Some(move || {
+                    text_translation::translate_selected_text_bubble(&app_clone);
+                }),
+            );
+        }
     }
 }
 

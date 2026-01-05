@@ -94,6 +94,3 @@ pub fn init_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>>
 
     Ok(())
 }
-
-// This function has been moved to my_utils.rs as it's needed by multiple components
-// See my_utils::translate_selected_text for implementation
