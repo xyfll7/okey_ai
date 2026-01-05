@@ -178,13 +178,13 @@ function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
 	const selected = useStore(s_Selected, (state) => state);
 	async function send() {
 		onEnter(value);
+		setValue("");
 		await invoke(EVENT_NAMES.CHAT, {
 			chat_message: {
 				role: "user",
 				content: value,
 			} as ChatMessage,
 		});
-		setValue("");
 	}
 	return (
 		<InputGroup className={cn("rounded-xl", "has-[[data-slot=input-group-control]:focus-visible]:border-ring/70 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/7")}>
@@ -198,11 +198,12 @@ function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
 				value={value}
 				onChange={(e) => setValue(e.target.value)}
 				onKeyDown={async (e) => {
-					e.preventDefault();
-					if (e.key === "Enter" && !e.ctrlKey) {
+					if (e.key === "Enter" && !e.shiftKey) {
+						e.preventDefault();
 						await send()
 					}
-					if (e.key === "Enter" && e.ctrlKey) {
+					if (e.key === "Enter" && e.shiftKey) {
+						e.preventDefault();
 						const target = e.target as HTMLTextAreaElement;
 						const start = target.selectionStart;
 						const end = target.selectionEnd;
