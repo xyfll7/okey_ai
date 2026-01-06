@@ -32,7 +32,7 @@ pub fn run() {
                 .unwrap();
         }))
         .manage(std::sync::Mutex::new(setting_states::AppState::default()))
-        .manage(chat_histories::GlobalChatHistories::new())
+        .manage(chat_histories::ChatHistoriesState::new())
         .manage(my_api::commands::GlobalAPIManager(api_manager))
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_os::init())
@@ -94,7 +94,7 @@ pub fn run() {
 }
 // ✅ 翻译管理器初始化
 fn setup_translation_manager(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
-    let chat_history = app.state::<chat_histories::GlobalChatHistories>();
+    let chat_history = app.state::<chat_histories::ChatHistoriesState>();
     let api_manager = app.state::<my_api::commands::GlobalAPIManager>();
     let translation_mgr = utils::translation_manager::TranslationManager::new(
         chat_history.inner(),

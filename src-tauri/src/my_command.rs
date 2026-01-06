@@ -129,9 +129,5 @@ pub async fn get_histories(
     let translation_manager = app.state::<translation_manager::TranslationManager>();
     let histories = translation_manager.get_histories().await;
     let all_histories = histories.get_all_histories().await;
-    println!("=== Ordered keys ===");
-    for (key, item) in all_histories.iter() {
-        println!("{},{:#?}", key, item);
-    }
     Ok(all_histories)
 }

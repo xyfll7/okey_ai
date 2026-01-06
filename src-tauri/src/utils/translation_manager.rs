@@ -1,6 +1,6 @@
 use crate::my_api::manager::APIManager;
 use crate::my_api::traits::ChatCompletionRequest;
-use crate::states::chat_histories::GlobalChatHistories;
+use crate::states::chat_histories::ChatHistoriesState;
 use crate::utils::chat_message::ChatMessage;
 use std::future::Future;
 use std::sync::Arc;
@@ -8,13 +8,13 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::async_runtime::RwLock;
 #[derive(Clone)]
 pub struct TranslationManager {
-    chat_histories: GlobalChatHistories,
+    chat_histories: ChatHistoriesState,
     active_session_id: Arc<RwLock<Option<String>>>,
     api_manager: Arc<RwLock<APIManager>>,
 }
 
 impl TranslationManager {
-    pub fn new(chat_histories: &GlobalChatHistories, api_manager: Arc<RwLock<APIManager>>) -> Self {
+    pub fn new(chat_histories: &ChatHistoriesState, api_manager: Arc<RwLock<APIManager>>) -> Self {
         Self {
             chat_histories: chat_histories.clone(),
             active_session_id: Arc::new(RwLock::new(None)),
@@ -101,7 +101,7 @@ impl TranslationManager {
         self.chat_histories.get_messages(&session_id).await
     }
 
-    pub async fn get_histories(&self) -> GlobalChatHistories {
+    pub async fn get_histories(&self) -> ChatHistoriesState {
         self.chat_histories.clone()
     }
 }

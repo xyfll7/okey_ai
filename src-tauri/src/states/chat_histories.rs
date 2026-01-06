@@ -10,9 +10,9 @@ struct InnerState {
 }
 
 #[derive(Clone)]
-pub struct GlobalChatHistories(Arc<RwLock<InnerState>>);
+pub struct ChatHistoriesState(Arc<RwLock<InnerState>>);
 
-impl GlobalChatHistories {
+impl ChatHistoriesState {
     pub fn new() -> Self {
         Self(Arc::new(RwLock::new(InnerState {
             histories: BTreeMap::new(),
@@ -61,7 +61,7 @@ impl GlobalChatHistories {
     }
 }
 
-impl Default for GlobalChatHistories {
+impl Default for ChatHistoriesState {
     fn default() -> Self {
         Self::new()
     }
