@@ -35,8 +35,7 @@ impl Default for ChatHistoriesState {
     }
 }
 
-/// Global chat histories manager
-#[derive(Clone)] // ← 添加这一行
+#[derive(Clone)]
 pub struct GlobalChatHistories(pub Arc<RwLock<ChatHistoriesState>>);
 
 impl GlobalChatHistories {

@@ -4,10 +4,8 @@ use crate::states::chat_histories::GlobalChatHistories;
 use crate::utils::chat_message::ChatMessage;
 use std::future::Future;
 use std::sync::Arc;
+use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::async_runtime::RwLock;
-use uuid::Uuid;
-
-/// 翻译会话管理器
 #[derive(Clone)]
 pub struct TranslationManager {
     chat_histories: GlobalChatHistories,
@@ -24,11 +22,15 @@ impl TranslationManager {
         }
     }
 
-    /// 创建新的翻译会话（自动设为活跃）
     pub async fn create_session(&self) -> String {
-        let session_id = format!("translate_{}", Uuid::new_v4());
+        let session_id = format!(
+            "translate_{}",
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_millis()
+        );
 
-        // 初始化系统提示
         self.chat_histories
             .add_system_message(
                 &session_id,
@@ -37,14 +39,12 @@ impl TranslationManager {
             )
             .await;
 
-        // 设置为当前活跃会话
         let mut active_id = self.active_session_id.write().await;
         *active_id = Some(session_id.clone());
 
         session_id
     }
 
-    /// 翻译文本（session_id 为可选参数，未提供时使用活跃会话）
     pub async fn translate<F, Fut>(
         &self,
         session_id: Option<&str>,
