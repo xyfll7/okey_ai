@@ -13,7 +13,7 @@ import type { ChatHistories } from "@/lib/types"
 import { IIList } from "./icons/hugeicons"
 
 
-export function Histories() {
+export function Histories({className}:{className?:string}) {
     const [histoies, setHistories] = useState<ChatHistories>()
     return <Drawer>
         <DrawerTrigger onClick={async () => {
@@ -21,7 +21,7 @@ export function Histories() {
             console.log("histoies：：", res)
             setHistories(res)
         }}>
-            <Button size={"icon-sm"} variant={"ghost"}>
+            <Button size={"icon-sm"} variant={"ghost"} className={className}>
                 <IIList />
             </Button>
         </DrawerTrigger>

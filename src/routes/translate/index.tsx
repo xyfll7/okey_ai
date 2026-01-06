@@ -128,7 +128,7 @@ function Header(props: React.ComponentProps<"div">) {
 			data-tauri-drag-region
 		>
 			<div className="flex items-center">
-				{_ostype === "macos" && <Histories />}
+				{_ostype === "macos" && <Histories className="mr-1"/>}
 				{_ostype === "windows" && <PinWindow />}
 				{_ostype === "macos" && (
 					<HotKey
@@ -164,7 +164,7 @@ function Header(props: React.ComponentProps<"div">) {
 					/>
 				)}
 				{_ostype === "macos" && <PinWindow className="mr-1" />}
-				{_ostype === "windows" && <Histories />}
+				{_ostype === "windows" && <Histories className="ml-1"/>}
 			</div>
 			{_ostype === "windows" && (
 				<Button
