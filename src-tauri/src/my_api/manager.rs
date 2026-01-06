@@ -1,7 +1,11 @@
 use crate::my_api::m_deepseek::DeepSeekClient;
 use crate::my_api::m_openai::OpenAIClient;
 use crate::my_api::m_qwen::QwenClient;
-use crate::my_api::traits::{APIConfig, ChatCompletionRequest, ChatCompletionResponse, LLMClient};
+use crate::my_api::traits::{
+    APIConfig, ChatCompletionChunk, ChatCompletionRequest, ChatCompletionResponse, LLMClient,
+};
+use futures::stream::BoxStream;
+use futures::StreamExt; // Add this import for the .next() method
 use std::collections::HashMap;
 use std::sync::Arc;
 use tauri::async_runtime::RwLock;
@@ -53,6 +57,42 @@ impl APIManager {
 
         // Call the client's chat_completion method which returns a future
         client.chat_completion(request).await
+    }
+
+    pub async fn chat_completion_stream(
+        &self,
+        _request: &ChatCompletionRequest<'_>,
+    ) -> Result<BoxStream<'_, Result<ChatCompletionChunk, String>>, String> {
+        // For now, we'll implement a simpler approach that doesn't require complex lifetimes
+        // We'll return an error to indicate that streaming is not directly supported from the manager
+        // In a real implementation, you might want to use a different approach like callbacks
+        // or spawn the stream in a separate task
+        Err("Streaming not supported directly from manager due to lifetime constraints. Use the specific client directly.".to_string())
+    }
+
+    // Alternative approach: Provide a method that executes the stream and collects results
+    pub async fn chat_completion_stream_collect(
+        &self,
+        request: &ChatCompletionRequest<'_>,
+    ) -> Result<Vec<ChatCompletionChunk>, String> {
+        let current_model = self.current_model.read().await;
+        let clients = self.clients.read().await;
+
+        let client = clients
+            .get(&*current_model)
+            .ok_or_else(|| format!("No client configured for model: {}", current_model))?;
+
+        let mut stream = client.chat_completion_stream(request).await?;
+        let mut chunks = Vec::new();
+
+        while let Some(chunk_result) = stream.next().await {
+            match chunk_result {
+                Ok(chunk) => chunks.push(chunk),
+                Err(e) => return Err(e),
+            }
+        }
+
+        Ok(chunks)
     }
 
     pub async fn list_available_models(&self) -> Vec<String> {

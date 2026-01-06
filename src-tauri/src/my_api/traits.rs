@@ -1,6 +1,8 @@
 use crate::utils::chat_message::ChatMessage;
 use crate::utils::chat_message::LLMChatMessage;
+use futures::stream::BoxStream;
 use serde::{Deserialize, Serialize};
+use std::future::Future;
 
 #[derive(Debug, Serialize, Clone)]
 pub struct ChatCompletionRequest<'a> {
@@ -40,12 +42,46 @@ pub struct Usage {
     pub total_tokens: u32,
 }
 
+// Streaming response types
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ChatCompletionChunk {
+    pub id: String,
+    pub object: String,
+    pub created: u64,
+    pub model: String,
+    pub choices: Vec<ChoiceDelta>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ChoiceDelta {
+    pub index: u32,
+    pub delta: ChatMessageDelta,
+    pub finish_reason: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ChatMessageDelta {
+    pub role: Option<String>,
+    pub content: Option<String>,
+}
+
 pub trait LLMClient {
     fn chat_completion<'a>(
         &'a self,
         request: &'a ChatCompletionRequest,
     ) -> std::pin::Pin<
         Box<dyn std::future::Future<Output = Result<ChatCompletionResponse, String>> + Send + 'a>,
+    >;
+
+    fn chat_completion_stream<'a>(
+        &'a self,
+        request: &'a ChatCompletionRequest,
+    ) -> std::pin::Pin<
+        Box<
+            dyn Future<Output = Result<BoxStream<'a, Result<ChatCompletionChunk, String>>, String>>
+                + Send
+                + 'a,
+        >,
     >;
 }
 

@@ -32,6 +32,7 @@ tauri-plugin-notification = "2"
 device_query = "4.0.1"
 uuid = {version = "1.19.0", features = ["v4"] } 
 rdev = { git = "https://github.com/rustdesk/rdev" }
+futures = "0.3"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-global-shortcut = "2"

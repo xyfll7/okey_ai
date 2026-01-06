@@ -1,5 +1,9 @@
-use crate::my_api::traits::{APIConfig, ChatCompletionRequest, ChatCompletionResponse, LLMClient};
+use crate::my_api::traits::{
+    APIConfig, ChatCompletionChunk, ChatCompletionRequest, ChatCompletionResponse,
+    ChatMessageDelta, ChoiceDelta, LLMClient,
+};
 use crate::utils::chat_message::ChatMessage;
+use futures::stream::{BoxStream, StreamExt};
 use serde::{Deserialize, Serialize};
 use tauri_plugin_http::reqwest;
 
@@ -31,7 +35,10 @@ impl LLMClient for QwenClient {
                 self.config.base_url
             );
 
-            let json_body = serde_json::to_string(request)
+            let mut request = request.clone();
+            request.stream = Some(false); // Ensure stream is false for non-streaming requests
+
+            let json_body = serde_json::to_string(&request)
                 .map_err(|e| format!("Failed to serialize request: {}", e))?;
 
             let response = self
@@ -39,6 +46,7 @@ impl LLMClient for QwenClient {
                 .post(&api_url)
                 .header("Authorization", format!("Bearer {}", self.config.api_key))
                 .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
                 .body(json_body)
                 .send()
                 .await
@@ -82,6 +90,106 @@ impl LLMClient for QwenClient {
             })
         })
     }
+
+    fn chat_completion_stream<'a>(
+        &'a self,
+        request: &'a ChatCompletionRequest,
+    ) -> std::pin::Pin<
+        Box<
+            dyn std::future::Future<
+                    Output = Result<BoxStream<'a, Result<ChatCompletionChunk, String>>, String>,
+                > + Send
+                + 'a,
+        >,
+    > {
+        Box::pin(async move {
+            let api_url = format!(
+                "{}/compatible-mode/v1/chat/completions",
+                self.config.base_url
+            );
+
+            let mut request = request.clone();
+            request.stream = Some(true); // Enable streaming
+
+            let json_body = serde_json::to_string(&request)
+                .map_err(|e| format!("Failed to serialize request: {}", e))?;
+
+            let response = self
+                .client
+                .post(&api_url)
+                .header("Authorization", format!("Bearer {}", self.config.api_key))
+                .header("Content-Type", "application/json")
+                .header("Accept", "text/event-stream")
+                .body(json_body)
+                .send()
+                .await
+                .map_err(|e| format!("Failed to send request: {}", e))?;
+
+            if !response.status().is_success() {
+                return Err(format!(
+                    "API request failed with status信息: {}",
+                    response.status()
+                ));
+            }
+
+            // Use text streaming instead of bytes_stream since tauri-plugin-http doesn't support it directly
+            let response_text = response
+                .text()
+                .await
+                .map_err(|e| format!("Failed to read response text: {}", e))?;
+
+            // Process the streaming response manually by splitting on newlines
+            let chunks: Vec<String> = response_text
+                .split('\n')
+                .filter(|line| !line.trim().is_empty() && line.starts_with("data: "))
+                .map(|line| line[6..].trim().to_string()) // Remove "data: " prefix
+                .filter(|data| !data.is_empty() && data != "[DONE]")
+                .collect();
+
+            let stream = futures::stream::iter(chunks).then(|data| async move {
+                match serde_json::from_str::<QwenChatStreamResponse>(&data) {
+                    Ok(stream_response) => {
+                        // Convert stream response to standard chunk format
+                        let chunk = ChatCompletionChunk {
+                            id: stream_response.id,
+                            object: stream_response.object,
+                            created: stream_response.created,
+                            model: stream_response.model,
+                            choices: stream_response
+                                .choices
+                                .into_iter()
+                                .map(|choice| ChoiceDelta {
+                                    index: choice.index,
+                                    delta: ChatMessageDelta {
+                                        role: choice.delta.role,
+                                        content: choice.delta.content,
+                                    },
+                                    finish_reason: choice.finish_reason,
+                                })
+                                .collect(),
+                        };
+                        Ok(chunk)
+                    }
+                    Err(e) => Err(format!("Failed to parse stream data: {}", e)),
+                }
+            });
+
+            Ok(stream.boxed())
+        })
+    }
+}
+
+fn split_first_line(buffer: &str) -> Option<(&str, &str)> {
+    if let Some(pos) = buffer.find('\n') {
+        let (line, rest) = buffer.split_at(pos);
+        if line.ends_with('\r') {
+            Some((&line[..line.len() - 1], &rest[1..]))
+        } else {
+            Some((line, &rest[1..]))
+        }
+    } else {
+        None
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -92,6 +200,28 @@ struct QwenChatResponse {
     model: String,
     choices: Vec<QwenChoice>,
     usage: QwenUsage,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct QwenChatStreamResponse {
+    id: String,
+    object: String,
+    created: u64,
+    model: String,
+    choices: Vec<QwenStreamChoice>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct QwenStreamChoice {
+    delta: QwenStreamDelta,
+    index: u32,
+    finish_reason: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct QwenStreamDelta {
+    role: Option<String>,
+    content: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
