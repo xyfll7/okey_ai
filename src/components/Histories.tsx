@@ -19,22 +19,20 @@ import { cn } from "@/lib/utils"
 export function Histories({ className }: { className?: string }) {
     const [histoies, setHistories] = useState<ChatHistories>()
     return <Drawer >
-        <DrawerTrigger onClick={(e) => {
+        <DrawerTrigger onClick={async (e) => {
             (e.currentTarget as HTMLButtonElement).blur();
-            (async () => {
-                const res = await invoke<ChatHistories>(EVENT_NAMES.GET_HISTORIES)
-                console.log("histoies：：", res)
-                setHistories(res)
-            })()
+            const res = await invoke<ChatHistories>(EVENT_NAMES.GET_HISTORIES)
+            console.log("histoies：：", res)
+            setHistories(res)
         }} asChild >
             <Button size={"icon-sm"} variant={"ghost"} className={className} >
                 <IIList />
             </Button>
         </DrawerTrigger>
         <DrawerContent className="pb-2">
-            <DrawerHeader>
-                <DrawerTitle>Are you absolutely sure?</DrawerTitle>
-                <DrawerDescription>This action cannot be undone.</DrawerDescription>
+            <DrawerHeader className="sr-only">
+                <DrawerTitle />
+                <DrawerDescription />
             </DrawerHeader>
             <ScrollArea className={cn("h-[50vh] pt-4")}>
                 <div className="max-w-screen flex-coh items-start px-2">
