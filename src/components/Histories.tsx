@@ -11,32 +11,34 @@ import { invoke } from "@tauri-apps/api/core"
 import { useState } from "react"
 import type { ChatHistories } from "@/lib/types"
 import { IIList } from "./icons/hugeicons"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils"
 
 
-export function Histories({className}:{className?:string}) {
+export function Histories({ className }: { className?: string }) {
     const [histoies, setHistories] = useState<ChatHistories>()
     return <Drawer>
         <DrawerTrigger onClick={async () => {
             const res = await invoke<ChatHistories>(EVENT_NAMES.GET_HISTORIES)
             console.log("histoies：：", res)
             setHistories(res)
-        }}>
+        }} asChild>
             <Button size={"icon-sm"} variant={"ghost"} className={className}>
                 <IIList />
             </Button>
         </DrawerTrigger>
-        <DrawerContent>
-            <DrawerHeader>
-                <DrawerDescription>
+        <DrawerContent className="h-[50vh]">
+            <ScrollArea className={cn("h-full pt-4")}>
+                <div className="max-w-screen flex-coh items-start px-2">
                     {histoies && Object.keys(histoies ?? {}).map(e => {
-                        return <Button className="max-w-full" variant={"ghost"}>
-                            <span className="truncate">
+                        return <Button className="w-full cursor-pointer" variant={"ghost"}>
+                            <span className="truncate w-full text-start">
                                 {histoies[e].messages.at(1)?.raw}
                             </span>
                         </Button>
                     })}
-                </DrawerDescription>
-            </DrawerHeader>
+                </div>
+            </ScrollArea>
         </DrawerContent>
     </Drawer>
 }
