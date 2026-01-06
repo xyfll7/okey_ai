@@ -21,6 +21,7 @@ export const EVENT_NAMES = {
   CLOSE_MAIN_WINDOW: "close_main_window",
   GET_HISTORIES: "get_histories",
   CHAT: "chat",
+  CHAT_STREAM_COLLECT: "chat_stream_collect",
 } as const;
 
 // Type for event names to provide type safety
