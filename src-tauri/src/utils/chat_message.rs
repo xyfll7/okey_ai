@@ -117,34 +117,6 @@ impl ChatMessageHistory {
     pub fn to_vec(&self) -> Vec<ChatMessage> {
         self.messages.clone()
     }
-
-    /// Gets the number of messages in the history
-    pub fn len(&self) -> usize {
-        self.messages.len()
-    }
-
-    /// Checks if the history is empty
-    pub fn is_empty(&self) -> bool {
-        self.messages.is_empty()
-    }
-
-    /// Gets the last message in the history
-    pub fn last(&self) -> Option<&ChatMessage> {
-        self.messages.last()
-    }
-
-    /// Limits the history to the last N messages
-    pub fn limit_messages(&mut self, count: usize) -> &mut Self {
-        if self.messages.len() > count {
-            let start_index = self.messages.len() - count;
-            self.messages.drain(0..start_index);
-        }
-        self
-    }
-    /// Clears all messages from the history
-    pub fn clear(&mut self) {
-        self.messages.clear();
-    }
 }
 
 impl Default for ChatMessageHistory {

@@ -101,70 +101,7 @@ impl TranslationManager {
         self.chat_histories.get_messages(&session_id).await
     }
 
-    /// 获取会话历史
-    pub async fn get_history(&self, session_id: Option<&str>) -> Option<Vec<ChatMessage>> {
-        // 确定要使用的会话ID
-        let session_id = match session_id {
-            Some(id) => id.to_string(),
-            None => {
-                let active_id = self.active_session_id.read().await;
-                active_id.as_ref()?.clone()
-            }
-        };
-
-        self.chat_histories.get_messages(&session_id).await
-    }
     pub async fn get_histories(&self) -> GlobalChatHistories {
         self.chat_histories.clone()
-    }
-
-    /// 获取当前活跃会话ID
-    pub async fn get_active_session_id(&self) -> Option<String> {
-        let active_id = self.active_session_id.read().await;
-        active_id.clone()
-    }
-
-    /// 关闭当前活跃会话
-    pub async fn close_active_session(&self) {
-        let mut active_id = self.active_session_id.write().await;
-        *active_id = None;
-    }
-
-    /// 清理会话（包括其历史记录）
-    pub async fn cleanup_session(&self, session_id: &str) {
-        self.chat_histories.remove_history(session_id).await;
-
-        // 如果清理的是当前活跃会话，则清空活跃状态
-        let mut active_id = self.active_session_id.write().await;
-        if active_id.as_ref() == Some(&session_id.to_string()) {
-            *active_id = None;
-        }
-    }
-
-    /// 定期清理所有非活跃的翻译会话
-    pub async fn cleanup_inactive_sessions(&self) {
-        let active_id = self.active_session_id.read().await;
-        let state = self.chat_histories.0.read().await;
-
-        // 获取所有翻译会话的 key
-        let all_keys: Vec<String> = state
-            .histories
-            .keys()
-            .filter(|k| k.starts_with("translate_"))
-            .cloned()
-            .collect();
-        drop(state);
-
-        // 清理除了当前活跃会话外的所有翻译会话
-        for key in all_keys {
-            if let Some(active) = &*active_id {
-                if key != *active {
-                    self.chat_histories.remove_history(&key).await;
-                }
-            } else {
-                // 如果没有活跃会话，清理所有翻译会话
-                self.chat_histories.remove_history(&key).await;
-            }
-        }
     }
 }

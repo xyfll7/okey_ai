@@ -1,5 +1,5 @@
 use crate::my_api::manager::APIManager;
-use crate::my_api::traits::{APIConfig, ChatCompletionRequest};
+use crate::my_api::traits::APIConfig;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tauri::{async_runtime::RwLock, State};
