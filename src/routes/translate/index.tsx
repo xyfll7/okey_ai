@@ -32,7 +32,7 @@ import { EVENT_NAMES } from "@/lib/events";
 import { AutoSpeakState, type ChatMessage } from "@/lib/types";
 import { cn, get_global_config, speak } from "@/lib/utils";
 import { s_Selected } from "@/store";
-import { ArrowUp, Pin, Add, VolumeHigh, Cancel } from "@/components/icons";
+import { IIArrowUp, IIPin, IIAdd, IIVolumeHigh, IICancel } from "@/components/icons";
 import { Histories } from "@/components/Histories";
 
 export const Route = createFileRoute("/translate/")({
@@ -128,7 +128,7 @@ function Header(props: React.ComponentProps<"div">) {
 			data-tauri-drag-region
 		>
 			<div className="flex items-center">
-						<Histories></Histories>
+				{_ostype === "macos" && <Histories />}
 				{_ostype === "windows" && <PinWindow />}
 				{_ostype === "macos" && (
 					<HotKey
@@ -155,6 +155,7 @@ function Header(props: React.ComponentProps<"div">) {
 						}
 					</TooltipContent>
 				</Tooltip>
+
 				{_ostype === "windows" && (
 					<HotKey
 						className="ml-1"
@@ -163,6 +164,7 @@ function Header(props: React.ComponentProps<"div">) {
 					/>
 				)}
 				{_ostype === "macos" && <PinWindow className="mr-1" />}
+				{_ostype === "windows" && <Histories />}
 			</div>
 			{_ostype === "windows" && (
 				<Button
@@ -170,7 +172,7 @@ function Header(props: React.ComponentProps<"div">) {
 					variant={"ghost"}
 					onClick={() => invoke(EVENT_NAMES.CLOSE_MAIN_WINDOW)}
 				>
-					<Cancel />
+					<IICancel />
 				</Button>
 			)}
 		</div>
@@ -231,8 +233,8 @@ function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
 						<DropdownMenuItem>Manual</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
-			
-		
+
+
 
 				<InputGroupButton
 					variant="default"
@@ -241,7 +243,7 @@ function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
 					disabled={!value}
 					onClick={async () => await send()}
 				>
-					<ArrowUp />
+					<IIArrowUp />
 					<span className="sr-only">Send</span>
 				</InputGroupButton>
 			</InputGroupAddon>
@@ -319,7 +321,7 @@ function MessageItem({ chat, className }: { chat: ChatMessage, className?: strin
 						<Copyed text={chat.content} />
 					</Button>
 					<Button size={"icon-sm"} variant={"ghost"} onClick={() => speak(chat.raw ?? chat.content)} >
-						<VolumeHigh />
+						<IIVolumeHigh />
 					</Button>
 				</div>
 			</div>
@@ -349,14 +351,14 @@ function SelectedText() {
 						if (!selected.text) return;
 						speak(selected.text);
 					}}>
-						<VolumeHigh />
+						<IIVolumeHigh />
 					</Button>
 				)}
 				{selected.text?.trim() && (
 					<Button size={"icon-sm"} variant={"ghost"} onClick={() => {
 						s_Selected.setState({ text: "", raw: "" })
 					}}>
-						<Cancel />
+						<IICancel />
 					</Button>
 				)}
 			</div>
@@ -383,7 +385,7 @@ function SelectedText() {
 						</Button>
 					))}
 					<Button size={"xs"} variant={"outline"}>
-						<Add />
+						<IIAdd />
 					</Button>
 				</div>
 			)
@@ -408,7 +410,7 @@ function PinWindow({ className }: { className?: string }) {
 				setPin(await invoke<boolean>(EVENT_NAMES.TOGGLE_AUTO_CLOSE_WINDOW))
 			}
 		>
-			<Pin
+			<IIPin
 				strokeWidth={2}
 				className={cn(pin && "text-green-300 dark:text-green-20")}
 			/>

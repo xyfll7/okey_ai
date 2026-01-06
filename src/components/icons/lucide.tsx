@@ -10,18 +10,20 @@ import {
   VolumeX,
   Volume1,
   Volume2,
+  History,
 } from 'lucide-react';
 
 const strokeWidth = 2
 
-export const IconGripVertical = (props: any) => <GripVertical {...props} strokeWidth={strokeWidth}/>;
-export const IconArrowExpand = (props: any) => <Maximize2 {...props} strokeWidth={strokeWidth}/>;
-export const IconArrowUp = (props: any) => <ChevronUp {...props} strokeWidth={strokeWidth}/>;
-export const IconPin = (props: any) => <Pin {...props} strokeWidth={strokeWidth}/>;
-export const IconAdd = (props: any) => <Plus {...props} strokeWidth={strokeWidth}/>;
-export const IconCancel = (props: any) => <X {...props} strokeWidth={strokeWidth}/>;
-export const IconTick = (props: any) => <Check {...props} strokeWidth={strokeWidth}/>;
-export const IconCopy = (props: any) => <Copy {...props} strokeWidth={strokeWidth}/>;
-export const IconVolumeLow = (props: any) => <VolumeX {...props} strokeWidth={strokeWidth}/>;
-export const IconVolumeOff = (props: any) => <Volume1 {...props} strokeWidth={strokeWidth}/>;
-export const IconVolumeHigh = (props: any) => <Volume2 {...props} strokeWidth={strokeWidth}/>;
+export const IIGripVertical = (props: any) => <GripVertical {...props} strokeWidth={strokeWidth}/>;
+export const IIArrowExpand = (props: any) => <Maximize2 {...props} strokeWidth={strokeWidth}/>;
+export const IIArrowUp = (props: any) => <ChevronUp {...props} strokeWidth={strokeWidth}/>;
+export const IIPin = (props: any) => <Pin {...props} strokeWidth={strokeWidth}/>;
+export const IIAdd = (props: any) => <Plus {...props} strokeWidth={strokeWidth}/>;
+export const IICancel = (props: any) => <X {...props} strokeWidth={strokeWidth}/>;
+export const IITick = (props: any) => <Check {...props} strokeWidth={strokeWidth}/>;
+export const IICopy = (props: any) => <Copy {...props} strokeWidth={strokeWidth}/>;
+export const IIVolumeLow = (props: any) => <VolumeX {...props} strokeWidth={strokeWidth}/>;
+export const IIVolumeOff = (props: any) => <Volume1 {...props} strokeWidth={strokeWidth}/>;
+export const IIVolumeHigh = (props: any) => <Volume2 {...props} strokeWidth={strokeWidth}/>;
+export const IIHistory = (props: any) => <History {...props} strokeWidth={strokeWidth}/>;
