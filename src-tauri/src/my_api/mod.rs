@@ -8,21 +8,16 @@ pub mod traits;
 use std::collections::HashMap;
 use tauri::{AppHandle, Manager};
 
-// Initialize the API manager with default configurations in the application setup
 pub fn setup_api_manager(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     tauri::async_runtime::spawn({
         let app_handle = app.clone();
         async move {
-            // 获取全局 API 管理器状态
             let api_manager_state = app_handle.state::<crate::my_api::commands::GlobalAPIManager>();
 
-            // 直接在 setup_api_manager 中实现初始化逻辑
             let configs = get_default_configs();
-            // 将 HashMap 转换为 Vec 以匹配 initialize_api_manager 的参数类型
             let configs_vec: Vec<(String, crate::my_api::traits::APIConfig)> =
                 configs.into_iter().collect();
 
-            // 调用初始化函数
             if let Err(e) =
                 crate::my_api::commands::initialize_api_manager(configs_vec, api_manager_state)
                     .await
