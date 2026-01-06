@@ -10,7 +10,7 @@ import {
   VolumeX,
   Volume1,
   Volume2,
-  History,
+  ListMinus,
 } from 'lucide-react';
 
 const strokeWidth = 2
@@ -26,4 +26,4 @@ export const IICopy = (props: any) => <Copy {...props} strokeWidth={strokeWidth}
 export const IIVolumeLow = (props: any) => <VolumeX {...props} strokeWidth={strokeWidth}/>;
 export const IIVolumeOff = (props: any) => <Volume1 {...props} strokeWidth={strokeWidth}/>;
 export const IIVolumeHigh = (props: any) => <Volume2 {...props} strokeWidth={strokeWidth}/>;
-export const IIHistory = (props: any) => <History {...props} strokeWidth={strokeWidth}/>;
+export const IIList = (props: any) => <ListMinus {...props} strokeWidth={strokeWidth}/>;

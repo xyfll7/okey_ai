@@ -411,7 +411,6 @@ function PinWindow({ className }: { className?: string }) {
 			}
 		>
 			<IIPin
-				strokeWidth={2}
 				className={cn(pin && "text-green-300 dark:text-green-20")}
 			/>
 		</Button>

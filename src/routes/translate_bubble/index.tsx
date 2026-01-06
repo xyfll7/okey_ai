@@ -120,9 +120,7 @@ function RouteComponent() {
 							speak(chat_user?.raw ?? chat_user?.content ?? "")
 						}}
 					>
-						<IIVolumeHigh
-							strokeWidth={2}
-						/>
+						<IIVolumeHigh/>
 					</Button>
 					<Button
 						className={cn("")}
@@ -135,9 +133,7 @@ function RouteComponent() {
 							});
 						}}
 					>
-						<IIArrowExpand
-							strokeWidth={2}
-						/>
+						<IIArrowExpand/>
 					</Button>
 				</div>
 			</div>

@@ -11,7 +11,7 @@ import {
   VolumeLowIcon,
   VolumeOffIcon,
   VolumeHighIcon,
-  History,
+  Menu02Icon,
 } from "@hugeicons/core-free-icons";
 
 const strokeWidth = 2
@@ -27,4 +27,4 @@ export const IICopy = (props: any) => <HugeiconsIcon icon={Copy01Icon} {...props
 export const IIVolumeLow = (props: any) => <HugeiconsIcon icon={VolumeLowIcon} {...props} strokeWidth={strokeWidth}/>;
 export const IIVolumeOff = (props: any) => <HugeiconsIcon icon={VolumeOffIcon} {...props} strokeWidth={strokeWidth}/>;
 export const IIVolumeHigh = (props: any) => <HugeiconsIcon icon={VolumeHighIcon} {...props} strokeWidth={strokeWidth}/>;
-export const IIHistory = (props: any) => <HugeiconsIcon icon={History} {...props} strokeWidth={strokeWidth}/>;
+export const IIList = (props: any) => <HugeiconsIcon icon={Menu02Icon} {...props} strokeWidth={strokeWidth}/>;
