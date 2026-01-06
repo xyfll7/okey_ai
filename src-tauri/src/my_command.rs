@@ -122,11 +122,16 @@ pub async fn translate_specified_text(
 #[tauri::command(rename_all = "snake_case")]
 pub async fn get_histories(
     app: AppHandle,
-) -> Result<std::collections::HashMap<String, crate::utils::chat_message::ChatMessageHistory>, String>
-{
+) -> Result<
+    std::collections::BTreeMap<String, crate::utils::chat_message::ChatMessageHistory>,
+    String,
+> {
     let translation_manager = app.state::<translation_manager::TranslationManager>();
     let histories = translation_manager.get_histories().await;
     let state = histories.0.read().await.clone();
-
+    println!("=== Ordered keys ===");
+    for (key, item) in state.histories.iter() {
+        println!("{},{:#?}", key, item);
+    }
     Ok(state.histories)
 }

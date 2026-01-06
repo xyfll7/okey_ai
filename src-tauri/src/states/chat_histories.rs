@@ -1,17 +1,18 @@
 use crate::utils::chat_message::{ChatMessage, ChatMessageHistory};
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 use std::sync::Arc;
 use tauri::async_runtime::RwLock;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChatHistoriesState {
-    pub histories: std::collections::HashMap<String, ChatMessageHistory>,
+    pub histories: BTreeMap<String, ChatMessageHistory>,
 }
 
 impl ChatHistoriesState {
     pub fn new() -> Self {
         Self {
-            histories: std::collections::HashMap::new(),
+            histories: std::collections::BTreeMap::new(),
         }
     }
 
