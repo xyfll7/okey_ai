@@ -10,19 +10,18 @@ import { Button } from "./ui/button"
 import { EVENT_NAMES } from "@/lib/events"
 import { invoke } from "@tauri-apps/api/core"
 import { useState } from "react"
-import type { ChatHistories } from "@/lib/types"
+import type { ChatMessageHistory } from "@/lib/types"
 import { IIList } from "./icons/hugeicons"
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils"
 
 
 export function Histories({ className }: { className?: string }) {
-    const [histoies, setHistories] = useState<ChatHistories>()
+    const [histoies, setHistories] = useState<[string, ChatMessageHistory][]>()
     return <Drawer >
         <DrawerTrigger onClick={async (e) => {
             (e.currentTarget as HTMLButtonElement).blur();
-            const res = await invoke<ChatHistories>(EVENT_NAMES.GET_HISTORIES)
-            console.log("histoies：：", res)
+            const res = await invoke<[string, ChatMessageHistory][]>(EVENT_NAMES.GET_HISTORIES)
             setHistories(res)
         }} asChild >
             <Button size={"icon-sm"} variant={"ghost"} className={className} >
@@ -36,10 +35,10 @@ export function Histories({ className }: { className?: string }) {
             </DrawerHeader>
             <ScrollArea className={cn("h-[50vh] pt-4")}>
                 <div className="max-w-screen flex-coh items-start px-2">
-                    {histoies && Object.keys(histoies ?? {}).map(e => {
-                        return <Button className="w-full cursor-pointer" key={e} variant={"ghost"}>
+                    {histoies && histoies.map(([key, item]) => {
+                        return <Button className="w-full cursor-pointer" key={key} variant={"ghost"}>
                             <span className="truncate w-full text-start">
-                                {histoies[e].messages.at(1)?.raw}
+                                {item.messages.at(1)?.raw}
                             </span>
                         </Button>
                     })}

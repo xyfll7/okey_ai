@@ -122,12 +122,11 @@ pub async fn translate_specified_text(
 #[tauri::command(rename_all = "snake_case")]
 pub async fn get_histories(
     app: AppHandle,
-) -> Result<
-    std::collections::BTreeMap<String, crate::utils::chat_message::ChatMessageHistory>,
-    String,
-> {
+) -> Result<Vec<(String, crate::utils::chat_message::ChatMessageHistory)>, String> {
     let translation_manager = app.state::<translation_manager::TranslationManager>();
     let histories = translation_manager.get_histories().await;
     let all_histories = histories.get_all_histories().await;
-    Ok(all_histories)
+    let mut all_histories_vec: Vec<_> = all_histories.into_iter().collect();
+    all_histories_vec.reverse();
+    Ok(all_histories_vec)
 }
