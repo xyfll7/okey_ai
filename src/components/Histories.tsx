@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils"
 
 
 export function Histories({ className }: { className?: string }) {
-    const [histoies, setHistories] = useState<[string, ChatMessageHistory][]>()
+    const [histories, setHistories] = useState<[string, ChatMessageHistory][]>()
     return <Drawer >
         <DrawerTrigger onClick={async (e) => {
             (e.currentTarget as HTMLButtonElement).blur();
@@ -35,7 +35,7 @@ export function Histories({ className }: { className?: string }) {
             </DrawerHeader>
             <ScrollArea className={cn("h-[50vh] pt-4")}>
                 <div className="max-w-screen flex-coh items-start px-2">
-                    {histoies && histoies.map(([key, item]) => {
+                    {histories && histories.map(([key, item]) => {
                         return <Button className="w-full cursor-pointer" key={key} variant={"ghost"}>
                             <span className="truncate w-full text-start">
                                 {item.messages.at(1)?.raw}
