@@ -4,7 +4,6 @@ use crate::my_api::m_qwen::QwenClient;
 use crate::my_api::traits::{
     APIConfig, ChatCompletionChunk, ChatCompletionRequest, ChatCompletionResponse, LLMClient,
 };
-use futures::stream::BoxStream;
 use futures::StreamExt; // Add this import for the .next() method
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -59,15 +58,31 @@ impl APIManager {
         client.chat_completion(request).await
     }
 
-    pub async fn chat_completion_stream(
+    pub async fn chat_completion_stream<F>(
         &self,
-        _request: &ChatCompletionRequest<'_>,
-    ) -> Result<BoxStream<'_, Result<ChatCompletionChunk, String>>, String> {
-        // For now, we'll implement a simpler approach that doesn't require complex lifetimes
-        // We'll return an error to indicate that streaming is not directly supported from the manager
-        // In a real implementation, you might want to use a different approach like callbacks
-        // or spawn the stream in a separate task
-        Err("Streaming not supported directly from manager due to lifetime constraints. Use the specific client directly.".to_string())
+        request: &ChatCompletionRequest<'_>,
+        mut callback: F,
+    ) -> Result<(), String>
+    where
+        F: FnMut(ChatCompletionChunk) + Send,
+    {
+        let current_model = self.current_model.read().await;
+        let clients = self.clients.read().await;
+
+        let client = clients
+            .get(&*current_model)
+            .ok_or_else(|| format!("No client configured for model: {}", current_model))?;
+
+        let mut stream = client.chat_completion_stream(request).await?;
+
+        while let Some(chunk_result) = stream.next().await {
+            match chunk_result {
+                Ok(chunk) => callback(chunk),
+                Err(e) => return Err(e),
+            }
+        }
+
+        Ok(())
     }
 
     // Alternative approach: Provide a method that executes the stream and collects results

@@ -45,6 +45,7 @@ pub fn run() {
             my_command::command_window_translate_show,
             my_command::close_main_window,
             my_command::chat,
+            my_command::chat_stream,
             my_command::chat_stream_collect,
             my_command::detect_language,
             my_command::translate_specified_text,

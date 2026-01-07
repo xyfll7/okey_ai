@@ -371,7 +371,7 @@ function SelectedText() {
 							variant={"outline"}
 							key={`${e}-${i}`}
 							onClick={() => {
-								invoke(EVENT_NAMES.TRANSLATE_SPECIFIED_TEXT,
+								invoke(EVENT_NAMES.CHAT_STREAM,
 									{
 										chat_message: {
 											role: "user",

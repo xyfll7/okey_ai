@@ -39,6 +39,42 @@ pub async fn chat(app: AppHandle, chat_message: ChatMessage) -> Result<(), Strin
 }
 
 #[tauri::command(rename_all = "snake_case")]
+pub async fn chat_stream(app: AppHandle, chat_message: ChatMessage) -> Result<(), String> {
+    let translation_manager = app.state::<translation_manager::TranslationManager>();
+    let app_clone = app.clone();
+    let content_clone = chat_message.content.clone();
+
+    match translation_manager
+        .translate_stream(
+            None,
+            &content_clone,
+            None,
+            |chat_history| {
+                let app_handle = app.clone();
+                async move {
+                    let _ = app_handle.emit(event_names::AI_RESPONSE, &chat_history);
+                }
+            },
+            move |chunk_content| {
+                let app_handle = app_clone.clone();
+                println!("{:#?}", chunk_content)
+                // let _ = app_handle.emit(event_names::AI_STREAM, chunk_content);
+            },
+        )
+        .await
+    {
+        Some(chat_histories) => {
+            let _ = app.emit(event_names::AI_RESPONSE, &chat_histories);
+        }
+        None => {
+            let error_msg = "翻译失败".to_string();
+            let _ = app.emit(event_names::AI_ERROR, error_msg);
+        }
+    }
+    Ok(())
+}
+
+#[tauri::command(rename_all = "snake_case")]
 pub async fn chat_stream_collect(app: AppHandle, chat_message: ChatMessage) -> Result<(), String> {
     let translation_manager = app.state::<translation_manager::TranslationManager>();
     match translation_manager

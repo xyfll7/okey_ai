@@ -101,6 +101,68 @@ impl TranslationManager {
         self.chat_histories.get_messages(&session_id).await
     }
 
+    pub async fn translate_stream<F, Fut, StreamCallback>(
+        &self,
+        session_id: Option<&str>,
+        content: &str,
+        raw: Option<String>,
+        initial_callback: F,
+        stream_callback: StreamCallback,
+    ) -> Option<Vec<ChatMessage>>
+    where
+        F: FnOnce(Vec<ChatMessage>) -> Fut,
+        Fut: Future<Output = ()> + Send + 'static,
+        StreamCallback: Fn(String) + Send + 'static,
+    {
+        // 确定要使用的会话ID
+        let session_id = match session_id {
+            Some(id) => id.to_string(),
+            None => {
+                let active_id = self.active_session_id.read().await;
+                active_id.as_ref()?.clone()
+            }
+        };
+
+        // 添加用户消息
+        self.chat_histories
+            .add_user_message(&session_id, content.to_string(), raw)
+            .await;
+
+        // 获取历史
+        let messages = self.chat_histories.get_messages(&session_id).await?;
+
+        // 调用初始回调函数
+        initial_callback(messages.clone()).await;
+
+        // 构建 API 请求
+        let request = ChatCompletionRequest {
+            model: "qwen-plus".to_string(),
+            messages: messages.iter().map(ChatMessage::as_llm).collect::<Vec<_>>(),
+            temperature: Some(0.1),
+            max_tokens: Some(5000),
+            top_p: Some(1.0),
+            stream: Some(true), // Enable streaming
+        };
+
+        // 调用 AI API with streaming
+        let manager = self.api_manager.read().await;
+        let result = manager
+            .chat_completion_stream(&request, move |chunk| {
+                for choice in &chunk.choices {
+                    if let Some(ref content) = choice.delta.content {
+                        stream_callback(content.clone());
+                    }
+                }
+            })
+            .await;
+
+        if result.is_err() {
+            return None;
+        }
+
+        self.chat_histories.get_messages(&session_id).await
+    }
+
     pub async fn translate_stream_collect<F, Fut>(
         &self,
         session_id: Option<&str>,
