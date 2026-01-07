@@ -4,6 +4,8 @@ pub mod event_names {
 
     pub const AI_RESPONSE: &str = "AI_RESPONSE";
 
+    pub const AI_STREAM: &str = "AI_STREAM";
+
     pub const AI_ERROR: &str = "AI_ERROR";
 
     pub const PAGE_LOADED: &str = "PAGE_LOADED";

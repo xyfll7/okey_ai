@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useStore } from "@tanstack/react-store";
-import { invoke } from "@tauri-apps/api/core";
+import { Channel, invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
 import { type as ostype } from "@tauri-apps/plugin-os";
 import Markdown from "markdown-to-jsx";
@@ -39,6 +39,11 @@ export const Route = createFileRoute("/translate/")({
 	component: RouteComponent,
 });
 
+type StreamEvent =
+	| { event: "chunk"; data: { content: string } }
+	| { event: "done"; data?: unknown }
+	| { event: "error"; data: { message: string } };
+
 function RouteComponent() {
 	const [chatList, setChatList] = useState<ChatMessage[]>([]);
 	useEffect(() => {
@@ -69,6 +74,64 @@ function RouteComponent() {
 			unlistenError.then((fn) => fn());
 		};
 	}, []);
+
+	const handleStream = async (chatMessage: ChatMessage) => {
+		let accumulated = "";
+		const channel = new Channel<StreamEvent>();
+		channel.onmessage = (message) => {
+			switch (message.event) {
+				case "chunk": {
+					accumulated += message.data?.content ?? "";
+					setChatList((list) => {
+						if (list.at(-1)?.role !== "assistant") {
+							return [...list, { role: "assistant", content: accumulated }];
+						}
+						const next = [...list];
+						next[next.length - 1] = {
+							...next[next.length - 1]!,
+							content: accumulated,
+						};
+						return next;
+					});
+					break;
+				}
+				case "error": {
+					const errorContent = message.data?.message ?? "流式请求失败";
+					setChatList((list) => {
+						if (list.length === 0) {
+							return [
+								...list,
+								{ role: "assistant", content: errorContent },
+							];
+						}
+						const next = [...list];
+						const last = next[next.length - 1];
+						if (last.role === "assistant") {
+							next[next.length - 1] = {
+								...last,
+								content: errorContent,
+							};
+							return next;
+						}
+						return [
+							...next,
+							{ role: "assistant", content: errorContent },
+						];
+					});
+					break;
+				}
+				default:
+					break;
+			}
+		};
+
+		setChatList((list) => [...list, chatMessage, { role: "assistant", content: "" }]);
+		await invoke(EVENT_NAMES.CHAT_STREAM, {
+			chat_message: chatMessage,
+			on_event: channel,
+		});
+	};
+
 	return (
 		<div className={cn("bg-background", "h-full", "flex-coh")}>
 			<Header className="p-1" />
@@ -90,6 +153,7 @@ function RouteComponent() {
 							},
 						]);
 					}}
+					onStream={handleStream}
 				/>
 			</div>
 		</div>
@@ -179,7 +243,13 @@ function Header(props: React.ComponentProps<"div">) {
 	);
 }
 
-function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
+function Inputer({
+	onEnter,
+	onStream,
+}: {
+	onEnter: (message: string) => void;
+	onStream: (chatMessage: ChatMessage) => Promise<void>;
+}) {
 	const [value, setValue] = useState("");
 	const selected = useStore(s_Selected, (state) => state);
 	async function send() {
@@ -196,7 +266,7 @@ function Inputer({ onEnter }: { onEnter: (message: string) => void }) {
 		<InputGroup className={cn("rounded-xl", "has-[[data-slot=input-group-control]:focus-visible]:border-ring/70 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/7")}>
 			{selected.text && (
 				<InputGroupAddon align="block-start">
-					<SelectedText />
+					<SelectedText onStream={onStream} />
 				</InputGroupAddon>
 			)}
 			<InputGroupTextarea
@@ -329,7 +399,7 @@ function MessageItem({ chat, className }: { chat: ChatMessage, className?: strin
 	);
 }
 
-function SelectedText() {
+function SelectedText({ onStream }: { onStream: (chatMessage: ChatMessage) => Promise<void> }) {
 	const selected = useStore(s_Selected, (state) => state);
 	if (!selected.text) return "";
 	return (
@@ -371,14 +441,11 @@ function SelectedText() {
 							variant={"outline"}
 							key={`${e}-${i}`}
 							onClick={() => {
-								invoke(EVENT_NAMES.CHAT_STREAM,
-									{
-										chat_message: {
-											role: "user",
-											content: `${selected.text}\n${e}`,
-										} as ChatMessage,
-									}
-								);
+								void onStream({
+									role: "user",
+									content: `${selected.text}\n${e}`,
+									raw: selected.text,
+								} as ChatMessage);
 							}}
 						>
 							{e}
