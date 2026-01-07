@@ -129,7 +129,7 @@ impl LLMClient for QwenClient {
 
             if !response.status().is_success() {
                 return Err(format!(
-                    "API request failed with status信息: {}",
+                    "API request failed with status information: {}",
                     response.status()
                 ));
             }
@@ -151,7 +151,6 @@ impl LLMClient for QwenClient {
                             match std::str::from_utf8(&bytes) {
                                 Ok(text) => {
                                     buffer.push_str(text);
-                                    println!("{:#?}", text);
                                     // Process all complete lines from the buffer
                                     loop {
                                         let (line, rest) = match split_first_line(&buffer) {
@@ -201,7 +200,6 @@ impl LLMClient for QwenClient {
                                                             .collect(),
                                                     };
                                                     if tx.unbounded_send(Ok(chunk)).is_err() {
-                                                        // Receiver dropped, exit early
                                                         break;
                                                     }
                                                 }

@@ -102,10 +102,7 @@ impl APIManager {
 
         while let Some(chunk_result) = stream.next().await {
             match chunk_result {
-                Ok(chunk) => {
-                    println!("{:#?}", chunk);
-                    chunks.push(chunk)
-                }
+                Ok(chunk) => chunks.push(chunk),
                 Err(e) => return Err(e),
             }
         }

@@ -57,7 +57,7 @@ pub async fn chat_stream(app: AppHandle, chat_message: ChatMessage) -> Result<()
             },
             move |chunk_content| {
                 let app_handle = app_clone.clone();
-                println!("{:#?}", chunk_content)
+                println!("+++++++++++++++】】】{:#?}", chunk_content)
                 // let _ = app_handle.emit(event_names::AI_STREAM, chunk_content);
             },
         )
