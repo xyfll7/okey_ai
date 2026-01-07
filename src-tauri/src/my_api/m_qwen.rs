@@ -120,6 +120,8 @@ impl LLMClient for QwenClient {
                 .header("Authorization", format!("Bearer {}", self.config.api_key))
                 .header("Content-Type", "application/json")
                 .header("Accept", "text/event-stream")
+                .header("Cache-Control", "no-cache")
+                .header("Connection", "keep-alive")
                 .body(json_body)
                 .send()
                 .await
@@ -132,49 +134,110 @@ impl LLMClient for QwenClient {
                 ));
             }
 
-            // Use text streaming instead of bytes_stream since tauri-plugin-http doesn't support it directly
-            let response_text = response
-                .text()
-                .await
-                .map_err(|e| format!("Failed to read response text: {}", e))?;
+            // Use bytes_stream for true streaming
+            let byte_stream = response.bytes_stream();
 
-            // Process the streaming response manually by splitting on newlines
-            let chunks: Vec<String> = response_text
-                .split('\n')
-                .filter(|line| !line.trim().is_empty() && line.starts_with("data: "))
-                .map(|line| line[6..].trim().to_string()) // Remove "data: " prefix
-                .filter(|data| !data.is_empty() && data != "[DONE]")
-                .collect();
+            // Create a channel to send chunks as they arrive
+            let (tx, rx) = futures::channel::mpsc::unbounded();
 
-            let stream = futures::stream::iter(chunks).then(|data| async move {
-                match serde_json::from_str::<QwenChatStreamResponse>(&data) {
-                    Ok(stream_response) => {
-                        // Convert stream response to standard chunk format
-                        let chunk = ChatCompletionChunk {
-                            id: stream_response.id,
-                            object: stream_response.object,
-                            created: stream_response.created,
-                            model: stream_response.model,
-                            choices: stream_response
-                                .choices
-                                .into_iter()
-                                .map(|choice| ChoiceDelta {
-                                    index: choice.index,
-                                    delta: ChatMessageDelta {
-                                        role: choice.delta.role,
-                                        content: choice.delta.content,
-                                    },
-                                    finish_reason: choice.finish_reason,
-                                })
-                                .collect(),
-                        };
-                        Ok(chunk)
+            // Spawn a task to process the stream and send chunks to the receiver
+            let _handle = tauri::async_runtime::spawn(async move {
+                let mut buffer = String::new();
+                let mut stream = byte_stream;
+
+                while let Some(chunk_result) = stream.next().await {
+                    match chunk_result {
+                        Ok(bytes) => {
+                            match std::str::from_utf8(&bytes) {
+                                Ok(text) => {
+                                    buffer.push_str(text);
+                                    println!("{:#?}", text);
+                                    // Process all complete lines from the buffer
+                                    loop {
+                                        let (line, rest) = match split_first_line(&buffer) {
+                                            Some((line, rest)) => {
+                                                (line.to_string(), rest.to_string())
+                                            }
+                                            None => {
+                                                // No complete line available, break and wait for more data
+                                                break;
+                                            }
+                                        };
+
+                                        buffer = rest;
+
+                                        if line.trim().is_empty() {
+                                            continue;
+                                        }
+
+                                        if line.starts_with("data: ") {
+                                            let data = line[6..].trim();
+
+                                            if data == "[DONE]" {
+                                                break;
+                                            }
+
+                                            match serde_json::from_str::<QwenChatStreamResponse>(
+                                                data,
+                                            ) {
+                                                Ok(stream_response) => {
+                                                    // Convert stream response to standard chunk format
+                                                    let chunk = ChatCompletionChunk {
+                                                        id: stream_response.id,
+                                                        object: stream_response.object,
+                                                        created: stream_response.created,
+                                                        model: stream_response.model,
+                                                        choices: stream_response
+                                                            .choices
+                                                            .into_iter()
+                                                            .map(|choice| ChoiceDelta {
+                                                                index: choice.index,
+                                                                delta: ChatMessageDelta {
+                                                                    role: choice.delta.role,
+                                                                    content: choice.delta.content,
+                                                                },
+                                                                finish_reason: choice.finish_reason,
+                                                            })
+                                                            .collect(),
+                                                    };
+                                                    if tx.unbounded_send(Ok(chunk)).is_err() {
+                                                        // Receiver dropped, exit early
+                                                        break;
+                                                    }
+                                                }
+                                                Err(e) => {
+                                                    let _ = tx.unbounded_send(Err(format!(
+                                                        "Failed to parse stream data: {}",
+                                                        e
+                                                    )));
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                Err(e) => {
+                                    let _ = tx.unbounded_send(Err(format!(
+                                        "Failed to decode UTF-8: {}",
+                                        e
+                                    )));
+                                    break;
+                                }
+                            }
+                        }
+                        Err(e) => {
+                            let _ = tx.unbounded_send(Err(format!(
+                                "Failed to read response chunk: {}",
+                                e
+                            )));
+                            break;
+                        }
                     }
-                    Err(e) => Err(format!("Failed to parse stream data: {}", e)),
                 }
             });
 
-            Ok(stream.boxed())
+            // Convert the receiver into a stream
+            Ok(rx.map(|x| x.map_err(|e| e.to_string())).boxed())
         })
     }
 }
@@ -242,6 +305,5 @@ struct QwenUsage {
 
 #[derive(Debug, Serialize, Deserialize)]
 struct PromptTokensDetails {
-    #[serde(rename = "cached_tokens")]
     cached_tokens: Option<u32>,
 }
