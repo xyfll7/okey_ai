@@ -22,7 +22,6 @@ export const EVENT_NAMES = {
   GET_HISTORIES: "get_histories",
   CHAT: "chat",
   CHAT_STREAM: "chat_stream",
-  CHAT_STREAM_COLLECT: "chat_stream_collect",
 } as const;
 
 // Type for event names to provide type safety

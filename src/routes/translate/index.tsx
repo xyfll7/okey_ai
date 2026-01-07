@@ -255,7 +255,7 @@ function Inputer({
 	async function send() {
 		onEnter(value);
 		setValue("");
-		await invoke(EVENT_NAMES.CHAT_STREAM_COLLECT, {
+		await invoke(EVENT_NAMES.CHAT, {
 			chat_message: {
 				role: "user",
 				content: value,

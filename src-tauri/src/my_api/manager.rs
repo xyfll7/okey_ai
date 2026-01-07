@@ -85,31 +85,6 @@ impl APIManager {
         Ok(())
     }
 
-    // Alternative approach: Provide a method that executes the stream and collects results
-    pub async fn chat_completion_stream_collect(
-        &self,
-        request: &ChatCompletionRequest<'_>,
-    ) -> Result<Vec<ChatCompletionChunk>, String> {
-        let current_model = self.current_model.read().await;
-        let clients = self.clients.read().await;
-
-        let client = clients
-            .get(&*current_model)
-            .ok_or_else(|| format!("No client configured for model: {}", current_model))?;
-
-        let mut stream = client.chat_completion_stream(request).await?;
-        let mut chunks = Vec::new();
-
-        while let Some(chunk_result) = stream.next().await {
-            match chunk_result {
-                Ok(chunk) => chunks.push(chunk),
-                Err(e) => return Err(e),
-            }
-        }
-
-        Ok(chunks)
-    }
-
     pub async fn list_available_models(&self) -> Vec<String> {
         let clients = self.clients.read().await;
         clients.keys().cloned().collect()
