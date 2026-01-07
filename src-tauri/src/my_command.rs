@@ -73,7 +73,7 @@ pub async fn chat_stream(
                 let _ = on_event_clone.send(StreamEvent::Chunk {
                     content: chunk_content.clone(),
                 });
-                let _ = app_clone.emit(event_names::AI_STREAM, &chunk_content);
+                let _ = app_clone.emit(event_names::AI_RESPONSE_STREAM, &chunk_content);
             },
         )
         .await
