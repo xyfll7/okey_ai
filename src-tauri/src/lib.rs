@@ -50,7 +50,6 @@ pub fn run() {
             my_command::translate_specified_text,
             my_command::get_histories,
             my_shortcut::register_hotkey_okey_ai,
-            my_api::commands::initialize_api_manager,
             my_api::commands::switch_model,
             my_api::commands::get_current_model,
             my_api::commands::list_models,

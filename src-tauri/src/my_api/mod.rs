@@ -7,21 +7,18 @@ pub mod traits;
 
 use std::collections::HashMap;
 use tauri::{AppHandle, Manager};
+use traits::APIConfig;
 
 pub fn setup_api_manager(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     tauri::async_runtime::spawn({
         let app_handle = app.clone();
         async move {
-            let api_manager_state = app_handle.state::<crate::my_api::manager::GlobalAPIManager>();
+            let api_manager_state = app_handle.state::<manager::GlobalAPIManager>();
 
             let configs = get_default_configs();
-            let configs_vec: Vec<(String, crate::my_api::traits::APIConfig)> =
-                configs.into_iter().collect();
+            let configs_vec: Vec<(String, APIConfig)> = configs.into_iter().collect();
 
-            if let Err(e) =
-                crate::my_api::commands::initialize_api_manager(configs_vec, api_manager_state)
-                    .await
-            {
+            if let Err(e) = commands::initialize_api_manager(configs_vec, api_manager_state).await {
                 eprintln!("Failed to initialize API manager: {}", e);
             } else {
                 println!("API manager initialized successfully");

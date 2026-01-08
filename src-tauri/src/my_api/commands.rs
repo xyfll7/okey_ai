@@ -3,7 +3,6 @@ use crate::my_api::traits::APIConfig;
 use std::collections::HashMap;
 use tauri::State;
 
-#[tauri::command]
 pub async fn initialize_api_manager(
     configs: Vec<(String, APIConfig)>,
     state: State<'_, GlobalAPIManager>,
