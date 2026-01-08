@@ -14,6 +14,8 @@ pub struct APIManager {
     current_model: Arc<RwLock<String>>,
 }
 
+pub struct GlobalAPIManager(pub Arc<RwLock<APIManager>>);
+
 impl APIManager {
     pub fn new() -> Self {
         Self {

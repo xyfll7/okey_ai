@@ -1,10 +1,7 @@
-use crate::my_api::manager::APIManager;
+use crate::my_api::manager::GlobalAPIManager;
 use crate::my_api::traits::APIConfig;
 use std::collections::HashMap;
-use std::sync::Arc;
-use tauri::{async_runtime::RwLock, State};
-
-pub struct GlobalAPIManager(pub Arc<RwLock<APIManager>>);
+use tauri::State;
 
 #[tauri::command]
 pub async fn initialize_api_manager(
