@@ -1,22 +1,5 @@
 use crate::my_api::manager::GlobalAPIManager;
-use crate::my_api::traits::APIConfig;
-use std::collections::HashMap;
 use tauri::State;
-
-pub async fn initialize_api_manager(
-    configs: Vec<(String, APIConfig)>,
-    state: State<'_, GlobalAPIManager>,
-) -> Result<(), String> {
-    let manager = state.0.write().await;
-
-    let mut config_map = HashMap::new();
-    for (name, config) in configs {
-        config_map.insert(name, config);
-    }
-
-    manager.initialize_default_clients(config_map).await;
-    Ok(())
-}
 
 #[tauri::command]
 pub async fn switch_model(
