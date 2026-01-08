@@ -139,9 +139,7 @@ function RouteComponent() {
 					<ChatList className="px-2 pt-2" chatList={chatList.filter((e) => e.role !== "system")} />
 				</ScrollArea>
 			</div>
-
 			<div className="px-2 pb-2">
-
 				<Inputer
 					onStream={handleStream}
 				/>
@@ -240,12 +238,7 @@ function Inputer({ onStream }: {
 	const selected = useStore(s_Selected, (state) => state);
 	async function send() {
 		setValue("");
-		await invoke(EVENT_NAMES.CHAT_STREAM, {
-			chat_message: {
-				role: "user",
-				content: value,
-			} as ChatMessage,
-		});
+		onStream({ role: "user", content: value } as ChatMessage)
 	}
 	return (
 		<InputGroup className={cn("rounded-xl", "has-[[data-slot=input-group-control]:focus-visible]:border-ring/70 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/7")}>
@@ -261,6 +254,7 @@ function Inputer({ onStream }: {
 				onKeyDown={async (e) => {
 					if (e.key === "Enter" && !e.shiftKey) {
 						e.preventDefault();
+						setValue("");
 						await send()
 					}
 					if (e.key === "Enter" && e.shiftKey) {
