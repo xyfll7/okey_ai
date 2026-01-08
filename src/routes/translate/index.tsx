@@ -322,11 +322,11 @@ function Inputer({
 }
 
 function ChatList({ chatList, className }: { className?: string; chatList: ChatMessage[] }) {
-	const messagesEndRef = useRef<HTMLDivElement>(null);
-	useEffect(() => {
-		void chatList;
-		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-	}, [chatList]);
+	// const messagesEndRef = useRef<HTMLDivElement>(null);
+	// useEffect(() => {
+	// 	void chatList;
+	// 	messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+	// }, [chatList]);
 	const lastItem = chatList.at(-1)
 	return (
 		<div role="none" className={cn(className, "max-w-screen flex-coh")}>
@@ -336,7 +336,7 @@ function ChatList({ chatList, className }: { className?: string; chatList: ChatM
 				);
 			})}
 			{lastItem?.role !== "assistant" && <div className="px-2">...</div>}
-			<div ref={messagesEndRef} />
+			{/* <div ref={messagesEndRef} /> */}
 		</div>
 	);
 }
