@@ -178,8 +178,7 @@ pub async fn get_histories(
 ) -> Result<Vec<(String, crate::utils::chat_message::ChatMessageHistory)>, String> {
     let translation_manager = app.state::<translation_manager::TranslationManager>();
     let histories = translation_manager.get_histories().await;
-    let all_histories = histories.get_all_histories().await;
-    let mut all_histories_vec: Vec<_> = all_histories.into_iter().collect();
-    all_histories_vec.reverse();
-    Ok(all_histories_vec)
+    let mut histories_vec: Vec<_> = histories.into_iter().collect();
+    histories_vec.reverse();
+    Ok(histories_vec)
 }

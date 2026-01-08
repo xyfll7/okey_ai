@@ -1,7 +1,8 @@
 use crate::my_api::manager::APIManager;
 use crate::my_api::traits::ChatCompletionRequest;
 use crate::states::chat_histories::ChatHistoriesState;
-use crate::utils::chat_message::ChatMessage;
+use crate::utils::chat_message::{ChatMessage, ChatMessageHistory};
+use std::collections::BTreeMap;
 use std::future::Future;
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -132,11 +133,16 @@ impl TranslationManager {
         };
 
         let manager = self.api_manager.read().await;
+        let content_chunks = Arc::new(std::sync::Mutex::new(String::new()));
+        let content_chunks_clone = content_chunks.clone();
         let result = manager
             .chat_completion_stream(&request, move |chunk| {
                 for choice in &chunk.choices {
                     if let Some(ref content) = choice.delta.content {
                         stream_callback(content.clone());
+                        // Collect the content chunks
+                        let mut chunks = content_chunks_clone.lock().unwrap();
+                        *chunks += content;
                     }
                 }
             })
@@ -145,11 +151,14 @@ impl TranslationManager {
         if result.is_err() {
             return None;
         }
-
+        let final_content = content_chunks.lock().unwrap().clone();
+        self.chat_histories
+            .add_assistant_message(&session_id, final_content, None)
+            .await;
         self.chat_histories.get_messages(&session_id).await
     }
 
-    pub async fn get_histories(&self) -> ChatHistoriesState {
-        self.chat_histories.clone()
+    pub async fn get_histories(&self) -> BTreeMap<String, ChatMessageHistory> {
+        self.chat_histories.clone().get_all_histories().await
     }
 }
