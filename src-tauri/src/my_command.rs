@@ -144,35 +144,6 @@ pub async fn command_window_translate_show(app: AppHandle, chat_message: Vec<Cha
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub async fn translate_specified_text(
-    app: AppHandle,
-    chat_message: ChatMessage,
-) -> Result<(), String> {
-    if chat_message.content.is_empty() {
-        return Ok(());
-    }
-    let translation_manager = app.state::<translation_manager::TranslationManager>();
-    match translation_manager
-        .translate(None, &chat_message.content, None, |chat_history| {
-            let app_handle = app.clone();
-            async move {
-                let _ = app_handle.emit(event_names::AI_RESPONSE, &chat_history);
-            }
-        })
-        .await
-    {
-        Some(chat_histories) => {
-            let _ = app.emit(event_names::AI_RESPONSE, &chat_histories);
-        }
-        None => {
-            let error_msg = "翻译失败".to_string();
-            let _ = app.emit(event_names::AI_ERROR, error_msg);
-        }
-    }
-    Ok(())
-}
-
-#[tauri::command(rename_all = "snake_case")]
 pub async fn get_histories(
     app: AppHandle,
 ) -> Result<Vec<(String, crate::utils::chat_message::ChatMessageHistory)>, String> {

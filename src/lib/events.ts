@@ -17,7 +17,6 @@ export const EVENT_NAMES = {
   GET_AUTO_SPEAK_STATE: "get_auto_speak_state",
   COMMAND_WINDOW_TRANSLATE_SHOW: "command_window_translate_show",
   TOGGLE_AUTO_SPEAK: "toggle_auto_speak",
-  TRANSLATE_SPECIFIED_TEXT: "translate_specified_text",
   CLOSE_MAIN_WINDOW: "close_main_window",
   GET_HISTORIES: "get_histories",
   CHAT: "chat",
