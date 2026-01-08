@@ -46,6 +46,7 @@ type StreamEvent =
 
 function RouteComponent() {
 	const [chatList, setChatList] = useState<ChatMessage[]>([]);
+	const [latestMessage, setLatestMessage] = useState("")
 	useEffect(() => {
 		const unlistenResponse = listen<ChatMessage[]>(
 			EVENT_NAMES.AI_RESPONSE,
@@ -82,42 +83,12 @@ function RouteComponent() {
 			switch (message.event) {
 				case "chunk": {
 					accumulated += message.data?.content ?? "";
-					setChatList((list) => {
-						if (list.at(-1)?.role !== "assistant") {
-							return [...list, { role: "assistant", content: accumulated }];
-						}
-						const next = [...list];
-						next[next.length - 1] = {
-							...next[next.length - 1]!,
-							content: accumulated,
-						};
-						return next;
-					});
+					setLatestMessage(accumulated)
 					break;
 				}
 				case "error": {
 					const errorContent = message.data?.message ?? "流式请求失败";
-					setChatList((list) => {
-						if (list.length === 0) {
-							return [
-								...list,
-								{ role: "assistant", content: errorContent },
-							];
-						}
-						const next = [...list];
-						const last = next[next.length - 1];
-						if (last.role === "assistant") {
-							next[next.length - 1] = {
-								...last,
-								content: errorContent,
-							};
-							return next;
-						}
-						return [
-							...next,
-							{ role: "assistant", content: errorContent },
-						];
-					});
+					setLatestMessage(errorContent)
 					break;
 				}
 				default:
@@ -136,7 +107,7 @@ function RouteComponent() {
 			<Header className="p-1" />
 			<div className="h-full flex-coh">
 				<ScrollArea className={cn("h-full")}>
-					<ChatList className="px-2 pt-2" chatList={chatList.filter((e) => e.role !== "system")} />
+					<ChatList className="px-2 pt-2" chatList={chatList.filter((e) => e.role !== "system")} latestMessage={latestMessage}/>
 				</ScrollArea>
 			</div>
 			<div className="px-2 pb-2">
@@ -300,7 +271,7 @@ function Inputer({ onStream }: {
 	);
 }
 
-function ChatList({ chatList, className }: { className?: string; chatList: ChatMessage[] }) {
+function ChatList({ chatList,latestMessage, className }: { className?: string;latestMessage:string; chatList: ChatMessage[] }) {
 	// const messagesEndRef = useRef<HTMLDivElement>(null);
 	// useEffect(() => {
 	// 	void chatList;
@@ -314,6 +285,10 @@ function ChatList({ chatList, className }: { className?: string; chatList: ChatM
 					<MessageItem className="px-2 mb-2" key={`chat-${chat.content}-${index}`} chat={chat} />
 				);
 			})}
+			{latestMessage && <MessageItem className="px-2 mb-2"  chat={{
+				role:"assistant",
+				content: latestMessage
+			}} />}
 			{lastItem?.role !== "assistant" && <div className="px-2">...</div>}
 			{/* <div ref={messagesEndRef} /> */}
 		</div>
