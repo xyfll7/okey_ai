@@ -19,7 +19,6 @@ export const EVENT_NAMES = {
   TOGGLE_AUTO_SPEAK: "toggle_auto_speak",
   CLOSE_MAIN_WINDOW: "close_main_window",
   GET_HISTORIES: "get_histories",
-  CHAT: "chat",
   CHAT_STREAM: "chat_stream",
 } as const;
 

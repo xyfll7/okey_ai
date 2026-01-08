@@ -125,7 +125,6 @@ function RouteComponent() {
 			}
 		};
 
-		setChatList((list) => [...list, chatMessage, { role: "assistant", content: "" }]);
 		await invoke(EVENT_NAMES.CHAT_STREAM, {
 			chat_message: chatMessage,
 			on_event: channel,
@@ -144,15 +143,6 @@ function RouteComponent() {
 			<div className="px-2 pb-2">
 
 				<Inputer
-					onEnter={() => {
-						setChatList((list) => [
-							...list,
-							{
-								role: "user",
-								content: "",
-							},
-						]);
-					}}
 					onStream={handleStream}
 				/>
 			</div>
@@ -192,7 +182,7 @@ function Header(props: React.ComponentProps<"div">) {
 			data-tauri-drag-region
 		>
 			<div className="flex items-center">
-				{_ostype === "macos" && <Histories className="mr-1"/>}
+				{_ostype === "macos" && <Histories className="mr-1" />}
 				{_ostype === "windows" && <PinWindow />}
 				{_ostype === "macos" && (
 					<HotKey
@@ -228,7 +218,7 @@ function Header(props: React.ComponentProps<"div">) {
 					/>
 				)}
 				{_ostype === "macos" && <PinWindow className="mr-1" />}
-				{_ostype === "windows" && <Histories className="ml-1"/>}
+				{_ostype === "windows" && <Histories className="ml-1" />}
 			</div>
 			{_ostype === "windows" && (
 				<Button
@@ -243,19 +233,14 @@ function Header(props: React.ComponentProps<"div">) {
 	);
 }
 
-function Inputer({
-	onEnter,
-	onStream,
-}: {
-	onEnter: (message: string) => void;
+function Inputer({ onStream }: {
 	onStream: (chatMessage: ChatMessage) => Promise<void>;
 }) {
 	const [value, setValue] = useState("");
 	const selected = useStore(s_Selected, (state) => state);
 	async function send() {
-		onEnter(value);
 		setValue("");
-		await invoke(EVENT_NAMES.CHAT, {
+		await invoke(EVENT_NAMES.CHAT_STREAM, {
 			chat_message: {
 				role: "user",
 				content: value,

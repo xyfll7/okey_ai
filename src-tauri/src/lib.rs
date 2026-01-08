@@ -44,7 +44,6 @@ pub fn run() {
             my_command::get_auto_speak_state,
             my_command::command_window_translate_show,
             my_command::close_main_window,
-            my_command::chat,
             my_command::chat_stream,
             my_command::detect_language,
             my_command::get_histories,
