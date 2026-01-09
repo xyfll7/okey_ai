@@ -304,7 +304,7 @@ function ChatList({ chatList, className }: { className?: string; chatList: ChatM
 		<div role="none" className={cn(className, "max-w-screen flex-coh")}>
 			{rest.map((chat, index) => {
 				return (
-					<MessageItem className="px-2 mb-2" key={`chat-${chat.content}-${index}`} chat={chat} />
+					<MessageItem className="px-2.5 mb-2" key={`chat-${chat.content}-${index}`} chat={chat} />
 				);
 			})}
 			{lastItem && lastItem.role === "assistant" && <MessageItem className="px-2 mb-2" chat={lastItem} />}
