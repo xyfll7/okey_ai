@@ -34,7 +34,9 @@ import { cn, get_global_config, speak } from "@/lib/utils";
 import { s_Selected } from "@/store";
 import { IIArrowUp, IIPin, IIAdd, IIVolumeHigh, IICancel } from "@/components/icons";
 import { Histories } from "@/components/Histories";
+import { Store } from "@tanstack/react-store";
 
+export const s_ChatList = new Store<ChatMessage[]>([]);
 export const Route = createFileRoute("/translate/")({
 	component: RouteComponent,
 });
@@ -45,100 +47,19 @@ type StreamEvent =
 	| { event: "error"; data: { message: string } };
 
 function RouteComponent() {
-	const [chatList, setChatList] = useState<ChatMessage[]>([]);
-	useEffect(() => {
-		const unlistenResponse = listen<ChatMessage[]>(
-			EVENT_NAMES.AI_RESPONSE,
-			({ payload }) => {
-				const chat = payload.at(-1)?.role === "user" ? payload.at(-1) : payload.at(-2)
-				if (chat?.raw && chat.role === "user") {
-					s_Selected.setState({
-						text: chat.raw,
-						raw: chat.content,
-					});
-				}
-				setChatList(payload)
-				console.log(payload)
-			},
-		);
-		const unlistenError = listen<string>(EVENT_NAMES.AI_ERROR, (event) => {
-			const errorPayload: ChatMessage = {
-				role: "assistant",
-				content: event.payload,
-			};
-			setChatList((list) => [...list, errorPayload]);
-		});
-		emit(EVENT_NAMES.PAGE_LOADED, { ok: true });
-		return () => {
-			unlistenResponse.then((fn) => fn());
-			unlistenError.then((fn) => fn());
-		};
-	}, []);
 
-	const handleStream = async (chatMessage: ChatMessage) => {
-		let accumulated = "";
-		const channel = new Channel<StreamEvent>();
-		channel.onmessage = (message) => {
-			switch (message.event) {
-				case "chunk": {
-					accumulated += message.data?.content ?? "";
-					setChatList((list) => {
-						if (list.at(-1)?.role !== "assistant") {
-							return [...list, { role: "assistant", content: accumulated }];
-						}
-						const next = [...list];
-						next[next.length - 1] = {
-							...next[next.length - 1]!,
-							content: accumulated,
-						};
-						return next;
-					});
-					break;
-				}
-				case "error": {
-					const errorContent = message.data?.message ?? "流式请求失败";
-					setChatList((list) => {
-						if (list.length === 0) {
-							return [
-								...list,
-								{ role: "assistant", content: errorContent },
-							];
-						}
-						const next = [...list];
-						const last = next[next.length - 1];
-						if (last.role === "assistant") {
-							next[next.length - 1] = {
-								...last,
-								content: errorContent,
-							};
-							return next;
-						}
-						return [
-							...next,
-							{ role: "assistant", content: errorContent },
-						];
-					});
-					break;
-				}
-				default:
-					break;
-			}
-		};
 
-		await invoke(EVENT_NAMES.CHAT_STREAM, {
-			chat_message: chatMessage,
-			on_event: channel,
-		});
-	};
+
+
 
 	return (
 		<div className={cn("bg-background", "h-full", "flex-coh")}>
 			<Header className="p-1" />
 			<ScrollArea className={cn("h-full flex-coh")}>
-				<ChatList className="px-2 pt-2" chatList={chatList.filter((e) => e.role !== "system")} />
+				<ChatList className="px-2 pt-2" />
 			</ScrollArea>
 			<div className="px-2 pb-2">
-				<Inputer onStream={handleStream} />
+				<Inputer />
 			</div>
 		</div>
 	);
@@ -227,21 +148,75 @@ function Header(props: React.ComponentProps<"div">) {
 	);
 }
 
-function Inputer({ onStream, className }: {
+function Inputer({ className }: {
 	className?: string;
-	onStream: (chatMessage: ChatMessage) => Promise<void>;
+
 }) {
+
+	const handleStream = async (chatMessage: ChatMessage) => {
+		let accumulated = "";
+		const channel = new Channel<StreamEvent>();
+		channel.onmessage = (message) => {
+			switch (message.event) {
+				case "chunk": {
+					accumulated += message.data?.content ?? "";
+					s_ChatList.setState((list) => {
+						if (list.at(-1)?.role !== "assistant") {
+							return [...list, { role: "assistant", content: accumulated }];
+						}
+						const next = [...list];
+						next[next.length - 1] = {
+							...next[next.length - 1]!,
+							content: accumulated,
+						};
+						return next;
+					});
+					break;
+				}
+				case "error": {
+					const errorContent = message.data?.message ?? "流式请求失败";
+					s_ChatList.setState((list) => {
+						if (list.length === 0) {
+							return [
+								...list,
+								{ role: "assistant", content: errorContent },
+							];
+						}
+						const next = [...list];
+						const last = next[next.length - 1];
+						if (last.role === "assistant") {
+							next[next.length - 1] = {
+								...last,
+								content: errorContent,
+							};
+							return next;
+						}
+						return [
+							...next,
+							{ role: "assistant", content: errorContent },
+						];
+					});
+					break;
+				}
+				default:
+					break;
+			}
+		};
+
+		await invoke(EVENT_NAMES.CHAT_STREAM, {
+			chat_message: chatMessage,
+			on_event: channel,
+		});
+	};
+
 	const [value, setValue] = useState("");
 	const selected = useStore(s_Selected, (state) => state);
-	async function send() {
-		setValue("");
-		onStream({ role: "user", content: value } as ChatMessage)
-	}
+
 	return (
 		<InputGroup className={cn(className, "rounded-xl", "has-[[data-slot=input-group-control]:focus-visible]:border-ring/70 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/7")}>
 			{selected.text && (
 				<InputGroupAddon align="block-start">
-					<SelectedText onStream={onStream} />
+					<SelectedText onStream={handleStream} />
 				</InputGroupAddon>
 			)}
 			<InputGroupTextarea
@@ -252,7 +227,7 @@ function Inputer({ onStream, className }: {
 					if (e.key === "Enter" && !e.shiftKey) {
 						e.preventDefault();
 						setValue("");
-						await send()
+						await handleStream({ role: "user", content: value } as ChatMessage)
 					}
 					if (e.key === "Enter" && e.shiftKey) {
 						e.preventDefault();
@@ -280,14 +255,15 @@ function Inputer({ onStream, className }: {
 					</DropdownMenuContent>
 				</DropdownMenu>
 
-
-
 				<InputGroupButton
 					variant="default"
 					className="rounded-full ml-auto cursor-pointer"
 					size="icon-xs"
 					disabled={!value}
-					onClick={async () => await send()}
+					onClick={async () => {
+						setValue("");
+						await handleStream({ role: "user", content: value } as ChatMessage)
+					}}
 				>
 					<IIArrowUp />
 					<span className="sr-only">Send</span>
@@ -297,9 +273,38 @@ function Inputer({ onStream, className }: {
 	);
 }
 
-function ChatList({ chatList, className }: { className?: string; chatList: ChatMessage[] }) {
+function ChatList({ className }: { className?: string; }) {
+	const chatList = useStore(s_ChatList, (state) => state);
 	const lastItem = chatList.at(-1)
 	const rest = chatList.slice(0, -1);
+	useEffect(() => {
+		const unlistenResponse = listen<ChatMessage[]>(
+			EVENT_NAMES.AI_RESPONSE,
+			({ payload }) => {
+				const chat = payload.at(-1)?.role === "user" ? payload.at(-1) : payload.at(-2)
+				if (chat?.raw && chat.role === "user") {
+					s_Selected.setState({
+						text: chat.raw,
+						raw: chat.content,
+					});
+				}
+				s_ChatList.setState(payload);
+				console.log(payload)
+			},
+		);
+		const unlistenError = listen<string>(EVENT_NAMES.AI_ERROR, (event) => {
+			const errorPayload: ChatMessage = {
+				role: "assistant",
+				content: event.payload,
+			};
+			s_ChatList.setState((list) => [...list, errorPayload]);
+		});
+		emit(EVENT_NAMES.PAGE_LOADED, { ok: true });
+		return () => {
+			unlistenResponse.then((fn) => fn());
+			unlistenError.then((fn) => fn());
+		};
+	}, []);
 	return (
 		<div role="none" className={cn(className, "max-w-screen flex-coh")}>
 			{rest.map((chat, index) => {
