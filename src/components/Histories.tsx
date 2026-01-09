@@ -29,11 +29,11 @@ export function Histories({ className }: { className?: string }) {
             </Button>
         </DrawerTrigger>
         <DrawerContent className="pb-2">
-            <DrawerHeader className="sr-only">
-                <DrawerTitle />
-                <DrawerDescription />
+            <DrawerHeader className="">
+                <DrawerTitle>History</DrawerTitle>
+                <DrawerDescription className="sr-only">History</DrawerDescription>
             </DrawerHeader>
-            <ScrollArea className={cn("h-[50vh] pt-4")}>
+            <ScrollArea className={cn("h-[50vh] mt-4 ")}>
                 <div className="max-w-screen flex-coh items-start px-2">
                     {histories && histories.map(([key, item]) => {
                         return <Button className="w-full cursor-pointer" key={key} variant={"ghost"}>
