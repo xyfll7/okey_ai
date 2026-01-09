@@ -46,7 +46,6 @@ type StreamEvent =
 
 function RouteComponent() {
 	const [chatList, setChatList] = useState<ChatMessage[]>([]);
-	const [latestMessage, setLatestMessage] = useState("")
 	useEffect(() => {
 		const unlistenResponse = listen<ChatMessage[]>(
 			EVENT_NAMES.AI_RESPONSE,
@@ -83,12 +82,42 @@ function RouteComponent() {
 			switch (message.event) {
 				case "chunk": {
 					accumulated += message.data?.content ?? "";
-					setLatestMessage(accumulated)
+					setChatList((list) => {
+						if (list.at(-1)?.role !== "assistant") {
+							return [...list, { role: "assistant", content: accumulated }];
+						}
+						const next = [...list];
+						next[next.length - 1] = {
+							...next[next.length - 1]!,
+							content: accumulated,
+						};
+						return next;
+					});
 					break;
 				}
 				case "error": {
 					const errorContent = message.data?.message ?? "流式请求失败";
-					setLatestMessage(errorContent)
+					setChatList((list) => {
+						if (list.length === 0) {
+							return [
+								...list,
+								{ role: "assistant", content: errorContent },
+							];
+						}
+						const next = [...list];
+						const last = next[next.length - 1];
+						if (last.role === "assistant") {
+							next[next.length - 1] = {
+								...last,
+								content: errorContent,
+							};
+							return next;
+						}
+						return [
+							...next,
+							{ role: "assistant", content: errorContent },
+						];
+					});
 					break;
 				}
 				default:
@@ -107,7 +136,7 @@ function RouteComponent() {
 			<Header className="p-1" />
 			<div className="h-full flex-coh">
 				<ScrollArea className={cn("h-full")}>
-					<ChatList className="px-2 pt-2" chatList={chatList.filter((e) => e.role !== "system")} latestMessage={latestMessage}/>
+					<ChatList className="px-2 pt-2" chatList={chatList.filter((e) => e.role !== "system")} />
 				</ScrollArea>
 			</div>
 			<div className="px-2 pb-2">
@@ -271,19 +300,17 @@ function Inputer({ onStream }: {
 	);
 }
 
-function ChatList({ chatList,latestMessage, className }: { className?: string;latestMessage:string; chatList: ChatMessage[] }) {
+function ChatList({ chatList, className }: { className?: string; chatList: ChatMessage[] }) {
 	const lastItem = chatList.at(-1)
+	const rest = chatList.slice(0, -1);
 	return (
 		<div role="none" className={cn(className, "max-w-screen flex-coh")}>
-			{chatList.map((chat, index) => {
+			{rest.map((chat, index) => {
 				return (
 					<MessageItem className="px-2 mb-2" key={`chat-${chat.content}-${index}`} chat={chat} />
 				);
 			})}
-			{latestMessage && <MessageItem className="px-2 mb-2"  chat={{
-				role:"assistant",
-				content: latestMessage
-			}} />}
+			{lastItem && <MessageItem className="px-2 mb-2"  chat={lastItem} />}
 			{lastItem?.role !== "assistant" && <div className="px-2">...</div>}
 		</div>
 	);
