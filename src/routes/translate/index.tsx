@@ -134,15 +134,11 @@ function RouteComponent() {
 	return (
 		<div className={cn("bg-background", "h-full", "flex-coh")}>
 			<Header className="p-1" />
-			<div className="h-full flex-coh">
-				<ScrollArea className={cn("h-full")}>
-					<ChatList className="px-2 pt-2" chatList={chatList.filter((e) => e.role !== "system")} />
-				</ScrollArea>
-			</div>
+			<ScrollArea className={cn("h-full flex-coh")}>
+				<ChatList className="px-2 pt-2" chatList={chatList.filter((e) => e.role !== "system")} />
+			</ScrollArea>
 			<div className="px-2 pb-2">
-				<Inputer
-					onStream={handleStream}
-				/>
+				<Inputer onStream={handleStream} />
 			</div>
 		</div>
 	);
@@ -310,7 +306,7 @@ function ChatList({ chatList, className }: { className?: string; chatList: ChatM
 					<MessageItem className="px-2 mb-2" key={`chat-${chat.content}-${index}`} chat={chat} />
 				);
 			})}
-			{lastItem && <MessageItem className="px-2 mb-2"  chat={lastItem} />}
+			{lastItem && <MessageItem className="px-2 mb-2" chat={lastItem} />}
 			{lastItem?.role !== "assistant" && <div className="px-2">...</div>}
 		</div>
 	);
