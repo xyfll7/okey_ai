@@ -31,8 +31,8 @@ export function Histories({ className }: { className?: string }) {
                     "h-fit fixed bottom-0 left-0 right-0 outline-none",
                     "bg-background rounded-t-xl border",
                     )}>
-                    <div className="p-4">
-                        <h2 className="font-semibold text-lg">History</h2>
+                    <div className="p-2">
+                        <h3 className="px-2.5 font-semibold text-lg">History</h3>
                     </div>
                     <ScrollArea className={cn("h-[50vh]")}>
                         <div className="max-w-screen flex-coh items-start px-2">
