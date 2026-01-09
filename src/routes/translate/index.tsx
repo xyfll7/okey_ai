@@ -272,11 +272,6 @@ function Inputer({ onStream }: {
 }
 
 function ChatList({ chatList,latestMessage, className }: { className?: string;latestMessage:string; chatList: ChatMessage[] }) {
-	// const messagesEndRef = useRef<HTMLDivElement>(null);
-	// useEffect(() => {
-	// 	void chatList;
-	// 	messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-	// }, [chatList]);
 	const lastItem = chatList.at(-1)
 	return (
 		<div role="none" className={cn(className, "max-w-screen flex-coh")}>
@@ -290,7 +285,6 @@ function ChatList({ chatList,latestMessage, className }: { className?: string;la
 				content: latestMessage
 			}} />}
 			{lastItem?.role !== "assistant" && <div className="px-2">...</div>}
-			{/* <div ref={messagesEndRef} /> */}
 		</div>
 	);
 }
