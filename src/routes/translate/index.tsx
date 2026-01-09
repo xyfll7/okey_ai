@@ -227,7 +227,8 @@ function Header(props: React.ComponentProps<"div">) {
 	);
 }
 
-function Inputer({ onStream }: {
+function Inputer({ onStream, className }: {
+	className?: string;
 	onStream: (chatMessage: ChatMessage) => Promise<void>;
 }) {
 	const [value, setValue] = useState("");
@@ -237,7 +238,7 @@ function Inputer({ onStream }: {
 		onStream({ role: "user", content: value } as ChatMessage)
 	}
 	return (
-		<InputGroup className={cn("rounded-xl", "has-[[data-slot=input-group-control]:focus-visible]:border-ring/70 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/7")}>
+		<InputGroup className={cn(className, "rounded-xl", "has-[[data-slot=input-group-control]:focus-visible]:border-ring/70 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/7")}>
 			{selected.text && (
 				<InputGroupAddon align="block-start">
 					<SelectedText onStream={onStream} />
