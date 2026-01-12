@@ -48,10 +48,6 @@ type StreamEvent =
 
 function RouteComponent() {
 
-
-
-
-
 	return (
 		<div className={cn("bg-background", "h-full", "flex-coh")}>
 			<Header className="p-1" />
@@ -274,7 +270,7 @@ function Inputer({ className }: {
 }
 
 function ChatList({ className }: { className?: string; }) {
-	const chatList = useStore(s_ChatList, (state) => state);
+	const chatList = useStore(s_ChatList, (state) => state.filter((e) => e.role !== "system"));
 	const lastItem = chatList.at(-1)
 	const rest = chatList.slice(0, -1);
 	useEffect(() => {
