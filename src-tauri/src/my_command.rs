@@ -31,7 +31,6 @@ pub async fn chat_stream(
     on_event: Channel<StreamEvent>,
 ) -> Result<(), String> {
     let translation_manager = app.state::<translation_manager::TranslationManager>();
-    let app_clone = app.clone();
     let content_clone = chat_message.content.clone();
     let on_event_clone = on_event.clone();
 

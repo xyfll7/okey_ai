@@ -1,6 +1,5 @@
 import { Button } from "./ui/button"
-import { EVENT_NAMES } from "@/lib/events"
-import { invoke } from "@tauri-apps/api/core"
+import { EVENT_NAMES, useInvoke } from "@/lib/events"
 import { useState } from "react"
 import type { ChatMessageHistory } from "@/lib/types"
 import { IIList } from "./icons/hugeicons"
@@ -10,15 +9,14 @@ import { Drawer } from "vaul"
 
 
 export function Histories({ className }: { className?: string }) {
-    const [histories, setHistories] = useState<[string, ChatMessageHistory][]>()
+    const histories = useInvoke<[string, ChatMessageHistory][]>(EVENT_NAMES.get_histories, []);
     const [isOpen, setIsOpen] = useState(false)
 
     return (
         <Drawer.Root open={isOpen} onOpenChange={setIsOpen}>
             <Drawer.Trigger onClick={async (e) => {
                 (e.currentTarget as HTMLButtonElement).blur();
-                const res = await invoke<[string, ChatMessageHistory][]>(EVENT_NAMES.get_histories)
-                setHistories(res)
+                histories.invokeState();
                 setIsOpen(true)
             }} asChild>
                 <Button size={"icon-sm"} variant={"ghost"} className={className}>
@@ -36,7 +34,7 @@ export function Histories({ className }: { className?: string }) {
                     </div>
                     <ScrollArea className={cn("h-[50vh]")}>
                         <div className="max-w-screen flex-coh items-start px-2">
-                            {histories && histories.map(([key, item]) => {
+                            {histories && histories.state.map(([key, item]) => {
                                 return <Button className="w-full cursor-pointer" key={key} variant={"ghost"}>
                                     <span className="truncate w-full text-start">
                                         {item.messages.at(1)?.raw}

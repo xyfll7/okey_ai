@@ -1,6 +1,9 @@
 // Constants for all Tauri event names used in the frontend
 // This centralizes event name management to avoid typos and make refactoring easier
 
+import { invoke } from "@tauri-apps/api/core";
+import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
+
 export const EVENT_NAMES = {
   BUBBLE_AUTO_SPEAK: "BUBBLE_AUTO_SPEAK",
   BUBBLE_CLEAN: "BUBBLE_CLEAN",
@@ -20,8 +23,19 @@ export const EVENT_NAMES = {
   register_hotkey_okey_ai: "register_hotkey_okey_ai",
   switch_model: "switch_model",
   get_current_model: "get_current_model",
-  list_models: "list_models",
+  get_models_list: "get_models_list",
 } as const;
 
 // Type for event names to provide type safety
 export type EventName = keyof typeof EVENT_NAMES;
+
+
+export function useInvoke<T = undefined>(event_name: string, init: T | (() => T)) {
+  const [state, setState] = useState<T>(init);
+  const invokeState = async () => {
+    const get_models_list = await invoke<T>(event_name);
+    setState(get_models_list);
+  }
+  useEffect(() => { invokeState(); }, []);
+  return { state, setState, invokeState };
+}

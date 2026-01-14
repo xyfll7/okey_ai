@@ -5,7 +5,7 @@ import { emit, listen } from "@tauri-apps/api/event";
 import { type as ostype } from "@tauri-apps/plugin-os";
 import Markdown from "markdown-to-jsx";
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { use, useEffect, useRef, useState } from "react";
 import AutoSpeakVolume from "@/components/AutoSpeakVolume";
 import Copyed from "@/components/Copyed";
 import HotKey from "@/components/HotKey";
@@ -28,7 +28,7 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { EVENT_NAMES } from "@/lib/events";
+import { EVENT_NAMES, useInvoke } from "@/lib/events";
 import { AutoSpeakState, type ChatMessage } from "@/lib/types";
 import { cn, get_global_config, speak } from "@/lib/utils";
 import { s_Selected } from "@/store";
@@ -62,14 +62,7 @@ function RouteComponent() {
 }
 
 function Header(props: React.ComponentProps<"div">) {
-	const [autoSpeak, setAutoSpeak] = useState<AutoSpeakState>(
-		AutoSpeakState.Off,
-	);
-	useEffect(() => {
-		invoke<AutoSpeakState>(EVENT_NAMES.get_auto_speak_state).then((res) =>
-			setAutoSpeak(res),
-		);
-	}, []);
+	const autoSpeak = useInvoke<AutoSpeakState>(EVENT_NAMES.get_auto_speak_state, AutoSpeakState.Off);
 	const _ostype = ostype();
 	const [hotkey, setHotkey] = useState<string>("");
 	useEffect(() => {
@@ -116,7 +109,7 @@ function Header(props: React.ComponentProps<"div">) {
 								[AutoSpeakState.Off]: "Speech off",
 								[AutoSpeakState.Single]: "Read single words only",
 								[AutoSpeakState.All]: "Read full sentences",
-							}[autoSpeak]
+							}[autoSpeak.state]
 						}
 					</TooltipContent>
 				</Tooltip>
@@ -208,6 +201,10 @@ function Inputer({ className }: {
 	const [value, setValue] = useState("");
 	const selected = useStore(s_Selected, (state) => state);
 
+
+	const models_list = useInvoke<string[]>(EVENT_NAMES.get_models_list, []);
+	const current_model = useInvoke<string[]>(EVENT_NAMES.get_current_model, []);
+
 	return (
 		<InputGroup className={cn(className, "rounded-xl", "has-[[data-slot=input-group-control]:focus-visible]:border-ring/70 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/7")}>
 			{selected.text && (
@@ -242,12 +239,12 @@ function Inputer({ className }: {
 			<InputGroupAddon align="block-end">
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<InputGroupButton variant="ghost">Auto</InputGroupButton>
+						<InputGroupButton variant="ghost">{current_model.state}</InputGroupButton>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent side="top" align="start">
-						<DropdownMenuItem>Auto</DropdownMenuItem>
-						<DropdownMenuItem>Agent</DropdownMenuItem>
-						<DropdownMenuItem>Manual</DropdownMenuItem>
+						{models_list.state?.map((model) => (
+							<DropdownMenuItem key={model}>{model}</DropdownMenuItem>
+						))}
 					</DropdownMenuContent>
 				</DropdownMenu>
 
@@ -435,19 +432,14 @@ function SelectedText({ onStream }: { onStream: (chatMessage: ChatMessage) => Pr
 }
 
 function PinWindow({ className }: { className?: string }) {
-	const [pin, setPin] = useState(false);
-	useEffect(() => {
-		invoke<boolean>(EVENT_NAMES.get_auto_close_translate_state).then((res) =>
-			setPin(res),
-		);
-	}, []);
+	const pin = useInvoke(EVENT_NAMES.get_auto_close_translate_state,false);
 	return (
 		<Button
 			size="icon-sm"
 			variant="ghost"
 			className={cn(className)}
 			onClick={async () =>
-				setPin(await invoke<boolean>(EVENT_NAMES.toggle_auto_close_translate))
+				pin.setState(await invoke<boolean>(EVENT_NAMES.toggle_auto_close_translate))
 			}
 		>
 			<IIPin

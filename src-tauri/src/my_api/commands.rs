@@ -17,7 +17,7 @@ pub async fn get_current_model(state: State<'_, GlobalAPIManager>) -> Result<Str
 }
 
 #[tauri::command]
-pub async fn list_models(state: State<'_, GlobalAPIManager>) -> Result<Vec<String>, String> {
+pub async fn get_models_list(state: State<'_, GlobalAPIManager>) -> Result<Vec<String>, String> {
     let manager = state.0.read().await;
     Ok(manager.list_available_models().await)
 }

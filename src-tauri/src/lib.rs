@@ -50,7 +50,7 @@ pub fn run() {
             my_shortcut::register_hotkey_okey_ai,
             my_api::commands::switch_model,
             my_api::commands::get_current_model,
-            my_api::commands::list_models,
+            my_api::commands::get_models_list,
         ])
         .setup(|app| {
             if cfg!(debug_assertions) {
