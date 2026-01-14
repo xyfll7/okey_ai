@@ -31,8 +31,9 @@ impl LLMClient for DeepSeekClient {
         Box::pin(async move {
             let api_url = format!("{}/chat/completions", self.config.base_url);
 
-            let mut request = request.clone();
-            request.stream = Some(false); // Ensure stream is false for non-streaming requests
+            // Clone the request and ensure stream is false for non-streaming requests
+            let mut request: ChatCompletionRequest<'_> = request.clone();
+            request.stream = Some(false);
 
             let json_body = serde_json::to_string(&request)
                 .map_err(|e| format!("Failed to serialize request: {}", e))?;
@@ -47,11 +48,17 @@ impl LLMClient for DeepSeekClient {
                 .send()
                 .await
                 .map_err(|e| format!("Failed to send request: {}", e))?;
-
+            println!("deeeeeee::::::00{:#?}", response);
             if !response.status().is_success() {
+                let status = response.status();
+                let error_text = response.text().await.unwrap_or_default();
+                println!(
+                    "DeepSeek API Error - Status: {}, Response: {}",
+                    status, error_text
+                );
                 return Err(format!(
-                    "API request failed with status: {}",
-                    response.status()
+                    "API request failed with status: {}, error: {}",
+                    status, error_text
                 ));
             }
 
@@ -81,8 +88,9 @@ impl LLMClient for DeepSeekClient {
         Box::pin(async move {
             let api_url = format!("{}/chat/completions", self.config.base_url);
 
+            // Clone the request and ensure stream is true for streaming requests
             let mut request = request.clone();
-            request.stream = Some(true); // Enable streaming
+            request.stream = Some(true);
 
             let json_body = serde_json::to_string(&request)
                 .map_err(|e| format!("Failed to serialize request: {}", e))?;
@@ -99,11 +107,17 @@ impl LLMClient for DeepSeekClient {
                 .send()
                 .await
                 .map_err(|e| format!("Failed to send request: {}", e))?;
-
+            println!("deeeeeee::::::0{:#?}", response);
             if !response.status().is_success() {
+                let status = response.status();
+                let error_text = response.text().await.unwrap_or_default();
+                println!(
+                    "DeepSeek API Error - Status: {}, Response: {}",
+                    status, error_text
+                );
                 return Err(format!(
-                    "API request failed with status information: {}",
-                    response.status()
+                    "API request failed with status: {}, error: {}",
+                    status, error_text
                 ));
             }
 
@@ -197,6 +211,7 @@ impl LLMClient for DeepSeekClient {
                             }
                         }
                         Err(e) => {
+                            println!("deeeeeee::::::1{:#?}", e);
                             let _ = tx.unbounded_send(Err(format!(
                                 "Failed to read response chunk: {}",
                                 e

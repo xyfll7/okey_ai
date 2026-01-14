@@ -73,16 +73,17 @@ impl TranslationManager {
 
         callback(messages.clone()).await;
 
+        let manager = self.api_manager.read().await;
+        let current_model_config = manager.get_current_model_config().await;
+
         let request = ChatCompletionRequest {
-            model: "qwen-plus".to_string(),
+            model: current_model_config?.model,
             messages: messages.iter().map(ChatMessage::as_llm).collect::<Vec<_>>(),
             temperature: Some(0.1),
             max_tokens: Some(500),
             top_p: Some(1.0),
             stream: Some(false),
         };
-
-        let manager = self.api_manager.read().await;
         let response = manager.chat_completion(&request).await.ok()?;
 
         let content = response.choices.first()?.message.content.clone();
@@ -123,16 +124,16 @@ impl TranslationManager {
 
         initial_callback(messages.clone()).await;
 
+        let manager = self.api_manager.read().await;
+        let current_model_config = manager.get_current_model_config().await;
         let request = ChatCompletionRequest {
-            model: "qwen-plus".to_string(),
+            model: current_model_config?.model,
             messages: messages.iter().map(ChatMessage::as_llm).collect::<Vec<_>>(),
             temperature: Some(0.1),
             max_tokens: Some(5000),
             top_p: Some(1.0),
             stream: Some(true),
         };
-
-        let manager = self.api_manager.read().await;
         let content_chunks = Arc::new(std::sync::Mutex::new(String::new()));
         let content_chunks_clone = content_chunks.clone();
         let result = manager
