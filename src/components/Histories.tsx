@@ -9,14 +9,14 @@ import { Drawer } from "vaul"
 
 
 export function Histories({ className }: { className?: string }) {
-    const histories = useInvoke<[string, ChatMessageHistory][]>(EVENT_NAMES.get_histories, []);
+    const { ...histories_X } = useInvoke<[string, ChatMessageHistory][]>(EVENT_NAMES.get_histories, []);
     const [isOpen, setIsOpen] = useState(false)
 
     return (
         <Drawer.Root open={isOpen} onOpenChange={setIsOpen}>
             <Drawer.Trigger onClick={async (e) => {
                 (e.currentTarget as HTMLButtonElement).blur();
-                histories.invokeState();
+                histories_X.invokeState();
                 setIsOpen(true)
             }} asChild>
                 <Button size={"icon-sm"} variant={"ghost"} className={className}>
@@ -28,13 +28,13 @@ export function Histories({ className }: { className?: string }) {
                 <Drawer.Content className={cn(
                     "h-fit fixed bottom-0 left-0 right-0 outline-none",
                     "bg-background rounded-t-xl border",
-                    )}>
+                )}>
                     <div className="p-2">
                         <h3 className="px-2.5 font-semibold text-lg">History</h3>
                     </div>
                     <ScrollArea className={cn("h-[50vh]")}>
                         <div className="max-w-screen flex-coh items-start px-2">
-                            {histories && histories.state.map(([key, item]) => {
+                            {histories_X.state.map(([key, item]) => {
                                 return <Button className="w-full cursor-pointer" key={key} variant={"ghost"}>
                                     <span className="truncate w-full text-start">
                                         {item.messages.at(1)?.raw}

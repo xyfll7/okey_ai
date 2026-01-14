@@ -61,7 +61,7 @@ function RouteComponent() {
 }
 
 function Header(props: React.ComponentProps<"div">) {
-	const autoSpeak = useInvoke<AutoSpeakState>(EVENT_NAMES.get_auto_speak_state, AutoSpeakState.Off);
+	const { ...autoSpeak_X } = useInvoke<AutoSpeakState>(EVENT_NAMES.get_auto_speak_state, AutoSpeakState.Off);
 	const _ostype = ostype();
 	const [hotkey, setHotkey] = useState<string>("");
 	useEffect(() => {
@@ -106,7 +106,7 @@ function Header(props: React.ComponentProps<"div">) {
 								[AutoSpeakState.Off]: "Speech off",
 								[AutoSpeakState.Single]: "Read single words only",
 								[AutoSpeakState.All]: "Read full sentences",
-							}[autoSpeak.state]
+							}[autoSpeak_X.state]
 						}
 					</TooltipContent>
 				</Tooltip>
@@ -195,8 +195,8 @@ function Inputer({ className }: { className?: string; }) {
 	const selected = useStore(s_Selected, (state) => state);
 
 
-	const models_list = useInvoke<string[]>(EVENT_NAMES.get_models_list, []);
-	const current_model = useInvoke<string[]>(EVENT_NAMES.get_current_model, []);
+	const { ...modelsList_X } = useInvoke<string[]>(EVENT_NAMES.get_models_list, []);
+	const { ...currentModel_X } = useInvoke<string[]>(EVENT_NAMES.get_current_model, []);
 
 	return (
 		<InputGroup className={cn(className, "rounded-xl", "has-[[data-slot=input-group-control]:focus-visible]:border-ring/70 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/7")}>
@@ -232,13 +232,13 @@ function Inputer({ className }: { className?: string; }) {
 			<InputGroupAddon align="block-end">
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<InputGroupButton variant="ghost">{current_model.state}</InputGroupButton>
+						<InputGroupButton variant="ghost">{currentModel_X.state}</InputGroupButton>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent side="top" align="start">
-						{models_list.state?.map((model) => (
+						{modelsList_X.state?.map((model) => (
 							<DropdownMenuItem onSelect={async () => {
 								invoke(EVENT_NAMES.switch_model, { model_name: model })
-								current_model.invokeState()
+								currentModel_X.invokeState()
 							}} key={model}>{model}</DropdownMenuItem>
 						))}
 					</DropdownMenuContent>
@@ -428,18 +428,18 @@ function SelectedText({ onStream }: { onStream: (chatMessage: ChatMessage) => Pr
 }
 
 function PinWindow({ className }: { className?: string }) {
-	const pin = useInvoke(EVENT_NAMES.get_auto_close_translate_state, false);
+	const { ...pin_X } = useInvoke(EVENT_NAMES.get_auto_close_translate_state, false);
 	return (
 		<Button
 			size="icon-sm"
 			variant="ghost"
 			className={cn(className)}
 			onClick={async () =>
-				pin.setState(await invoke<boolean>(EVENT_NAMES.toggle_auto_close_translate))
+				pin_X.setState(await invoke<boolean>(EVENT_NAMES.toggle_auto_close_translate))
 			}
 		>
 			<IIPin
-				className={cn(pin && "text-green-300 dark:text-green-20")}
+				className={cn(pin_X.state && "text-green-300 dark:text-green-20")}
 			/>
 		</Button>
 	);
