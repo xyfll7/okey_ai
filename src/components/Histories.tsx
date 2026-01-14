@@ -17,7 +17,7 @@ export function Histories({ className }: { className?: string }) {
         <Drawer.Root open={isOpen} onOpenChange={setIsOpen}>
             <Drawer.Trigger onClick={async (e) => {
                 (e.currentTarget as HTMLButtonElement).blur();
-                const res = await invoke<[string, ChatMessageHistory][]>(EVENT_NAMES.GET_HISTORIES)
+                const res = await invoke<[string, ChatMessageHistory][]>(EVENT_NAMES.get_histories)
                 setHistories(res)
                 setIsOpen(true)
             }} asChild>

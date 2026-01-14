@@ -24,7 +24,7 @@ function RouteComponent() {
 			({ payload }) => {
 				const chat = payload.at(-1);
 				const content = chat?.raw ?? chat?.content ?? "";
-				invoke<AutoSpeakState>(EVENT_NAMES.GET_AUTO_SPEAK_STATE).then((res) => {
+				invoke<AutoSpeakState>(EVENT_NAMES.get_auto_speak_state).then((res) => {
 					const isSingleWord = content.trim().split(/\s+/).length === 1;
 					if (
 						(res === AutoSpeakState.Single && isSingleWord) ||
@@ -128,7 +128,7 @@ function RouteComponent() {
 						variant={"ghost"}
 						onClick={async () => {
 							if (!chatHistory) return;
-							await invoke(EVENT_NAMES.COMMAND_WINDOW_TRANSLATE_SHOW, {
+							await invoke(EVENT_NAMES.command_window_translate_show, {
 								chat_message: chatHistory,
 							});
 						}}

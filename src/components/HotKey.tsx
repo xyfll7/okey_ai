@@ -132,7 +132,7 @@ export default function HotKey({
 
 			if (isValidHotkey) {
 				const newHotkey = keys.join("+");
-				invoke(EVENT_NAMES.REGISTER_HOTKEY, { shortcut: newHotkey });
+				invoke(EVENT_NAMES.register_hotkey_okey_ai, { shortcut: newHotkey });
 				onHotkeyChange?.(newHotkey);
 			} else {
 				console.warn(

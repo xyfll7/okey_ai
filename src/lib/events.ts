@@ -9,17 +9,20 @@ export const EVENT_NAMES = {
   AI_ERROR: "AI_ERROR",
   // to Tauri backend
   PAGE_LOADED: "PAGE_LOADED",
-  // CMD events
-  REGISTER_HOTKEY: "register_hotkey_okey_ai",
-  TOGGLE_AUTO_CLOSE_WINDOW: "toggle_auto_close_translate",
-  GET_AUTO_CLOSE_WINDOW_STATE: "get_auto_close_translate_state",
-  DETECT_LANGUAGE: "detect_language",
-  GET_AUTO_SPEAK_STATE: "get_auto_speak_state",
-  COMMAND_WINDOW_TRANSLATE_SHOW: "command_window_translate_show",
-  TOGGLE_AUTO_SPEAK: "toggle_auto_speak",
-  CLOSE_MAIN_WINDOW: "close_main_window",
-  GET_HISTORIES: "get_histories",
-  CHAT_STREAM: "chat_stream",
+
+  toggle_auto_close_translate: "toggle_auto_close_translate",
+  get_auto_close_translate_state: "get_auto_close_translate_state",
+  toggle_auto_speak: "toggle_auto_speak",
+  get_auto_speak_state: "get_auto_speak_state",
+  command_window_translate_show: "command_window_translate_show",
+  close_main_window: "close_main_window",
+  chat_stream: "chat_stream",
+  detect_language: "detect_language",
+  get_histories: "get_histories",
+  register_hotkey_okey_ai: "register_hotkey_okey_ai",
+  switch_model: "switch_model",
+  get_current_model: "get_current_model",
+  list_models: "list_models",
 } as const;
 
 // Type for event names to provide type safety

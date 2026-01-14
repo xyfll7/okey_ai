@@ -16,7 +16,7 @@ export async function speak(text: string) {
 		utterance.pitch = 1.0; // 音调
 		utterance.volume = 1.0; // 音量
 		utterance.lang = await invoke<"en-US" | "zh-CN">(
-			EVENT_NAMES.DETECT_LANGUAGE,
+			EVENT_NAMES.detect_language,
 			{ text },
 		); // 语言
 		speechSynthesis.speak(utterance);

@@ -66,7 +66,7 @@ function Header(props: React.ComponentProps<"div">) {
 		AutoSpeakState.Off,
 	);
 	useEffect(() => {
-		invoke<AutoSpeakState>(EVENT_NAMES.GET_AUTO_SPEAK_STATE).then((res) =>
+		invoke<AutoSpeakState>(EVENT_NAMES.get_auto_speak_state).then((res) =>
 			setAutoSpeak(res),
 		);
 	}, []);
@@ -135,7 +135,7 @@ function Header(props: React.ComponentProps<"div">) {
 				<Button
 					size={"icon-sm"}
 					variant={"ghost"}
-					onClick={() => invoke(EVENT_NAMES.CLOSE_MAIN_WINDOW)}
+					onClick={() => invoke(EVENT_NAMES.close_main_window)}
 				>
 					<IICancel />
 				</Button>
@@ -199,7 +199,7 @@ function Inputer({ className }: {
 			}
 		};
 
-		await invoke(EVENT_NAMES.CHAT_STREAM, {
+		await invoke(EVENT_NAMES.chat_stream, {
 			chat_message: chatMessage,
 			on_event: channel,
 		});
@@ -437,7 +437,7 @@ function SelectedText({ onStream }: { onStream: (chatMessage: ChatMessage) => Pr
 function PinWindow({ className }: { className?: string }) {
 	const [pin, setPin] = useState(false);
 	useEffect(() => {
-		invoke<boolean>(EVENT_NAMES.GET_AUTO_CLOSE_WINDOW_STATE).then((res) =>
+		invoke<boolean>(EVENT_NAMES.get_auto_close_translate_state).then((res) =>
 			setPin(res),
 		);
 	}, []);
@@ -447,7 +447,7 @@ function PinWindow({ className }: { className?: string }) {
 			variant="ghost"
 			className={cn(className)}
 			onClick={async () =>
-				setPin(await invoke<boolean>(EVENT_NAMES.TOGGLE_AUTO_CLOSE_WINDOW))
+				setPin(await invoke<boolean>(EVENT_NAMES.toggle_auto_close_translate))
 			}
 		>
 			<IIPin

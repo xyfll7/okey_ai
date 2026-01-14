@@ -9,7 +9,7 @@ const AutoSpeakVolume = ({className}:{className?:string}) => {
 		AutoSpeakState.Off,
 	);
 	useEffect(() => {
-		invoke<AutoSpeakState>(EVENT_NAMES.GET_AUTO_SPEAK_STATE).then((res) =>
+		invoke<AutoSpeakState>(EVENT_NAMES.get_auto_speak_state).then((res) =>
 			setAutoSpeak(res),
 		);
 	}, []);
@@ -19,7 +19,7 @@ const AutoSpeakVolume = ({className}:{className?:string}) => {
 			onClick={async () => {
 				console.log("fasfsadf");
 				setAutoSpeak(
-					await invoke<AutoSpeakState>(EVENT_NAMES.TOGGLE_AUTO_SPEAK),
+					await invoke<AutoSpeakState>(EVENT_NAMES.toggle_auto_speak),
 				);
 			}}
 		>
