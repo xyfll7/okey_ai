@@ -237,7 +237,7 @@ function Inputer({ className }: { className?: string; }) {
 					<DropdownMenuContent side="top" align="start">
 						{modelsList_X.state?.map((model) => (
 							<DropdownMenuItem onSelect={async () => {
-								invoke(EVENT_NAMES.switch_model, { model_name: model })
+								await invoke(EVENT_NAMES.switch_model, { model_name: model })
 								currentModel_X.invokeState()
 							}} key={model}>{model}</DropdownMenuItem>
 						))}
