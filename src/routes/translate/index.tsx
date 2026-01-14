@@ -5,7 +5,7 @@ import { emit, listen } from "@tauri-apps/api/event";
 import { type as ostype } from "@tauri-apps/plugin-os";
 import Markdown from "markdown-to-jsx";
 import type React from "react";
-import { use, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import AutoSpeakVolume from "@/components/AutoSpeakVolume";
 import Copyed from "@/components/Copyed";
 import HotKey from "@/components/HotKey";

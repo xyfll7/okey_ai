@@ -2,7 +2,7 @@
 // This centralizes event name management to avoid typos and make refactoring easier
 
 import { invoke } from "@tauri-apps/api/core";
-import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import { useEffect, useState } from "react";
 
 export const EVENT_NAMES = {
   BUBBLE_AUTO_SPEAK: "BUBBLE_AUTO_SPEAK",
