@@ -128,7 +128,7 @@ function RouteComponent() {
 						variant={"ghost"}
 						onClick={async () => {
 							if (!chatHistory) return;
-							await invoke(EVENT_NAMES.command_window_translate_show, {
+							await invoke(EVENT_NAMES.window_translate_show, {
 								chat_message: chatHistory,
 							});
 						}}

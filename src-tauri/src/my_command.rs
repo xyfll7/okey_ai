@@ -50,7 +50,6 @@ pub async fn chat_stream(
                 let _ = on_event_clone.send(StreamEvent::Chunk {
                     content: chunk_content.clone(),
                 });
-                let _ = app_clone.emit(event_names::AI_RESPONSE_STREAM, &chunk_content);
             },
         )
         .await
@@ -110,7 +109,7 @@ pub fn get_auto_speak_state(
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub async fn command_window_translate_show(app: AppHandle, chat_message: Vec<ChatMessage>) {
+pub async fn window_translate_show(app: AppHandle, chat_message: Vec<ChatMessage>) {
     let app_clone = app.clone();
     my_windows::window_translate_show(
         &app,
