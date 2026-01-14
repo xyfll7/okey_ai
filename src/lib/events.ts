@@ -2,7 +2,7 @@
 // This centralizes event name management to avoid typos and make refactoring easier
 
 import { invoke } from "@tauri-apps/api/core";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export const EVENT_NAMES = {
   BUBBLE_AUTO_SPEAK: "BUBBLE_AUTO_SPEAK",
@@ -32,10 +32,15 @@ export type EventName = keyof typeof EVENT_NAMES;
 
 export function useInvoke<T = undefined>(event_name: string, init: T | (() => T)) {
   const [state, setState] = useState<T>(init);
-  const invokeState = async () => {
-    const get_models_list = await invoke<T>(event_name);
-    setState(get_models_list);
-  }
-  useEffect(() => { invokeState(); }, []);
+  const invokeState = useCallback(async () => {
+    const result = await invoke<T>(event_name);
+    setState(result);
+  }, [event_name]);
+  useEffect(() => {
+    (async () => {
+      const result = await invoke<T>(event_name);
+      setState(result);
+    })()
+  }, [event_name]);
   return { state, setState, invokeState };
 }

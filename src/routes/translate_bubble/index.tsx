@@ -50,7 +50,7 @@ function RouteComponent() {
 		};
 	}, []);
 	const chat = (() => {
-		let item = chatHistory?.at(-1);
+		const item = chatHistory?.at(-1);
 		return item?.role === "assistant" ? item : undefined
 	})()
 	return (
@@ -116,7 +116,7 @@ function RouteComponent() {
 						size={"icon-sm"}
 						variant={"ghost"}
 						onClick={() => {
-							let chat_user = chatHistory?.at(-2);
+							const chat_user = chatHistory?.at(-2);
 							speak(chat_user?.raw ?? chat_user?.content ?? "")
 						}}
 					>

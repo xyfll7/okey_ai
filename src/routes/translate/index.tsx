@@ -31,12 +31,11 @@ import {
 import { EVENT_NAMES, useInvoke } from "@/lib/events";
 import { AutoSpeakState, type ChatMessage } from "@/lib/types";
 import { cn, get_global_config, speak } from "@/lib/utils";
-import { s_Selected } from "@/store";
+import { s_ChatList, s_Selected } from "@/store";
 import { IIArrowUp, IIPin, IIAdd, IIVolumeHigh, IICancel } from "@/components/icons";
 import { Histories } from "@/components/Histories";
-import { Store } from "@tanstack/react-store";
 
-export const s_ChatList = new Store<ChatMessage[]>([]);
+
 export const Route = createFileRoute("/translate/")({
 	component: RouteComponent,
 });
@@ -92,9 +91,7 @@ function Header(props: React.ComponentProps<"div">) {
 					<HotKey
 						className="mr-2.5"
 						hotkey={hotkey}
-						onHotkeyChange={(e) => {
-							setHotkey(e);
-						}}
+						onHotkeyChange={(e) => { setHotkey(e) }}
 					/>
 				)}
 				<Tooltip>
@@ -137,11 +134,7 @@ function Header(props: React.ComponentProps<"div">) {
 	);
 }
 
-function Inputer({ className }: {
-	className?: string;
-
-}) {
-
+function Inputer({ className }: { className?: string; }) {
 	const handleStream = async (chatMessage: ChatMessage) => {
 		let accumulated = "";
 		const channel = new Channel<StreamEvent>();
@@ -243,7 +236,10 @@ function Inputer({ className }: {
 					</DropdownMenuTrigger>
 					<DropdownMenuContent side="top" align="start">
 						{models_list.state?.map((model) => (
-							<DropdownMenuItem key={model}>{model}</DropdownMenuItem>
+							<DropdownMenuItem onSelect={async () => {
+								invoke(EVENT_NAMES.switch_model, { model_name: model })
+								current_model.invokeState()
+							}} key={model}>{model}</DropdownMenuItem>
 						))}
 					</DropdownMenuContent>
 				</DropdownMenu>
@@ -432,7 +428,7 @@ function SelectedText({ onStream }: { onStream: (chatMessage: ChatMessage) => Pr
 }
 
 function PinWindow({ className }: { className?: string }) {
-	const pin = useInvoke(EVENT_NAMES.get_auto_close_translate_state,false);
+	const pin = useInvoke(EVENT_NAMES.get_auto_close_translate_state, false);
 	return (
 		<Button
 			size="icon-sm"
