@@ -1,4 +1,4 @@
-use crate::my_api::manager::GlobalAPIManager;
+use crate::my_api::manager::{GlobalAPIManager, ModelType};
 use tauri::State;
 
 #[tauri::command(rename_all = "snake_case")]
@@ -7,7 +7,8 @@ pub async fn switch_model(
     state: State<'_, GlobalAPIManager>,
 ) -> Result<(), String> {
     let manager = state.0.read().await;
-    manager.set_current_model(model_name).await
+    let model_type = ModelType::from_str(&model_name);
+    manager.set_current_model(model_type).await
 }
 
 #[tauri::command]

@@ -35,7 +35,7 @@ fn get_default_configs() -> HashMap<String, APIConfig> {
 
     // Example configurations (these would come from user settings)
     configs.insert(
-        "openai".to_string(),
+        manager::ModelType::OpenAI.as_str().to_string(),
         APIConfig {
             api_key: "your-openai-api-key".to_string(),
             base_url: "https://api.openai.com/v1".to_string(),
@@ -44,7 +44,7 @@ fn get_default_configs() -> HashMap<String, APIConfig> {
     );
 
     configs.insert(
-        "qwen".to_string(),
+        manager::ModelType::Qwen.as_str().to_string(),
         APIConfig {
             api_key: "sk-3ab003e0b90346e58d4072f402a15b13".to_string(),
             base_url: "https://dashscope.aliyuncs.com".to_string(),
@@ -53,9 +53,9 @@ fn get_default_configs() -> HashMap<String, APIConfig> {
     );
 
     configs.insert(
-        "deepseek".to_string(),
+        manager::ModelType::DeepSeek.as_str().to_string(),
         APIConfig {
-            api_key: "your-deepseek-api-key".to_string(),
+            api_key: "sk-5a3f93ab12f446488cd68952c8324972".to_string(),
             base_url: "https://api.deepseek.com".to_string(),
             model: "deepseek-chat".to_string(),
         },
