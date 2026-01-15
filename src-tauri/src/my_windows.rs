@@ -182,6 +182,10 @@ where
                 .title_bar_style(tauri::TitleBarStyle::Overlay)
                 .hidden_title(true);
         }
+        #[cfg(target_os = "linux")]
+        {
+            builder = builder.transparent(true)
+        }
         #[cfg(not(target_os = "macos"))]
         {
             builder = builder.decorations(false);

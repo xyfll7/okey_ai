@@ -46,9 +46,11 @@ type StreamEvent =
 	| { event: "error"; data: { message: string } };
 
 function RouteComponent() {
-
+	const _ostype = ostype();
 	return (
-		<div className={cn("bg-background", "h-full", "flex-coh")}>
+		<div className={cn(
+			{ "border rounded-xl": ["linux"].includes(_ostype) },
+			"bg-background", "h-full", "flex-coh")}>
 			<Header className="p-1" />
 			<ScrollArea className={cn("h-full flex-coh")}>
 				<ChatList className="px-2 pt-2" />
@@ -76,15 +78,15 @@ function Header(props: React.ComponentProps<"div">) {
 		<div
 			className={cn(
 				"flex items-center",
-				{ "justify-between": ["windows","linux"].includes(_ostype) },
-				{ "justify-end": ["macos"].includes(_ostype)  },
+				{ "justify-between": ["windows", "linux"].includes(_ostype) },
+				{ "justify-end": ["macos"].includes(_ostype) },
 				props.className,
 			)}
 			data-tauri-drag-region
 		>
 			<div className="flex items-center">
 				{["macos"].includes(_ostype) && <Histories className="mr-1" />}
-				{["windows","linux"].includes(_ostype) && <PinWindow />}
+				{["windows", "linux"].includes(_ostype) && <PinWindow />}
 				{["macos"].includes(_ostype) && (
 					<HotKey
 						className="mr-2.5"
@@ -109,17 +111,17 @@ function Header(props: React.ComponentProps<"div">) {
 					</TooltipContent>
 				</Tooltip>
 
-				{["windows","linux"].includes(_ostype) &&(
+				{["windows", "linux"].includes(_ostype) && (
 					<HotKey
 						className="ml-1"
 						hotkey={hotkey}
 						onHotkeyChange={(e) => setHotkey(e)}
 					/>
 				)}
-				{["macos"].includes(_ostype) &&  <PinWindow className="mr-1" />}
-				{["windows","linux"].includes(_ostype) && <Histories className="ml-1" />}
+				{["macos"].includes(_ostype) && <PinWindow className="mr-1" />}
+				{["windows", "linux"].includes(_ostype) && <Histories className="ml-1" />}
 			</div>
-			{["windows","linux"].includes(_ostype) &&(
+			{["windows", "linux"].includes(_ostype) && (
 				<Button
 					size={"icon-sm"}
 					variant={"ghost"}
