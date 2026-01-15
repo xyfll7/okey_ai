@@ -2,6 +2,7 @@ pub mod commands;
 pub mod m_deepseek;
 pub mod m_openai;
 pub mod m_qwen;
+pub mod m_zai;
 pub mod manager;
 pub mod traits;
 
@@ -55,9 +56,18 @@ fn get_default_configs() -> HashMap<String, APIConfig> {
     configs.insert(
         manager::ModelType::DeepSeek.as_str().to_string(),
         APIConfig {
-            api_key: "sk-5a3f93ab12f446488cd68952c8324972".to_string(),
+            api_key: "sk-5a3f93ab12f44648cd68952c8324972".to_string(),
             base_url: "https://api.deepseek.com".to_string(),
             model: "deepseek-chat".to_string(),
+        },
+    );
+
+    configs.insert(
+        manager::ModelType::ZAI.as_str().to_string(),
+        APIConfig {
+            api_key: "9899af6115c74c1e8ca3eb4bc68e92ba.FCIVu4e7Oz0tNqmP".to_string(), // 智谱AI的API密钥
+            base_url: "https://open.bigmodel.cn/api/paas/v4".to_string(), // 智谱AI的API基础URL
+            model: "glm-4.7".to_string(),        // 智谱AI的模型
         },
     );
 

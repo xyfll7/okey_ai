@@ -1,6 +1,7 @@
 use crate::my_api::m_deepseek::DeepSeekClient;
 use crate::my_api::m_openai::OpenAIClient;
 use crate::my_api::m_qwen::QwenClient;
+use crate::my_api::m_zai::ZAIClient;
 use crate::my_api::traits::{
     APIConfig, ChatCompletionChunk, ChatCompletionRequest, ChatCompletionResponse, LLMClient,
 };
@@ -14,24 +15,27 @@ pub enum ModelType {
     Qwen,
     DeepSeek,
     OpenAI,
+    ZAI,
     Custom(String),
 }
 
 impl ModelType {
     pub fn as_str(&self) -> &str {
         match self {
-            ModelType::Qwen => "Qwen Plus",
+            ModelType::Qwen => "Qwen AI",
             ModelType::DeepSeek => "DeepSeek",
             ModelType::OpenAI => "OpenAI",
+            ModelType::ZAI => "Z AI",
             ModelType::Custom(name) => name,
         }
     }
 
     pub fn from_str(s: &str) -> ModelType {
         match s {
-            "Qwen Plus" => ModelType::Qwen,
+            "Qwen AI" => ModelType::Qwen,
             "DeepSeek" => ModelType::DeepSeek,
             "OpenAI" => ModelType::OpenAI,
+            "Z AI" => ModelType::ZAI,
             _ => ModelType::Custom(s.to_string()),
         }
     }
@@ -140,6 +144,7 @@ impl APIManager {
                 ModelType::Qwen => Box::new(QwenClient::new(config)),
                 ModelType::DeepSeek => Box::new(DeepSeekClient::new(config)),
                 ModelType::OpenAI => Box::new(OpenAIClient::new(config)),
+                ModelType::ZAI => Box::new(ZAIClient::new(config)), // Use ZAI-specific client
                 ModelType::Custom(_) => Box::new(OpenAIClient::new(config)), // Default to OpenAI-compatible
             };
             self.add_client(model_type, client).await;
