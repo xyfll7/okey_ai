@@ -39,7 +39,6 @@ impl ModelType {
 
 pub struct APIManager {
     clients: Arc<RwLock<HashMap<ModelType, Box<dyn LLMClient + Send + Sync>>>>,
-    model_configs: Arc<RwLock<HashMap<ModelType, APIConfig>>>,
     current_model: Arc<RwLock<ModelType>>,
 }
 
@@ -49,7 +48,6 @@ impl APIManager {
     pub fn new() -> Self {
         Self {
             clients: Arc::new(RwLock::new(HashMap::new())),
-            model_configs: Arc::new(RwLock::new(HashMap::new())),
             current_model: Arc::new(RwLock::new(ModelType::Qwen)), // Updated to use ModelType
         }
     }
@@ -57,11 +55,6 @@ impl APIManager {
     pub async fn add_client(&self, name: ModelType, client: Box<dyn LLMClient + Send + Sync>) {
         let mut clients = self.clients.write().await;
         clients.insert(name, client);
-    }
-
-    pub async fn add_model_config(&self, model_type: ModelType, config: APIConfig) {
-        let mut model_configs = self.model_configs.write().await;
-        model_configs.insert(model_type, config);
     }
 
     pub async fn set_current_model(&self, model_name: ModelType) -> Result<(), String> {
@@ -82,10 +75,15 @@ impl APIManager {
         let current_model = self.current_model.read().await;
         current_model.as_str().to_string() // Convert ModelType back to string
     }
-    pub async fn get_current_model_config(&self) -> Option<APIConfig> {
-        let current_model = self.current_model.read().await;
-        let model_configs = self.model_configs.read().await;
-        model_configs.get(&*current_model).cloned()
+    pub fn get_current_client_config(&self) -> APIConfig {
+        let current_model = self.current_model.blocking_read();
+        let clients = self.clients.blocking_read();
+
+        let client = clients.get(&current_model).expect(&format!(
+            "No client configured for model: {}",
+            current_model.as_str()
+        ));
+        client.get_config()
     }
 
     pub async fn chat_completion(
@@ -138,9 +136,6 @@ impl APIManager {
     pub async fn initialize_default_clients(&self, configs: HashMap<String, APIConfig>) {
         for (name, config) in configs {
             let model_type = ModelType::from_str(&name);
-            // Store the config separately so we can access the actual model name later
-            self.add_model_config(model_type.clone(), config.clone())
-                .await;
             let client: Box<dyn LLMClient + Send + Sync> = match model_type {
                 ModelType::Qwen => Box::new(QwenClient::new(config)),
                 ModelType::DeepSeek => Box::new(DeepSeekClient::new(config)),

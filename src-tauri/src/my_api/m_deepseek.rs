@@ -22,6 +22,10 @@ impl DeepSeekClient {
 }
 
 impl LLMClient for DeepSeekClient {
+    fn get_config(&self) -> APIConfig {
+        self.config.clone()
+    }
+
     fn chat_completion<'a>(
         &'a self,
         request: &'a ChatCompletionRequest,

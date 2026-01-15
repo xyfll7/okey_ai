@@ -22,6 +22,10 @@ impl OpenAIClient {
 }
 
 impl LLMClient for OpenAIClient {
+    fn get_config(&self) -> APIConfig {
+        self.config.clone()
+    }
+
     fn chat_completion<'a>(
         &'a self,
         request: &'a ChatCompletionRequest,
@@ -149,9 +153,8 @@ impl LLMClient for OpenAIClient {
                                                 break;
                                             }
 
-                                            match serde_json::from_str::<OpenAIStreamResponse>(
-                                                data,
-                                            ) {
+                                            match serde_json::from_str::<OpenAIStreamResponse>(data)
+                                            {
                                                 Ok(stream_response) => {
                                                     // Convert stream response to standard chunk format
                                                     let chunk = ChatCompletionChunk {

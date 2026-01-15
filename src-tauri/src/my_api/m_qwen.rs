@@ -23,6 +23,10 @@ impl QwenClient {
 }
 
 impl LLMClient for QwenClient {
+    fn get_config(&self) -> APIConfig {
+        self.config.clone()
+    }
+
     fn chat_completion<'a>(
         &'a self,
         request: &'a ChatCompletionRequest,

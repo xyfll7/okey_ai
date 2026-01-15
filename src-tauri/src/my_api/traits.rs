@@ -66,6 +66,7 @@ pub struct ChatMessageDelta {
 }
 
 pub trait LLMClient {
+    fn get_config(&self) -> APIConfig;
     fn chat_completion<'a>(
         &'a self,
         request: &'a ChatCompletionRequest,

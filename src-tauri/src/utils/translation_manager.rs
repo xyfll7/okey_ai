@@ -74,10 +74,10 @@ impl TranslationManager {
         callback(messages.clone()).await;
 
         let manager = self.api_manager.read().await;
-        let current_model_config = manager.get_current_model_config().await;
+        let current_client_config = manager.get_current_client_config();
 
         let request = ChatCompletionRequest {
-            model: current_model_config?.model,
+            model: current_client_config.model,
             messages: messages.iter().map(ChatMessage::as_llm).collect::<Vec<_>>(),
             temperature: Some(0.1),
             max_tokens: Some(500),
@@ -125,9 +125,9 @@ impl TranslationManager {
         initial_callback(messages.clone()).await;
 
         let manager = self.api_manager.read().await;
-        let current_model_config = manager.get_current_model_config().await;
+        let current_model_config = manager.get_current_client_config();
         let request = ChatCompletionRequest {
-            model: current_model_config?.model,
+            model: current_model_config.model,
             messages: messages.iter().map(ChatMessage::as_llm).collect::<Vec<_>>(),
             temperature: Some(0.1),
             max_tokens: Some(5000),
