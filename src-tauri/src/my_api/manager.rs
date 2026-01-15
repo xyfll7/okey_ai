@@ -75,9 +75,9 @@ impl APIManager {
         let current_model = self.current_model.read().await;
         current_model.as_str().to_string() // Convert ModelType back to string
     }
-    pub fn get_current_client_config(&self) -> APIConfig {
-        let current_model = self.current_model.blocking_read();
-        let clients = self.clients.blocking_read();
+    pub async fn get_current_client_config(&self) -> APIConfig {
+        let current_model = self.current_model.read().await;
+        let clients = self.clients.read().await;
 
         let client = clients.get(&current_model).expect(&format!(
             "No client configured for model: {}",

@@ -74,7 +74,7 @@ impl TranslationManager {
         callback(messages.clone()).await;
 
         let manager = self.api_manager.read().await;
-        let current_client_config = manager.get_current_client_config();
+        let current_client_config = manager.get_current_client_config().await;
 
         let request = ChatCompletionRequest {
             model: current_client_config.model,
@@ -125,7 +125,7 @@ impl TranslationManager {
         initial_callback(messages.clone()).await;
 
         let manager = self.api_manager.read().await;
-        let current_model_config = manager.get_current_client_config();
+        let current_model_config = manager.get_current_client_config().await;
         let request = ChatCompletionRequest {
             model: current_model_config.model,
             messages: messages.iter().map(ChatMessage::as_llm).collect::<Vec<_>>(),
