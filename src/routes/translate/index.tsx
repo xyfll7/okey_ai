@@ -75,19 +75,17 @@ function Header(props: React.ComponentProps<"div">) {
 	return (
 		<div
 			className={cn(
-
 				"flex items-center",
-				{ "justify-between": _ostype === "linux" },
-				{ "justify-between": _ostype === "windows" },
-				{ "justify-end": _ostype === "macos" },
+				{ "justify-between": ["windows","linux"].includes(_ostype) },
+				{ "justify-end": ["macos"].includes(_ostype)  },
 				props.className,
 			)}
 			data-tauri-drag-region
 		>
 			<div className="flex items-center">
-				{_ostype === "macos" && <Histories className="mr-1" />}
-				{_ostype === "windows" && <PinWindow />}
-				{_ostype === "macos" && (
+				{["macos"].includes(_ostype) && <Histories className="mr-1" />}
+				{["windows","linux"].includes(_ostype) && <PinWindow />}
+				{["macos"].includes(_ostype) && (
 					<HotKey
 						className="mr-2.5"
 						hotkey={hotkey}
@@ -111,17 +109,17 @@ function Header(props: React.ComponentProps<"div">) {
 					</TooltipContent>
 				</Tooltip>
 
-				{_ostype === "windows" && (
+				{["windows","linux"].includes(_ostype) &&(
 					<HotKey
 						className="ml-1"
 						hotkey={hotkey}
 						onHotkeyChange={(e) => setHotkey(e)}
 					/>
 				)}
-				{_ostype === "macos" && <PinWindow className="mr-1" />}
-				{_ostype === "windows" && <Histories className="ml-1" />}
+				{["macos"].includes(_ostype) &&  <PinWindow className="mr-1" />}
+				{["windows","linux"].includes(_ostype) && <Histories className="ml-1" />}
 			</div>
-			{_ostype === "windows" && (
+			{["windows","linux"].includes(_ostype) &&(
 				<Button
 					size={"icon-sm"}
 					variant={"ghost"}
