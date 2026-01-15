@@ -80,7 +80,7 @@ impl TranslationManager {
             model: current_client_config.model,
             messages: messages.iter().map(ChatMessage::as_llm).collect::<Vec<_>>(),
             temperature: Some(0.1),
-            max_tokens: Some(500),
+            max_tokens: Some(1500),
             top_p: Some(1.0),
             stream: Some(false),
         };

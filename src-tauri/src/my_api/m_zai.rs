@@ -2,6 +2,7 @@ use crate::my_api::traits::{
     APIConfig, ChatCompletionChunk, ChatCompletionRequest, ChatCompletionResponse,
     ChatMessageDelta, ChoiceDelta, LLMClient,
 };
+use crate::utils::chat_message::ChatMessage;
 use futures::stream::{BoxStream, StreamExt};
 use serde::{Deserialize, Serialize};
 use tauri_plugin_http::reqwest;
@@ -35,19 +36,10 @@ impl LLMClient for ZAIClient {
         Box::pin(async move {
             let api_url = format!("{}/chat/completions", self.config.base_url);
 
-            let mut modified_request = request.clone();
-            modified_request.stream = Some(false); // Ensure stream is false for non-streaming requests
+            let mut request = request.clone();
+            request.stream = Some(false); // Ensure stream is false for non-streaming requests
 
-            // 仅提取我们需要的字段，避免传递不兼容的字段
-            let body = serde_json::json!({
-                "model": modified_request.model,
-                "messages": modified_request.messages,
-                "temperature": modified_request.temperature.unwrap_or(0.7),
-                "max_tokens": modified_request.max_tokens.unwrap_or(1024),
-                "top_p": modified_request.top_p.unwrap_or(0.9),
-            });
-
-            let json_body = serde_json::to_string(&body)
+            let json_body = serde_json::to_string(&request)
                 .map_err(|e| format!("Failed to serialize request: {}", e))?;
 
             let response = self
@@ -63,7 +55,7 @@ impl LLMClient for ZAIClient {
 
             if !response.status().is_success() {
                 return Err(format!(
-                    "API request failed with status: {}",
+                    "API request failed with status信息: {}",
                     response.status()
                 ));
             }
@@ -72,11 +64,39 @@ impl LLMClient for ZAIClient {
                 .text()
                 .await
                 .map_err(|e| format!("Failed to read response text: {}", e))?;
-
-            let zai_response: ChatCompletionResponse = serde_json::from_str(&response_text)
+            println!("aaa:  {:#?}", response_text);
+            let zai_response: ZAIChatResponse = serde_json::from_str(&response_text)
                 .map_err(|e| format!("Failed to parse response: {}", e))?;
-
-            Ok(zai_response)
+            println!("bbb:  {:#?}", zai_response);
+            // Convert ZAI response to standard format
+            Ok(ChatCompletionResponse {
+                id: zai_response.id,
+                object: zai_response.object,
+                created: zai_response.created,
+                model: zai_response.model,
+                choices: zai_response
+                    .choices
+                    .into_iter()
+                    .map(|choice| crate::my_api::traits::Choice {
+                        index: choice.index,
+                        message: ChatMessage {
+                            role: choice.message.role.as_deref().unwrap_or("user").into(),
+                            content: choice
+                                .message
+                                .content
+                                .or(choice.message.reasoning_content)
+                                .unwrap_or_default(),
+                            raw: None,
+                        },
+                        finish_reason: choice.finish_reason,
+                    })
+                    .collect(),
+                usage: Some(crate::my_api::traits::Usage {
+                    prompt_tokens: zai_response.usage.prompt_tokens,
+                    completion_tokens: zai_response.usage.completion_tokens,
+                    total_tokens: zai_response.usage.total_tokens,
+                }),
+            })
         })
     }
 
@@ -94,20 +114,10 @@ impl LLMClient for ZAIClient {
         Box::pin(async move {
             let api_url = format!("{}/chat/completions", self.config.base_url);
 
-            let mut modified_request = request.clone();
-            modified_request.stream = Some(true); // Enable streaming
+            let mut request = request.clone();
+            request.stream = Some(true); // Enable streaming
 
-            // 仅提取我们需要的字段，避免传递不兼容的字段
-            let body = serde_json::json!({
-                "model": modified_request.model,
-                "messages": modified_request.messages,
-                "temperature": modified_request.temperature.unwrap_or(0.7),
-                "max_tokens": modified_request.max_tokens.unwrap_or(1024),
-                "top_p": modified_request.top_p.unwrap_or(0.9),
-                "stream": true,
-            });
-
-            let json_body = serde_json::to_string(&body)
+            let json_body = serde_json::to_string(&request)
                 .map_err(|e| format!("Failed to serialize request: {}", e))?;
 
             let response = self
@@ -122,7 +132,6 @@ impl LLMClient for ZAIClient {
                 .send()
                 .await
                 .map_err(|e| format!("Failed to send request: {}", e))?;
-
             if !response.status().is_success() {
                 return Err(format!(
                     "API request failed with status information: {}",
@@ -172,7 +181,9 @@ impl LLMClient for ZAIClient {
                                                 break;
                                             }
 
-                                            match serde_json::from_str::<ZAIStreamResponse>(data) {
+                                            match serde_json::from_str::<ZAIChatStreamResponse>(
+                                                data,
+                                            ) {
                                                 Ok(stream_response) => {
                                                     // Convert stream response to standard chunk format
                                                     let chunk = ChatCompletionChunk {
@@ -187,7 +198,12 @@ impl LLMClient for ZAIClient {
                                                                 index: choice.index,
                                                                 delta: ChatMessageDelta {
                                                                     role: choice.delta.role,
-                                                                    content: choice.delta.content,
+                                                                    content: choice
+                                                                        .delta
+                                                                        .content
+                                                                        .or(choice
+                                                                            .delta
+                                                                            .reasoning_content),
                                                                 },
                                                                 finish_reason: choice.finish_reason,
                                                             })
@@ -248,7 +264,17 @@ fn split_first_line(buffer: &str) -> Option<(&str, &str)> {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct ZAIStreamResponse {
+struct ZAIChatResponse {
+    id: String,
+    object: String,
+    created: u64,
+    model: String,
+    choices: Vec<ZAIChoice>,
+    usage: ZAIUsage,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct ZAIChatStreamResponse {
     id: String,
     object: String,
     created: u64,
@@ -267,4 +293,43 @@ struct ZAIStreamChoice {
 struct ZAIStreamDelta {
     role: Option<String>,
     content: Option<String>,
+    #[serde(rename = "reasoning_content")]
+    reasoning_content: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct ZAIMessage {
+    role: Option<String>,
+    content: Option<String>,
+    #[serde(rename = "reasoning_content")]
+    reasoning_content: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct ZAIChoice {
+    message: ZAIMessage,
+    finish_reason: String,
+    index: u32,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct ZAIUsage {
+    prompt_tokens: u32,
+    completion_tokens: u32,
+    total_tokens: u32,
+    #[serde(rename = "prompt_tokens_details")]
+    prompt_tokens_details: Option<PromptTokensDetails>,
+    #[serde(rename = "completion_tokens_details")]
+    completion_tokens_details: Option<CompletionTokensDetails>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct PromptTokensDetails {
+    cached_tokens: Option<u32>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct CompletionTokensDetails {
+    #[serde(rename = "reasoning_tokens")]
+    reasoning_tokens: Option<u32>,
 }

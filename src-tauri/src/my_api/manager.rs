@@ -52,7 +52,7 @@ impl APIManager {
     pub fn new() -> Self {
         Self {
             clients: Arc::new(RwLock::new(HashMap::new())),
-            current_model: Arc::new(RwLock::new(ModelType::Qwen)), // Updated to use ModelType
+            current_model: Arc::new(RwLock::new(ModelType::ZAI)), // Updated to use ModelType
         }
     }
 
