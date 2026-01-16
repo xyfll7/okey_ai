@@ -166,64 +166,66 @@ impl LLMClient for QwenClient {
                                     buffer.push_str(text);
                                     // Process all complete lines from the buffer
                                     loop {
-                                        let (line, rest) = match split_first_line(&buffer) {
-                                            Some((line, rest)) => {
-                                                (line.to_string(), rest.to_string())
-                                            }
-                                            None => {
-                                                // No complete line available, break and wait for more data
-                                                break;
-                                            }
-                                        };
+                                        let newline_pos = buffer.find('\n');
+                                        if let Some(pos) = newline_pos {
+                                            let (line, rest) = buffer.split_at(pos);
+                                            let line = line.to_string(); // Clone line to avoid borrow conflicts
+                                            let new_buffer = rest[1..].to_string(); // Skip the newline character
+                                            buffer = new_buffer;
 
-                                        buffer = rest;
-
-                                        if line.trim().is_empty() {
-                                            continue;
-                                        }
-
-                                        if line.starts_with("data: ") {
-                                            let data = line[6..].trim();
-
-                                            if data == "[DONE]" {
-                                                break;
+                                            if line.trim().is_empty() {
+                                                continue;
                                             }
 
-                                            match serde_json::from_str::<QwenChatStreamResponse>(
-                                                data,
-                                            ) {
-                                                Ok(stream_response) => {
-                                                    // Convert stream response to standard chunk format
-                                                    let chunk = ChatCompletionChunk {
-                                                        id: stream_response.id,
-                                                        object: stream_response.object,
-                                                        created: stream_response.created,
-                                                        model: stream_response.model,
-                                                        choices: stream_response
-                                                            .choices
-                                                            .into_iter()
-                                                            .map(|choice| ChoiceDelta {
-                                                                index: choice.index,
-                                                                delta: ChatMessageDelta {
-                                                                    role: choice.delta.role,
-                                                                    content: choice.delta.content,
-                                                                },
-                                                                finish_reason: choice.finish_reason,
-                                                            })
-                                                            .collect(),
-                                                    };
-                                                    if tx.unbounded_send(Ok(chunk)).is_err() {
+                                            if line.starts_with("data: ") {
+                                                let data = line[6..].trim();
+
+                                                if data == "[DONE]" {
+                                                    break;
+                                                }
+
+                                                match serde_json::from_str::<QwenChatStreamResponse>(
+                                                    data,
+                                                ) {
+                                                    Ok(stream_response) => {
+                                                        // Convert stream response to standard chunk format
+                                                        let chunk = ChatCompletionChunk {
+                                                            id: stream_response.id,
+                                                            object: stream_response.object,
+                                                            created: stream_response.created,
+                                                            model: stream_response.model,
+                                                            choices: stream_response
+                                                                .choices
+                                                                .into_iter()
+                                                                .map(|choice| ChoiceDelta {
+                                                                    index: choice.index,
+                                                                    delta: ChatMessageDelta {
+                                                                        role: choice.delta.role,
+                                                                        content: choice
+                                                                            .delta
+                                                                            .content,
+                                                                    },
+                                                                    finish_reason: choice
+                                                                        .finish_reason,
+                                                                })
+                                                                .collect(),
+                                                        };
+                                                        if tx.unbounded_send(Ok(chunk)).is_err() {
+                                                            break;
+                                                        }
+                                                    }
+                                                    Err(e) => {
+                                                        let _ = tx.unbounded_send(Err(format!(
+                                                            "Failed to parse stream data: {}",
+                                                            e
+                                                        )));
                                                         break;
                                                     }
                                                 }
-                                                Err(e) => {
-                                                    let _ = tx.unbounded_send(Err(format!(
-                                                        "Failed to parse stream data: {}",
-                                                        e
-                                                    )));
-                                                    break;
-                                                }
                                             }
+                                        } else {
+                                            // No complete line available, break and wait for more data
+                                            break;
                                         }
                                     }
                                 }
@@ -250,19 +252,6 @@ impl LLMClient for QwenClient {
             // Convert the receiver into a stream
             Ok(rx.map(|x| x.map_err(|e| e.to_string())).boxed())
         })
-    }
-}
-
-fn split_first_line(buffer: &str) -> Option<(&str, &str)> {
-    if let Some(pos) = buffer.find('\n') {
-        let (line, rest) = buffer.split_at(pos);
-        if line.ends_with('\r') {
-            Some((&line[..line.len() - 1], &rest[1..]))
-        } else {
-            Some((line, &rest[1..]))
-        }
-    } else {
-        None
     }
 }
 
