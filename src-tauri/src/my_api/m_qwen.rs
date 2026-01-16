@@ -5,6 +5,8 @@ use crate::my_api::traits::{
 use crate::utils::chat_message::ChatMessage;
 use futures::stream::{BoxStream, StreamExt};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use std::collections::HashMap;
 use tauri_plugin_http::reqwest;
 
 #[derive(Debug)]
@@ -25,6 +27,13 @@ impl QwenClient {
 impl LLMClient for QwenClient {
     fn get_config(&self) -> APIConfig {
         self.config.clone()
+    }
+
+    fn get_request_params(&self) -> HashMap<String, Value> {
+        let mut params = HashMap::new();
+        // 为通义千问模型启用思维功能
+        params.insert("enable_thinking".to_string(), Value::Bool(false));
+        params
     }
 
     fn chat_completion<'a>(

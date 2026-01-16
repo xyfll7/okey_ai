@@ -2,12 +2,14 @@ use crate::utils::chat_message::ChatMessage;
 use crate::utils::chat_message::LLMChatMessage;
 use futures::stream::BoxStream;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use std::collections::HashMap;
 use std::future::Future;
 
 #[derive(Debug, Serialize, Clone)]
-pub struct ChatCompletionRequest<'a> {
+pub struct ChatCompletionRequest {
     pub model: String,
-    pub messages: Vec<LLMChatMessage<'a>>,
+    pub messages: Vec<LLMChatMessage>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub temperature: Option<f32>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -16,6 +18,8 @@ pub struct ChatCompletionRequest<'a> {
     pub top_p: Option<f32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub stream: Option<bool>,
+    #[serde(flatten)]
+    pub extra_params: HashMap<String, Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -67,6 +71,10 @@ pub struct ChatMessageDelta {
 
 pub trait LLMClient {
     fn get_config(&self) -> APIConfig;
+
+    // 获取特定于模型的请求参数
+    fn get_request_params(&self) -> HashMap<String, Value>;
+
     fn chat_completion<'a>(
         &'a self,
         request: &'a ChatCompletionRequest,

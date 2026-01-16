@@ -75,6 +75,7 @@ impl TranslationManager {
 
         let manager = self.api_manager.read().await;
         let current_client_config = manager.get_current_client_config().await;
+        let model_specific_params = manager.get_current_model_request_params().await;
 
         let request = ChatCompletionRequest {
             model: current_client_config.model,
@@ -83,6 +84,7 @@ impl TranslationManager {
             max_tokens: Some(1500),
             top_p: Some(1.0),
             stream: Some(false),
+            extra_params: model_specific_params,
         };
         let response = manager.chat_completion(&request).await.ok()?;
 
@@ -125,14 +127,17 @@ impl TranslationManager {
         initial_callback(messages.clone()).await;
 
         let manager = self.api_manager.read().await;
-        let current_model_config = manager.get_current_client_config().await;
+        let current_client_config = manager.get_current_client_config().await;
+        let model_specific_params = manager.get_current_model_request_params().await;
+
         let request = ChatCompletionRequest {
-            model: current_model_config.model,
+            model: current_client_config.model,
             messages: messages.iter().map(ChatMessage::as_llm).collect::<Vec<_>>(),
             temperature: Some(0.1),
             max_tokens: Some(5000),
             top_p: Some(1.0),
             stream: Some(true),
+            extra_params: model_specific_params,
         };
         let content_chunks = Arc::new(std::sync::Mutex::new(String::new()));
         let content_chunks_clone = content_chunks.clone();

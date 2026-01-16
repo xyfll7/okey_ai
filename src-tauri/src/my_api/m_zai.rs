@@ -5,6 +5,8 @@ use crate::my_api::traits::{
 use crate::utils::chat_message::ChatMessage;
 use futures::stream::{BoxStream, StreamExt};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use std::collections::HashMap;
 use tauri_plugin_http::reqwest;
 
 #[derive(Debug)]
@@ -25,6 +27,16 @@ impl ZAIClient {
 impl LLMClient for ZAIClient {
     fn get_config(&self) -> APIConfig {
         self.config.clone()
+    }
+
+    fn get_request_params(&self) -> HashMap<String, Value> {
+        let mut params = HashMap::new();
+        // 为智谱AI模型启用思维功能
+        let thinking_config = serde_json::json!({
+            "type": "disabled"
+        });
+        params.insert("thinking".to_string(), thinking_config);
+        params
     }
 
     fn chat_completion<'a>(

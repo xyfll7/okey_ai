@@ -2,9 +2,9 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Debug, Serialize, Clone)]
-pub struct LLMChatMessage<'a> {
-    pub role: &'a Role,
-    pub content: &'a str,
+pub struct LLMChatMessage {
+    pub role: Role,
+    pub content: String,
 }
 /// Represents a chat message with a role and content
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -16,10 +16,10 @@ pub struct ChatMessage {
 }
 
 impl ChatMessage {
-    pub fn as_llm(&self) -> LLMChatMessage<'_> {
+    pub fn as_llm(&self) -> LLMChatMessage {
         LLMChatMessage {
-            role: &self.role,
-            content: &self.content,
+            role: self.role.clone(),
+            content: self.content.clone(),
         }
     }
 }

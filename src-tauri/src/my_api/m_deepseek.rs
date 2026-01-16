@@ -4,6 +4,8 @@ use crate::my_api::traits::{
 };
 use futures::stream::{BoxStream, StreamExt};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use std::collections::HashMap;
 use tauri_plugin_http::reqwest;
 
 #[derive(Debug)]
@@ -26,6 +28,11 @@ impl LLMClient for DeepSeekClient {
         self.config.clone()
     }
 
+    fn get_request_params(&self) -> HashMap<String, Value> {
+        // DeepSeek 模型通常不需要特殊的思维功能参数
+        HashMap::new()
+    }
+
     fn chat_completion<'a>(
         &'a self,
         request: &'a ChatCompletionRequest,
@@ -36,7 +43,7 @@ impl LLMClient for DeepSeekClient {
             let api_url = format!("{}/chat/completions", self.config.base_url);
 
             // Clone the request and ensure stream is false for non-streaming requests
-            let mut request: ChatCompletionRequest<'_> = request.clone();
+            let mut request = request.clone();
             request.stream = Some(false);
 
             let json_body = serde_json::to_string(&request)

@@ -6,6 +6,7 @@ use crate::my_api::traits::{
     APIConfig, ChatCompletionChunk, ChatCompletionRequest, ChatCompletionResponse, LLMClient,
 };
 use futures::StreamExt; // Add this import for the .next() method
+use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tauri::async_runtime::RwLock;
@@ -90,9 +91,21 @@ impl APIManager {
         client.get_config()
     }
 
+    pub async fn get_current_model_request_params(&self) -> HashMap<String, Value> {
+        let current_model = self.current_model.read().await;
+        let clients = self.clients.read().await;
+
+        let client = clients.get(&current_model).expect(&format!(
+            "No client configured for model: {}",
+            current_model.as_str()
+        ));
+
+        client.get_request_params()
+    }
+
     pub async fn chat_completion(
         &self,
-        request: &ChatCompletionRequest<'_>,
+        request: &ChatCompletionRequest,
     ) -> Result<ChatCompletionResponse, String> {
         let current_model = self.current_model.read().await;
         let clients = self.clients.read().await;
@@ -107,7 +120,7 @@ impl APIManager {
 
     pub async fn chat_completion_stream<F>(
         &self,
-        request: &ChatCompletionRequest<'_>,
+        request: &ChatCompletionRequest,
         mut callback: F,
     ) -> Result<(), String>
     where

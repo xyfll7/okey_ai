@@ -4,6 +4,8 @@ use crate::my_api::traits::{
 };
 use futures::stream::{BoxStream, StreamExt};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use std::collections::HashMap;
 use tauri_plugin_http::reqwest;
 
 #[derive(Debug)]
@@ -24,6 +26,11 @@ impl OpenAIClient {
 impl LLMClient for OpenAIClient {
     fn get_config(&self) -> APIConfig {
         self.config.clone()
+    }
+
+    fn get_request_params(&self) -> HashMap<String, Value> {
+        // OpenAI 模型通常不需要特殊的思维功能参数
+        HashMap::new()
     }
 
     fn chat_completion<'a>(
