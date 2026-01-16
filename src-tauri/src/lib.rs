@@ -1,4 +1,4 @@
-rust_i18n::i18n!("translations");
+rust_i18n::i18n!("locales");
 
 mod i18n;
 mod my_api;
@@ -14,6 +14,7 @@ mod my_windows;
 mod states;
 mod utils;
 
+use crate::my_types::TRKey;
 use states::chat_histories;
 use states::setting_states;
 use tauri::Manager; // ← 添加这一行，非常重要！
@@ -32,8 +33,8 @@ pub fn run() {
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
             app.notification()
                 .builder()
-                .title(rust_i18n::t!("notification_title"))
-                .body(rust_i18n::t!("notification_body"))
+                .title(TRKey::NotificationTitle.t())
+                .body(TRKey::NotificationBody.t())
                 .show()
                 .unwrap();
         }))
