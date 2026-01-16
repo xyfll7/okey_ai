@@ -5,13 +5,10 @@ use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
 
 #[tauri::command]
 pub fn register_hotkey_okey_ai(app: AppHandle, shortcut: String) -> Result<(), String> {
-    // First, try to register the new shortcut
-    let shortcut_for_closure = shortcut.clone();
     match app
         .global_shortcut()
         .on_shortcut(shortcut.as_str(), move |app, _shortcut, event| {
             if event.state == ShortcutState::Pressed {
-                println!("动态快捷键触发: {}", shortcut_for_closure);
                 crate::utils::text_translation::translate_selected_text(&app);
             }
         }) {

@@ -112,14 +112,9 @@ impl LLMClient for DeepSeekClient {
                 .send()
                 .await
                 .map_err(|e| format!("Failed to send request: {}", e))?;
-            println!("deeeeeee::::::0{:#?}", response);
             if !response.status().is_success() {
                 let status = response.status();
                 let error_text = response.text().await.unwrap_or_default();
-                println!(
-                    "DeepSeek API Error - Status: {}, Response: {}",
-                    status, error_text
-                );
                 return Err(format!(
                     "API request failed with status: {}, error: {}",
                     status, error_text
@@ -218,7 +213,6 @@ impl LLMClient for DeepSeekClient {
                             }
                         }
                         Err(e) => {
-                            println!("deeeeeee::::::1{:#?}", e);
                             let _ = tx.unbounded_send(Err(format!(
                                 "Failed to read response chunk: {}",
                                 e
