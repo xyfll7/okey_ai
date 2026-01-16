@@ -1,3 +1,6 @@
+rust_i18n::i18n!("translations");
+
+mod i18n;
 mod my_api;
 mod my_command;
 mod my_config;
@@ -18,6 +21,9 @@ use tauri_plugin_notification::NotificationExt;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // Initialize i18n
+    crate::i18n::init_i18n();
+
     let api_manager = std::sync::Arc::new(tauri::async_runtime::RwLock::new(
         my_api::manager::APIManager::new(),
     ));
@@ -51,6 +57,9 @@ pub fn run() {
             my_api::commands::switch_model,
             my_api::commands::get_current_model,
             my_api::commands::get_models_list,
+            i18n::get_locale,
+            i18n::set_locale,
+            i18n::t_string,
         ])
         .setup(|app| {
             if cfg!(debug_assertions) {

@@ -5,13 +5,32 @@ use tauri::{
 };
 
 use crate::{my_config, my_windows};
+use rust_i18n::t;
 
 /*******  ab7e53dc-7cba-45e1-8b3a-3837c9b2580a  *******/
 pub fn create_tray<R: Runtime>(app_handle: &AppHandle<R>) -> tauri::Result<()> {
-    // 创建菜单项
-    let show_item = MenuItem::with_id(app_handle, "show", "Show", true, None::<&str>)?;
-    let test_item = MenuItem::with_id(app_handle, "test", "Test", true, None::<&str>)?;
-    let quit_item = MenuItem::with_id(app_handle, "quit", "Quit", true, None::<&str>)?;
+    // 创建菜单项 with translations
+    let show_item = MenuItem::with_id(
+        app_handle,
+        "show",
+        &t!("show").to_string(),
+        true,
+        None::<&str>,
+    )?;
+    let test_item = MenuItem::with_id(
+        app_handle,
+        "test",
+        &t!("test").to_string(),
+        true,
+        None::<&str>,
+    )?;
+    let quit_item = MenuItem::with_id(
+        app_handle,
+        "quit",
+        &t!("quit").to_string(),
+        true,
+        None::<&str>,
+    )?;
 
     // 构建菜单
     let menu = MenuBuilder::new(app_handle)
