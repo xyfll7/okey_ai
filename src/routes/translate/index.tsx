@@ -301,8 +301,8 @@ function ChatList({ className }: { className?: string; }) {
 					<MessageItem className="px-2.5 mb-2" key={`chat-${chat.content}-${index}`} chat={chat} />
 				);
 			})}
-			{lastItem && lastItem.role === "assistant" && <MessageItem className="px-2 mb-2" chat={lastItem} />}
-			{lastItem?.role !== "assistant" && <div className="px-2">...</div>}
+			{lastItem && lastItem.role === "assistant" && <MessageItem className="px-2.5 mb-2" chat={lastItem} />}
+			{lastItem?.role !== "assistant" && <div className="px-2.5">...</div>}
 		</div>
 	);
 }
