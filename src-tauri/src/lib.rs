@@ -32,8 +32,8 @@ pub fn run() {
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
             app.notification()
                 .builder()
-                .title("okey.ai")
-                .body("okey.ai is running!")
+                .title(rust_i18n::t!("notification_title"))
+                .body(rust_i18n::t!("notification_body"))
                 .show()
                 .unwrap();
         }))
