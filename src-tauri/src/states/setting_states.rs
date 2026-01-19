@@ -33,4 +33,5 @@ pub struct AppState {
     #[allow(dead_code)]
     pub auto_close_bubble: bool,
     pub auto_speak: AutoSpeakState,
+    pub selected_language: Option<String>,
 }
