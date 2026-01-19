@@ -1,5 +1,6 @@
 pub mod calculate_text_width;
 pub mod chat_message;
+pub mod i18n;
 pub mod language_detection;
 pub mod log_filter;
 pub mod selecte_text;
