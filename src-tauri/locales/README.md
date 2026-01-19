@@ -31,7 +31,6 @@ From the frontend JavaScript/TypeScript code, you can use the following Tauri co
 
 - `get_locale()` - Get the current locale
 - `set_locale(locale)` - Set the locale (e.g., "en", "zh-CN")
-- `t_string(key)` - Get the translated string for a key
 
 Example:
 ```javascript
@@ -42,9 +41,6 @@ const currentLocale = await invoke('get_locale');
 
 // Switch to Chinese
 await invoke('set_locale', { locale: 'zh-CN' });
-
-// Get translated string
-const welcomeText = await invoke('t_string', { key: 'welcome' });
 ```
 
 ## Default Locale

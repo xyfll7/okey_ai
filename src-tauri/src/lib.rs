@@ -60,7 +60,6 @@ pub fn run() {
             my_api::commands::get_models_list,
             i18n::get_locale,
             i18n::set_locale,
-            i18n::t_string,
         ])
         .setup(|app| {
             if cfg!(debug_assertions) {
