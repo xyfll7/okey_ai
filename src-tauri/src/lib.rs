@@ -13,8 +13,8 @@ mod states;
 mod utils;
 
 use crate::my_types::TRKey;
+use states::app_state::AppStateManager;
 use states::chat_histories;
-use states::setting_states;
 use tauri::Manager;
 use tauri_plugin_notification::NotificationExt;
 
@@ -34,7 +34,6 @@ pub fn run() {
                 .show()
                 .unwrap();
         }))
-        .manage(std::sync::Mutex::new(setting_states::AppState::default()))
         .manage(my_api::manager::GlobalAPIManager(api_manager))
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_os::init())
@@ -68,6 +67,7 @@ pub fn run() {
                 )?;
             }
             my_api::setup_api_manager(&app.handle())?;
+            setup_app_state(app)?;
             my_shortcut::init_shortcuts(&app.handle())?;
             my_tray::create_tray(&app.handle())?;
             crate::my_test::test();
@@ -88,6 +88,13 @@ pub fn run() {
             }
         })
 }
+fn setup_app_state(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
+    let state_manager = AppStateManager::new("app_config");
+    let app_state = state_manager.init_state(app.handle())?;
+    app.manage(app_state);
+    Ok(())
+}
+
 fn setup_translation_manager(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     app.manage(chat_histories::ChatHistoriesState::new());
     let chat_history = app.state::<chat_histories::ChatHistoriesState>();

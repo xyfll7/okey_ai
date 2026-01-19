@@ -9,7 +9,7 @@ use tauri::{
     WebviewUrl, WebviewWindowBuilder,
 };
 
-use crate::{my_events::event_names, states::setting_states};
+use crate::{my_events::event_names, states::app_state::AppState};
 use mouse_position::mouse_position::{Mouse, Position};
 use tauri::Monitor;
 
@@ -221,8 +221,8 @@ where
                             return;
                         }
                         if {
-                            let state = state_handle.state::<Mutex<setting_states::AppState>>();
-                            let state_guard = state.lock().unwrap();
+                            let state = state_handle.state::<AppState>();
+                            let state_guard = state.blocking_read();
                             !state_guard.auto_close_translate
                         } {
                             _win.destroy().ok();

@@ -5,5 +5,4 @@ export interface Shortcut {
 
 export interface GlobalConfig {
   shortcuts: Shortcut[];
-  test_field: string;
 }

@@ -1,10 +1,12 @@
+use crate::states::app_config::AutoSpeakState;
+use crate::states::app_state::AppState;
+use crate::states::app_state::AppStateManager;
 use crate::utils::chat_message::ChatMessage;
 use crate::utils::{language_detection, translation_manager};
-use crate::{my_events::event_names, my_windows, states::setting_states};
+use crate::{my_events::event_names, my_windows};
 
 use serde::{Deserialize, Serialize};
-use std::sync::Mutex;
-use tauri::{ipc::Channel, AppHandle, Emitter, Manager, State};
+use tauri::{ipc::Channel, AppHandle, Emitter, Manager};
 
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", tag = "event", content = "data")]
@@ -73,38 +75,53 @@ pub fn detect_language(text: &str) -> String {
 }
 
 #[tauri::command]
-pub fn toggle_auto_close_translate(state: State<'_, Mutex<setting_states::AppState>>) -> bool {
-    let mut app_state = state.lock().unwrap();
-    app_state.auto_close_translate = !app_state.auto_close_translate;
-    app_state.auto_close_translate
+pub fn toggle_auto_close_translate(app: AppHandle) -> Result<bool, String> {
+    let app_state = app.state::<AppState>();
+    let mut config = app_state.blocking_write();
+    config.auto_close_translate = !config.auto_close_translate;
+
+    // Persist the change
+    let state_manager = AppStateManager::new("app_config");
+    state_manager
+        .save(&app, &config)
+        .map_err(|e| format!("保存配置失败: {}", e))?;
+
+    Ok(config.auto_close_translate)
 }
 
 #[tauri::command]
-pub fn get_auto_close_translate_state(state: State<'_, Mutex<setting_states::AppState>>) -> bool {
-    let app_state = state.lock().unwrap();
-    app_state.auto_close_translate
+pub fn get_auto_close_translate_state(app: AppHandle) -> bool {
+    let app_state = app.state::<AppState>();
+    let config = app_state.blocking_read();
+    config.auto_close_translate
 }
 
 #[tauri::command]
-pub fn toggle_auto_speak(
-    state: State<'_, Mutex<setting_states::AppState>>,
-) -> setting_states::AutoSpeakState {
-    let mut app_state = state.lock().unwrap();
+pub fn toggle_auto_speak(app: AppHandle) -> Result<AutoSpeakState, String> {
+    let app_state = app.state::<AppState>();
+    let mut config = app_state.blocking_write();
+
     // Cycle through the three states: Off -> Single -> All -> Off
-    app_state.auto_speak = match app_state.auto_speak {
-        setting_states::AutoSpeakState::Off => setting_states::AutoSpeakState::Single,
-        setting_states::AutoSpeakState::Single => setting_states::AutoSpeakState::All,
-        setting_states::AutoSpeakState::All => setting_states::AutoSpeakState::Off,
+    config.auto_speak = match config.auto_speak {
+        AutoSpeakState::Off => AutoSpeakState::Single,
+        AutoSpeakState::Single => AutoSpeakState::All,
+        AutoSpeakState::All => AutoSpeakState::Off,
     };
-    app_state.auto_speak
+
+    // Persist the change
+    let state_manager = AppStateManager::new("app_config");
+    state_manager
+        .save(&app, &config)
+        .map_err(|e| format!("保存配置失败: {}", e))?;
+
+    Ok(config.auto_speak)
 }
 
 #[tauri::command]
-pub fn get_auto_speak_state(
-    state: State<'_, Mutex<setting_states::AppState>>,
-) -> setting_states::AutoSpeakState {
-    let app_state = state.lock().unwrap();
-    app_state.auto_speak
+pub fn get_auto_speak_state(app: AppHandle) -> AutoSpeakState {
+    let app_state = app.state::<AppState>();
+    let config = app_state.blocking_read();
+    config.auto_speak
 }
 
 #[tauri::command(rename_all = "snake_case")]
