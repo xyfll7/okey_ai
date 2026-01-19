@@ -1,6 +1,5 @@
 use serde::Serialize;
 
-// Enum for auto speak state - three possible states
 #[derive(Default, Clone, Copy, PartialEq)]
 pub enum AutoSpeakState {
     Off, // Completely off
@@ -9,7 +8,6 @@ pub enum AutoSpeakState {
     All, // Read full sentence
 }
 
-// Implement Display and Serialize for AutoSpeakState to return string values
 impl std::fmt::Display for AutoSpeakState {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -29,7 +27,6 @@ impl Serialize for AutoSpeakState {
     }
 }
 
-// Global state struct for auto-close window setting
 #[derive(Default)]
 pub struct AppState {
     pub auto_close_translate: bool,

@@ -16,7 +16,7 @@ mod utils;
 use crate::my_types::TRKey;
 use states::chat_histories;
 use states::setting_states;
-use tauri::Manager; // ← 添加这一行，非常重要！
+use tauri::Manager;
 use tauri_plugin_notification::NotificationExt;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -68,24 +68,17 @@ pub fn run() {
                         .build(),
                 )?;
             }
-
-            // 初始化 API 管理器
             my_api::setup_api_manager(&app.handle())?;
-            // my_modifier_keys::init_global_input_listener(&app.handle())?;
             my_shortcut::init_shortcuts(&app.handle())?;
-
             my_tray::create_tray(&app.handle())?;
             crate::my_test::test();
             crate::my_rdev::init_global_input_listener(&app.handle())?;
-            // ✅ 初始化翻译管理器
             setup_translation_manager(app)?;
-            // 在 macOS 上隐藏 Dock 栏图标
             #[cfg(target_os = "macos")]
             {
                 use tauri::ActivationPolicy;
                 app.set_activation_policy(ActivationPolicy::Accessory);
             }
-
             Ok(())
         })
         .build(tauri::generate_context!())
@@ -96,7 +89,6 @@ pub fn run() {
             }
         })
 }
-// ✅ 翻译管理器初始化
 fn setup_translation_manager(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     app.manage(chat_histories::ChatHistoriesState::new());
     let chat_history = app.state::<chat_histories::ChatHistoriesState>();
