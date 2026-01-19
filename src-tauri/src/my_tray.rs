@@ -5,7 +5,7 @@ use tauri::{
 };
 
 use crate::my_types::TRKey;
-use crate::{my_config, my_windows};
+use crate::{my_windows, states::my_config};
 
 /*******  ab7e53dc-7cba-45e1-8b3a-3837c9b2580a  *******/
 pub fn create_tray<R: Runtime>(app_handle: &AppHandle<R>) -> tauri::Result<()> {

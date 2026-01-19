@@ -1,4 +1,4 @@
-use crate::my_config;
+use crate::states::my_config;
 use crate::utils::text_translation;
 use tauri::AppHandle;
 use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
@@ -36,7 +36,7 @@ pub fn register_hotkey_okey_ai(app: AppHandle, shortcut: String) -> Result<(), S
 
     // If the "okey_ai" shortcut wasn't found in config, add it
     if old_shortcut.is_none() {
-        global_config.shortcuts.push(crate::my_config::Shortcut {
+        global_config.shortcuts.push(my_config::Shortcut {
             name: "okey_ai".to_string(),
             hot_key: shortcut.clone(),
         });
@@ -58,7 +58,7 @@ pub fn register_hotkey_okey_ai(app: AppHandle, shortcut: String) -> Result<(), S
 }
 
 pub fn init_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
-    let global_config: crate::my_config::GlobalConfig = my_config::get_global_config(app)?;
+    let global_config: my_config::GlobalConfig = my_config::get_global_config(app)?;
 
     for shortcut in global_config.shortcuts {
         let hot_key = shortcut.hot_key.clone();

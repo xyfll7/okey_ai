@@ -2,7 +2,6 @@ rust_i18n::i18n!("locales");
 
 mod my_api;
 mod my_command;
-mod my_config;
 mod my_events;
 mod my_rdev;
 mod my_shortcut;
