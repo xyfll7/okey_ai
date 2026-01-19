@@ -13,7 +13,6 @@ pub struct Shortcut {
 pub struct GlobalConfig {
     pub shortcuts: Vec<Shortcut>,
     pub test_field: String,
-    pub selected_language: String,
 }
 
 impl Default for GlobalConfig {
@@ -35,7 +34,6 @@ impl Default for GlobalConfig {
                 },
             ],
             test_field: "default_value".to_string(),
-            selected_language: "".to_string(), // 默认为空，表示使用系统语言
         }
     }
 }
