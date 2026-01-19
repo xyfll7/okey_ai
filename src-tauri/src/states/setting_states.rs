@@ -1,11 +1,12 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Default, Clone, Copy, PartialEq)]
+#[derive(Default, Clone, Copy, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum AutoSpeakState {
-    Off, // Completely off
+    Off,
     #[default]
-    Single, // Read single word
-    All, // Read full sentence
+    Single,
+    All,
 }
 
 impl std::fmt::Display for AutoSpeakState {
@@ -18,19 +19,8 @@ impl std::fmt::Display for AutoSpeakState {
     }
 }
 
-impl Serialize for AutoSpeakState {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        serializer.serialize_str(&self.to_string())
-    }
-}
-
-#[derive(Default)]
+#[derive(Default, Serialize, Deserialize, Clone)]
 pub struct AppState {
     pub auto_close_translate: bool,
-    #[allow(dead_code)]
-    pub auto_close_bubble: bool,
     pub auto_speak: AutoSpeakState,
 }
