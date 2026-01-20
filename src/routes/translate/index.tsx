@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/tooltip";
 import { EVENT_NAMES, useInvoke } from "@/lib/events";
 import { AutoSpeakState, type ChatMessage } from "@/lib/types";
-import { cn, get_global_config, speak } from "@/lib/utils";
+import { cn, get_app_config, speak } from "@/lib/utils";
 import { s_ChatList, s_Selected } from "@/store";
 import { IIArrowUp, IIPin, IIAdd, IIVolumeHigh, IICancel } from "@/components/icons";
 import { Histories } from "@/components/Histories";
@@ -67,7 +67,7 @@ function Header(props: React.ComponentProps<"div">) {
 	const _ostype = ostype();
 	const [hotkey, setHotkey] = useState<string>("");
 	useEffect(() => {
-		get_global_config().then((config) => {
+		get_app_config().then((config) => {
 			setHotkey(
 				config?.shortcuts.find((item) => item.name === "okey_ai")?.hot_key
 				|| "",

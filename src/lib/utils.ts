@@ -25,9 +25,9 @@ export async function speak(text: string) {
 	}
 }
 
-export async function get_global_config() {
+export async function get_app_config() {
 	const store = await Store.load("store.json");
-	const config = await store.get<GlobalConfig>("global_config");
+	const config = await store.get<GlobalConfig>("app_config");
 	if (config) {
 		return config;
 	} else {
