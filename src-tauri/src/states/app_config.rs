@@ -15,16 +15,6 @@ pub enum AutoSpeakState {
     All,
 }
 
-impl std::fmt::Display for AutoSpeakState {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            AutoSpeakState::Off => write!(f, "off"),
-            AutoSpeakState::Single => write!(f, "single"),
-            AutoSpeakState::All => write!(f, "all"),
-        }
-    }
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppConfig {
     pub shortcuts: Vec<Shortcut>,
