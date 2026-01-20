@@ -11,8 +11,8 @@ export const EVENT_NAMES = {
   AI_ERROR: "AI_ERROR",
   PAGE_LOADED: "PAGE_LOADED",
 
-  toggle_is_pin_translate_window: "toggle_is_pin_translate_window",
-  get_is_pin_translate_window: "get_is_pin_translate_window",
+  is_pin_translate_window_toggle: "is_pin_translate_window_toggle",
+  is_pin_translate_window_get: "is_pin_translate_window_get",
   toggle_auto_speak: "toggle_auto_speak",
   get_auto_speak_state: "get_auto_speak_state",
   window_translate_show: "window_translate_show",

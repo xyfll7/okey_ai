@@ -40,8 +40,8 @@ pub fn run() {
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
-            my_command::toggle_is_pin_translate_window,
-            my_command::get_is_pin_translate_window,
+            my_command::is_pin_translate_window_toggle,
+            my_command::is_pin_translate_window_get,
             my_command::toggle_auto_speak,
             my_command::get_auto_speak_state,
             my_command::window_translate_show,

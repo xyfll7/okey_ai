@@ -75,7 +75,7 @@ pub fn detect_language(text: &str) -> String {
 }
 
 #[tauri::command]
-pub fn toggle_is_pin_translate_window(app: AppHandle) -> Result<bool, String> {
+pub fn is_pin_translate_window_toggle(app: AppHandle) -> Result<bool, String> {
     let app_state = app.state::<AppState>();
     let mut config = app_state.blocking_write();
     config.is_pin_translate_window = !config.is_pin_translate_window;
@@ -90,7 +90,7 @@ pub fn toggle_is_pin_translate_window(app: AppHandle) -> Result<bool, String> {
 }
 
 #[tauri::command]
-pub fn get_is_pin_translate_window(app: AppHandle) -> bool {
+pub fn is_pin_translate_window_get(app: AppHandle) -> bool {
     let app_state = app.state::<AppState>();
     let config = app_state.blocking_read();
     config.is_pin_translate_window
