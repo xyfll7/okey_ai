@@ -25,16 +25,10 @@ pub struct AppConfig {
 impl Default for AppConfig {
     fn default() -> Self {
         AppConfig {
-            shortcuts: vec![
-                Shortcut {
-                    name: "okey_ai".to_string(),
-                    hot_key: ["Ctrl+G", "Cmd+G"][cfg!(target_os = "macos") as usize].to_string(),
-                },
-                Shortcut {
-                    name: "test".to_string(),
-                    hot_key: ["Ctrl+H", "Cmd+H"][cfg!(target_os = "macos") as usize].to_string(),
-                },
-            ],
+            shortcuts: vec![Shortcut {
+                name: "okey_ai".to_string(),
+                hot_key: ["Ctrl+G", "Cmd+G"][cfg!(target_os = "macos") as usize].to_string(),
+            }],
             auto_close_translate: false,
             auto_speak: AutoSpeakState::default(),
         }
