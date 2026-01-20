@@ -1,6 +1,5 @@
 use crate::states::app_config::AutoSpeakState;
-use crate::states::app_state::AppState;
-use crate::states::app_state::AppStateManager;
+use crate::states::app_state::AutoSaveAppState;
 use crate::utils::chat_message::ChatMessage;
 use crate::utils::{language_detection, translation_manager};
 use crate::{my_events::event_names, my_windows};
@@ -76,30 +75,24 @@ pub fn detect_language(text: &str) -> String {
 
 #[tauri::command]
 pub fn is_pin_translate_window_toggle(app: AppHandle) -> Result<bool, String> {
-    let app_state = app.state::<AppState>();
-    let mut config = app_state.blocking_write();
+    let app_state = app.state::<AutoSaveAppState<tauri::Wry>>();
+    let mut config = app_state.write();
     config.is_pin_translate_window = !config.is_pin_translate_window;
-
-    // Persist the change
-    let state_manager = AppStateManager::new("app_config");
-    state_manager
-        .save(&app, &config)
-        .map_err(|e| format!("保存配置失败: {}", e))?;
 
     Ok(config.is_pin_translate_window)
 }
 
 #[tauri::command]
 pub fn is_pin_translate_window_get(app: AppHandle) -> bool {
-    let app_state = app.state::<AppState>();
-    let config = app_state.blocking_read();
+    let app_state = app.state::<AutoSaveAppState<tauri::Wry>>();
+    let config = app_state.read();
     config.is_pin_translate_window
 }
 
 #[tauri::command]
 pub fn toggle_auto_speak(app: AppHandle) -> Result<AutoSpeakState, String> {
-    let app_state = app.state::<AppState>();
-    let mut config = app_state.blocking_write();
+    let app_state = app.state::<AutoSaveAppState<tauri::Wry>>();
+    let mut config = app_state.write();
 
     // Cycle through the three states: Off -> Single -> All -> Off
     config.auto_speak = match config.auto_speak {
@@ -108,19 +101,13 @@ pub fn toggle_auto_speak(app: AppHandle) -> Result<AutoSpeakState, String> {
         AutoSpeakState::All => AutoSpeakState::Off,
     };
 
-    // Persist the change
-    let state_manager = AppStateManager::new("app_config");
-    state_manager
-        .save(&app, &config)
-        .map_err(|e| format!("保存配置失败: {}", e))?;
-
     Ok(config.auto_speak)
 }
 
 #[tauri::command]
 pub fn get_auto_speak_state(app: AppHandle) -> AutoSpeakState {
-    let app_state = app.state::<AppState>();
-    let config = app_state.blocking_read();
+    let app_state = app.state::<AutoSaveAppState<tauri::Wry>>();
+    let config = app_state.read();
     config.auto_speak
 }
 

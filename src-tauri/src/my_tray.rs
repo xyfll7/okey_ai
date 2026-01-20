@@ -6,7 +6,7 @@ use tauri::{
 
 use crate::my_types::TRKey;
 use crate::my_windows;
-use crate::states::app_state::AppState;
+use crate::states::app_state::AutoSaveAppState;
 use tauri::Manager;
 
 /*******  ab7e53dc-7cba-45e1-8b3a-3837c9b2580a  *******/
@@ -30,8 +30,8 @@ pub fn create_tray<R: Runtime>(app_handle: &AppHandle<R>) -> tauri::Result<()> {
             my_windows::window_about_show(app);
         }
         "test" => {
-            let app_state = app.state::<AppState>();
-            let config = app_state.blocking_read();
+            let app_state = app.state::<AutoSaveAppState<tauri::Wry>>();
+            let config = app_state.read();
             println!("config: {:#?}", *config);
         }
         "quit" => std::process::exit(0),

@@ -1,6 +1,5 @@
 use crate::states::app_config::Shortcut;
-use crate::states::app_state::AppState;
-use crate::states::app_state::AppStateManager;
+use crate::states::app_state::AutoSaveAppState;
 use crate::utils::text_translation;
 use tauri::AppHandle;
 use tauri::Manager;
@@ -24,8 +23,8 @@ pub fn register_hotkey_okey_ai(app: AppHandle, shortcut: String) -> Result<(), S
     }
 
     // Get the current configuration from state
-    let app_state = app.state::<AppState>();
-    let mut config = app_state.blocking_read().clone();
+    let app_state = app.state::<AutoSaveAppState<tauri::Wry>>();
+    let mut config = app_state.write();
 
     // Find and store the old shortcut for "okey_ai" if it exists
     let mut old_shortcut: Option<String> = None;
@@ -45,14 +44,7 @@ pub fn register_hotkey_okey_ai(app: AppHandle, shortcut: String) -> Result<(), S
         });
     }
 
-    // Save the updated configuration to state and store
-    *app_state.blocking_write() = config.clone();
-    let state_manager = AppStateManager::new("app_config");
-    if let Err(e) = state_manager.save(&app, &config) {
-        let error_msg = format!("保存配置失败: {}", e);
-        println!("{}", error_msg);
-        return Err(error_msg);
-    }
+    // The configuration will be automatically saved when the write guard is dropped
 
     // If there was an old shortcut, unregister it specifically
     if let Some(old_key) = old_shortcut {
@@ -66,8 +58,8 @@ pub fn register_hotkey_okey_ai(app: AppHandle, shortcut: String) -> Result<(), S
 }
 
 pub fn init_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
-    let app_state = app.state::<AppState>();
-    let config = app_state.blocking_read().clone();
+    let app_state = app.state::<AutoSaveAppState<tauri::Wry>>();
+    let config = app_state.read().clone();
 
     for shortcut in config.shortcuts {
         let hot_key = shortcut.hot_key.clone();

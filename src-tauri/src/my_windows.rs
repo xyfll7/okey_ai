@@ -9,7 +9,7 @@ use tauri::{
     WebviewUrl, WebviewWindowBuilder,
 };
 
-use crate::{my_events::event_names, states::app_state::AppState};
+use crate::{my_events::event_names, states::app_state::AutoSaveAppState};
 use mouse_position::mouse_position::{Mouse, Position};
 use tauri::Monitor;
 
@@ -221,8 +221,8 @@ where
                             return;
                         }
                         if {
-                            let state = state_handle.state::<AppState>();
-                            let state_guard = state.blocking_read();
+                            let state = state_handle.state::<AutoSaveAppState<tauri::Wry>>();
+                            let state_guard = state.read();
                             !state_guard.is_pin_translate_window
                         } {
                             _win.destroy().ok();
