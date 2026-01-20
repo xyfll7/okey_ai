@@ -24,19 +24,15 @@ pub struct AppConfig {
 
 impl Default for AppConfig {
     fn default() -> Self {
-        #[cfg(target_os = "macos")]
-        let cmd_ctrl_modifier = "Cmd";
-        #[cfg(not(target_os = "macos"))]
-        let cmd_ctrl_modifier = "Ctrl";
         AppConfig {
             shortcuts: vec![
                 Shortcut {
                     name: "okey_ai".to_string(),
-                    hot_key: format!("{}+G", cmd_ctrl_modifier),
+                    hot_key: ["Ctrl+G", "Cmd+G"][cfg!(target_os = "macos") as usize].to_string(),
                 },
                 Shortcut {
                     name: "test".to_string(),
-                    hot_key: format!("{}+H", cmd_ctrl_modifier),
+                    hot_key: ["Ctrl+H", "Cmd+H"][cfg!(target_os = "macos") as usize].to_string(),
                 },
             ],
             auto_close_translate: false,
