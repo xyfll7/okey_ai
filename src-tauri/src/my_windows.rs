@@ -223,7 +223,7 @@ where
                         if {
                             let state = state_handle.state::<AppState>();
                             let state_guard = state.blocking_read();
-                            !state_guard.auto_close_translate
+                            !state_guard.is_pin_translate_window
                         } {
                             _win.destroy().ok();
                         }

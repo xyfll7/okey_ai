@@ -18,7 +18,7 @@ pub enum AutoSpeakState {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppConfig {
     pub shortcuts: Vec<Shortcut>,
-    pub auto_close_translate: bool,
+    pub is_pin_translate_window: bool,
     pub auto_speak: AutoSpeakState,
 }
 
@@ -29,7 +29,7 @@ impl Default for AppConfig {
                 name: "okey_ai".to_string(),
                 hot_key: ["Ctrl+G", "Cmd+G"][cfg!(target_os = "macos") as usize].to_string(),
             }],
-            auto_close_translate: false,
+            is_pin_translate_window: false,
             auto_speak: AutoSpeakState::default(),
         }
     }

@@ -75,10 +75,10 @@ pub fn detect_language(text: &str) -> String {
 }
 
 #[tauri::command]
-pub fn toggle_auto_close_translate(app: AppHandle) -> Result<bool, String> {
+pub fn toggle_is_pin_translate_window(app: AppHandle) -> Result<bool, String> {
     let app_state = app.state::<AppState>();
     let mut config = app_state.blocking_write();
-    config.auto_close_translate = !config.auto_close_translate;
+    config.is_pin_translate_window = !config.is_pin_translate_window;
 
     // Persist the change
     let state_manager = AppStateManager::new("app_config");
@@ -86,14 +86,14 @@ pub fn toggle_auto_close_translate(app: AppHandle) -> Result<bool, String> {
         .save(&app, &config)
         .map_err(|e| format!("保存配置失败: {}", e))?;
 
-    Ok(config.auto_close_translate)
+    Ok(config.is_pin_translate_window)
 }
 
 #[tauri::command]
-pub fn get_auto_close_translate_state(app: AppHandle) -> bool {
+pub fn get_is_pin_translate_window(app: AppHandle) -> bool {
     let app_state = app.state::<AppState>();
     let config = app_state.blocking_read();
-    config.auto_close_translate
+    config.is_pin_translate_window
 }
 
 #[tauri::command]

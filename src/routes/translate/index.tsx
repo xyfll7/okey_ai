@@ -428,14 +428,14 @@ function SelectedText({ onStream }: { onStream: (chatMessage: ChatMessage) => Pr
 }
 
 function PinWindow({ className }: { className?: string }) {
-	const { ...pin_X } = useInvoke(EVENT_NAMES.get_auto_close_translate_state, false);
+	const { ...pin_X } = useInvoke(EVENT_NAMES.get_is_pin_translate_window, false);
 	return (
 		<Button
 			size="icon-sm"
 			variant="ghost"
 			className={cn(className)}
 			onClick={async () =>
-				pin_X.setState(await invoke<boolean>(EVENT_NAMES.toggle_auto_close_translate))
+				pin_X.setState(await invoke<boolean>(EVENT_NAMES.toggle_is_pin_translate_window))
 			}
 		>
 			<IIPin
