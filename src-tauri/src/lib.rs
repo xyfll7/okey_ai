@@ -94,8 +94,8 @@ fn setup_app_state(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error
     // 打印 store.json 位置
     state_manager.print_store_path(app.handle());
 
-    let auto_save_state = state_manager.init_auto_save_state(app.handle())?;
-    app.manage(auto_save_state);
+    let app_config_state = state_manager.init_app_config_state(app.handle())?;
+    app.manage(app_config_state);
     Ok(())
 }
 

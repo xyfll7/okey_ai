@@ -29,7 +29,7 @@ impl AppStateManager {
     }
 
     /// Load configuration from store, or initialize with defaults
-    pub fn load<R: Runtime>(
+    fn load<R: Runtime>(
         &self,
         app: &AppHandle<R>,
     ) -> Result<AppConfig, Box<dyn std::error::Error>> {
@@ -45,7 +45,7 @@ impl AppStateManager {
     }
 
     /// Save configuration to store
-    pub fn save<R: Runtime>(
+    fn save<R: Runtime>(
         &self,
         app: &AppHandle<R>,
         config: &AppConfig,
@@ -56,90 +56,57 @@ impl AppStateManager {
     }
 }
 
-/// Thread-safe wrapper for AppConfig with automatic persistence
-pub struct AutoSaveAppState<R: Runtime> {
+// AutoSaveAppState → 改名为 AppConfigState
+pub struct AppConfigState<R: Runtime> {
     inner: Arc<RwLock<AppConfig>>,
-    store_key: String,
+    manager: AppStateManager,
     app_handle: AppHandle<R>,
 }
 
-impl<R: Runtime> AutoSaveAppState<R> {
-    pub fn new(inner: Arc<RwLock<AppConfig>>, store_key: String, app_handle: AppHandle<R>) -> Self {
+impl<R: Runtime> AppConfigState<R> {
+    fn new(
+        inner: Arc<RwLock<AppConfig>>,
+        manager: AppStateManager,
+        app_handle: AppHandle<R>,
+    ) -> Self {
         Self {
             inner,
-            store_key,
+            manager,
             app_handle,
         }
+    }
+
+    fn save(&self) -> Result<(), Box<dyn std::error::Error>> {
+        let config = self.inner.read().unwrap().clone();
+        self.manager.save(&self.app_handle, &config)
     }
 
     pub fn read(&self) -> std::sync::RwLockReadGuard<'_, AppConfig> {
         self.inner.read().unwrap()
     }
 
-    pub fn write(&self) -> AutoSaveWriteGuard<'_, R> {
-        let guard = self.inner.write().unwrap();
-        AutoSaveWriteGuard {
-            guard,
-            store_key: self.store_key.clone(),
-            app_handle: self.app_handle.clone(),
-            needs_save: false, // Only save if actually modified
+    // 可选：提供批量修改 + 一次保存的 helper
+    pub fn update<F>(&self, f: F) -> Result<(), Box<dyn std::error::Error>>
+    where
+        F: FnOnce(&mut AppConfig),
+    {
+        {
+            let mut guard = self.inner.write().unwrap();
+            f(&mut guard);
         }
-    }
-}
-
-/// Write guard that automatically saves on drop
-pub struct AutoSaveWriteGuard<'a, R: Runtime> {
-    guard: std::sync::RwLockWriteGuard<'a, AppConfig>,
-    store_key: String,
-    app_handle: AppHandle<R>,
-    needs_save: bool,
-}
-
-impl<'a, R: Runtime> std::ops::Deref for AutoSaveWriteGuard<'a, R> {
-    type Target = AppConfig;
-
-    fn deref(&self) -> &Self::Target {
-        &self.guard
-    }
-}
-
-impl<'a, R: Runtime> std::ops::DerefMut for AutoSaveWriteGuard<'a, R> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        self.needs_save = true;
-        &mut self.guard
-    }
-}
-
-impl<'a, R: Runtime> Drop for AutoSaveWriteGuard<'a, R> {
-    fn drop(&mut self) {
-        if self.needs_save {
-            let store_key = self.store_key.clone();
-            let config = self.guard.clone();
-            let app_handle = self.app_handle.clone();
-
-            // Spawn async task to save config
-            tauri::async_runtime::spawn(async move {
-                let manager = AppStateManager::new(store_key);
-                if let Err(e) = manager.save(&app_handle, &config) {
-                    eprintln!("Failed to auto-save config: {}", e);
-                }
-            });
-        }
+        self.save()
     }
 }
 
 impl AppStateManager {
-    /// Create a new AutoSaveAppState instance with auto-save functionality
-    pub fn init_auto_save_state<R: Runtime>(
+    /// Create a new AppConfigState instance with manual save functionality
+    pub fn init_app_config_state<R: Runtime>(
         &self,
         app: &AppHandle<R>,
-    ) -> Result<AutoSaveAppState<R>, Box<dyn std::error::Error>> {
+    ) -> Result<AppConfigState<R>, Box<dyn std::error::Error>> {
         let config = self.load(app)?;
         let state = Arc::new(RwLock::new(config));
-        Ok(AutoSaveAppState::new(
-            state,
-            self.store_key.clone(),
-            app.clone(),
-        ))
+        let new_manager = AppStateManager::new(self.store_key.clone());
+        Ok(AppConfigState::new(state, new_manager, app.clone()))
     }
 }

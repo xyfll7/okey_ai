@@ -1,5 +1,5 @@
 use crate::states::app_config::AutoSpeakState;
-use crate::states::app_state::AutoSaveAppState;
+use crate::states::app_state::AppConfigState;
 use crate::utils::chat_message::ChatMessage;
 use crate::utils::{language_detection, translation_manager};
 use crate::{my_events::event_names, my_windows};
@@ -75,38 +75,51 @@ pub fn detect_language(text: &str) -> String {
 
 #[tauri::command]
 pub fn is_pin_translate_window_toggle(app: AppHandle) -> Result<bool, String> {
-    let app_state = app.state::<AutoSaveAppState<tauri::Wry>>();
-    let mut config = app_state.write();
-    config.is_pin_translate_window = !config.is_pin_translate_window;
+    let app_state = app.state::<AppConfigState<tauri::Wry>>();
 
+    // Use the update method to modify and save in one operation
+    app_state
+        .update(|config| {
+            config.is_pin_translate_window = !config.is_pin_translate_window;
+        })
+        .map_err(|e| e.to_string())?;
+
+    // Return the new state by reading it again
+    let config = app_state.read();
     Ok(config.is_pin_translate_window)
 }
 
 #[tauri::command]
 pub fn is_pin_translate_window_get(app: AppHandle) -> bool {
-    let app_state = app.state::<AutoSaveAppState<tauri::Wry>>();
+    let app_state = app.state::<AppConfigState<tauri::Wry>>();
     let config = app_state.read();
     config.is_pin_translate_window
 }
 
 #[tauri::command]
 pub fn toggle_auto_speak(app: AppHandle) -> Result<AutoSpeakState, String> {
-    let app_state = app.state::<AutoSaveAppState<tauri::Wry>>();
-    let mut config = app_state.write();
+    let app_state = app.state::<AppConfigState<tauri::Wry>>();
 
-    // Cycle through the three states: Off -> Single -> All -> Off
-    config.auto_speak = match config.auto_speak {
-        AutoSpeakState::Off => AutoSpeakState::Single,
-        AutoSpeakState::Single => AutoSpeakState::All,
-        AutoSpeakState::All => AutoSpeakState::Off,
-    };
+    // Use the update method to modify and save in one operation
+    app_state
+        .update(|config| {
+            // Cycle through the three states: Off -> Single -> All -> Off
+            config.auto_speak = match config.auto_speak {
+                AutoSpeakState::Off => AutoSpeakState::Single,
+                AutoSpeakState::Single => AutoSpeakState::All,
+                AutoSpeakState::All => AutoSpeakState::Off,
+            };
+        })
+        .map_err(|e| e.to_string())?;
 
+    // Return the new state by reading it again
+    let config = app_state.read();
     Ok(config.auto_speak)
 }
 
 #[tauri::command]
 pub fn get_auto_speak_state(app: AppHandle) -> AutoSpeakState {
-    let app_state = app.state::<AutoSaveAppState<tauri::Wry>>();
+    let app_state = app.state::<AppConfigState<tauri::Wry>>();
     let config = app_state.read();
     config.auto_speak
 }
