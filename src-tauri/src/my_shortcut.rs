@@ -14,11 +14,9 @@ pub fn register_hotkey_okey_ai(app: AppHandle, shortcut: String) -> Result<(), S
                 crate::utils::text_translation::translate_selected_text(&app);
             }
         }) {
-        Ok(_) => println!("成功注册动态快捷键: {}", shortcut),
+        Ok(_) => println!("Successfully registered dynamic shortcut key: {}", shortcut),
         Err(e) => {
-            let error_msg = format!("注册新快捷键失败: {}", e);
-            println!("{}", error_msg);
-            return Err(error_msg);
+            println!("Failed to register new shortcut key: {}", e);
         }
     }
 
@@ -48,10 +46,13 @@ pub fn register_hotkey_okey_ai(app: AppHandle, shortcut: String) -> Result<(), S
 
     if let Some(old_key) = old_shortcut {
         if let Err(e) = app.global_shortcut().unregister(old_key.as_str()) {
-            println!("注销旧快捷键失败 {}: {}", old_key, e);
+            println!(
+                "Failed to deregister the old shortcut key {}: {}",
+                old_key, e
+            );
         }
     }
-    println!("已注销旧快捷键");
+    println!("Old shortcut key has been deactivated");
 
     Ok(())
 }
@@ -70,21 +71,20 @@ pub fn init_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>>
             .global_shortcut()
             .on_shortcut(hot_key.as_str(), move |app, shortcut, event| {
                 if event.state == ShortcutState::Pressed {
-                    println!("快捷键触发: {} ({})", name, shortcut);
                     if name == "okey_ai" {
                         text_translation::translate_selected_text(&app);
-                    }
-                    if name == "test" {
-                        println!("测试快捷键被按下");
                     }
                 }
             }) {
             Ok(_) => println!(
-                "成功注册快捷键: {} ({})",
+                "Successfully registered shortcut key: {} ({})",
                 name_for_message, hot_key_for_message
             ),
             Err(e) => {
-                eprintln!("注册快捷键失败 {}: {}", hot_key_for_message, e);
+                eprintln!(
+                    "Failed to register shortcut key {}: {}",
+                    hot_key_for_message, e
+                );
             }
         }
     }
