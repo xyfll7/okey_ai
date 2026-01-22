@@ -90,10 +90,6 @@ pub fn run() {
 }
 fn setup_app_state(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     let state_manager = AppStateManager::new("app_config");
-
-    // 打印 store.json 位置
-    state_manager.print_store_path(app.handle());
-
     let app_config_state = state_manager.init_app_config_state(app.handle())?;
     app.manage(app_config_state);
     Ok(())

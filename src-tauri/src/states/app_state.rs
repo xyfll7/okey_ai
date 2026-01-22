@@ -11,15 +11,23 @@ pub struct AppStateManager {
 }
 
 impl AppStateManager {
-    /// Create a new AppStateManager
     pub fn new(store_key: impl Into<String>) -> Self {
         Self {
             store_key: store_key.into(),
         }
     }
 
-    /// Print store.json location
-    pub fn print_store_path<R: Runtime>(&self, app: &AppHandle<R>) {
+    pub fn init_app_config_state<R: Runtime>(
+        &self,
+        app: &AppHandle<R>,
+    ) -> Result<AppConfigState<R>, Box<dyn std::error::Error>> {
+        let config = self.load(app)?;
+        let state = Arc::new(RwLock::new(config));
+        let new_manager = AppStateManager::new(self.store_key.clone());
+        Ok(AppConfigState::new(state, new_manager, app.clone()))
+    }
+
+    fn print_store_path<R: Runtime>(&self, app: &AppHandle<R>) {
         let app_data_dir = app
             .path()
             .app_data_dir()
@@ -34,6 +42,7 @@ impl AppStateManager {
         app: &AppHandle<R>,
     ) -> Result<AppConfig, Box<dyn std::error::Error>> {
         let store = app.store("store.json")?;
+        self.print_store_path(app);
         if let Some(value) = store.get(&self.store_key) {
             let config: AppConfig = serde_json::from_value(value.clone())?;
             Ok(config)
@@ -56,7 +65,6 @@ impl AppStateManager {
     }
 }
 
-// AutoSaveAppState → 改名为 AppConfigState
 pub struct AppConfigState<R: Runtime> {
     inner: Arc<RwLock<AppConfig>>,
     manager: AppStateManager,
@@ -95,18 +103,5 @@ impl<R: Runtime> AppConfigState<R> {
             f(&mut guard);
         }
         self.save()
-    }
-}
-
-impl AppStateManager {
-    /// Create a new AppConfigState instance with manual save functionality
-    pub fn init_app_config_state<R: Runtime>(
-        &self,
-        app: &AppHandle<R>,
-    ) -> Result<AppConfigState<R>, Box<dyn std::error::Error>> {
-        let config = self.load(app)?;
-        let state = Arc::new(RwLock::new(config));
-        let new_manager = AppStateManager::new(self.store_key.clone());
-        Ok(AppConfigState::new(state, new_manager, app.clone()))
     }
 }
