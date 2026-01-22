@@ -5,7 +5,6 @@ use std::sync::RwLock;
 use tauri::{AppHandle, Manager, Runtime};
 use tauri_plugin_store::StoreExt;
 
-/// Global application state manager that handles config persistence
 pub struct AppStateManager {
     store_key: String,
 }
@@ -27,6 +26,7 @@ impl AppStateManager {
         Ok(AppConfigState::new(state, new_manager, app.clone()))
     }
 
+    #[cfg(debug_assertions)]
     fn print_store_path<R: Runtime>(&self, app: &AppHandle<R>) {
         let app_data_dir = app
             .path()
@@ -36,7 +36,6 @@ impl AppStateManager {
         println!("📁 store.json path: {:?}", store_path);
     }
 
-    /// Load configuration from store, or initialize with defaults
     fn load<R: Runtime>(
         &self,
         app: &AppHandle<R>,
@@ -53,7 +52,6 @@ impl AppStateManager {
         }
     }
 
-    /// Save configuration to store
     fn save<R: Runtime>(
         &self,
         app: &AppHandle<R>,
@@ -84,24 +82,22 @@ impl<R: Runtime> AppConfigState<R> {
         }
     }
 
-    fn save(&self) -> Result<(), Box<dyn std::error::Error>> {
-        let config = self.inner.read().unwrap().clone();
-        self.manager.save(&self.app_handle, &config)
-    }
-
     pub fn read(&self) -> std::sync::RwLockReadGuard<'_, AppConfig> {
         self.inner.read().unwrap()
     }
 
-    // 可选：提供批量修改 + 一次保存的 helper
     pub fn update<F>(&self, f: F) -> Result<(), Box<dyn std::error::Error>>
     where
         F: FnOnce(&mut AppConfig),
     {
         {
-            let mut guard = self.inner.write().unwrap();
+            let mut guard = self
+                .inner
+                .write()
+                .map_err(|e| format!("Failed to acquire write lock: {}", e))?;
             f(&mut guard);
         }
-        self.save()
+        self.manager
+            .save(&self.app_handle, &self.inner.read().unwrap())
     }
 }
