@@ -16,10 +16,10 @@ impl AppStateManager {
         }
     }
 
-    pub fn init_app_config_state<R: Runtime>(
+    pub fn init_app_config_state(
         &self,
-        app: &AppHandle<R>,
-    ) -> Result<AppConfigState<R>, Box<dyn std::error::Error>> {
+        app: &AppHandle,
+    ) -> Result<AppConfigState, Box<dyn std::error::Error>> {
         let config = self.load(app)?;
         let state = Arc::new(RwLock::new(config));
         let new_manager = AppStateManager::new(self.store_key.clone());
@@ -27,7 +27,7 @@ impl AppStateManager {
     }
 
     #[cfg(debug_assertions)]
-    fn print_store_path<R: Runtime>(&self, app: &AppHandle<R>) {
+    fn print_store_path(&self, app: &AppHandle) {
         let app_data_dir = app
             .path()
             .app_data_dir()
@@ -36,10 +36,7 @@ impl AppStateManager {
         println!("📁 store.json path: {:?}", store_path);
     }
 
-    fn load<R: Runtime>(
-        &self,
-        app: &AppHandle<R>,
-    ) -> Result<AppConfig, Box<dyn std::error::Error>> {
+    fn load(&self, app: &AppHandle) -> Result<AppConfig, Box<dyn std::error::Error>> {
         let store = app.store("store.json")?;
         self.print_store_path(app);
         if let Some(value) = store.get(&self.store_key) {
@@ -63,17 +60,17 @@ impl AppStateManager {
     }
 }
 
-pub struct AppConfigState<R: Runtime> {
+pub struct AppConfigState {
     inner: Arc<RwLock<AppConfig>>,
     manager: AppStateManager,
-    app_handle: AppHandle<R>,
+    app_handle: AppHandle<tauri::Wry>,
 }
 
-impl<R: Runtime> AppConfigState<R> {
+impl AppConfigState {
     fn new(
         inner: Arc<RwLock<AppConfig>>,
         manager: AppStateManager,
-        app_handle: AppHandle<R>,
+        app_handle: AppHandle<tauri::Wry>,
     ) -> Self {
         Self {
             inner,

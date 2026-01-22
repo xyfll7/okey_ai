@@ -30,7 +30,7 @@ pub fn create_tray<R: Runtime>(app_handle: &AppHandle<R>) -> tauri::Result<()> {
             my_windows::window_about_show(app);
         }
         "test" => {
-            let app_state = app.state::<AppConfigState<tauri::Wry>>();
+            let app_state = app.state::<AppConfigState>();
             let config = app_state.read();
             println!("config: {:#?}", *config);
         }

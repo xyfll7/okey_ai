@@ -75,7 +75,7 @@ pub fn detect_language(text: &str) -> String {
 
 #[tauri::command]
 pub fn is_pin_translate_window_toggle(app: AppHandle) -> Result<bool, String> {
-    let app_state = app.state::<AppConfigState<tauri::Wry>>();
+    let app_state = app.state::<AppConfigState>();
 
     // Use the update method to modify and save in one operation
     app_state
@@ -91,14 +91,14 @@ pub fn is_pin_translate_window_toggle(app: AppHandle) -> Result<bool, String> {
 
 #[tauri::command]
 pub fn is_pin_translate_window_get(app: AppHandle) -> bool {
-    let app_state = app.state::<AppConfigState<tauri::Wry>>();
+    let app_state = app.state::<AppConfigState>();
     let config = app_state.read();
     config.is_pin_translate_window
 }
 
 #[tauri::command]
 pub fn toggle_auto_speak(app: AppHandle) -> Result<AutoSpeakState, String> {
-    let app_state = app.state::<AppConfigState<tauri::Wry>>();
+    let app_state = app.state::<AppConfigState>();
 
     // Use the update method to modify and save in one operation
     app_state
@@ -119,7 +119,7 @@ pub fn toggle_auto_speak(app: AppHandle) -> Result<AutoSpeakState, String> {
 
 #[tauri::command]
 pub fn get_auto_speak_state(app: AppHandle) -> AutoSpeakState {
-    let app_state = app.state::<AppConfigState<tauri::Wry>>();
+    let app_state = app.state::<AppConfigState>();
     let config = app_state.read();
     config.auto_speak
 }

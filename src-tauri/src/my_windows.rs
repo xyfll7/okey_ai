@@ -221,7 +221,7 @@ where
                             return;
                         }
                         if {
-                            let state = state_handle.state::<AppConfigState<tauri::Wry>>();
+                            let state = state_handle.state::<AppConfigState>();
                             let state_guard = state.read();
                             !state_guard.is_pin_translate_window
                         } {
