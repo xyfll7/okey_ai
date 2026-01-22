@@ -97,7 +97,8 @@ impl AppConfigState {
                 .map_err(|e| format!("Failed to acquire write lock: {}", e))?;
             f(&mut guard);
         }
-        self.manager
+        let _ = self
+            .manager
             .save(&self.app_handle, &self.inner.read().unwrap());
         self.inner
             .read()
