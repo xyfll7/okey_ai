@@ -60,7 +60,7 @@ pub async fn chat_stream(
         }
         None => {
             let _ = on_event.send(StreamEvent::Error {
-                message: "翻译失败".to_string(),
+                message: "Translation failed".to_string(),
             });
         }
     }

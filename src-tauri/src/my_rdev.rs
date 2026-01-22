@@ -30,20 +30,15 @@ impl InputMethodEditorHandler {
     }
 
     fn handle(&mut self, is_pressed: bool, app: &AppHandle) {
-        // 按键状态变化处理
         if is_pressed && !self.was_pressed {
-            // 记录按键按下的开始时间
             self.press_start_time = Some(Instant::now());
         } else if !is_pressed && self.was_pressed {
-            // 按键抬起，清除计时器
             self.press_start_time = None;
             my_windows::window_input_method_editor_hide(app);
         } else if is_pressed && self.was_pressed {
-            // 按键持续按下，检查是否超过800毫秒
             if let Some(start_time) = self.press_start_time {
                 if start_time.elapsed() >= Duration::from_millis(800) {
                     my_windows::window_input_method_editor_show(app);
-                    // 执行后清除计时器，避免重复触发
                     self.press_start_time = None;
                 }
             }
