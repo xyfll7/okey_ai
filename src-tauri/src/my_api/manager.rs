@@ -5,48 +5,19 @@ use crate::my_api::m_zai::ZAIClient;
 use crate::my_api::traits::{
     APIConfig, ChatCompletionChunk, ChatCompletionRequest, ChatCompletionResponse, LLMClient,
 };
+use crate::states::app_config::ModelType;
 use futures::StreamExt; // Add this import for the .next() method
 use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tauri::async_runtime::RwLock;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum ModelType {
-    Qwen,
-    DeepSeek,
-    OpenAI,
-    ZAI,
-    Custom(String),
-}
-
-impl ModelType {
-    pub fn as_str(&self) -> &str {
-        match self {
-            ModelType::Qwen => "Qwen AI",
-            ModelType::DeepSeek => "DeepSeek",
-            ModelType::OpenAI => "OpenAI",
-            ModelType::ZAI => "Z AI",
-            ModelType::Custom(name) => name,
-        }
-    }
-
-    pub fn from_str(s: &str) -> ModelType {
-        match s {
-            "Qwen AI" => ModelType::Qwen,
-            "DeepSeek" => ModelType::DeepSeek,
-            "OpenAI" => ModelType::OpenAI,
-            "Z AI" => ModelType::ZAI,
-            _ => ModelType::Custom(s.to_string()),
-        }
-    }
-}
-
 pub struct APIManager {
     clients: Arc<RwLock<HashMap<ModelType, Box<dyn LLMClient + Send + Sync>>>>,
     current_model: Arc<RwLock<ModelType>>,
 }
 
+#[derive(Clone)]
 pub struct GlobalAPIManager(pub Arc<RwLock<APIManager>>);
 
 impl APIManager {

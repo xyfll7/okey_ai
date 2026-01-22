@@ -1,4 +1,4 @@
-use crate::my_api::manager::{GlobalAPIManager, ModelType};
+use crate::{my_api::manager::GlobalAPIManager, states::app_config::ModelType};
 use tauri::State;
 
 #[tauri::command(rename_all = "snake_case")]
