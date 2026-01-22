@@ -77,15 +77,12 @@ pub fn detect_language(text: &str) -> String {
 pub fn is_pin_translate_window_toggle(app: AppHandle) -> Result<bool, String> {
     let app_state = app.state::<AppConfigState>();
 
-    // Use the update method to modify and save in one operation
-    app_state
+    let config = app_state
         .update(|config| {
             config.is_pin_translate_window = !config.is_pin_translate_window;
         })
         .map_err(|e| e.to_string())?;
 
-    // Return the new state by reading it again
-    let config = app_state.read();
     Ok(config.is_pin_translate_window)
 }
 
@@ -100,10 +97,8 @@ pub fn is_pin_translate_window_get(app: AppHandle) -> bool {
 pub fn toggle_auto_speak(app: AppHandle) -> Result<AutoSpeakState, String> {
     let app_state = app.state::<AppConfigState>();
 
-    // Use the update method to modify and save in one operation
-    app_state
+    let config = app_state
         .update(|config| {
-            // Cycle through the three states: Off -> Single -> All -> Off
             config.auto_speak = match config.auto_speak {
                 AutoSpeakState::Off => AutoSpeakState::Single,
                 AutoSpeakState::Single => AutoSpeakState::All,
@@ -112,8 +107,6 @@ pub fn toggle_auto_speak(app: AppHandle) -> Result<AutoSpeakState, String> {
         })
         .map_err(|e| e.to_string())?;
 
-    // Return the new state by reading it again
-    let config = app_state.read();
     Ok(config.auto_speak)
 }
 
