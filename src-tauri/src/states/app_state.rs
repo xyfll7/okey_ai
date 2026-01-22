@@ -33,7 +33,7 @@ impl AppStateManager {
             .app_data_dir()
             .expect("Failed to get app data directory");
         let store_path = app_data_dir.join("store.json");
-        println!("📁 store.json path: {:?}", store_path);
+        println!("📁 store.json path: {}", store_path.to_string_lossy());
     }
 
     fn load(&self, app: &AppHandle) -> Result<AppConfig, Box<dyn std::error::Error>> {
