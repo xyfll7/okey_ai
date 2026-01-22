@@ -69,7 +69,7 @@ pub fn init_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>>
         let name_for_message = name.clone();
         match app
             .global_shortcut()
-            .on_shortcut(hot_key.as_str(), move |app, shortcut, event| {
+            .on_shortcut(hot_key.as_str(), move |app, _, event| {
                 if event.state == ShortcutState::Pressed {
                     if name == "okey_ai" {
                         text_translation::translate_selected_text(&app);
