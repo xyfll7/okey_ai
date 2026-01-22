@@ -1,5 +1,7 @@
 use crate::my_api::manager::APIManager;
 use crate::my_api::traits::ChatCompletionRequest;
+use crate::states::app_config::ModelType;
+use crate::states::app_state::AppConfigState;
 use crate::states::chat_histories::ChatHistoriesState;
 use crate::utils::chat_message::{ChatMessage, ChatMessageHistory};
 use std::collections::BTreeMap;
@@ -12,14 +14,20 @@ pub struct TranslationManager {
     chat_histories: ChatHistoriesState,
     active_session_id: Arc<RwLock<Option<String>>>,
     api_manager: Arc<RwLock<APIManager>>,
+    app_config_state: AppConfigState,
 }
 
 impl TranslationManager {
-    pub fn new(chat_histories: &ChatHistoriesState, api_manager: Arc<RwLock<APIManager>>) -> Self {
+    pub fn new(
+        chat_histories: &ChatHistoriesState,
+        api_manager: Arc<RwLock<APIManager>>,
+        app_config_state: AppConfigState,
+    ) -> Self {
         Self {
             chat_histories: chat_histories.clone(),
             active_session_id: Arc::new(RwLock::new(None)),
             api_manager,
+            app_config_state,
         }
     }
 
@@ -44,6 +52,13 @@ impl TranslationManager {
         *active_id = Some(session_id.clone());
 
         session_id
+    }
+
+    async fn get_current_model_type(&self) -> ModelType {
+        let app_config_read = self.app_config_state.read();
+        let model_type = app_config_read.current_model.clone();
+        drop(app_config_read); // Explicitly drop the read guard
+        model_type
     }
 
     pub async fn translate<F, Fut>(
@@ -73,9 +88,11 @@ impl TranslationManager {
 
         callback(messages.clone()).await;
 
+        let model_type = self.get_current_model_type().await;
+
         let manager = self.api_manager.read().await;
-        let current_client_config = manager.get_current_client_config().await;
-        let model_specific_params = manager.get_current_model_request_params().await;
+        let current_client_config = manager.get_current_client_config(&model_type).await;
+        let model_specific_params = manager.get_current_model_request_params(&model_type).await;
 
         let request = ChatCompletionRequest {
             model: current_client_config.model,
@@ -86,7 +103,7 @@ impl TranslationManager {
             stream: Some(false),
             extra_params: model_specific_params,
         };
-        let response = manager.chat_completion(&request).await.ok()?;
+        let response = manager.chat_completion(&request, &model_type).await.ok()?;
 
         let content = response.choices.first()?.message.content.clone();
 
@@ -126,9 +143,11 @@ impl TranslationManager {
 
         initial_callback(messages.clone()).await;
 
+        let model_type = self.get_current_model_type().await;
+
         let manager = self.api_manager.read().await;
-        let current_client_config = manager.get_current_client_config().await;
-        let model_specific_params = manager.get_current_model_request_params().await;
+        let current_client_config = manager.get_current_client_config(&model_type).await;
+        let model_specific_params = manager.get_current_model_request_params(&model_type).await;
 
         let request = ChatCompletionRequest {
             model: current_client_config.model,
@@ -142,7 +161,7 @@ impl TranslationManager {
         let content_chunks = Arc::new(std::sync::Mutex::new(String::new()));
         let content_chunks_clone = content_chunks.clone();
         let result = manager
-            .chat_completion_stream(&request, move |chunk| {
+            .chat_completion_stream(&request, &model_type, move |chunk| {
                 for choice in &chunk.choices {
                     if let Some(ref content) = choice.delta.content {
                         stream_callback(content.clone());

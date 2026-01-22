@@ -14,7 +14,6 @@ use tauri::async_runtime::RwLock;
 
 pub struct APIManager {
     clients: Arc<RwLock<HashMap<ModelType, Box<dyn LLMClient + Send + Sync>>>>,
-    current_model: Arc<RwLock<ModelType>>,
 }
 
 #[derive(Clone)]
@@ -24,7 +23,6 @@ impl APIManager {
     pub fn new() -> Self {
         Self {
             clients: Arc::new(RwLock::new(HashMap::new())),
-            current_model: Arc::new(RwLock::new(ModelType::ZAI)), // Updated to use ModelType
         }
     }
 
@@ -33,43 +31,24 @@ impl APIManager {
         clients.insert(name, client);
     }
 
-    pub async fn set_current_model(&self, model_name: ModelType) -> Result<(), String> {
-        let clients = self.clients.read().await;
-        if clients.contains_key(&model_name) {
-            let mut current_model = self.current_model.write().await;
-            *current_model = model_name;
-            Ok(())
-        } else {
-            Err(format!(
-                "Model {} not found in clients",
-                model_name.as_str()
-            ))
-        }
-    }
-
-    pub async fn get_current_model(&self) -> String {
-        let current_model = self.current_model.read().await;
-        current_model.as_str().to_string() // Convert ModelType back to string
-    }
-    pub async fn get_current_client_config(&self) -> APIConfig {
-        let current_model = self.current_model.read().await;
+    pub async fn get_current_client_config(&self, model_type: &ModelType) -> APIConfig {
         let clients = self.clients.read().await;
 
-        let client = clients.get(&current_model).expect(&format!(
-            "No client configured for model: {}",
-            current_model.as_str()
-        ));
+        let client = clients
+            .get(model_type)
+            .expect(&format!("No client configured for model: {:?}", model_type));
         client.get_config()
     }
 
-    pub async fn get_current_model_request_params(&self) -> HashMap<String, Value> {
-        let current_model = self.current_model.read().await;
+    pub async fn get_current_model_request_params(
+        &self,
+        model_type: &ModelType,
+    ) -> HashMap<String, Value> {
         let clients = self.clients.read().await;
 
-        let client = clients.get(&current_model).expect(&format!(
-            "No client configured for model: {}",
-            current_model.as_str()
-        ));
+        let client = clients
+            .get(model_type)
+            .expect(&format!("No client configured for model: {:?}", model_type));
 
         client.get_request_params()
     }
@@ -77,13 +56,13 @@ impl APIManager {
     pub async fn chat_completion(
         &self,
         request: &ChatCompletionRequest,
+        model_type: &ModelType,
     ) -> Result<ChatCompletionResponse, String> {
-        let current_model = self.current_model.read().await;
         let clients = self.clients.read().await;
 
         let client = clients
-            .get(&current_model)
-            .ok_or_else(|| format!("No client configured for model: {}", current_model.as_str()))?;
+            .get(model_type)
+            .ok_or_else(|| format!("No client configured for model: {:?}", model_type))?;
 
         // Call the client's chat_completion method which returns a future
         client.chat_completion(request).await
@@ -92,17 +71,17 @@ impl APIManager {
     pub async fn chat_completion_stream<F>(
         &self,
         request: &ChatCompletionRequest,
+        model_type: &ModelType,
         mut callback: F,
     ) -> Result<(), String>
     where
         F: FnMut(ChatCompletionChunk) + Send,
     {
-        let current_model = self.current_model.read().await;
         let clients = self.clients.read().await;
 
         let client = clients
-            .get(&current_model)
-            .ok_or_else(|| format!("No client configured for model: {}", current_model.as_str()))?;
+            .get(model_type)
+            .ok_or_else(|| format!("No client configured for model: {:?}", model_type))?;
 
         let mut stream = client.chat_completion_stream(request).await?;
 
@@ -121,9 +100,8 @@ impl APIManager {
         clients.keys().map(|k| k.as_str().to_string()).collect()
     }
 
-    pub async fn initialize_default_clients(&self, configs: HashMap<String, APIConfig>) {
-        for (name, config) in configs {
-            let model_type = ModelType::from_str(&name);
+    pub async fn initialize_default_clients(&self, configs: HashMap<ModelType, APIConfig>) {
+        for (model_type, config) in configs {
             let client: Box<dyn LLMClient + Send + Sync> = match model_type {
                 ModelType::Qwen => Box::new(QwenClient::new(config)),
                 ModelType::DeepSeek => Box::new(DeepSeekClient::new(config)),

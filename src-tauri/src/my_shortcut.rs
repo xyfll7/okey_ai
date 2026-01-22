@@ -25,7 +25,7 @@ pub fn register_hotkey_okey_ai(app: AppHandle, shortcut: String) -> Result<(), S
     let old_shortcut = {
         let app_state = app.state::<AppConfigState>();
         let mut old_shortcut_result: Option<String> = None;
-        let _unused = app_state
+        app_state
             .update(|config| {
                 for shortcut_config in &mut config.shortcuts {
                     if shortcut_config.name == "okey_ai" {

@@ -195,7 +195,7 @@ function Inputer({ className }: { className?: string; }) {
 	const selected = useStore(s_Selected, (state) => state);
 
 
-	const { ...modelsList_X } = useInvoke<string[]>(EVENT_NAMES.get_models_list, []);
+	const { ...modelsList_X } = useInvoke<string[]>(EVENT_NAMES.list_available_models, []);
 	const { ...currentModel_X } = useInvoke<string[]>(EVENT_NAMES.get_current_model, []);
 
 	return (

@@ -23,7 +23,7 @@ export const EVENT_NAMES = {
   register_hotkey_okey_ai: "register_hotkey_okey_ai",
   switch_model: "switch_model",
   get_current_model: "get_current_model",
-  get_models_list: "get_models_list",
+  list_available_models: "list_available_models",
 } as const;
 
 // Type for event names to provide type safety

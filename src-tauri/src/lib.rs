@@ -5,7 +5,6 @@ mod my_command;
 mod my_events;
 mod my_rdev;
 mod my_shortcut;
-mod my_test;
 mod my_tray;
 mod my_types;
 mod my_windows;
@@ -52,7 +51,7 @@ pub fn run() {
             my_shortcut::register_hotkey_okey_ai,
             my_api::commands::switch_model,
             my_api::commands::get_current_model,
-            my_api::commands::get_models_list,
+            my_api::commands::list_available_models,
             utils::i18n::get_locale,
             utils::i18n::set_locale,
             utils::i18n::get_system_locale,
@@ -66,12 +65,13 @@ pub fn run() {
                         .build(),
                 )?;
             }
+            let state_manager = AppStateManager::new("app_config");
+            let app_config_state = state_manager.init_app_config_state(app.handle())?;
+            app.manage(app_config_state);
             my_api::setup_api_manager(&app.handle())?;
-            setup_app_state(app)?;
-            my_shortcut::init_shortcuts(&app.handle())?;
             my_tray::create_tray(&app.handle())?;
-            crate::my_test::test();
-            crate::my_rdev::init_global_input_listener(&app.handle())?;
+            my_rdev::init_global_input_listener(&app.handle())?;
+            my_shortcut::init_shortcuts(&app.handle())?;
             setup_translation_manager(app)?;
             #[cfg(target_os = "macos")]
             {
@@ -88,20 +88,16 @@ pub fn run() {
             }
         })
 }
-fn setup_app_state(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
-    let state_manager = AppStateManager::new("app_config");
-    let app_config_state = state_manager.init_app_config_state(app.handle())?;
-    app.manage(app_config_state);
-    Ok(())
-}
 
 fn setup_translation_manager(app: &mut tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     app.manage(chat_histories::ChatHistoriesState::new());
     let chat_history = app.state::<chat_histories::ChatHistoriesState>();
     let api_manager = app.state::<my_api::manager::GlobalAPIManager>();
+    let app_config_state = app.state::<states::app_state::AppConfigState>();
     let translation_mgr = utils::translation_manager::TranslationManager::new(
         chat_history.inner(),
         api_manager.0.clone(),
+        app_config_state.inner().clone(),
     );
     app.manage(translation_mgr);
     Ok(())
