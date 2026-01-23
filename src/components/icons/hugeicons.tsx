@@ -1,10 +1,10 @@
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  DragDropVerticalIcon ,
-  ArrowExpand01Icon ,
-  ArrowUpIcon ,
-  Pin02Icon ,
-  Add01Icon ,
+  DragDropVerticalIcon,
+  ArrowExpand01Icon,
+  ArrowUpIcon,
+  Pin02Icon,
+  Add01Icon,
   Cancel01Icon,
   Tick02Icon,
   Copy01Icon,
@@ -12,19 +12,21 @@ import {
   VolumeOffIcon,
   VolumeHighIcon,
   Menu02Icon,
+  Settings01Icon,
 } from "@hugeicons/core-free-icons";
 
 const strokeWidth = 2
 
-export const IIGripVertical = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={DragDropVerticalIcon} {...props} strokeWidth={strokeWidth}/>;
-export const IIArrowExpand = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={ArrowExpand01Icon} {...props} strokeWidth={strokeWidth}/>;
-export const IIArrowUp = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={ArrowUpIcon} {...props} strokeWidth={strokeWidth}/>;
-export const IIPin = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={Pin02Icon} {...props} strokeWidth={strokeWidth}/>;
-export const IIAdd = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={Add01Icon} {...props} strokeWidth={strokeWidth}/>;
-export const IICancel = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={Cancel01Icon} {...props} strokeWidth={strokeWidth}/>;
-export const IITick = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={Tick02Icon} {...props} strokeWidth={strokeWidth}/>;
-export const IICopy = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={Copy01Icon} {...props} strokeWidth={strokeWidth}/>;
-export const IIVolumeLow = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={VolumeLowIcon} {...props} strokeWidth={strokeWidth}/>;
-export const IIVolumeOff = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={VolumeOffIcon} {...props} strokeWidth={strokeWidth}/>;
-export const IIVolumeHigh = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={VolumeHighIcon} {...props} strokeWidth={strokeWidth}/>;
-export const IIList = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={Menu02Icon} {...props} strokeWidth={strokeWidth}/>;
+export const IIGripVertical = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={DragDropVerticalIcon} {...props} strokeWidth={strokeWidth} />;
+export const IIArrowExpand = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={ArrowExpand01Icon} {...props} strokeWidth={strokeWidth} />;
+export const IIArrowUp = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={ArrowUpIcon} {...props} strokeWidth={strokeWidth} />;
+export const IIPin = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={Pin02Icon} {...props} strokeWidth={strokeWidth} />;
+export const IIAdd = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={Add01Icon} {...props} strokeWidth={strokeWidth} />;
+export const IICancel = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={Cancel01Icon} {...props} strokeWidth={strokeWidth} />;
+export const IITick = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={Tick02Icon} {...props} strokeWidth={strokeWidth} />;
+export const IICopy = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={Copy01Icon} {...props} strokeWidth={strokeWidth} />;
+export const IIVolumeLow = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={VolumeLowIcon} {...props} strokeWidth={strokeWidth} />;
+export const IIVolumeOff = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={VolumeOffIcon} {...props} strokeWidth={strokeWidth} />;
+export const IIVolumeHigh = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={VolumeHighIcon} {...props} strokeWidth={strokeWidth} />;
+export const IIList = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={Menu02Icon} {...props} strokeWidth={strokeWidth} />;
+export const IISettings = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={Settings01Icon} {...props} strokeWidth={strokeWidth} />;
