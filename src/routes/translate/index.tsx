@@ -32,8 +32,9 @@ import { EVENT_NAMES, useInvoke } from "@/lib/events";
 import { AutoSpeakState, type ChatMessage } from "@/lib/types";
 import { cn, get_app_config, speak } from "@/lib/utils";
 import { s_ChatList, s_Selected } from "@/store";
-import { IIArrowUp, IIPin, IIAdd, IIVolumeHigh, IIX, IISettings } from "@/components/icons";
+import { IIArrowUp, IIPin, IIAdd, IIVolumeHigh, IIX } from "@/components/icons";
 import { Histories } from "@/components/Histories";
+import { Settings } from "@/components/Settings";
 
 
 export const Route = createFileRoute("/translate/")({
@@ -122,13 +123,7 @@ function Header(props: React.ComponentProps<"div">) {
 				{["windows", "linux"].includes(_ostype) && <Histories className="ml-1" />}
 			</div>
 			<div className=" flex">
-				<Button
-					size={"icon-sm"}
-					variant={"ghost"}
-					onClick={() => {}}
-				>
-					<IISettings />
-				</Button>
+				<Settings />
 				{["windows", "linux"].includes(_ostype) && (
 					<Button
 						className="ml-1"
