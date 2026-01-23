@@ -32,7 +32,7 @@ import { EVENT_NAMES, useInvoke } from "@/lib/events";
 import { AutoSpeakState, type ChatMessage } from "@/lib/types";
 import { cn, get_app_config, speak } from "@/lib/utils";
 import { s_ChatList, s_Selected } from "@/store";
-import { IIArrowUp, IIPin, IIAdd, IIVolumeHigh, IICancel, IISettings } from "@/components/icons";
+import { IIArrowUp, IIPin, IIAdd, IIVolumeHigh, IIX, IISettings } from "@/components/icons";
 import { Histories } from "@/components/Histories";
 
 
@@ -136,7 +136,7 @@ function Header(props: React.ComponentProps<"div">) {
 						variant={"ghost"}
 						onClick={() => invoke(EVENT_NAMES.close_main_window)}
 					>
-						<IICancel />
+						<IIX />
 					</Button>
 				)}
 			</div>
@@ -404,7 +404,7 @@ function SelectedText({ onStream }: { onStream: (chatMessage: ChatMessage) => Pr
 					<Button size={"icon-sm"} variant={"ghost"} onClick={() => {
 						s_Selected.setState({ text: "", raw: "" })
 					}}>
-						<IICancel />
+						<IIX />
 					</Button>
 				)}
 			</div>

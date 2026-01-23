@@ -4,7 +4,7 @@ export {
     IIArrowUp,
     IIPin,
     IIAdd,
-    IICancel,
+    IIX,
     IITick,
     IICopy,
     IIVolumeOff,

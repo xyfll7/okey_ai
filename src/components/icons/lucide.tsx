@@ -21,7 +21,7 @@ export const IIArrowExpand = (props: React.ComponentProps<"svg">) => <Maximize2 
 export const IIArrowUp = (props: React.ComponentProps<"svg">) => <ChevronUp {...props} strokeWidth={strokeWidth} />;
 export const IIPin = (props: React.ComponentProps<"svg">) => <Pin {...props} strokeWidth={strokeWidth} />;
 export const IIAdd = (props: React.ComponentProps<"svg">) => <Plus {...props} strokeWidth={strokeWidth} />;
-export const IICancel = (props: React.ComponentProps<"svg">) => <X {...props} strokeWidth={strokeWidth} />;
+export const IIX = (props: React.ComponentProps<"svg">) => <X {...props} strokeWidth={strokeWidth} />;
 export const IITick = (props: React.ComponentProps<"svg">) => <Check {...props} strokeWidth={strokeWidth} />;
 export const IICopy = (props: React.ComponentProps<"svg">) => <Copy {...props} strokeWidth={strokeWidth} />;
 export const IIVolumeLow = (props: React.ComponentProps<"svg">) => <VolumeX {...props} strokeWidth={strokeWidth} />;
