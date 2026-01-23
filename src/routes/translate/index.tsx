@@ -32,7 +32,7 @@ import { EVENT_NAMES, useInvoke } from "@/lib/events";
 import { AutoSpeakState, type ChatMessage } from "@/lib/types";
 import { cn, get_app_config, speak } from "@/lib/utils";
 import { s_ChatList, s_Selected } from "@/store";
-import { IIArrowUp, IIPin, IIAdd, IIVolumeHigh, IICancel } from "@/components/icons";
+import { IIArrowUp, IIPin, IIAdd, IIVolumeHigh, IICancel, IISettings } from "@/components/icons";
 import { Histories } from "@/components/Histories";
 
 
@@ -121,15 +121,25 @@ function Header(props: React.ComponentProps<"div">) {
 				{["macos"].includes(_ostype) && <PinWindow className="mr-1" />}
 				{["windows", "linux"].includes(_ostype) && <Histories className="ml-1" />}
 			</div>
-			{["windows", "linux"].includes(_ostype) && (
+			<div className=" flex">
 				<Button
 					size={"icon-sm"}
 					variant={"ghost"}
-					onClick={() => invoke(EVENT_NAMES.close_main_window)}
+					onClick={() => {}}
 				>
-					<IICancel />
+					<IISettings />
 				</Button>
-			)}
+				{["windows", "linux"].includes(_ostype) && (
+					<Button
+						className="ml-1"
+						size={"icon-sm"}
+						variant={"ghost"}
+						onClick={() => invoke(EVENT_NAMES.close_main_window)}
+					>
+						<IICancel />
+					</Button>
+				)}
+			</div>
 		</div>
 	);
 }

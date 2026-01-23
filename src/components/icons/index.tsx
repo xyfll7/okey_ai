@@ -10,4 +10,5 @@ export {
     IIVolumeOff,
     IIVolumeLow,
     IIVolumeHigh,
+    IISettings,
 } from "./hugeicons";
