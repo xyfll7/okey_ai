@@ -33,8 +33,8 @@ import { AutoSpeakState, type ChatMessage } from "@/lib/types";
 import { cn, get_app_config, speak } from "@/lib/utils";
 import { s_ChatList, s_Selected } from "@/store";
 import { IIArrowUp, IIPin, IIAdd, IIVolumeHigh, IIX } from "@/components/icons";
-import { Histories } from "@/components/Histories";
-import { Settings } from "@/components/Settings";
+import { HistoriesNew } from "@/components/HistoriesNew";
+import { SettingsNew } from "@/components/SettingsNew";
 
 
 export const Route = createFileRoute("/translate/")({
@@ -86,7 +86,7 @@ function Header(props: React.ComponentProps<"div">) {
 			data-tauri-drag-region
 		>
 			<div className="flex items-center">
-				{["macos"].includes(_ostype) && <Histories className="mr-1" />}
+				{["macos"].includes(_ostype) && <HistoriesNew className="mr-1" />}
 				{["windows", "linux"].includes(_ostype) && <PinWindow />}
 				{["macos"].includes(_ostype) && (
 					<HotKey
@@ -120,10 +120,10 @@ function Header(props: React.ComponentProps<"div">) {
 					/>
 				)}
 				{["macos"].includes(_ostype) && <PinWindow className="mr-1" />}
-				{["windows", "linux"].includes(_ostype) && <Histories className="ml-1" />}
+				{["windows", "linux"].includes(_ostype) && <HistoriesNew className="ml-1" />}
 			</div>
 			<div className=" flex">
-				<Settings />
+				<SettingsNew />
 				{["windows", "linux"].includes(_ostype) && (
 					<Button
 						className="ml-1"
