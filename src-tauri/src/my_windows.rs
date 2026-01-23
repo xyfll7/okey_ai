@@ -70,7 +70,7 @@ pub fn window_input_method_editor_hide<R: Runtime>(app: &AppHandle<R>) {
     }
 }
 
-pub const WINDOW_HEIGHT_TRANSLATE_BUBBLE: f64 = 36.0;
+pub const WINDOW_HEIGHT_TRANSLATE_BUBBLE: f64 = 33.0;
 pub fn window_translate_bubble_show<R: Runtime, F>(app: &AppHandle<R>, callback: Option<F>)
 where
     F: FnOnce() + Send + 'static,
@@ -86,7 +86,7 @@ where
             10_000.0,
             WINDOW_HEIGHT_TRANSLATE_BUBBLE,
         )));
-        let _ = window.set_background_color(Some(Color(0, 0, 0, 0)));
+        let _ = window.set_background_color(Some(Color(0, 0, 0, 1)));
 
         let (logical_x, logical_y) = calculate_window_position(
             app,

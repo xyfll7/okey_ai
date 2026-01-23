@@ -54,14 +54,13 @@ function RouteComponent() {
 		return item?.role === "assistant" ? item : undefined
 	})()
 	return (
-		<div className=" h-full p-px ">
 			<div
 				data-tauri-drag-region
 				className={cn(
+					"h-full",
 					"p-0.5",
 					"bg-background",
-					"border rounded-md",
-					"flex justify-between",
+					"flex justify-between items-center",
 				)}
 			>
 				<div
@@ -137,6 +136,5 @@ function RouteComponent() {
 					</Button>
 				</div>
 			</div>
-		</div>
 	);
 }
