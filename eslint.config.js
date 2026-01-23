@@ -19,5 +19,13 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      "react-refresh/only-export-components": [
+        "error",                                      // 级别：警告（不会让构建失败，只是提示）
+        {
+          allowExportNames: ["buttonVariants","badgeVariants","useComboboxAnchor"]
+        }
+      ]
+    }
   },
 ])
