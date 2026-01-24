@@ -220,7 +220,7 @@ function Inputer({ className }: { className?: string; }) {
 
 
 	const { ...modelsList_X } = useInvoke<string[]>(EVENT_NAMES.list_available_models, []);
-	const { ...currentModel_X } = useInvoke<string[]>(EVENT_NAMES.get_current_model, []);
+	const { ...currentModel_X } = useInvoke<string>(EVENT_NAMES.get_current_model, "");
 
 	return (
 		<InputGroup className={cn(className, "rounded-xl", "has-[[data-slot=input-group-control]:focus-visible]:border-ring/70 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/7")}>

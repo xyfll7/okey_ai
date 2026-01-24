@@ -31,7 +31,7 @@ export function HistoriesNew({ className }: { className?: string }) {
         <DrawerContent className="pb-2 [&_.bg-muted.mx-auto.mt-4.hidden.h-1.w-\[100px\].shrink-0.rounded-full]:hidden">
             <DrawerHeader className="">
                 <DrawerTitle className=" flex justify-start">History</DrawerTitle>
-                <DrawerDescription className="sr-only">History</DrawerDescription>
+                <DrawerDescription className="sr-only" />
             </DrawerHeader>
             <ScrollArea className={cn("h-[70vh]")}>
                 <div className="max-w-screen flex-coh items-start px-2">
