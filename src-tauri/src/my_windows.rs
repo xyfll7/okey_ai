@@ -228,7 +228,14 @@ where
                             let state_guard = state.read();
                             !state_guard.is_pin_translate_window
                         } {
-                            _win.destroy().ok();
+                            #[cfg(target_os = "macos")]
+                            {
+                                _win.hide().ok();
+                            }
+                            #[cfg(not(target_os = "macos"))]
+                            {
+                                _win.destroy().ok();
+                            }
                         }
                     });
                 }
