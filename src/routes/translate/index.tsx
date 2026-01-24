@@ -31,7 +31,7 @@ import {
 import { EVENT_NAMES, useInvoke } from "@/lib/events";
 import { AutoSpeakState, type ChatMessage } from "@/lib/types";
 import { cn, get_app_config, speak } from "@/lib/utils";
-import { s_ChatList, s_Selected } from "@/store";
+import { s_ChatList, s_CurrentModel, s_Selected } from "@/store";
 import { IIArrowUp, IIPin, IIAdd, IIVolumeHigh, IIX } from "@/components/icons";
 import { HistoriesNew } from "@/components/HistoriesNew";
 import { SettingsNew } from "@/components/SettingsNew";
@@ -220,8 +220,8 @@ function Inputer({ className }: { className?: string; }) {
 
 
 	const { ...modelsList_X } = useInvoke<string[]>(EVENT_NAMES.list_available_models, []);
-	const { ...currentModel_X } = useInvoke<string>(EVENT_NAMES.get_current_model, "");
-
+	
+	const currentModel = useStore(s_CurrentModel,(state => state))
 	return (
 		<InputGroup className={cn(className, "rounded-xl", "has-[[data-slot=input-group-control]:focus-visible]:border-ring/70 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/7")}>
 			{selected.text && (
@@ -256,13 +256,13 @@ function Inputer({ className }: { className?: string; }) {
 			<InputGroupAddon align="block-end">
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<InputGroupButton variant="ghost">{currentModel_X.state}</InputGroupButton>
+						<InputGroupButton variant="ghost">{currentModel}</InputGroupButton>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent side="top" align="start">
 						{modelsList_X.state?.map((model) => (
 							<DropdownMenuItem onSelect={async () => {
 								await invoke(EVENT_NAMES.switch_model, { model_name: model })
-								currentModel_X.invokeState()
+								s_CurrentModel.setState(model)
 							}} key={model}>{model}</DropdownMenuItem>
 						))}
 					</DropdownMenuContent>
