@@ -70,7 +70,7 @@ pub fn window_input_method_editor_hide<R: Runtime>(app: &AppHandle<R>) {
     }
 }
 
-pub const WINDOW_HEIGHT_TRANSLATE_BUBBLE: f64 = 32.0;
+pub const WINDOW_HEIGHT_TRANSLATE_BUBBLE: f64 = [32.0, 34.0][cfg!(target_os = "macos") as usize];
 pub fn window_translate_bubble_show<R: Runtime, F>(app: &AppHandle<R>, callback: Option<F>)
 where
     F: FnOnce() + Send + 'static,
@@ -82,11 +82,11 @@ where
         let size = LogicalSize::new(WINDOW_WIDTH, WINDOW_HEIGHT_TRANSLATE_BUBBLE);
         let _ = window.set_size(size);
         let _ = window.set_min_size(Some(size));
+        let _ = window.set_background_color(Some(Color(0, 0, 0, 1)));
         let _ = window.set_max_size(Some(LogicalSize::new(
             10_000.0,
             WINDOW_HEIGHT_TRANSLATE_BUBBLE,
         )));
-        let _ = window.set_background_color(Some(Color(0, 0, 0, 1)));
 
         let (logical_x, logical_y) = calculate_window_position(
             app,
@@ -94,6 +94,11 @@ where
             WINDOW_HEIGHT_TRANSLATE_BUBBLE,
             CURSOR_OFFSET,
         );
+
+        #[cfg(target_os = "macos")]
+        {
+            let _ = window.set_shadow(false);
+        }
 
         let mut target_scale = 1.0;
 

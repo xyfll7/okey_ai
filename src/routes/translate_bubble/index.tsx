@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Copyed from "@/components/Copyed";
 import { Button } from "@/components/ui/button";
 import { EVENT_NAMES } from "@/lib/events";
+import { type as ostype } from "@tauri-apps/plugin-os";
 import { AutoSpeakState, type ChatMessage } from "@/lib/types";
 import { cn, speak } from "@/lib/utils";
 import { IIGripVertical, IIArrowExpand, IIVolumeHigh } from "@/components/icons";
@@ -53,88 +54,90 @@ function RouteComponent() {
 		const item = chatHistory?.at(-1);
 		return item?.role === "assistant" ? item : undefined
 	})()
+	const _ostype = ostype();
 	return (
+		<div
+			data-tauri-drag-region
+			className={cn(
+				"h-full",
+				"p-0.5",
+				"bg-background",
+				"flex justify-between items-center",
+				{ "border rounded-md": ["macos"].includes(_ostype) }
+			)}
+		>
 			<div
+				className="flex items-center justify-start w-full  overflow-hidden"
 				data-tauri-drag-region
-				className={cn(
-					"h-full",
-					"p-0.5",
-					"bg-background",
-					"flex justify-between items-center",
-				)}
 			>
 				<div
-					className="flex items-center justify-start w-full  overflow-hidden"
+					className="flex overflow-hidden cursor-grab  active:cursor-grabbing"
 					data-tauri-drag-region
 				>
-					<div
-						className="flex overflow-hidden cursor-grab  active:cursor-grabbing"
+					<Button
+						className={cn(
+							"hover:text-current",
+							"hover:bg-transparent dark:hover:bg-transparent cursor-grab ",
+						)}
+						size={"icon-sm"}
+						variant={"ghost"}
+						onClick={() => { }}
 						data-tauri-drag-region
 					>
-						<Button
-							className={cn(
-								"hover:text-current",
-								"hover:bg-transparent dark:hover:bg-transparent cursor-grab ",
-							)}
-							size={"icon-sm"}
-							variant={"ghost"}
-							onClick={() => { }}
+						<IIGripVertical
+							strokeWidth={3}
+							className="cursor-grab  active:cursor-grabbing"
+							data-tauri-drag-region
+						/>
+					</Button>
+				</div>
+				<div className="flex overflow-hidden text-nowrap flex-1">
+					<span>{chat ? (chat?.raw ?? chat?.content) : "..."} </span>
+					{chat?.content ? (
+						<span
+							className="truncate text-transparent selection:bg-transparent cursor-grab hover:cursor-grabbing"
 							data-tauri-drag-region
 						>
-							<IIGripVertical
-								strokeWidth={3}
-								className="cursor-grab  active:cursor-grabbing"
-								data-tauri-drag-region
-							/>
-						</Button>
-					</div>
-					<div className="flex overflow-hidden text-nowrap flex-1">
-						<span>{chat ? (chat?.raw ?? chat?.content) : "..."} </span>
-						{chat?.content ? (
-							<span
-								className="truncate text-transparent selection:bg-transparent cursor-grab hover:cursor-grabbing"
-								data-tauri-drag-region
-							>
-								.........................
-							</span>
-						) : (
-							""
-						)}
-					</div>
-				</div>
-				<div className="flex">
-					<Button
-						className={cn("")}
-						size={"icon-sm"}
-						variant={"ghost"}
-					>
-						<Copyed text={chat?.content} />
-					</Button>
-					<Button
-						className={cn("")}
-						size={"icon-sm"}
-						variant={"ghost"}
-						onClick={() => {
-							const chat_user = chatHistory?.at(-2);
-							speak(chat_user?.raw ?? chat_user?.content ?? "")
-						}}
-					>
-						<IIVolumeHigh/>
-					</Button>
-					<Button
-						className={cn("")}
-						size={"icon-sm"}
-						variant={"ghost"}
-						onClick={async () => {
-							if (!chatHistory) return;
-							await invoke(EVENT_NAMES.window_translate_show, {
-								chat_message: chatHistory,
-							});
-						}}
-					>
-						<IIArrowExpand/>
-					</Button>
+							.........................
+						</span>
+					) : (
+						""
+					)}
 				</div>
 			</div>
+			<div className="flex">
+				<Button
+					className={cn("")}
+					size={"icon-sm"}
+					variant={"ghost"}
+				>
+					<Copyed text={chat?.content} />
+				</Button>
+				<Button
+					className={cn("")}
+					size={"icon-sm"}
+					variant={"ghost"}
+					onClick={() => {
+						const chat_user = chatHistory?.at(-2);
+						speak(chat_user?.raw ?? chat_user?.content ?? "")
+					}}
+				>
+					<IIVolumeHigh />
+				</Button>
+				<Button
+					className={cn("")}
+					size={"icon-sm"}
+					variant={"ghost"}
+					onClick={async () => {
+						if (!chatHistory) return;
+						await invoke(EVENT_NAMES.window_translate_show, {
+							chat_message: chatHistory,
+						});
+					}}
+				>
+					<IIArrowExpand />
+				</Button>
+			</div>
+		</div>
 	);
 }
