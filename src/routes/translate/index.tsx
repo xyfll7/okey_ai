@@ -87,7 +87,7 @@ function Header(props: React.ComponentProps<"div">) {
 			<SettingsNew className="mr-1" />
 			<HistoriesNew className="mr-1" />
 			<HotKey
-				className="mr-2.5"
+				className="mr-1 px-1"
 				hotkey={hotkey}
 				onHotkeyChange={(e) => { setHotkey(e) }}
 			/>
