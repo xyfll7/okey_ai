@@ -1,6 +1,6 @@
 use crate::my_api::manager::APIManager;
 use crate::my_api::traits::ChatCompletionRequest;
-use crate::states::app_config::ModelType;
+use crate::states::app_config::ModelProvider;
 use crate::states::app_state::AppConfigState;
 use crate::states::chat_histories::ChatHistoriesState;
 use crate::utils::chat_message::{ChatMessage, ChatMessageHistory};
@@ -54,7 +54,7 @@ impl TranslationManager {
         session_id
     }
 
-    async fn get_current_model_type(&self) -> ModelType {
+    async fn get_current_model_type(&self) -> ModelProvider {
         let app_config_read = self.app_config_state.read();
         let model_type = app_config_read.current_model.clone();
         drop(app_config_read); // Explicitly drop the read guard

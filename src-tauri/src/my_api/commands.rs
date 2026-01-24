@@ -1,5 +1,5 @@
 use crate::{
-    my_api::manager::GlobalAPIManager, states::app_config::ModelType,
+    my_api::manager::GlobalAPIManager, states::app_config::ModelProvider,
     states::app_state::AppConfigState,
 };
 use tauri::State;
@@ -9,7 +9,7 @@ pub async fn switch_model(
     model_name: String,
     app_config_state: State<'_, AppConfigState>,
 ) -> Result<(), String> {
-    let model_type = ModelType::from_str(&model_name);
+    let model_type = ModelProvider::from_str(&model_name);
     app_config_state
         .update(|config| {
             config.current_model = model_type;

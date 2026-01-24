@@ -5,7 +5,7 @@ use crate::my_api::m_zai::ZAIClient;
 use crate::my_api::traits::{
     APIConfig, ChatCompletionChunk, ChatCompletionRequest, ChatCompletionResponse, LLMClient,
 };
-use crate::states::app_config::ModelType;
+use crate::states::app_config::ModelProvider;
 use futures::StreamExt; // Add this import for the .next() method
 use serde_json::Value;
 use std::collections::HashMap;
@@ -13,7 +13,7 @@ use std::sync::Arc;
 use tauri::async_runtime::RwLock;
 
 pub struct APIManager {
-    clients: Arc<RwLock<HashMap<ModelType, Box<dyn LLMClient + Send + Sync>>>>,
+    clients: Arc<RwLock<HashMap<ModelProvider, Box<dyn LLMClient + Send + Sync>>>>,
 }
 
 #[derive(Clone)]
@@ -26,12 +26,12 @@ impl APIManager {
         }
     }
 
-    pub async fn add_client(&self, name: ModelType, client: Box<dyn LLMClient + Send + Sync>) {
+    pub async fn add_client(&self, name: ModelProvider, client: Box<dyn LLMClient + Send + Sync>) {
         let mut clients = self.clients.write().await;
         clients.insert(name, client);
     }
 
-    pub async fn get_current_client_config(&self, model_type: &ModelType) -> APIConfig {
+    pub async fn get_current_client_config(&self, model_type: &ModelProvider) -> APIConfig {
         let clients = self.clients.read().await;
 
         let client = clients
@@ -42,7 +42,7 @@ impl APIManager {
 
     pub async fn get_current_model_request_params(
         &self,
-        model_type: &ModelType,
+        model_type: &ModelProvider,
     ) -> HashMap<String, Value> {
         let clients = self.clients.read().await;
 
@@ -56,7 +56,7 @@ impl APIManager {
     pub async fn chat_completion(
         &self,
         request: &ChatCompletionRequest,
-        model_type: &ModelType,
+        model_type: &ModelProvider,
     ) -> Result<ChatCompletionResponse, String> {
         let clients = self.clients.read().await;
 
@@ -71,7 +71,7 @@ impl APIManager {
     pub async fn chat_completion_stream<F>(
         &self,
         request: &ChatCompletionRequest,
-        model_type: &ModelType,
+        model_type: &ModelProvider,
         mut callback: F,
     ) -> Result<(), String>
     where
@@ -100,14 +100,14 @@ impl APIManager {
         clients.keys().map(|k| k.as_str().to_string()).collect()
     }
 
-    pub async fn initialize_default_clients(&self, configs: HashMap<ModelType, APIConfig>) {
+    pub async fn initialize_default_clients(&self, configs: HashMap<ModelProvider, APIConfig>) {
         for (model_type, config) in configs {
             let client: Box<dyn LLMClient + Send + Sync> = match model_type {
-                ModelType::Qwen => Box::new(QwenClient::new(config)),
-                ModelType::DeepSeek => Box::new(DeepSeekClient::new(config)),
-                ModelType::OpenAI => Box::new(OpenAIClient::new(config)),
-                ModelType::ZAI => Box::new(ZAIClient::new(config)), // Use ZAI-specific client
-                ModelType::Custom(_) => Box::new(OpenAIClient::new(config)), // Default to OpenAI-compatible
+                ModelProvider::Qwen => Box::new(QwenClient::new(config)),
+                ModelProvider::DeepSeek => Box::new(DeepSeekClient::new(config)),
+                ModelProvider::OpenAI => Box::new(OpenAIClient::new(config)),
+                ModelProvider::ZAI => Box::new(ZAIClient::new(config)), // Use ZAI-specific client
+                ModelProvider::Custom(_) => Box::new(OpenAIClient::new(config)), // Default to OpenAI-compatible
             };
             self.add_client(model_type, client).await;
         }
