@@ -75,26 +75,51 @@ function Header(props: React.ComponentProps<"div">) {
 			);
 		});
 	}, []);
+
+	if (["macos"].includes(_ostype)) {
+		return <div
+			className={cn(
+				"flex items-center justify-end",
+				props.className,
+			)}
+			data-tauri-drag-region
+		>
+			<SettingsNew className="mr-1" />
+			<HistoriesNew className="mr-1" />
+			<HotKey
+				className="mr-2.5"
+				hotkey={hotkey}
+				onHotkeyChange={(e) => { setHotkey(e) }}
+			/>
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<Button size="icon-sm" variant="ghost">
+						<AutoSpeakVolume />
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent>
+					{
+						{
+							[AutoSpeakState.Off]: "Speech off",
+							[AutoSpeakState.Single]: "Read single words only",
+							[AutoSpeakState.All]: "Read full sentences",
+						}[autoSpeak_X.state]
+					}
+				</TooltipContent>
+			</Tooltip>
+			<PinWindow className="mr-1" />
+		</div>
+	}
 	return (
 		<div
 			className={cn(
-				"flex items-center",
-				{ "justify-between": ["windows", "linux"].includes(_ostype) },
-				{ "justify-end": ["macos"].includes(_ostype) },
+				"flex items-center justify-between",
 				props.className,
 			)}
 			data-tauri-drag-region
 		>
 			<div className="flex items-center">
-				{["macos"].includes(_ostype) && <HistoriesNew className="mr-1" />}
-				{["windows", "linux"].includes(_ostype) && <PinWindow />}
-				{["macos"].includes(_ostype) && (
-					<HotKey
-						className="mr-2.5"
-						hotkey={hotkey}
-						onHotkeyChange={(e) => { setHotkey(e) }}
-					/>
-				)}
+				<PinWindow />
 				<Tooltip>
 					<TooltipTrigger asChild>
 						<Button size="icon-sm" variant="ghost">
@@ -111,29 +136,23 @@ function Header(props: React.ComponentProps<"div">) {
 						}
 					</TooltipContent>
 				</Tooltip>
-
-				{["windows", "linux"].includes(_ostype) && (
-					<HotKey
-						className="ml-1"
-						hotkey={hotkey}
-						onHotkeyChange={(e) => setHotkey(e)}
-					/>
-				)}
-				{["macos"].includes(_ostype) && <PinWindow className="mr-1" />}
-				{["windows", "linux"].includes(_ostype) && <HistoriesNew className="ml-1" />}
+				<HotKey
+					className="ml-1"
+					hotkey={hotkey}
+					onHotkeyChange={(e) => setHotkey(e)}
+				/>
+				<HistoriesNew className="ml-1" />
 			</div>
 			<div className=" flex">
 				<SettingsNew />
-				{["windows", "linux"].includes(_ostype) && (
-					<Button
-						className="ml-1"
-						size={"icon-sm"}
-						variant={"ghost"}
-						onClick={() => invoke(EVENT_NAMES.close_main_window)}
-					>
-						<IIX />
-					</Button>
-				)}
+				<Button
+					className="ml-1"
+					size={"icon-sm"}
+					variant={"ghost"}
+					onClick={() => invoke(EVENT_NAMES.close_main_window)}
+				>
+					<IIX />
+				</Button>
 			</div>
 		</div>
 	);
