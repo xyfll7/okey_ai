@@ -9,7 +9,7 @@ export interface ChatMessage {
 }
 
 export interface ChatMessageHistory {
-  messages: ChatMessage[];
+	messages: ChatMessage[];
 }
 
 export const AutoSpeakState = {
@@ -19,3 +19,10 @@ export const AutoSpeakState = {
 } as const;
 
 export type AutoSpeakState = typeof AutoSpeakState[keyof typeof AutoSpeakState];
+
+export const ModelProviderName = {
+	"Qwen": "Qwen AI",
+	"DeepSeek": "DeepSeek",
+	"OpenAI": "OpenAI",
+	"ZAI": "Z AI",
+}
