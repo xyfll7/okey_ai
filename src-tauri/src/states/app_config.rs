@@ -75,8 +75,8 @@ impl Default for AppConfig {
             ModelProvider::ZAI,
             APIConfig {
                 api_key: std::env::var("ZAI_API_KEY").unwrap_or_else(|_| "".to_string()),
-                base_url: "https://open.bigmodel.cn/api/paas/v4".to_string(), // 智谱AI的API基础URL
-                model: "glm-4.7".to_string(),                                 // 智谱AI的模型
+                base_url: "https://open.bigmodel.cn/api/paas/v4".to_string(),
+                model: "glm-4.7".to_string(),
             },
         );
 
@@ -87,7 +87,7 @@ impl Default for AppConfig {
             }],
             is_pin_translate_window: false,
             auto_speak: AutoSpeakState::default(),
-            current_model: ModelProvider::ZAI, // 默认模型
+            current_model: ModelProvider::ZAI,
             api_configs,
         }
     }
