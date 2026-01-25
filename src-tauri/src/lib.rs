@@ -48,6 +48,7 @@ pub fn run() {
             my_command::chat_stream,
             my_command::detect_language,
             my_command::get_histories,
+            my_command::update_model_api_key,
             my_shortcut::register_hotkey_okey_ai,
             my_api::commands::switch_model,
             my_api::commands::get_current_model,

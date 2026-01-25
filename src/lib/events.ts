@@ -24,6 +24,7 @@ export const EVENT_NAMES = {
   switch_model: "switch_model",
   get_current_model: "get_current_model",
   list_available_models: "list_available_models",
+  update_model_api_key: "update_model_api_key",
 } as const;
 
 // Type for event names to provide type safety

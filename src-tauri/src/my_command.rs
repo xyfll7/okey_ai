@@ -1,4 +1,5 @@
-use crate::states::app_config::AutoSpeakState;
+use crate::my_api::traits::APIConfig;
+use crate::states::app_config::{AutoSpeakState, ModelProvider};
 use crate::states::app_state::AppConfigState;
 use crate::utils::chat_message::ChatMessage;
 use crate::utils::{language_detection, translation_manager};
@@ -139,4 +140,47 @@ pub async fn get_histories(
     let mut histories_vec: Vec<_> = histories.into_iter().collect();
     histories_vec.reverse();
     Ok(histories_vec)
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub async fn update_model_api_key(
+    app: AppHandle,
+    model_name: String,
+    api_key: String,
+) -> Result<(), String> {
+    let app_state = app.state::<AppConfigState>();
+    println!(
+        "Updating API key for model: {}, new key: {}",
+        model_name, api_key
+    );
+
+    // Parse the model provider before the update call
+    let model_provider: ModelProvider = serde_json::from_str(&format!("\"{}\"", model_name))
+        .map_err(|e| format!("Failed to parse model: {}", e))?;
+
+    app_state
+        .update(|config| {
+            let abc = config
+                .api_configs
+                .iter()
+                .map(|(provider, api_config)| {
+                    let updated_api_config = if *provider == model_provider {
+                        // Update the API key for this config
+                        APIConfig {
+                            api_key: api_key.clone(),
+                            ..api_config.clone()
+                        }
+                    } else {
+                        // Keep the original config for other models
+                        api_config.clone()
+                    };
+                    (provider.clone(), updated_api_config)
+                })
+                .collect();
+            println!("-----------\n{:#?}", abc);
+            config.api_configs = abc;
+        })
+        .map_err(|e| e.to_string())?;
+
+    Ok(())
 }
