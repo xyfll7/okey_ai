@@ -1,4 +1,5 @@
 use crate::my_api::traits::APIConfig;
+use dotenvy;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -41,12 +42,12 @@ pub struct AppConfig {
 
 impl Default for AppConfig {
     fn default() -> Self {
+        dotenvy::dotenv().ok();
         let mut api_configs = HashMap::new();
-
         api_configs.insert(
             ModelProvider::OpenAI,
             APIConfig {
-                api_key: ["sk-", ""][cfg!(debug_assertions) as usize].to_string(), // 开发模式/生产模式
+                api_key: std::env::var("OPENAI_API_KEY").unwrap_or_else(|_| "".to_string()),
                 base_url: "https://api.openai.com/v1".to_string(),
                 model: "gpt-4".to_string(),
             },
@@ -55,9 +56,7 @@ impl Default for AppConfig {
         api_configs.insert(
             ModelProvider::Qwen,
             APIConfig {
-                api_key: ["sk-3ab003e0b90346e58d4072f402a15b13", ""]
-                    [cfg!(debug_assertions) as usize]
-                    .to_string(),
+                api_key: std::env::var("QWEN_API_KEY").unwrap_or_else(|_| "".to_string()),
                 base_url: "https://dashscope.aliyuncs.com".to_string(),
                 model: "qwen-plus".to_string(),
             },
@@ -66,9 +65,7 @@ impl Default for AppConfig {
         api_configs.insert(
             ModelProvider::DeepSeek,
             APIConfig {
-                api_key: ["sk-ae24d74445814224b94553fc5228b569", ""]
-                    [cfg!(debug_assertions) as usize]
-                    .to_string(),
+                api_key: std::env::var("DEEPSEEK_API_KEY").unwrap_or_else(|_| "".to_string()),
                 base_url: "https://api.deepseek.com".to_string(),
                 model: "deepseek-chat".to_string(),
             },
@@ -77,9 +74,7 @@ impl Default for AppConfig {
         api_configs.insert(
             ModelProvider::ZAI,
             APIConfig {
-                api_key: ["9899af6115c74c1e8ca3eb4bc68e92ba.FCIVu4e7Oz0tNqmP", ""]
-                    [cfg!(debug_assertions) as usize]
-                    .to_string(), // 智谱AI的API密钥
+                api_key: std::env::var("ZAI_API_KEY").unwrap_or_else(|_| "".to_string()),
                 base_url: "https://open.bigmodel.cn/api/paas/v4".to_string(), // 智谱AI的API基础URL
                 model: "glm-4.7".to_string(),                                 // 智谱AI的模型
             },

@@ -39,6 +39,7 @@ impl AppStateManager {
 
     fn load(&self, app: &AppHandle) -> Result<AppConfig, Box<dyn std::error::Error>> {
         let store = app.store("store.json")?;
+        #[cfg(debug_assertions)]
         self.print_store_path(app);
         if let Some(value) = store.get(&self.store_key) {
             let config: AppConfig = serde_json::from_value(value.clone())?;
