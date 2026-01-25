@@ -89,9 +89,10 @@ import { EVENT_NAMES, useInvoke } from "@/lib/events";
 import { invoke } from "@tauri-apps/api/core";
 import { s_CurrentModel } from "@/store";
 import { useStore } from "@tanstack/react-store";
+import type { ModelConfigMap } from "@/@types";
 
 export function ToggleGroupSpacing() {
-    const { ...modelsList_X } = useInvoke<string[]>(EVENT_NAMES.list_available_models, []);
+    const { ...modelsList_X } = useInvoke<ModelConfigMap>(EVENT_NAMES.list_available_models, {});
     const currentModel = useStore(s_CurrentModel, (state => state))
     if (!currentModel) {
         return null;
@@ -105,14 +106,14 @@ export function ToggleGroupSpacing() {
             spacing={2}
             className="flex-wrap w-full"
         >
-            {modelsList_X.state?.map((model) => (
-                <ToggleGroupItem value={model} aria-label="Toggle top" key={model}
+            {modelsList_X.state && Object.keys(modelsList_X.state).map((key) => (
+                <ToggleGroupItem value={key} aria-label="Toggle top" key={key}
                     onClick={async () => {
-                        await invoke(EVENT_NAMES.switch_model, { model_name: model })
-                        s_CurrentModel.setState(model)
+                        await invoke(EVENT_NAMES.switch_model, { model_name: key })
+                        s_CurrentModel.setState(key)
                     }}
                 >
-                    {model}
+                    {key}
                 </ToggleGroupItem>
             ))}
         </ToggleGroup>

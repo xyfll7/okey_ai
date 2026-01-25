@@ -95,11 +95,6 @@ impl APIManager {
         Ok(())
     }
 
-    pub async fn list_available_models(&self) -> Vec<String> {
-        let clients = self.clients.read().await;
-        clients.keys().map(|k| k.as_str().to_string()).collect()
-    }
-
     pub async fn initialize_default_clients(&self, configs: HashMap<ModelProvider, APIConfig>) {
         for (model_type, config) in configs {
             let client: Box<dyn LLMClient + Send + Sync> = match model_type {

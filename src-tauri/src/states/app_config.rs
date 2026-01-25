@@ -4,33 +4,15 @@ use std::collections::HashMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize, Eq, Hash, PartialEq)]
 pub enum ModelProvider {
+    #[serde(rename = "Qwen")]
     Qwen,
+    #[serde(rename = "DeepSeek")]
     DeepSeek,
+    #[serde(rename = "OpenAI")]
     OpenAI,
+    #[serde(rename = "ZAI")]
     ZAI,
     Custom(String),
-}
-
-impl ModelProvider {
-    pub fn as_str(&self) -> &str {
-        match self {
-            ModelProvider::Qwen => "Qwen AI",
-            ModelProvider::DeepSeek => "DeepSeek",
-            ModelProvider::OpenAI => "OpenAI",
-            ModelProvider::ZAI => "Z AI",
-            ModelProvider::Custom(name) => name,
-        }
-    }
-
-    pub fn from_str(s: &str) -> ModelProvider {
-        match s {
-            "Qwen AI" => ModelProvider::Qwen,
-            "DeepSeek" => ModelProvider::DeepSeek,
-            "OpenAI" => ModelProvider::OpenAI,
-            "Z AI" => ModelProvider::ZAI,
-            _ => ModelProvider::Custom(s.to_string()),
-        }
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

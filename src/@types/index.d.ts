@@ -6,3 +6,14 @@ export interface Shortcut {
 export interface GlobalConfig {
   shortcuts: Shortcut[];
 }
+
+
+export interface APIConfig {
+  api_key: string;
+  base_url: string;
+  model: string;
+}
+
+export interface ModelConfigMap {
+  [key: string]: APIConfig;
+}

@@ -35,6 +35,7 @@ import { s_ChatList, s_CurrentModel, s_Selected } from "@/store";
 import { IIArrowUp, IIPin, IIAdd, IIVolumeHigh, IIX } from "@/components/icons";
 import { HistoriesNew } from "@/components/HistoriesNew";
 import { SettingsNew } from "@/components/SettingsNew";
+import type { ModelConfigMap } from "@/@types";
 
 
 export const Route = createFileRoute("/translate/")({
@@ -219,7 +220,7 @@ function Inputer({ className }: { className?: string; }) {
 	const selected = useStore(s_Selected, (state) => state);
 
 
-	const { ...modelsList_X } = useInvoke<string[]>(EVENT_NAMES.list_available_models, []);
+	const { ...modelsList_X } = useInvoke<ModelConfigMap>(EVENT_NAMES.list_available_models, {});
 	
 	const currentModel = useStore(s_CurrentModel,(state => state))
 	return (
@@ -259,11 +260,11 @@ function Inputer({ className }: { className?: string; }) {
 						<InputGroupButton variant="ghost">{currentModel}</InputGroupButton>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent side="top" align="start">
-						{modelsList_X.state?.map((model) => (
+						{modelsList_X.state && Object.keys(modelsList_X.state).map((key) => (
 							<DropdownMenuItem onSelect={async () => {
-								await invoke(EVENT_NAMES.switch_model, { model_name: model })
-								s_CurrentModel.setState(model)
-							}} key={model}>{model}</DropdownMenuItem>
+								await invoke(EVENT_NAMES.switch_model, { model_name: key})
+								s_CurrentModel.setState(key)
+							}} key={key}>{key}</DropdownMenuItem>
 						))}
 					</DropdownMenuContent>
 				</DropdownMenu>
