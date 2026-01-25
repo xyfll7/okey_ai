@@ -49,6 +49,7 @@ import {
 import { Input } from "@/components/ui/input"
 
 function FieldDemo() {
+    const { ...modelsList_X } = useInvoke<ModelConfigMap>(EVENT_NAMES.list_available_models, {});
     const currentModel = useStore(s_CurrentModel, (state => state))
     return (
         <div className="w-full px-2.5 pb-2">
@@ -67,6 +68,7 @@ function FieldDemo() {
                                     {currentModel} API Key
                                 </FieldLabel>
                                 <Input
+                                    value={modelsList_X.state?.[currentModel]?.api_key}
                                     id="checkout-7j9-card-number-uw1"
                                     placeholder="Enter API Key"
                                     required
@@ -102,7 +104,7 @@ export function ToggleGroupSpacing() {
         <ToggleGroup
             type="single"
             size="sm"
-            defaultValue={ModelProviderShowName[currentModel as keyof typeof ModelProviderShowName] }
+            defaultValue={ModelProviderShowName[currentModel as keyof typeof ModelProviderShowName]}
             variant="outline"
             spacing={2}
             className="flex-wrap w-full"

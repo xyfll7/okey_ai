@@ -46,7 +46,7 @@ impl Default for AppConfig {
         api_configs.insert(
             ModelProvider::OpenAI,
             APIConfig {
-                api_key: "your-openai-api-key".to_string(),
+                api_key: "".to_string(),
                 base_url: "https://api.openai.com/v1".to_string(),
                 model: "gpt-4".to_string(),
             },
