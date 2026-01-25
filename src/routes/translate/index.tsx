@@ -29,7 +29,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { EVENT_NAMES, useInvoke } from "@/lib/events";
-import { AutoSpeakState, ModelProviderName, type ChatMessage } from "@/lib/types";
+import { AutoSpeakState, ModelProviderShowName, type ChatMessage } from "@/lib/types";
 import { cn, get_app_config, speak } from "@/lib/utils";
 import { s_ChatList, s_CurrentModel, s_Selected } from "@/store";
 import { IIArrowUp, IIPin, IIAdd, IIVolumeHigh, IIX } from "@/components/icons";
@@ -264,7 +264,7 @@ function Inputer({ className }: { className?: string; }) {
 							<DropdownMenuItem onSelect={async () => {
 								await invoke(EVENT_NAMES.switch_model, { model_name: key})
 								s_CurrentModel.setState(key)
-							}} key={key}>{ModelProviderName[key as keyof typeof ModelProviderName] }</DropdownMenuItem>
+							}} key={key}>{ModelProviderShowName[key as keyof typeof ModelProviderShowName] }</DropdownMenuItem>
 						))}
 					</DropdownMenuContent>
 				</DropdownMenu>

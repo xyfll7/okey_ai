@@ -90,7 +90,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { s_CurrentModel } from "@/store";
 import { useStore } from "@tanstack/react-store";
 import type { ModelConfigMap } from "@/@types";
-import { ModelProviderName } from "@/lib/types";
+import { ModelProviderShowName } from "@/lib/types";
 
 export function ToggleGroupSpacing() {
     const { ...modelsList_X } = useInvoke<ModelConfigMap>(EVENT_NAMES.list_available_models, {});
@@ -102,7 +102,7 @@ export function ToggleGroupSpacing() {
         <ToggleGroup
             type="single"
             size="sm"
-            defaultValue={ModelProviderName[currentModel as keyof typeof ModelProviderName] }
+            defaultValue={ModelProviderShowName[currentModel as keyof typeof ModelProviderShowName] }
             variant="outline"
             spacing={2}
             className="flex-wrap w-full"
@@ -114,7 +114,7 @@ export function ToggleGroupSpacing() {
                         s_CurrentModel.setState(key)
                     }}
                 >
-                    {ModelProviderName[key as keyof typeof ModelProviderName]}
+                    {ModelProviderShowName[key as keyof typeof ModelProviderShowName]}
                 </ToggleGroupItem>
             ))}
         </ToggleGroup>

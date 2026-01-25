@@ -20,7 +20,7 @@ export const AutoSpeakState = {
 
 export type AutoSpeakState = typeof AutoSpeakState[keyof typeof AutoSpeakState];
 
-export const ModelProviderName = {
+export const ModelProviderShowName = {
 	"Qwen": "Qwen AI",
 	"DeepSeek": "DeepSeek",
 	"OpenAI": "OpenAI",
