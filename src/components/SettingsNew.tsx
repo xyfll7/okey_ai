@@ -55,6 +55,7 @@ function FieldDemo() {
     useEffect(() => {
         setApiKey(modelsList_X.state?.[currentModel]?.api_key ?? "");
     }, [modelsList_X.state, currentModel]);
+
     return (
         <div className="w-full px-2.5 pb-2">
             <form>
@@ -80,10 +81,8 @@ function FieldDemo() {
                                     onBlur={async (e) => {
                                         const value = e.target.value;
                                         if (value !== modelsList_X.state?.[currentModel]?.api_key) {
-                                            // Update the API key in the state or send it to the backend
-                                            // For example, you might call an API endpoint to update the key
-                                            console.log(`API Key for ${currentModel} updated to: ${value}`);
                                             await invoke(EVENT_NAMES.update_model_api_key, { model_name: currentModel, api_key: value });
+                                            modelsList_X.invokeState();
                                         }
                                     }}
                                 />
