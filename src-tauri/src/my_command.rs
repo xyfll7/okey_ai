@@ -35,10 +35,6 @@ pub async fn chat_stream(
     let translation_manager = app.state::<translation_manager::TranslationManager>();
     let content_clone = chat_message.content.clone();
     let on_event_clone = on_event.clone();
-    let histories = translation_manager.get_histories().await;
-    if histories.is_empty() {
-        let _ = translation_manager.create_session().await;
-    }
 
     match translation_manager
         .translate_stream(
@@ -147,6 +143,10 @@ pub async fn get_histories(app: AppHandle) -> Result<Vec<(String, ChatMessageHis
 #[tauri::command(rename_all = "snake_case")]
 pub async fn get_current_history(app: AppHandle) -> Result<Vec<ChatMessage>, String> {
     let translation_manager = app.state::<translation_manager::TranslationManager>();
+    let histories = translation_manager.get_histories().await;
+    if histories.is_empty() {
+        let _ = translation_manager.create_session().await;
+    }
     let history = translation_manager.get_current_history().await;
     match history {
         Some(history) => Ok(history),
