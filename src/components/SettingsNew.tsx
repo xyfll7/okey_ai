@@ -11,7 +11,7 @@ import { useState } from "react"
 import { IISettings } from "./icons/hugeicons"
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils"
-
+import { open } from "@tauri-apps/plugin-shell";
 
 export function SettingsNew({ className }: { className?: string }) {
     const [isOpen, setIsOpen] = useState(false)
@@ -61,13 +61,13 @@ function FieldDemo() {
                         <FieldGroup>
                             <Field>
                                 <FieldLabel htmlFor="checkout-7j9-card-name-43j">
-                                    API Provider ({currentModel})
+                                    API Provider ({ModelProviderShowName[currentModel as keyof typeof ModelProviderShowName]})
                                 </FieldLabel>
                                 <ToggleGroupSpacing />
                             </Field>
                             <Field>
                                 <FieldLabel htmlFor="checkout-7j9-card-number-uw1">
-                                    {currentModel} API Key
+                                    {ModelProviderShowName[currentModel as keyof typeof ModelProviderShowName]} API Key
                                 </FieldLabel>
                                 <Input
                                     key={resetKey}
@@ -84,7 +84,16 @@ function FieldDemo() {
                                     }}
                                 />
                                 <FieldDescription>
-                                    This key is stored locally and only used to make API requests from this application
+                                    This key is stored locally and only used to make API requests from this application.
+                                    <a onClick={(e) => {
+                                        e.preventDefault();
+                                        open({
+                                            "Qwen": "https://bailian.console.aliyun.com/cn-beijing/#/home",
+                                            "OpenAI": "https://platform.openai.com/api-keys",
+                                            "DeepSeek": "https://www.deepseek.com/",
+                                            "ZAI": "https://open.bigmodel.cn/login",
+                                        }[currentModel]!);
+                                    }}> You can get a {ModelProviderShowName[currentModel as keyof typeof ModelProviderShowName]} API key by signing up here.</a>
                                 </FieldDescription>
                             </Field>
                         </FieldGroup>
