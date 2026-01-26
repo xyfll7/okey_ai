@@ -58,7 +58,7 @@ pub fn translate_selected_text(app_handle: &AppHandle) {
                 );
             }
             None => {
-                let error_msg = "翻译失败".to_string();
+                let error_msg = "Translation failed!".to_string();
                 let app_handle_clone = app_handle.clone();
                 my_windows::window_translate_show(
                     &app_handle,
