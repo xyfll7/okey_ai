@@ -7,7 +7,7 @@ import {
     DrawerTrigger,
 } from "@/components/ui/drawer"
 import { Button } from "./ui/button"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { IISettings } from "./icons/hugeicons"
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils"
@@ -51,11 +51,8 @@ import { Input } from "@/components/ui/input"
 function FieldDemo() {
     const { ...modelsList_X } = useInvoke<ModelConfigMap>(EVENT_NAMES.list_available_models, {});
     const currentModel = useStore(s_CurrentModel, (state => state))
-    const [apiKey, setApiKey] = useState("");
-    useEffect(() => {
-        setApiKey(modelsList_X.state?.[currentModel]?.api_key ?? "");
-    }, [modelsList_X.state, currentModel]);
-
+    // 创建一个唯一的 key 来标识当前状态
+    const resetKey = `${currentModel}-${modelsList_X.state?.[currentModel]?.api_key ?? ''}`;
     return (
         <div className="w-full px-2.5 pb-2">
             <form>
@@ -73,11 +70,11 @@ function FieldDemo() {
                                     {currentModel} API Key
                                 </FieldLabel>
                                 <Input
-                                    value={apiKey}
+                                    key={resetKey}
+                                    defaultValue={modelsList_X.state?.[currentModel]?.api_key ?? ""}
                                     id="checkout-7j9-card-number-uw1"
                                     placeholder="Enter API Key"
                                     required
-                                    onChange={(e) => setApiKey(e.target.value)}
                                     onBlur={async (e) => {
                                         const value = e.target.value;
                                         if (value !== modelsList_X.state?.[currentModel]?.api_key) {
@@ -117,7 +114,7 @@ export function ToggleGroupSpacing() {
         <ToggleGroup
             type="single"
             size="sm"
-            defaultValue={ModelProviderShowName[currentModel as keyof typeof ModelProviderShowName]}
+            defaultValue={currentModel}
             variant="outline"
             spacing={2}
             className="flex-wrap w-full"
