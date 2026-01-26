@@ -216,13 +216,23 @@ function Inputer({ className }: { className?: string; }) {
 		});
 	};
 
+	useEffect(() => {
+		const unlistenChatStream = listen<string>(EVENT_NAMES.CHAT_STREAM, ({ payload }) => {
+			console.log("CHAT_STREAM event received:", payload);
+			handleStream({ role: "user", content: payload } as ChatMessage)
+		});
+		return () => {
+			unlistenChatStream.then((fn) => fn());
+		};
+	}, []);
+
 	const [value, setValue] = useState("");
 	const selected = useStore(s_Selected, (state) => state);
 
 
 	const { ...modelsList_X } = useInvoke<ModelConfigMap>(EVENT_NAMES.list_available_models, {});
-	
-	const currentModel = useStore(s_CurrentModel,(state => state))
+
+	const currentModel = useStore(s_CurrentModel, (state => state))
 	return (
 		<InputGroup className={cn(className, "rounded-xl", "has-[[data-slot=input-group-control]:focus-visible]:border-ring/70 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/7")}>
 			{selected.text && (
@@ -262,9 +272,9 @@ function Inputer({ className }: { className?: string; }) {
 					<DropdownMenuContent side="top" align="start">
 						{modelsList_X.state && Object.keys(modelsList_X.state).map((key) => (
 							<DropdownMenuItem onSelect={async () => {
-								await invoke(EVENT_NAMES.switch_model, { model_name: key})
+								await invoke(EVENT_NAMES.switch_model, { model_name: key })
 								s_CurrentModel.setState(key)
-							}} key={key}>{ModelProviderShowName[key as keyof typeof ModelProviderShowName] }</DropdownMenuItem>
+							}} key={key}>{ModelProviderShowName[key as keyof typeof ModelProviderShowName]}</DropdownMenuItem>
 						))}
 					</DropdownMenuContent>
 				</DropdownMenu>
