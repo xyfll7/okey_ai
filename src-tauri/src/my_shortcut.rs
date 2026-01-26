@@ -6,17 +6,17 @@ use tauri::Manager;
 use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
 
 #[tauri::command]
-pub fn register_hotkey_okey_ai(app: AppHandle, shortcut: String) -> Result<(), String> {
+pub fn register_hotkey_okey_ai(app: AppHandle, new_hotkey: String) -> Result<(), String> {
     match app
         .global_shortcut()
-        .on_shortcut(shortcut.as_str(), move |app, _shortcut, event| {
+        .on_shortcut(new_hotkey.as_str(), move |app, _shortcut, event| {
             if event.state == ShortcutState::Pressed {
                 crate::utils::text_translation::translate_selected_text(&app);
             }
         }) {
-        Ok(_) => println!("Successfully registered dynamic shortcut key: {}", shortcut),
+        Ok(_) => println!("Successfully registered new_hotkey: {}", new_hotkey),
         Err(e) => {
-            println!("Failed to register new shortcut key: {}", e);
+            println!("Failed to register new new_hotkey: {}", e);
         }
     }
 
@@ -28,7 +28,7 @@ pub fn register_hotkey_okey_ai(app: AppHandle, shortcut: String) -> Result<(), S
                 for shortcut_config in &mut config.shortcuts {
                     if shortcut_config.name == "okey_ai" {
                         old_shortcut_result = Some(shortcut_config.hot_key.clone());
-                        shortcut_config.hot_key = shortcut.clone(); // Update the existing shortcut
+                        shortcut_config.hot_key = new_hotkey.clone(); // Update the existing shortcut
                         break;
                     }
                 }
@@ -36,7 +36,7 @@ pub fn register_hotkey_okey_ai(app: AppHandle, shortcut: String) -> Result<(), S
                 if old_shortcut_result.is_none() {
                     config.shortcuts.push(Shortcut {
                         name: "okey_ai".to_string(),
-                        hot_key: shortcut.clone(),
+                        hot_key: new_hotkey.clone(),
                     });
                 }
             })
