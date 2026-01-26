@@ -292,6 +292,9 @@ function ChatList({ className }: { className?: string; }) {
 	const lastItem = chatList.at(-1)
 	const rest = chatList.slice(0, -1);
 	useEffect(() => {
+		invoke<ChatMessage[]>(EVENT_NAMES.get_current_history).then((history) => {
+			s_ChatList.setState(history);
+		})
 		const unlistenResponse = listen<ChatMessage[]>(
 			EVENT_NAMES.AI_RESPONSE,
 			({ payload }) => {

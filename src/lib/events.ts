@@ -20,6 +20,7 @@ export const EVENT_NAMES = {
   chat_stream: "chat_stream",
   detect_language: "detect_language",
   get_histories: "get_histories",
+  get_current_history: "get_current_history",
   register_hotkey_okey_ai: "register_hotkey_okey_ai",
   switch_model: "switch_model",
   get_current_model: "get_current_model",

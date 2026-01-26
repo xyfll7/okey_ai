@@ -186,4 +186,10 @@ impl TranslationManager {
     pub async fn get_histories(&self) -> BTreeMap<String, ChatMessageHistory> {
         self.chat_histories.clone().get_all_histories().await
     }
+
+    pub async fn get_current_history(&self) -> Option<Vec<ChatMessage>> {
+        let active_id = self.active_session_id.read().await;
+        let session_id = active_id.as_ref()?;
+        self.chat_histories.get_messages(session_id).await
+    }
 }

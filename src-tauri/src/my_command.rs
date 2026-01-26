@@ -1,7 +1,7 @@
 use crate::my_api::traits::APIConfig;
 use crate::states::app_config::{AutoSpeakState, ModelProvider};
 use crate::states::app_state::AppConfigState;
-use crate::utils::chat_message::ChatMessage;
+use crate::utils::chat_message::{ChatMessage, ChatMessageHistory};
 use crate::utils::{language_detection, translation_manager};
 use crate::{my_events::event_names, my_windows};
 
@@ -132,14 +132,22 @@ pub async fn window_translate_show(app: AppHandle, chat_message: Vec<ChatMessage
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub async fn get_histories(
-    app: AppHandle,
-) -> Result<Vec<(String, crate::utils::chat_message::ChatMessageHistory)>, String> {
+pub async fn get_histories(app: AppHandle) -> Result<Vec<(String, ChatMessageHistory)>, String> {
     let translation_manager = app.state::<translation_manager::TranslationManager>();
     let histories = translation_manager.get_histories().await;
     let mut histories_vec: Vec<_> = histories.into_iter().collect();
     histories_vec.reverse();
     Ok(histories_vec)
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub async fn get_current_history(app: AppHandle) -> Result<Vec<ChatMessage>, String> {
+    let translation_manager = app.state::<translation_manager::TranslationManager>();
+    let history = translation_manager.get_current_history().await;
+    match history {
+        Some(history) => Ok(history),
+        None => Err("No active session history found".to_string()),
+    }
 }
 
 #[tauri::command(rename_all = "snake_case")]
