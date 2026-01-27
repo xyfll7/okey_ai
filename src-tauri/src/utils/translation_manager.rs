@@ -43,7 +43,7 @@ impl TranslationManager {
         self.chat_histories
             .add_system_message(
                 &session_id,
-                "你是一个专业的翻译助手。请准确地进行语言翻译，保持原文的含义和语气。".to_string(),
+                "You are a professional translation assistant. Please accurately translate the language, preserving the original meaning and tone.".to_string(),
                 None,
             )
             .await;

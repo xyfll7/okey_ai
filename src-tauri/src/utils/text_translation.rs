@@ -23,12 +23,18 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
         let detected_lang = language_detection::detect_language(&selected_text);
 
         let translation_prompt = match detected_lang {
-            "zh-CN" => format!("请将以下文字翻译成英文：\n\n{}", selected_text),
+            "zh-CN" => format!(
+                "Please translate the following text into English:\n\n{}",
+                selected_text
+            ),
             "en-US" => format!(
                 "Please translate the following text into Chinese: \n\n{}",
                 selected_text
             ),
-            _ => format!("请分析以下文本并给出总结：\n\n{}", selected_text),
+            _ => format!(
+                "Please analyze the following text and provide a summary：\n\n{}",
+                selected_text
+            ),
         };
         let translation_manager = app_handle.state::<translation_manager::TranslationManager>();
 
