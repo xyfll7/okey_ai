@@ -218,7 +218,6 @@ function Inputer({ className }: { className?: string; }) {
 
 	useEffect(() => {
 		const unlistenChatStream = listen<string>(EVENT_NAMES.CHAT_STREAM, ({ payload }) => {
-			console.log("CHAT_STREAM event received:", payload);
 			handleStream({ role: "user", content: payload } as ChatMessage)
 		});
 		return () => {

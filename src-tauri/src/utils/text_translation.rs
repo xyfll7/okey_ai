@@ -33,6 +33,12 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
         let translation_manager = app_handle.state::<translation_manager::TranslationManager>();
 
         let _ = translation_manager.create_session().await;
+
+        if let Some(_) = app_handle.get_webview_window("translate") {
+            let _ = app_handle.emit(event_names::CHAT_STREAM, &selected_text);
+            return;
+        }
+
         match translation_manager
             .translate(
                 None,
