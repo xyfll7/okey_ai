@@ -2,5 +2,6 @@
 quit: "Quit"
 show: "Show"
 test: "Test"
+autostart: "Autostart"
 notification_title: "okey.ai"
 notification_body: "okey.ai is running!"

@@ -5,6 +5,7 @@ pub enum TRKey {
     Quit,
     Show,
     Test,
+    Autostart,
     NotificationTitle,
     NotificationBody,
 }
@@ -15,6 +16,7 @@ impl TRKey {
             TRKey::Quit => "quit",
             TRKey::Show => "show",
             TRKey::Test => "test",
+            TRKey::Autostart => "autostart",
             TRKey::NotificationTitle => "notification_title",
             TRKey::NotificationBody => "notification_body",
         }

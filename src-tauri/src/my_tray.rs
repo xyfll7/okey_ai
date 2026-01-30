@@ -1,5 +1,5 @@
 use tauri::{
-    menu::{MenuBuilder, MenuItem},
+    menu::{CheckMenuItem, MenuBuilder, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
     AppHandle, Runtime,
 };
@@ -8,18 +8,33 @@ use crate::my_types::TRKey;
 use crate::my_windows;
 use crate::states::app_state::AppConfigState;
 use tauri::Manager;
+use tauri_plugin_autostart::AutoLaunchManager;
 
 /*******  ab7e53dc-7cba-45e1-8b3a-3837c9b2580a  *******/
 pub fn create_tray<R: Runtime>(app_handle: &AppHandle<R>) -> tauri::Result<()> {
     // 创建菜单项 with translations
     let show_item = MenuItem::with_id(app_handle, "show", &TRKey::Show.t(), true, None::<&str>)?;
     let test_item = MenuItem::with_id(app_handle, "test", &TRKey::Test.t(), true, None::<&str>)?;
+
+    // 创建自启动菜单项
+    let autostart_manager = app_handle.state::<AutoLaunchManager>();
+    let is_auto_start = autostart_manager.is_enabled().unwrap_or(false);
+    let autostart_item = CheckMenuItem::with_id(
+        app_handle,
+        "autostart",
+        &TRKey::Autostart.t(),
+        true,
+        is_auto_start,
+        None::<&str>,
+    )?;
+
     let quit_item = MenuItem::with_id(app_handle, "quit", &TRKey::Quit.t(), true, None::<&str>)?;
 
     // 构建菜单
     let menu = MenuBuilder::new(app_handle)
         .item(&show_item)
         .item(&test_item)
+        .item(&autostart_item)
         .separator()
         .item(&quit_item)
         .build()?;
@@ -33,6 +48,16 @@ pub fn create_tray<R: Runtime>(app_handle: &AppHandle<R>) -> tauri::Result<()> {
             let app_state = app.state::<AppConfigState>();
             let config = app_state.read();
             println!("config: {:#?}", *config);
+        }
+        "autostart" => {
+            let autostart_manager = app.state::<AutoLaunchManager>();
+            // 切换自启动状态
+            let current_enabled = autostart_manager.is_enabled().unwrap_or(false);
+            if current_enabled {
+                let _ = autostart_manager.disable();
+            } else {
+                let _ = autostart_manager.enable();
+            }
         }
         "quit" => std::process::exit(0),
         _ => {}
