@@ -8,6 +8,9 @@ import { fileURLToPath, URL } from 'node:url'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  build: {
+    outDir: 'build',   // 👈 输出到 build 目录
+  },
   plugins: [
     devtools(),
     tanstackRouter({
