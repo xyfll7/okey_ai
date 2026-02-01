@@ -1,12 +1,12 @@
 use crate::my_events::event_names;
-use crate::my_windows;
 use crate::utils::{self, translation_manager};
+use crate::{my_command, my_windows};
 use tauri::AppHandle;
 use tauri::{async_runtime, Emitter, Manager};
 
 use crate::utils::language_detection;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum DisplayType {
     Normal,
     Bubble,
@@ -39,12 +39,14 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
         let translation_manager = app_handle.state::<translation_manager::TranslationManager>();
 
         let _ = translation_manager.create_session().await;
-
-        if let Some(_) = app_handle.get_webview_window("translate") {
+        if my_command::is_pin_translate_window_get(app_handle.clone())
+            && app_handle.get_webview_window("translate").is_some()
+        {
             let _ = app_handle.emit(event_names::CHAT_STREAM, &selected_text);
             return;
+        } else if display_type == DisplayType::Bubble {
+            my_windows::window_translate_bubble_show(&app_handle, None as Option<fn()>);
         }
-
         match translation_manager
             .translate(
                 None,
@@ -62,12 +64,12 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
         {
             Some(chat_history) => match display_type {
                 DisplayType::Normal => {
-                    let app_handle_clone = app_handle.clone();
+                    let app_handle_for_normal = app_handle.clone();
                     let chat_history_clone = chat_history.clone();
                     my_windows::window_translate_show(
                         &app_handle,
                         Some(move || {
-                            let app_handle_for_thread = app_handle_clone.clone();
+                            let app_handle_for_thread = app_handle_for_normal.clone();
                             std::thread::spawn(move || {
                                 std::thread::sleep(std::time::Duration::from_millis(100));
                                 let _ = app_handle_for_thread
