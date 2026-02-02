@@ -38,13 +38,15 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
         };
         let translation_manager = app_handle.state::<translation_manager::TranslationManager>();
 
-        translation_manager.add_user_message(
-            None,
-            &translation_prompt,
-            Some(selected_text.clone()),
-        );
+        translation_manager.create_session().await;
 
-        let _ = translation_manager.create_session().await;
+        let messages = translation_manager
+            .add_user_message(None, &translation_prompt, Some(selected_text.clone()))
+            .await
+            .unwrap_or_default();
+
+        let _ = app_handle.emit(event_names::BUBBLE_AUTO_SPEAK, &messages);
+        let _ = app_handle.emit(event_names::AI_RESPONSE, &messages);
         if my_command::is_pin_translate_window_get(app_handle.clone())
             && app_handle.get_webview_window("translate").is_some()
         {
@@ -54,21 +56,7 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
             my_windows::window_translate_bubble_show(&app_handle, None as Option<fn()>);
         }
 
-        match translation_manager
-            .translate(
-                None,
-                &translation_prompt,
-                Some(selected_text),
-                |chat_history| {
-                    let app_handle = app_handle.clone();
-                    async move {
-                        let _ = app_handle.emit(event_names::BUBBLE_AUTO_SPEAK, &chat_history);
-                        let _ = app_handle.emit(event_names::AI_RESPONSE, &chat_history);
-                    }
-                },
-            )
-            .await
-        {
+        match translation_manager.translate(None, messages).await {
             Some(chat_history) => match display_type {
                 DisplayType::Normal => {
                     let app_handle_for_normal = app_handle.clone();

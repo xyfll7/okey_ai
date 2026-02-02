@@ -5,7 +5,6 @@ use crate::states::app_state::AppConfigState;
 use crate::states::chat_histories::ChatHistoriesState;
 use crate::utils::chat_message::{ChatMessage, ChatMessageHistory};
 use std::collections::BTreeMap;
-use std::future::Future;
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tauri::async_runtime::RwLock;
@@ -31,7 +30,7 @@ impl TranslationManager {
         }
     }
 
-    pub async fn create_session(&self) -> String {
+    pub async fn create_session(&self) {
         let session_id = format!(
             "translate_{}",
             SystemTime::now()
@@ -50,8 +49,6 @@ impl TranslationManager {
 
         let mut active_id = self.active_session_id.write().await;
         *active_id = Some(session_id.clone());
-
-        session_id
     }
 
     async fn get_current_model_type(&self) -> ModelProvider {
@@ -82,17 +79,11 @@ impl TranslationManager {
         self.chat_histories.get_messages(&session_id).await
     }
 
-    pub async fn translate<F, Fut>(
+    pub async fn translate(
         &self,
         session_id: Option<&str>,
-        content: &str,
-        raw: Option<String>,
-        callback: F,
-    ) -> Option<Vec<ChatMessage>>
-    where
-        F: FnOnce(Vec<ChatMessage>) -> Fut,
-        Fut: Future<Output = ()> + Send + 'static,
-    {
+        messages: Vec<ChatMessage>,
+    ) -> Option<Vec<ChatMessage>> {
         let session_id = match session_id {
             Some(id) => id.to_string(),
             None => {
@@ -100,9 +91,6 @@ impl TranslationManager {
                 active_id.as_ref()?.clone()
             }
         };
-
-        let messages = self.chat_histories.get_messages(&session_id).await?;
-        callback(messages.clone()).await;
 
         let model_type = self.get_current_model_type().await;
 
@@ -130,17 +118,13 @@ impl TranslationManager {
         self.chat_histories.get_messages(&session_id).await
     }
 
-    pub async fn translate_stream<F, Fut, StreamCallback>(
+    pub async fn translate_stream<StreamCallback>(
         &self,
         session_id: Option<&str>,
-        content: &str,
-        raw: Option<String>,
-        initial_callback: F,
+        messages: Vec<ChatMessage>,
         stream_callback: StreamCallback,
     ) -> Option<Vec<ChatMessage>>
     where
-        F: FnOnce(Vec<ChatMessage>) -> Fut,
-        Fut: Future<Output = ()> + Send + 'static,
         StreamCallback: Fn(String) + Send + 'static,
     {
         let session_id = match session_id {
@@ -150,10 +134,6 @@ impl TranslationManager {
                 active_id.as_ref()?.clone()
             }
         };
-
-        let messages = self.chat_histories.get_messages(&session_id).await?;
-
-        initial_callback(messages.clone()).await;
 
         let model_type = self.get_current_model_type().await;
 

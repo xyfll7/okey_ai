@@ -33,26 +33,18 @@ pub async fn chat_stream(
     on_event: Channel<StreamEvent>,
 ) -> Result<(), String> {
     let translation_manager = app.state::<translation_manager::TranslationManager>();
-    let content_clone = chat_message.content.clone();
     let on_event_clone = on_event.clone();
 
+    let messages = translation_manager
+        .add_user_message(None, &chat_message.content, None)
+        .await
+        .unwrap_or_default();
     match translation_manager
-        .translate_stream(
-            None,
-            &content_clone,
-            None,
-            |chat_history| {
-                let app_handle = app.clone();
-                async move {
-                    let _ = app_handle.emit(event_names::AI_RESPONSE, &chat_history);
-                }
-            },
-            move |chunk_content| {
-                let _ = on_event_clone.send(StreamEvent::Chunk {
-                    content: chunk_content.clone(),
-                });
-            },
-        )
+        .translate_stream(None, messages, move |chunk_content| {
+            let _ = on_event_clone.send(StreamEvent::Chunk {
+                content: chunk_content.clone(),
+            });
+        })
         .await
     {
         Some(chat_histories) => {
@@ -145,7 +137,7 @@ pub async fn get_current_history(app: AppHandle) -> Result<Vec<ChatMessage>, Str
     let translation_manager = app.state::<translation_manager::TranslationManager>();
     let histories = translation_manager.get_histories().await;
     if histories.is_empty() {
-        let _ = translation_manager.create_session().await;
+        translation_manager.create_session().await;
     }
     let history = translation_manager.get_current_history().await;
     match history {
