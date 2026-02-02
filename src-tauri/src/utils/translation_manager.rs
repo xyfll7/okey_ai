@@ -61,12 +61,12 @@ impl TranslationManager {
         model_type
     }
 
-    pub async fn prepare_session_and_add_message(
+    pub async fn add_user_message(
         &self,
         session_id: Option<&str>,
         content: &str,
         raw: Option<String>,
-    ) -> Option<(String, Vec<ChatMessage>)> {
+    ) -> Option<Vec<ChatMessage>> {
         let session_id = match session_id {
             Some(id) => id.to_string(),
             None => {
@@ -79,8 +79,7 @@ impl TranslationManager {
             .add_user_message(&session_id, content.to_string(), raw)
             .await;
 
-        let messages = self.chat_histories.get_messages(&session_id).await?;
-        Some((session_id, messages))
+        self.chat_histories.get_messages(&session_id).await
     }
 
     pub async fn translate<F, Fut>(

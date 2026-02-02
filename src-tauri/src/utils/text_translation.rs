@@ -38,7 +38,11 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
         };
         let translation_manager = app_handle.state::<translation_manager::TranslationManager>();
 
-        translation_manager.prepare_session_and_add_message(None, &translation_prompt, Some(selected_text));
+        translation_manager.add_user_message(
+            None,
+            &translation_prompt,
+            Some(selected_text.clone()),
+        );
 
         let _ = translation_manager.create_session().await;
         if my_command::is_pin_translate_window_get(app_handle.clone())
