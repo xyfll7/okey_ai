@@ -61,6 +61,28 @@ impl TranslationManager {
         model_type
     }
 
+    pub async fn prepare_session_and_add_message(
+        &self,
+        session_id: Option<&str>,
+        content: &str,
+        raw: Option<String>,
+    ) -> Option<(String, Vec<ChatMessage>)> {
+        let session_id = match session_id {
+            Some(id) => id.to_string(),
+            None => {
+                let active_id = self.active_session_id.read().await;
+                active_id.as_ref()?.clone()
+            }
+        };
+
+        self.chat_histories
+            .add_user_message(&session_id, content.to_string(), raw)
+            .await;
+
+        let messages = self.chat_histories.get_messages(&session_id).await?;
+        Some((session_id, messages))
+    }
+
     pub async fn translate<F, Fut>(
         &self,
         session_id: Option<&str>,
@@ -80,12 +102,7 @@ impl TranslationManager {
             }
         };
 
-        self.chat_histories
-            .add_user_message(&session_id, content.to_string(), raw)
-            .await;
-
         let messages = self.chat_histories.get_messages(&session_id).await?;
-
         callback(messages.clone()).await;
 
         let model_type = self.get_current_model_type().await;
@@ -134,10 +151,6 @@ impl TranslationManager {
                 active_id.as_ref()?.clone()
             }
         };
-
-        self.chat_histories
-            .add_user_message(&session_id, content.to_string(), raw)
-            .await;
 
         let messages = self.chat_histories.get_messages(&session_id).await?;
 
