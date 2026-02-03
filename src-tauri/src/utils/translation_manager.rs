@@ -58,7 +58,7 @@ impl TranslationManager {
         model_type
     }
 
-    pub async fn add_user_message(
+    pub async fn add_get_user_message(
         &self,
         session_id: Option<&str>,
         content: &str,

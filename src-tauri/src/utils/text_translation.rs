@@ -41,12 +41,9 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
         translation_manager.create_session().await;
 
         let messages = translation_manager
-            .add_user_message(None, &translation_prompt, Some(selected_text.clone()))
+            .add_get_user_message(None, &translation_prompt, Some(selected_text.clone()))
             .await
             .unwrap_or_default();
-
-        let _ = app_handle.emit(event_names::BUBBLE_AUTO_SPEAK, &messages);
-        let _ = app_handle.emit(event_names::AI_RESPONSE, &messages);
         if my_command::is_pin_translate_window_get(app_handle.clone())
             && app_handle.get_webview_window("translate").is_some()
         {
@@ -55,7 +52,8 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
         } else if display_type == DisplayType::Bubble {
             my_windows::window_translate_bubble_show(&app_handle, None as Option<fn()>);
         }
-
+        let _ = app_handle.emit(event_names::BUBBLE_AUTO_SPEAK, &messages);
+        // let _ = app_handle.emit(event_names::AI_RESPONSE, &messages);
         match translation_manager.translate(None, messages).await {
             Some(chat_history) => match display_type {
                 DisplayType::Normal => {

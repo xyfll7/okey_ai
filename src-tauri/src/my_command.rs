@@ -36,7 +36,7 @@ pub async fn chat_stream(
     let on_event_clone = on_event.clone();
 
     let messages = translation_manager
-        .add_user_message(None, &chat_message.content, None)
+        .add_get_user_message(None, &chat_message.content, None)
         .await
         .unwrap_or_default();
     match translation_manager
