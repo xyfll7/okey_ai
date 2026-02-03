@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "tauri dev",
+    "publish": "tauri build",
     "dev": "vite --port 5001",
     "build": "tsc -b && vite build",
     "lint": "eslint .",

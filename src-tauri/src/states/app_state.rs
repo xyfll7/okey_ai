@@ -2,6 +2,7 @@ use crate::states::app_config::AppConfig;
 use serde_json::json;
 use std::sync::Arc;
 use std::sync::RwLock;
+#[allow(unused_imports)]
 use tauri::{AppHandle, Manager, Runtime};
 use tauri_plugin_store::StoreExt;
 
