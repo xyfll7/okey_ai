@@ -1,3 +1,6 @@
+// @refresh reset
+// 或
+// @refresh only-export-components
 import { createFileRoute } from "@tanstack/react-router";
 import { useStore } from "@tanstack/react-store";
 import { Channel, invoke } from "@tauri-apps/api/core";
