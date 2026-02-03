@@ -27,6 +27,7 @@ export default defineConfig({
   },
   server: {
     allowedHosts: [
+      "op_report.taoding.com",
       ".taoding.com"
     ],
   },
