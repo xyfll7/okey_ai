@@ -1,4 +1,4 @@
-use crate::utils::chat_message::{ChatMessage, ChatMessageHistory};
+use crate::utils::chat_message::{ChatMessage, ChatMessageHistory, Role};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::sync::Arc;
@@ -19,34 +19,21 @@ impl ChatHistoriesState {
         })))
     }
 
-    /// Add a system message to a specific chat history
-    pub async fn add_system_message(&self, key: &str, content: String, raw: Option<String>) {
+    /// Add a message to a specific chat history
+    pub async fn add_message(
+        &self,
+        key: &str,
+        role: Role,
+        content: String,
+        raw: Option<String>,
+    ) -> &Self {
         let mut state = self.0.write().await;
         state
             .histories
             .entry(key.to_string())
             .or_insert_with(ChatMessageHistory::new)
-            .add_system_message(content, raw);
-    }
-
-    /// Add a user message to a specific chat history
-    pub async fn add_user_message(&self, key: &str, content: String, raw: Option<String>) {
-        let mut state = self.0.write().await;
-        state
-            .histories
-            .entry(key.to_string())
-            .or_insert_with(ChatMessageHistory::new)
-            .add_user_message(content, raw);
-    }
-
-    /// Add an assistant message to a specific chat history
-    pub async fn add_assistant_message(&self, key: &str, content: String, raw: Option<String>) {
-        let mut state = self.0.write().await;
-        state
-            .histories
-            .entry(key.to_string())
-            .or_insert_with(ChatMessageHistory::new)
-            .add_assistant_message(content, raw);
+            .add_message(role, content, raw);
+        self
     }
 
     /// Get messages from a specific chat history

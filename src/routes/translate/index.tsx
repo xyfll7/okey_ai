@@ -184,28 +184,7 @@ function Inputer({ className }: { className?: string; }) {
 					break;
 				}
 				case "error": {
-					const errorContent = message.data?.message ?? "流式请求失败";
-					s_ChatList.setState((list) => {
-						if (list.length === 0) {
-							return [
-								...list,
-								{ role: "assistant", content: errorContent },
-							];
-						}
-						const next = [...list];
-						const last = next[next.length - 1];
-						if (last.role === "assistant") {
-							next[next.length - 1] = {
-								...last,
-								content: errorContent,
-							};
-							return next;
-						}
-						return [
-							...next,
-							{ role: "assistant", content: errorContent },
-						];
-					});
+					console.log("Stream error:", message.data.message);
 					break;
 				}
 				default:
@@ -220,8 +199,8 @@ function Inputer({ className }: { className?: string; }) {
 	};
 
 	useEffect(() => {
-		const unlistenChatStream = listen<string>(EVENT_NAMES.CHAT_STREAM, ({ payload }) => {
-			handleStream({ role: "user", content: payload } as ChatMessage)
+		const unlistenChatStream = listen<string>(EVENT_NAMES.CHAT_STREAM, () => {
+			handleStream({ role: "user", content: "" } as ChatMessage)
 		});
 		return () => {
 			unlistenChatStream.then((fn) => fn());

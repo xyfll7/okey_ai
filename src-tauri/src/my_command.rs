@@ -1,7 +1,7 @@
 use crate::my_api::traits::APIConfig;
 use crate::states::app_config::{AutoSpeakState, ModelProvider};
 use crate::states::app_state::AppConfigState;
-use crate::utils::chat_message::{ChatMessage, ChatMessageHistory};
+use crate::utils::chat_message::{ChatMessage, ChatMessageHistory, Role};
 use crate::utils::{language_detection, translation_manager};
 use crate::{my_events::event_names, my_windows};
 
@@ -35,10 +35,22 @@ pub async fn chat_stream(
     let translation_manager = app.state::<translation_manager::TranslationManager>();
     let on_event_clone = on_event.clone();
 
-    let messages = translation_manager
-        .add_get_user_message(None, &chat_message.content, None)
-        .await
-        .unwrap_or_default();
+    let messages = if chat_message.content.trim().is_empty() {
+        // If chat_message.content is empty, get the current history
+        translation_manager
+            .get_current_history()
+            .await
+            .unwrap_or_default()
+    } else {
+        // If chat_message.content is not empty, proceed normally
+        let messages = translation_manager
+            .add_get_user_message(None, &chat_message.content, None, Role::User)
+            .await
+            .unwrap_or_default();
+        let _ = app.emit(event_names::AI_RESPONSE, &messages);
+        messages
+    };
+
     match translation_manager
         .translate_stream(None, messages, move |chunk_content| {
             let _ = on_event_clone.send(StreamEvent::Chunk {

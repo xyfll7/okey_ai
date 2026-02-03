@@ -3,7 +3,7 @@ use crate::my_api::traits::ChatCompletionRequest;
 use crate::states::app_config::ModelProvider;
 use crate::states::app_state::AppConfigState;
 use crate::states::chat_histories::ChatHistoriesState;
-use crate::utils::chat_message::{ChatMessage, ChatMessageHistory};
+use crate::utils::chat_message::{ChatMessage, ChatMessageHistory, Role};
 use std::collections::BTreeMap;
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -40,8 +40,9 @@ impl TranslationManager {
         );
 
         self.chat_histories
-            .add_system_message(
+            .add_message(
                 &session_id,
+                Role::System,
                 "You are a professional translation assistant. Please accurately translate the language, preserving the original meaning and tone.".to_string(),
                 None,
             )
@@ -63,6 +64,7 @@ impl TranslationManager {
         session_id: Option<&str>,
         content: &str,
         raw: Option<String>,
+        role: Role,
     ) -> Option<Vec<ChatMessage>> {
         let session_id = match session_id {
             Some(id) => id.to_string(),
@@ -73,7 +75,7 @@ impl TranslationManager {
         };
 
         self.chat_histories
-            .add_user_message(&session_id, content.to_string(), raw)
+            .add_message(&session_id, role, content.to_string(), raw)
             .await;
 
         self.chat_histories.get_messages(&session_id).await
@@ -112,7 +114,7 @@ impl TranslationManager {
         let content = response.choices.first()?.message.content.clone();
 
         self.chat_histories
-            .add_assistant_message(&session_id, content.clone(), None)
+            .add_message(&session_id, Role::Assistant, content.clone(), None)
             .await;
 
         self.chat_histories.get_messages(&session_id).await
@@ -170,7 +172,7 @@ impl TranslationManager {
         }
         let final_content = content_chunks.lock().unwrap().clone();
         self.chat_histories
-            .add_assistant_message(&session_id, final_content, None)
+            .add_message(&session_id, Role::Assistant, final_content, None)
             .await;
         self.chat_histories.get_messages(&session_id).await
     }

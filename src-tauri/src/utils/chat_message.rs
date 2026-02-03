@@ -98,21 +98,6 @@ impl ChatMessageHistory {
         self
     }
 
-    /// Adds a system message to the history
-    pub fn add_system_message(&mut self, content: String, raw: Option<String>) -> &mut Self {
-        self.add_message(Role::System, content, raw)
-    }
-
-    /// Adds a user message to the history
-    pub fn add_user_message(&mut self, content: String, raw: Option<String>) -> &mut Self {
-        self.add_message(Role::User, content, raw)
-    }
-
-    /// Adds an assistant message to the history
-    pub fn add_assistant_message(&mut self, content: String, raw: Option<String>) -> &mut Self {
-        self.add_message(Role::Assistant, content, raw)
-    }
-
     /// Converts the history to a vector of ChatMessage
     pub fn to_vec(&self) -> Vec<ChatMessage> {
         self.messages.clone()
