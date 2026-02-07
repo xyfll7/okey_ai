@@ -17,12 +17,18 @@ import { cn } from "@/lib/utils"
 
 export function HistoriesNew({ className }: { className?: string }) {
     const { ...histories_X } = useInvoke<[string, ChatMessageHistory][]>(EVENT_NAMES.get_histories, []);
-    const [isOpen, setIsOpen] = useState(false)
+    const [isOpen, setIsOpen] = useState(false);
     return <Drawer open={isOpen} onOpenChange={setIsOpen}>
         <DrawerTrigger onClick={async (e) => {
             (e.currentTarget as HTMLButtonElement).blur();
             histories_X.invokeState();
             setIsOpen(true)
+            setTimeout(() => {
+                const overlay = document.querySelector('[data-slot="drawer-overlay"]');
+                if (overlay) {
+                    (overlay as HTMLElement).setAttribute('data-tauri-drag-region', 'true');
+                }
+            }, 0);
         }} asChild >
             <Button size={"icon-sm"} variant={"ghost"} className={className} >
                 <IIList />

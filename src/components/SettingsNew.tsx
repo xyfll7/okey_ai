@@ -19,6 +19,12 @@ export function SettingsNew({ className }: { className?: string }) {
         <DrawerTrigger onClick={async (e) => {
             (e.currentTarget as HTMLButtonElement).blur();
             setIsOpen(true)
+            setTimeout(() => {
+                const overlay = document.querySelector('[data-slot="drawer-overlay"]');
+                if (overlay) {
+                    (overlay as HTMLElement).setAttribute('data-tauri-drag-region', 'true');
+                }
+            }, 0);
         }} asChild >
             <Button size={"icon-sm"} variant={"ghost"} className={className} >
                 <IISettings />
