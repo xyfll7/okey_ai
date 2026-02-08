@@ -3,7 +3,7 @@
 
 1、Multilingual
 
-2、
+2、Language Selector
 
 ### Tools
 

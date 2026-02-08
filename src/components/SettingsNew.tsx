@@ -27,6 +27,7 @@ import {
     FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Card } from "./ui/card";
 
 export function SettingsNew({ className }: { className?: string }) {
     const [isOpen, setIsOpen] = useState(false)
@@ -53,6 +54,7 @@ export function SettingsNew({ className }: { className?: string }) {
             <ScrollArea className={cn("h-[70vh]")}>
                 <div className="max-w-screen flex-coh items-start px-2">
                     <ModelConfigurationForm />
+                    <LanguageSelector />
                 </div>
             </ScrollArea>
         </DrawerContent>
@@ -64,7 +66,7 @@ function ModelConfigurationForm() {
     const currentModel = useStore(s_CurrentModel, (state => state))
     const resetKey = `${currentModel}-${modelsList_X.state?.[currentModel]?.api_key ?? ''}`;
     return (
-        <div className="w-full px-2.5 pb-2">
+        <Card className="px-2.5 w-full">
             <form>
                 <FieldGroup>
                     <FieldSet>
@@ -136,10 +138,15 @@ function ModelConfigurationForm() {
                     </FieldSet>
                 </FieldGroup>
             </form>
-        </div>
+        </Card>
     )
 }
 
 
 
+function LanguageSelector() {
+    return <div>
+
+    </div>
+}
 
