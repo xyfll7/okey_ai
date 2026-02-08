@@ -12,6 +12,7 @@ export interface APIConfig {
   api_key: string;
   base_url: string;
   model: string;
+  index: number;
 }
 
 export interface ModelConfigMap {

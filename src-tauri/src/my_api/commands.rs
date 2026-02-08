@@ -1,4 +1,4 @@
-use crate::{states::app_config::ModelProvider, states::app_state::AppConfigState};
+use crate::states::{app_config::ModelProvider, app_state::AppConfigState};
 use serde_json;
 use std::collections::HashMap;
 use tauri::State;

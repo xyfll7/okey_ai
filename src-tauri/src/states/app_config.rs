@@ -50,6 +50,7 @@ impl Default for AppConfig {
                 api_key: std::env::var("OPENAI_API_KEY").unwrap_or_else(|_| "".to_string()),
                 base_url: "https://api.openai.com/v1".to_string(),
                 model: "gpt-4".to_string(),
+                index: 0,
             },
         );
 
@@ -59,6 +60,7 @@ impl Default for AppConfig {
                 api_key: std::env::var("QWEN_API_KEY").unwrap_or_else(|_| "".to_string()),
                 base_url: "https://dashscope.aliyuncs.com".to_string(),
                 model: "qwen-plus".to_string(),
+                index: 1,
             },
         );
 
@@ -68,6 +70,7 @@ impl Default for AppConfig {
                 api_key: std::env::var("DEEPSEEK_API_KEY").unwrap_or_else(|_| "".to_string()),
                 base_url: "https://api.deepseek.com".to_string(),
                 model: "deepseek-chat".to_string(),
+                index: 2,
             },
         );
 
@@ -77,6 +80,7 @@ impl Default for AppConfig {
                 api_key: std::env::var("ZAI_API_KEY").unwrap_or_else(|_| "".to_string()),
                 base_url: "https://open.bigmodel.cn/api/paas/v4".to_string(),
                 model: "glm-4.7".to_string(),
+                index: 3,
             },
         );
 

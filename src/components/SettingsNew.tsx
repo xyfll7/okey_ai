@@ -82,16 +82,22 @@ function ModelConfigurationForm() {
                                         spacing={2}
                                         className="flex-wrap w-full"
                                     >
-                                        {modelsList_X.state && Object.keys(modelsList_X.state).map((key) => (
-                                            <ToggleGroupItem value={key} aria-label="Toggle top" key={key}
-                                                onClick={async () => {
-                                                    await invoke(EVENT_NAMES.switch_model, { model_name: key })
-                                                    s_CurrentModel.setState(key)
-                                                }}
-                                            >
-                                                {ModelProviderShowName[key as keyof typeof ModelProviderShowName]}
-                                            </ToggleGroupItem>
-                                        ))}
+                                        {modelsList_X.state && Object.keys(modelsList_X.state)
+                                            .sort((a, b) => {
+                                                const indexA = modelsList_X.state![a].index;
+                                                const indexB = modelsList_X.state![b].index;
+                                                return indexA - indexB;
+                                            })
+                                            .map((key) => (
+                                                <ToggleGroupItem value={key} aria-label="Toggle top" key={key}
+                                                    onClick={async () => {
+                                                        await invoke(EVENT_NAMES.switch_model, { model_name: key })
+                                                        s_CurrentModel.setState(key)
+                                                    }}
+                                                >
+                                                    {ModelProviderShowName[key as keyof typeof ModelProviderShowName]}
+                                                </ToggleGroupItem>
+                                            ))}
                                     </ToggleGroup>
                                 }
                             </Field>

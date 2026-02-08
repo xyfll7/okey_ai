@@ -212,7 +212,7 @@ function Inputer({ className }: { className?: string; }) {
 
 
 	const { ...modelsList_X } = useInvoke<ModelConfigMap>(EVENT_NAMES.list_available_models, {});
-
+	
 	const currentModel = useStore(s_CurrentModel, (state => state))
 	return (
 		<InputGroup className={cn(className, "rounded-xl", "has-[[data-slot=input-group-control]:focus-visible]:border-ring/70 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/7")}>
@@ -251,12 +251,18 @@ function Inputer({ className }: { className?: string; }) {
 						<InputGroupButton variant="ghost">{currentModel}</InputGroupButton>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent side="top" align="start">
-						{modelsList_X.state && Object.keys(modelsList_X.state).map((key) => (
-							<DropdownMenuItem onSelect={async () => {
-								await invoke(EVENT_NAMES.switch_model, { model_name: key })
-								s_CurrentModel.setState(key)
-							}} key={key}>{ModelProviderShowName[key as keyof typeof ModelProviderShowName]}</DropdownMenuItem>
-						))}
+						{modelsList_X.state && Object.keys(modelsList_X.state)
+							.sort((a, b) => {
+								const indexA = modelsList_X.state![a].index;
+								const indexB = modelsList_X.state![b].index;
+								return indexA - indexB;
+							})
+							.map((key) => (
+								<DropdownMenuItem onSelect={async () => {
+									await invoke(EVENT_NAMES.switch_model, { model_name: key })
+									s_CurrentModel.setState(key)
+								}} key={key}>{ModelProviderShowName[key as keyof typeof ModelProviderShowName]}</DropdownMenuItem>
+							))}
 					</DropdownMenuContent>
 				</DropdownMenu>
 

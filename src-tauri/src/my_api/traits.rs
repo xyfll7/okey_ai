@@ -99,4 +99,5 @@ pub struct APIConfig {
     pub api_key: String,
     pub base_url: String,
     pub model: String,
+    pub index: u32,
 }
