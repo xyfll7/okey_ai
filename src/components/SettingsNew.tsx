@@ -5,13 +5,28 @@ import {
     DrawerHeader,
     DrawerTitle,
     DrawerTrigger,
-} from "@/components/ui/drawer"
-import { Button } from "./ui/button"
-import { useState } from "react"
-import { IISettings } from "./icons/hugeicons"
+} from "@/components/ui/drawer";
+import { Button } from "./ui/button";
+import { useState } from "react";
+import { IISettings } from "./icons/hugeicons";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 import { open } from "@tauri-apps/plugin-shell";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { EVENT_NAMES, useInvoke } from "@/lib/events";
+import { invoke } from "@tauri-apps/api/core";
+import { s_CurrentModel } from "@/store";
+import { useStore } from "@tanstack/react-store";
+import type { ModelConfigMap } from "@/@types";
+import { ModelProviderShowName } from "@/lib/types";
+import {
+    Field,
+    FieldDescription,
+    FieldGroup,
+    FieldLabel,
+    FieldSet,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 
 export function SettingsNew({ className }: { className?: string }) {
     const [isOpen, setIsOpen] = useState(false)
@@ -37,27 +52,16 @@ export function SettingsNew({ className }: { className?: string }) {
             </DrawerHeader>
             <ScrollArea className={cn("h-[70vh]")}>
                 <div className="max-w-screen flex-coh items-start px-2">
-                    <FieldDemo />
+                    <ModelConfigurationForm />
                 </div>
             </ScrollArea>
         </DrawerContent>
     </Drawer>
 }
 
-
-import {
-    Field,
-    FieldDescription,
-    FieldGroup,
-    FieldLabel,
-    FieldSet,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-
-function FieldDemo() {
+function ModelConfigurationForm() {
     const { ...modelsList_X } = useInvoke<ModelConfigMap>(EVENT_NAMES.list_available_models, {});
     const currentModel = useStore(s_CurrentModel, (state => state))
-    // 创建一个唯一的 key 来标识当前状态
     const resetKey = `${currentModel}-${modelsList_X.state?.[currentModel]?.api_key ?? ''}`;
     return (
         <div className="w-full px-2.5 pb-2">
@@ -69,7 +73,27 @@ function FieldDemo() {
                                 <FieldLabel htmlFor="checkout-7j9-card-name-43j">
                                     API Provider ({ModelProviderShowName[currentModel as keyof typeof ModelProviderShowName]})
                                 </FieldLabel>
-                                <ToggleGroupSpacing />
+                                {currentModel &&
+                                    <ToggleGroup
+                                        type="single"
+                                        size="sm"
+                                        defaultValue={currentModel}
+                                        variant="outline"
+                                        spacing={2}
+                                        className="flex-wrap w-full"
+                                    >
+                                        {modelsList_X.state && Object.keys(modelsList_X.state).map((key) => (
+                                            <ToggleGroupItem value={key} aria-label="Toggle top" key={key}
+                                                onClick={async () => {
+                                                    await invoke(EVENT_NAMES.switch_model, { model_name: key })
+                                                    s_CurrentModel.setState(key)
+                                                }}
+                                            >
+                                                {ModelProviderShowName[key as keyof typeof ModelProviderShowName]}
+                                            </ToggleGroupItem>
+                                        ))}
+                                    </ToggleGroup>
+                                }
                             </Field>
                             <Field>
                                 <FieldLabel htmlFor="checkout-7j9-card-number-uw1">
@@ -111,39 +135,5 @@ function FieldDemo() {
 }
 
 
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
-import { EVENT_NAMES, useInvoke } from "@/lib/events";
-import { invoke } from "@tauri-apps/api/core";
-import { s_CurrentModel } from "@/store";
-import { useStore } from "@tanstack/react-store";
-import type { ModelConfigMap } from "@/@types";
-import { ModelProviderShowName } from "@/lib/types";
 
-export function ToggleGroupSpacing() {
-    const { ...modelsList_X } = useInvoke<ModelConfigMap>(EVENT_NAMES.list_available_models, {});
-    const currentModel = useStore(s_CurrentModel, (state => state))
-    if (!currentModel) {
-        return null;
-    }
-    return (
-        <ToggleGroup
-            type="single"
-            size="sm"
-            defaultValue={currentModel}
-            variant="outline"
-            spacing={2}
-            className="flex-wrap w-full"
-        >
-            {modelsList_X.state && Object.keys(modelsList_X.state).map((key) => (
-                <ToggleGroupItem value={key} aria-label="Toggle top" key={key}
-                    onClick={async () => {
-                        await invoke(EVENT_NAMES.switch_model, { model_name: key })
-                        s_CurrentModel.setState(key)
-                    }}
-                >
-                    {ModelProviderShowName[key as keyof typeof ModelProviderShowName]}
-                </ToggleGroupItem>
-            ))}
-        </ToggleGroup>
-    )
-}
+
