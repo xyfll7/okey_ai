@@ -15,7 +15,7 @@ import { open } from "@tauri-apps/plugin-shell";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { EVENT_NAMES, useInvoke } from "@/lib/events";
 import { invoke } from "@tauri-apps/api/core";
-import { s_CurrentModel } from "@/store";
+import { s_CurrentLocale, s_CurrentModel } from "@/store";
 import { useStore } from "@tanstack/react-store";
 import type { ModelConfigMap } from "@/@types";
 import { ModelProviderShowName } from "@/lib/types";
@@ -28,6 +28,18 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Card } from "./ui/card";
+import { IILanguages } from "./icons/index";
+
+import * as React from "react";
+
+import {
+    DropdownMenu,
+    DropdownMenuCheckboxItem,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
 
 export function SettingsNew({ className }: { className?: string }) {
     const [isOpen, setIsOpen] = useState(false)
@@ -48,13 +60,19 @@ export function SettingsNew({ className }: { className?: string }) {
         </DrawerTrigger>
         <DrawerContent className="pb-2 [&_.bg-muted.mx-auto.mt-4.hidden.h-1.w-\[100px\].shrink-0.rounded-full]:hidden">
             <DrawerHeader className="" data-tauri-drag-region>
-                <DrawerTitle className="flex justify-start select-none" data-tauri-drag-region>Settings</DrawerTitle>
+                <DrawerTitle className={cn("flex justify-between select-none", "")} data-tauri-drag-region>
+                    Settings
+                    <LanguageSelector>
+                        <Button size={"icon-sm"} variant={"ghost"}>
+                            <IILanguages />
+                        </Button>
+                    </LanguageSelector>
+                </DrawerTitle>
                 <DrawerDescription className="sr-only" />
             </DrawerHeader>
             <ScrollArea className={cn("h-[70vh]")}>
                 <div className="max-w-screen flex-coh items-start px-2">
                     <ModelConfigurationForm />
-                    <LanguageSelector />
                 </div>
             </ScrollArea>
         </DrawerContent>
@@ -143,10 +161,31 @@ function ModelConfigurationForm() {
 }
 
 
-
-function LanguageSelector() {
-    return <div>
-
-    </div>
+export function LanguageSelector({
+    ...props
+}: React.ComponentProps<"div">) {
+    const currentLocale = useStore(s_CurrentLocale, (state => state))
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                {props.children}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-40">
+                <DropdownMenuGroup>
+                    <DropdownMenuCheckboxItem
+                        checked={currentLocale === "en"}
+                        onCheckedChange={() => { s_CurrentLocale.setState("en") }}
+                    >
+                        English
+                    </DropdownMenuCheckboxItem>
+                    <DropdownMenuCheckboxItem
+                        checked={currentLocale === "zh"}
+                        onCheckedChange={() => { s_CurrentLocale.setState("zh") }}
+                    >
+                        中文
+                    </DropdownMenuCheckboxItem>
+                </DropdownMenuGroup>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    )
 }
-

@@ -13,6 +13,7 @@ import {
   VolumeHighIcon,
   Menu02Icon,
   Settings01Icon,
+  LanguageCircleIcon
 } from "@hugeicons/core-free-icons";
 
 const strokeWidth = 2
@@ -30,3 +31,4 @@ export const IIVolumeOff = (props: React.ComponentProps<"svg">) => <HugeiconsIco
 export const IIVolumeHigh = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={VolumeHighIcon} {...props} strokeWidth={strokeWidth} />;
 export const IIList = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={Menu02Icon} {...props} strokeWidth={strokeWidth} />;
 export const IISettings = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={Settings01Icon} {...props} strokeWidth={strokeWidth} />;
+export const IILanguages = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={LanguageCircleIcon} {...props} strokeWidth={strokeWidth} />;

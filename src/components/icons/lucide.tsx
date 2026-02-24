@@ -11,7 +11,8 @@ import {
   Volume1,
   Volume2,
   ListMinus,
-  Settings
+  Settings,
+  Languages
 } from 'lucide-react';
 
 const strokeWidth = 2
@@ -29,3 +30,4 @@ export const IIVolumeOff = (props: React.ComponentProps<"svg">) => <Volume1 {...
 export const IIVolumeHigh = (props: React.ComponentProps<"svg">) => <Volume2 {...props} strokeWidth={strokeWidth} />;
 export const IIList = (props: React.ComponentProps<"svg">) => <ListMinus {...props} strokeWidth={strokeWidth} />;
 export const IISettings = (props: React.ComponentProps<"svg">) => <Settings {...props} strokeWidth={strokeWidth} />;
+export const IILanguages = (props: React.ComponentProps<"svg">) => <Languages {...props} strokeWidth={strokeWidth} />;

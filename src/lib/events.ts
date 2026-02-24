@@ -27,6 +27,8 @@ export const EVENT_NAMES = {
   get_current_model: "get_current_model",
   list_available_models: "list_available_models",
   update_model_api_key: "update_model_api_key",
+  get_locale: "get_locale",
+  set_locale: "set_locale",
 } as const;
 
 // Type for event names to provide type safety

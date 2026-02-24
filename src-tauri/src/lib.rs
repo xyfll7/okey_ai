@@ -61,7 +61,6 @@ pub fn run() {
             my_api::commands::list_available_models,
             utils::i18n::get_locale,
             utils::i18n::set_locale,
-            utils::i18n::get_system_locale,
         ])
         .setup(|app| {
             if cfg!(debug_assertions) {
@@ -76,7 +75,10 @@ pub fn run() {
             let app_config_state = state_manager.init_app_config_state(app.handle())?;
             app.manage(app_config_state);
             my_api::setup_api_manager(&app.handle())?;
-            my_tray::create_tray(&app.handle())?;
+            let tray = my_tray::create_tray(&app.handle())?;
+            app.handle().manage(my_tray::TrayState {
+                tray: std::sync::Arc::new(tray),
+            });
             my_rdev::init_global_input_listener(&app.handle())?;
             my_shortcut::init_shortcuts(&app.handle())?;
             setup_translation_manager(app)?;

@@ -1,73 +1,30 @@
+use std::sync::Arc;
 use tauri::{
     menu::{CheckMenuItem, MenuBuilder, MenuItem},
-    tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    AppHandle, Runtime,
+    tray::{MouseButton, MouseButtonState, TrayIcon, TrayIconBuilder, TrayIconEvent},
+    AppHandle, Manager,
 };
 
 use crate::my_types::TRKey;
 use crate::my_windows;
 use crate::states::app_state::AppConfigState;
-use tauri::Manager;
 use tauri_plugin_autostart::AutoLaunchManager;
 
+/// State to store the tray icon for later retrieval
+pub struct TrayState {
+    pub tray: Arc<TrayIcon<tauri::Wry>>,
+}
+
 /*******  ab7e53dc-7cba-45e1-8b3a-3837c9b2580a  *******/
-pub fn create_tray<R: Runtime>(app_handle: &AppHandle<R>) -> tauri::Result<()> {
-    // 创建菜单项 with translations
-    let show_item = MenuItem::with_id(app_handle, "show", &TRKey::Show.t(), true, None::<&str>)?;
-    let test_item = MenuItem::with_id(app_handle, "test", &TRKey::Test.t(), true, None::<&str>)?;
+pub fn create_tray(app_handle: &AppHandle) -> tauri::Result<TrayIcon<tauri::Wry>> {
+    // Create tray menu
+    let menu = build_tray_menu(app_handle)?;
 
-    // 创建自启动菜单项
-    let autostart_manager = app_handle.state::<AutoLaunchManager>();
-    let is_auto_start = autostart_manager.is_enabled().unwrap_or(false);
-    let autostart_item = CheckMenuItem::with_id(
-        app_handle,
-        "autostart",
-        &TRKey::Autostart.t(),
-        true,
-        is_auto_start,
-        None::<&str>,
-    )?;
-
-    let quit_item = MenuItem::with_id(app_handle, "quit", &TRKey::Quit.t(), true, None::<&str>)?;
-
-    // 构建菜单
-    let menu = MenuBuilder::new(app_handle)
-        .item(&show_item)
-        .item(&test_item)
-        .item(&autostart_item)
-        .separator()
-        .item(&quit_item)
-        .build()?;
-
-    // 菜单点击事件
-    app_handle.on_menu_event(|app, event| match event.id().as_ref() {
-        "show" => {
-            my_windows::window_about_show(app);
-        }
-        "test" => {
-            let app_state = app.state::<AppConfigState>();
-            let config = app_state.read();
-            println!("config: {:#?}", *config);
-        }
-        "autostart" => {
-            let autostart_manager = app.state::<AutoLaunchManager>();
-            // 切换自启动状态
-            let current_enabled = autostart_manager.is_enabled().unwrap_or(false);
-            if current_enabled {
-                let _ = autostart_manager.disable();
-            } else {
-                let _ = autostart_manager.enable();
-            }
-        }
-        "quit" => std::process::exit(0),
-        _ => {}
-    });
-
-    // 创建系统托盘
-    TrayIconBuilder::new()
+    // Create system tray
+    let tray = TrayIconBuilder::new()
         .icon(app_handle.default_window_icon().cloned().unwrap())
-        .menu(&menu) // 绑定菜单
-        .show_menu_on_left_click(false) // 新 API：关闭左键自动弹出菜单
+        .menu(&menu)
+        .show_menu_on_left_click(false)
         .on_tray_icon_event(move |tray, event| {
             if let TrayIconEvent::Click {
                 button,
@@ -85,5 +42,71 @@ pub fn create_tray<R: Runtime>(app_handle: &AppHandle<R>) -> tauri::Result<()> {
         })
         .build(app_handle)?;
 
+    app_handle.on_menu_event(move |app, event| match event.id().as_ref() {
+        "show" => {
+            my_windows::window_about_show(app);
+        }
+        "test" => {
+            let app_state = app.state::<AppConfigState>();
+            let config = app_state.read();
+            println!("config: {:#?}", *config);
+        }
+        "autostart" => {
+            let autostart_manager = app.state::<AutoLaunchManager>();
+            // Toggle autostart state
+            let current_enabled = autostart_manager.is_enabled().unwrap_or(false);
+            if current_enabled {
+                let _ = autostart_manager.disable();
+            } else {
+                let _ = autostart_manager.enable();
+            }
+        }
+        "quit" => std::process::exit(0),
+        _ => {}
+    });
+
+    Ok(tray)
+}
+
+/// Build the tray menu with current translations
+fn build_tray_menu(app_handle: &AppHandle) -> tauri::Result<tauri::menu::Menu<tauri::Wry>> {
+    // Create menu items with translations
+    let show_item = MenuItem::with_id(app_handle, "show", &TRKey::Show.t(), true, None::<&str>)?;
+    let test_item = MenuItem::with_id(app_handle, "test", &TRKey::Test.t(), true, None::<&str>)?;
+
+    // Create autostart menu item
+    let autostart_manager = app_handle.state::<AutoLaunchManager>();
+    let is_auto_start = autostart_manager.is_enabled().unwrap_or(false);
+    let autostart_item = CheckMenuItem::with_id(
+        app_handle,
+        "autostart",
+        &TRKey::Autostart.t(),
+        true,
+        is_auto_start,
+        None::<&str>,
+    )?;
+
+    let quit_item = MenuItem::with_id(app_handle, "quit", &TRKey::Quit.t(), true, None::<&str>)?;
+
+    // Build menu
+    let menu = MenuBuilder::new(app_handle)
+        .item(&show_item)
+        .item(&test_item)
+        .item(&autostart_item)
+        .separator()
+        .item(&quit_item)
+        .build()?;
+
+    Ok(menu)
+}
+
+/// Rebuild the tray menu with new locale
+pub fn rebuild_tray_menu(app_handle: &AppHandle) -> tauri::Result<()> {
+    // Get the tray state
+    let tray_state = app_handle.state::<TrayState>();
+    // Build new menu with updated translations
+    let new_menu = build_tray_menu(app_handle)?;
+    // Set the new menu
+    tray_state.tray.set_menu(Some(new_menu))?;
     Ok(())
 }
