@@ -1,6 +1,11 @@
 {
     "translation": {
         "common": {
+            "settings": "Settings",
+            "api_provider": "API Provider",
+            "api_key": "API Key",
+            "stored_locally": "This key is stored locally and only used to make API requests from this application.",
+            "get_api_key": "You can get a {provider} API key by signing up here.",
             "ok": "Ok",
             "cancel": "Cancel",
             "save": "Save",

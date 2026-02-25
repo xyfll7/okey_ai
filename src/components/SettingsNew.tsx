@@ -29,6 +29,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Card } from "./ui/card";
 import { IILanguages } from "./icons/index";
+import { useTranslation } from "react-i18next";
 
 import * as React from "react";
 
@@ -42,6 +43,7 @@ import {
 
 
 export function SettingsNew({ className }: { className?: string }) {
+    const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false)
     return <Drawer open={isOpen} onOpenChange={setIsOpen} >
         <DrawerTrigger onClick={async (e) => {
@@ -61,7 +63,7 @@ export function SettingsNew({ className }: { className?: string }) {
         <DrawerContent className="pb-2 [&_.bg-muted.mx-auto.mt-4.hidden.h-1.w-\[100px\].shrink-0.rounded-full]:hidden">
             <DrawerHeader className="" data-tauri-drag-region>
                 <DrawerTitle className={cn("flex justify-between select-none", "")} data-tauri-drag-region>
-                    Settings
+                    {t("common.settings")}
                     <LanguageSelector>
                         <Button size={"icon-sm"} variant={"ghost"}>
                             <IILanguages />
@@ -80,6 +82,7 @@ export function SettingsNew({ className }: { className?: string }) {
 }
 
 function ModelConfigurationForm() {
+    const { t } = useTranslation();
     const { ...modelsList_X } = useInvoke<ModelConfigMap>(EVENT_NAMES.list_available_models, {});
     const currentModel = useStore(s_CurrentModel, (state => state))
     const resetKey = `${currentModel}-${modelsList_X.state?.[currentModel]?.api_key ?? ''}`;
@@ -91,7 +94,7 @@ function ModelConfigurationForm() {
                         <FieldGroup>
                             <Field>
                                 <FieldLabel htmlFor="checkout-7j9-card-name-43j">
-                                    API Provider ({ModelProviderShowName[currentModel as keyof typeof ModelProviderShowName]})
+                                    {t("common.api_provider")} ({ModelProviderShowName[currentModel as keyof typeof ModelProviderShowName]})
                                 </FieldLabel>
                                 {currentModel &&
                                     <ToggleGroup
@@ -123,7 +126,7 @@ function ModelConfigurationForm() {
                             </Field>
                             <Field>
                                 <FieldLabel htmlFor="checkout-7j9-card-number-uw1">
-                                    {ModelProviderShowName[currentModel as keyof typeof ModelProviderShowName]} API Key
+                                    {ModelProviderShowName[currentModel as keyof typeof ModelProviderShowName]} {t("common.api_key")}
                                 </FieldLabel>
                                 <Input
                                     key={resetKey}
@@ -140,7 +143,7 @@ function ModelConfigurationForm() {
                                     }}
                                 />
                                 <FieldDescription>
-                                    This key is stored locally and only used to make API requests from this application.
+                                    {t("common.stored_locally")}
                                     <a onClick={(e) => {
                                         e.preventDefault();
                                         open({
@@ -149,7 +152,7 @@ function ModelConfigurationForm() {
                                             "DeepSeek": "https://www.deepseek.com/",
                                             "ZAI": "https://open.bigmodel.cn/login",
                                         }[currentModel]!);
-                                    }}> You can get a {ModelProviderShowName[currentModel as keyof typeof ModelProviderShowName]} API key by signing up here.</a>
+                                    }}> {t("common.get_api_key", { provider: ModelProviderShowName[currentModel as keyof typeof ModelProviderShowName] })}</a>
                                 </FieldDescription>
                             </Field>
                         </FieldGroup>
@@ -164,6 +167,7 @@ function ModelConfigurationForm() {
 export function LanguageSelector({
     ...props
 }: React.ComponentProps<"div">) {
+    const { t } = useTranslation();
     const currentLocale = useStore(s_CurrentLocale, (state => state))
     return (
         <DropdownMenu>
@@ -173,14 +177,16 @@ export function LanguageSelector({
             <DropdownMenuContent className="w-40">
                 <DropdownMenuGroup>
                     {[
-                        ["en-US", "English"],
-                        ["zh-CN", "中文"]
-                    ].map(([key, label]) => (
+                        ["en-US", t("languages.en"),"English"],
+                        ["zh-CN", t("languages.zh_cn"),"中文"],
+                    ].map(([key, label, displayLabel]) => (
                         <DropdownMenuCheckboxItem
                             key={key}
                             checked={currentLocale === key}
                             onCheckedChange={() => { s_CurrentLocale.setState(key) }}
-                        >{label}</DropdownMenuCheckboxItem>
+                        >{label}-{displayLabel}
+                        </DropdownMenuCheckboxItem>
+                  
                     ))}
                 </DropdownMenuGroup>
             </DropdownMenuContent>
