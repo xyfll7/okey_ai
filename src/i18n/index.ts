@@ -6,11 +6,11 @@ import zh_CN from "./locales/zh_CN.json";
 
 // http://www.lingoes.net/zh/translator/langcode.htm
 export const resources = {
-  en: en_US,
-  zh_cn: zh_CN,
+  "en-US": en_US,
+  "zh-CN": zh_CN,
 } as const;
 i18n.use(initReactI18next).init({
-	fallbackLng: "en",
+	fallbackLng: "en-US",
 	debug: false,
 	interpolation: {
 		escapeValue: false,

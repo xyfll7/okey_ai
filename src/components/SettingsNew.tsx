@@ -172,18 +172,16 @@ export function LanguageSelector({
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-40">
                 <DropdownMenuGroup>
-                    <DropdownMenuCheckboxItem
-                        checked={currentLocale === "en"}
-                        onCheckedChange={() => { s_CurrentLocale.setState("en") }}
-                    >
-                        English
-                    </DropdownMenuCheckboxItem>
-                    <DropdownMenuCheckboxItem
-                        checked={currentLocale === "zh-CN"}
-                        onCheckedChange={() => { s_CurrentLocale.setState("zh-CN") }}
-                    >
-                        中文
-                    </DropdownMenuCheckboxItem>
+                    {[
+                        ["en-US", "English"],
+                        ["zh-CN", "中文"]
+                    ].map(([key, label]) => (
+                        <DropdownMenuCheckboxItem
+                            key={key}
+                            checked={currentLocale === key}
+                            onCheckedChange={() => { s_CurrentLocale.setState(key) }}
+                        >{label}</DropdownMenuCheckboxItem>
+                    ))}
                 </DropdownMenuGroup>
             </DropdownMenuContent>
         </DropdownMenu>
