@@ -179,8 +179,8 @@ export function LanguageSelector({
                         English
                     </DropdownMenuCheckboxItem>
                     <DropdownMenuCheckboxItem
-                        checked={currentLocale === "zh"}
-                        onCheckedChange={() => { s_CurrentLocale.setState("zh") }}
+                        checked={currentLocale === "zh-CN"}
+                        onCheckedChange={() => { s_CurrentLocale.setState("zh-CN") }}
                     >
                         中文
                     </DropdownMenuCheckboxItem>
