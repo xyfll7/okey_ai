@@ -5,7 +5,7 @@
             "api_provider": "API 提供商",
             "api_key": "API 密钥",
             "stored_locally": "此密钥存储在本地，仅用于从此应用程序发起 API 请求。",
-            "get_api_key": "您可以通过在此处注册获取 {provider} API 密钥。",
+            "get_api_key": "您可以通过在此处注册获取 提供商API密钥。",
 			"ok": "确定",
 			"cancel": "取消",
 			"save": "保存",
