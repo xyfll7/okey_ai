@@ -31,6 +31,18 @@ pub enum AutoSpeakState {
     All,
 }
 
+/// 支持的语言选项
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize, Default)]
+pub enum Language {
+    #[serde(rename = "auto")]
+    #[default]
+    Auto,
+    #[serde(rename = "zh_CN")]
+    ZhCn,
+    #[serde(rename = "en")]
+    En,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppConfig {
     pub shortcuts: Vec<Shortcut>,
@@ -38,6 +50,7 @@ pub struct AppConfig {
     pub auto_speak: AutoSpeakState,
     pub current_model: ModelProvider,
     pub api_configs: HashMap<ModelProvider, APIConfig>,
+    pub language: Language,
 }
 
 impl Default for AppConfig {
@@ -93,6 +106,7 @@ impl Default for AppConfig {
             auto_speak: AutoSpeakState::default(),
             current_model: ModelProvider::ZAI,
             api_configs,
+            language: Language::default(),
         }
     }
 }

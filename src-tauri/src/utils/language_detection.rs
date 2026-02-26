@@ -17,6 +17,6 @@ pub fn detect_language(text: &str) -> &'static str {
         // 如果超过30%的字符是中文，则认为是中文
         "zh-CN"
     } else {
-        "en-US"
+        "en"
     }
 }

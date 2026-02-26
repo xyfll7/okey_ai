@@ -28,7 +28,7 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
                 "Please translate the following text into English:\n\n{}",
                 selected_text
             ),
-            "en-US" => format!(
+            "en" => format!(
                 "Please translate the following text into Chinese: \n\n{}",
                 selected_text
             ),

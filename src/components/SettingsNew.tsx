@@ -177,7 +177,7 @@ export function LanguageSelector({
             <DropdownMenuContent className="w-40">
                 <DropdownMenuGroup>
                     {[
-                        ["en-US", t("languages.en"),"English"],
+                        ["en", t("languages.en"),"English"],
                         ["zh-CN", t("languages.zh_cn"),"中文"],
                     ].map(([key, label, displayLabel]) => (
                         <DropdownMenuCheckboxItem

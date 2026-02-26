@@ -13,7 +13,7 @@ pub fn set_locale(app_handle: tauri::AppHandle, locale: String) {
 
 pub fn get_default_locale() -> String {
     let lang = tauri_plugin_os::locale()
-        // "zh-CN" / "en-US" / "zh-TW" / "ja-JP" / "fr-FR"
+        // "en" / "zh-CN"  / "zh-TW" / "ja-JP" / "fr-FR"
         .and_then(|full_locale| full_locale.split('-').next().map(|s| s.to_string()))
         .unwrap_or_else(|| "en".to_string());
     lang
