@@ -37,10 +37,28 @@ pub enum Language {
     #[serde(rename = "auto")]
     #[default]
     Auto,
-    #[serde(rename = "zh_CN")]
+    #[serde(rename = "zh-CN")]
     ZhCn,
     #[serde(rename = "en")]
     En,
+}
+
+impl Language {
+    pub fn to_locale(&self) -> String {
+        match self {
+            Language::Auto => crate::utils::i18n::get_default_locale(),
+            Language::ZhCn => "zh-CN".to_string(),
+            Language::En => "en".to_string(),
+        }
+    }
+
+    pub fn from_locale(locale: &str) -> Self {
+        match locale {
+            "zh-CN" => Language::ZhCn,
+            "en" => Language::En,
+            _ => Language::Auto,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

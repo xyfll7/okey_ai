@@ -19,7 +19,6 @@ use tauri_plugin_notification::NotificationExt;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    rust_i18n::set_locale(&utils::i18n::get_default_locale());
     let api_manager = std::sync::Arc::new(tauri::async_runtime::RwLock::new(
         my_api::manager::APIManager::new(),
     ));
@@ -73,6 +72,12 @@ pub fn run() {
             }
             let state_manager = AppStateManager::new("app_config");
             let app_config_state = state_manager.init_app_config_state(app.handle())?;
+
+            // 应用用户保存的语言设置
+            let config = app_config_state.read();
+            rust_i18n::set_locale(&config.language.to_locale());
+            drop(config);
+
             app.manage(app_config_state);
             my_api::setup_api_manager(&app.handle())?;
             let tray = my_tray::create_tray(&app.handle())?;
