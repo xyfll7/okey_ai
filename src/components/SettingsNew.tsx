@@ -177,16 +177,21 @@ export function LanguageSelector({
             <DropdownMenuContent className="w-40">
                 <DropdownMenuGroup>
                     {[
-                        ["en", t("languages.en"),"English"],
-                        ["zh-CN", t("languages.zh_cn"),"中文"],
+                        ["en", t("languages.en"), "English"],
+                        ["zh-CN", t("languages.zh_cn"), "中文"],
                     ].map(([key, label, displayLabel]) => (
                         <DropdownMenuCheckboxItem
+                            className="flex flex-col items-start"
                             key={key}
                             checked={currentLocale === key}
                             onCheckedChange={() => { s_CurrentLocale.setState(key) }}
-                        >{label}-{displayLabel}
+                        >
+                            <span className="text-nowrap">{displayLabel}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {label}
+                            </span>
                         </DropdownMenuCheckboxItem>
-                  
+
                     ))}
                 </DropdownMenuGroup>
             </DropdownMenuContent>
