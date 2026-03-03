@@ -115,7 +115,7 @@ function ModelConfigurationForm() {
                                                 <ToggleGroupItem value={key} aria-label="Toggle top" key={key}
                                                     onClick={async () => {
                                                         await invoke(EVENT_NAMES.switch_model, { model_name: key })
-                                                        s_CurrentModel.setState(key)
+                                                        s_CurrentModel.setState(()=>key)
                                                     }}
                                                 >
                                                     {ModelProviderShowName[key as keyof typeof ModelProviderShowName]}
@@ -184,7 +184,7 @@ export function LanguageSelector({
                             className="flex flex-col items-start"
                             key={key}
                             checked={currentLocale === key}
-                            onCheckedChange={() => { s_CurrentLocale.setState(key) }}
+                            onCheckedChange={() => { s_CurrentLocale.setState(()=>key) }}
                         >
                             <span className="text-nowrap">{displayLabel}</span>
                             <span className="text-xs text-muted-foreground">

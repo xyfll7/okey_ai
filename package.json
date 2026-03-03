@@ -26,7 +26,7 @@
     "@tanstack/react-devtools": "^0.9.0",
     "@tanstack/react-router": "^1.144.0",
     "@tanstack/react-router-devtools": "^1.139.15",
-    "@tanstack/react-store": "^0.8.0",
+    "@tanstack/react-store": "^0.9.1",
     "@tanstack/router-plugin": "^1.143.11",
     "@tauri-apps/api": "^2.9.1",
     "@tauri-apps/plugin-global-shortcut": "~2.3.1",
