@@ -13,9 +13,11 @@ import type { ChatMessageHistory } from "@/lib/types"
 import { IIList } from "./icons/hugeicons"
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils"
+import { useTranslation } from "react-i18next"
 
 
 export function HistoriesNew({ className }: { className?: string }) {
+    const { t } = useTranslation();
     const { ...histories_X } = useInvoke<[string, ChatMessageHistory][]>(EVENT_NAMES.get_histories, []);
     const [isOpen, setIsOpen] = useState(false);
     return <Drawer open={isOpen} onOpenChange={setIsOpen}>
@@ -36,7 +38,7 @@ export function HistoriesNew({ className }: { className?: string }) {
         </DrawerTrigger>
         <DrawerContent className="pb-2 [&_.bg-muted.mx-auto.mt-4.hidden.h-1.w-\[100px\].shrink-0.rounded-full]:hidden">
             <DrawerHeader className="" data-tauri-drag-region>
-                <DrawerTitle className=" flex justify-start select-none" data-tauri-drag-region>History</DrawerTitle>
+                <DrawerTitle className=" flex justify-start select-none" data-tauri-drag-region>{t("common.history")}</DrawerTitle>
                 <DrawerDescription className="sr-only" />
             </DrawerHeader>
             <ScrollArea className={cn("h-[70vh]")}>

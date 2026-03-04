@@ -12,7 +12,8 @@
             "write_clipboard": "Write to Clipboard",
             "plugin": "Plugin",
             "coming": "Coming soon…",
-            "clear": "Clear"
+            "clear": "Clear",
+            "history": "History"
         },
         "languages": {
             "auto": "Auto Detect",
