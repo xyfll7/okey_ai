@@ -27,6 +27,12 @@
             "press_to_set_hotkey": "Press to Set Hotkey",
             "recording_hotkey": "recording hotkey",
             "set_hotkey": "set hotkey"
+        },
+        "model_providers": {
+            "Qwen": "Qwen AI",
+            "DeepSeek": "DeepSeek",
+            "OpenAI": "OpenAI",
+            "ZAI": "Z AI"
         }
     }
 }

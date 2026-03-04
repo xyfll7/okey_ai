@@ -18,7 +18,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { s_CurrentLocale, s_CurrentModel } from "@/store";
 import { useStore } from "@tanstack/react-store";
 import type { ModelConfigMap } from "@/@types";
-import { ModelProviderShowName } from "@/lib/types";
+import { getModelProviderShowName } from "@/lib/types";
 import {
     Field,
     FieldDescription,
@@ -94,7 +94,7 @@ function ModelConfigurationForm() {
                         <FieldGroup>
                             <Field>
                                 <FieldLabel htmlFor="checkout-7j9-card-name-43j">
-                                    {t("common.api_provider")} ({ModelProviderShowName[currentModel as keyof typeof ModelProviderShowName]})
+                                    {t("common.api_provider")} ({getModelProviderShowName(t)[currentModel as keyof ReturnType<typeof getModelProviderShowName>]})
                                 </FieldLabel>
                                 {currentModel &&
                                     <ToggleGroup
@@ -118,7 +118,7 @@ function ModelConfigurationForm() {
                                                         s_CurrentModel.setState(()=>key)
                                                     }}
                                                 >
-                                                    {ModelProviderShowName[key as keyof typeof ModelProviderShowName]}
+                                                    {getModelProviderShowName(t)[key as keyof ReturnType<typeof getModelProviderShowName>]}
                                                 </ToggleGroupItem>
                                             ))}
                                     </ToggleGroup>
@@ -126,7 +126,7 @@ function ModelConfigurationForm() {
                             </Field>
                             <Field>
                                 <FieldLabel htmlFor="checkout-7j9-card-number-uw1">
-                                    {ModelProviderShowName[currentModel as keyof typeof ModelProviderShowName]} {t("common.api_key")}
+                                    {getModelProviderShowName(t)[currentModel as keyof ReturnType<typeof getModelProviderShowName>]} {t("common.api_key")}
                                 </FieldLabel>
                                 <Input
                                     key={resetKey}
@@ -152,7 +152,7 @@ function ModelConfigurationForm() {
                                             "DeepSeek": "https://www.deepseek.com/",
                                             "ZAI": "https://open.bigmodel.cn/login",
                                         }[currentModel]!);
-                                    }}> {t("common.get_api_key", { provider: ModelProviderShowName[currentModel as keyof typeof ModelProviderShowName] })}</a>
+                                    }}> {t("common.get_api_key", { provider: getModelProviderShowName(t)[currentModel as keyof ReturnType<typeof getModelProviderShowName>] })}</a>
                                 </FieldDescription>
                             </Field>
                         </FieldGroup>

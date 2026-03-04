@@ -27,6 +27,12 @@
             "press_to_set_hotkey": "按下设置快捷键",
             "recording_hotkey": "录制快捷键",
             "set_hotkey": "设置快捷键"
+        },
+        "model_providers": {
+            "Qwen": "通义千问 AI",
+            "DeepSeek": "DeepSeek",
+            "OpenAI": "OpenAI",
+            "ZAI": "智谱 AI"
         }
 	}
 }

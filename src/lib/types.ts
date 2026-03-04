@@ -20,9 +20,16 @@ export const AutoSpeakState = {
 
 export type AutoSpeakState = typeof AutoSpeakState[keyof typeof AutoSpeakState];
 
-export const ModelProviderShowName = {
-	"Qwen": "Qwen AI",
-	"DeepSeek": "DeepSeek",
-	"OpenAI": "OpenAI",
-	"ZAI": "Z AI",
+/**
+ * Get localized model provider display names.
+ * Use this function with the translation hook: const { t } = useTranslation();
+ * Then call: getModelProviderShowName(t)
+ */
+export function getModelProviderShowName(t: { (key: "model_providers.Qwen" | "model_providers.DeepSeek" | "model_providers.OpenAI" | "model_providers.ZAI"): string; (key: string): string }) {
+	return {
+		"Qwen": t("model_providers.Qwen"),
+		"DeepSeek": t("model_providers.DeepSeek"),
+		"OpenAI": t("model_providers.OpenAI"),
+		"ZAI": t("model_providers.ZAI"),
+	};
 }
