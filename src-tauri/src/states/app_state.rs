@@ -43,8 +43,22 @@ impl AppStateManager {
         #[cfg(debug_assertions)]
         self.print_store_path(app);
         if let Some(value) = store.get(&self.store_key) {
-            let config: AppConfig = serde_json::from_value(value.clone())?;
-            Ok(config)
+            // 兼容旧版本 store.json：如果配置结构变更导致反序列化失败，
+            // 则回退到默认配置并覆盖存储，避免应用在 setup 阶段直接崩溃。
+            let config_result: Result<AppConfig, serde_json::Error> =
+                serde_json::from_value(value.clone());
+            match config_result {
+                Ok(config) => Ok(config),
+                Err(e) => {
+                    eprintln!(
+                        "Failed to parse `{}` from store.json, reset to defaults: {e}",
+                        self.store_key
+                    );
+                    let config = AppConfig::default();
+                    self.save(app, &config)?;
+                    Ok(config)
+                }
+            }
         } else {
             let config = AppConfig::default();
             self.save(app, &config)?;
