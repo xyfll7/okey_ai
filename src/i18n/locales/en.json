@@ -12,7 +12,8 @@
             "write_clipboard": "Write to Clipboard",
             "plugin": "Plugin",
             "coming": "Coming soon…",
-            "clear": "Clear"
+            "clear": "Clear",
+            "history": "History"
         },
         "languages": {
             "auto": "Auto Detect",
@@ -26,6 +27,12 @@
             "press_to_set_hotkey": "Press to Set Hotkey",
             "recording_hotkey": "recording hotkey",
             "set_hotkey": "set hotkey"
+        },
+        "model_providers": {
+            "Qwen": "Qwen AI",
+            "DeepSeek": "DeepSeek",
+            "OpenAI": "OpenAI",
+            "ZAI": "Z AI"
         }
     }
 }
