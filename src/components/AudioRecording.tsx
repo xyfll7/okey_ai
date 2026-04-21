@@ -22,7 +22,7 @@ const AudioRecording = ({
         {[...Array(3)].map((e, i) => (
           <span
             data-tauri-drag-region
-            key={e}
+            key={`${e}-${i}`}
             className={cn("  h-[60%] flex-1 rounded-full", color)}
             style={{
               transformOrigin: "center",
