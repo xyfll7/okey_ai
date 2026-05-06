@@ -66,9 +66,11 @@ impl LLMClient for QwenClient {
                 .map_err(|e| format!("Failed to send request: {}", e))?;
 
             if !response.status().is_success() {
+                let status = response.status();
+                let error_text = response.text().await.unwrap_or_default();
                 return Err(format!(
-                    "API request failed with status信息: {}",
-                    response.status()
+                    "API request failed with status: {}, error: {}",
+                    status, error_text
                 ));
             }
 
@@ -141,9 +143,11 @@ impl LLMClient for QwenClient {
                 .map_err(|e| format!("Failed to send request: {}", e))?;
 
             if !response.status().is_success() {
+                let status = response.status();
+                let error_text = response.text().await.unwrap_or_default();
                 return Err(format!(
-                    "API request failed with status information: {}",
-                    response.status()
+                    "API request failed with status: {}, error: {}",
+                    status, error_text
                 ));
             }
 

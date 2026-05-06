@@ -62,7 +62,7 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
         }
 
         match translation_manager.translate(None, messages).await {
-            Some(chat_history) => match display_type {
+            Ok(chat_history) => match display_type {
                 DisplayType::Normal => {
                     let app_handle_for_normal = app_handle.clone();
                     let chat_history_clone = chat_history.clone();
@@ -90,8 +90,8 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
                     }
                 }
             },
-            None => {
-                println!("Translation failed!");
+            Err(err) => {
+                eprintln!("Translation failed at API layer: {}", err);
             }
         }
     });

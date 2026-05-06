@@ -85,12 +85,15 @@ impl TranslationManager {
         &self,
         session_id: Option<&str>,
         messages: Vec<ChatMessage>,
-    ) -> Option<Vec<ChatMessage>> {
+    ) -> Result<Vec<ChatMessage>, String> {
         let session_id = match session_id {
             Some(id) => id.to_string(),
             None => {
                 let active_id = self.active_session_id.read().await;
-                active_id.as_ref()?.clone()
+                active_id
+                    .as_ref()
+                    .cloned()
+                    .ok_or_else(|| "missing active session id".to_string())?
             }
         };
 
@@ -109,15 +112,21 @@ impl TranslationManager {
             stream: Some(false),
             extra_params: model_specific_params,
         };
-        let response = manager.chat_completion(&request, &model_type).await.ok()?;
-
-        let content = response.choices.first()?.message.content.clone();
+        let response = manager.chat_completion(&request, &model_type).await?;
+        let content = response
+            .choices
+            .first()
+            .map(|choice| choice.message.content.clone())
+            .ok_or_else(|| "empty choices in API response".to_string())?;
 
         self.chat_histories
             .add_message(&session_id, Role::Assistant, content.clone(), None)
             .await;
 
-        self.chat_histories.get_messages(&session_id).await
+        self.chat_histories
+            .get_messages(&session_id)
+            .await
+            .ok_or_else(|| "failed to load chat history after translation".to_string())
     }
 
     pub async fn translate_stream<StreamCallback>(
