@@ -90,7 +90,7 @@ impl Default for AppConfig {
             APIConfig {
                 api_key: std::env::var("QWEN_API_KEY").unwrap_or_else(|_| "".to_string()),
                 base_url: "https://dashscope.aliyuncs.com".to_string(),
-                model: "qwen-plus".to_string(),
+                model: "qwen3.6-plus".to_string(),
                 index: 1,
             },
         );
