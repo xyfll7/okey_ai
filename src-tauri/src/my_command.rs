@@ -189,5 +189,6 @@ pub async fn update_model_api_key(
         })
         .map_err(|e| e.to_string())?;
 
+    crate::my_api::refresh_api_clients_from_app_config(&app).await;
     Ok(())
 }
