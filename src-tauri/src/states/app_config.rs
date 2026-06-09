@@ -100,7 +100,7 @@ impl Default for AppConfig {
             APIConfig {
                 api_key: std::env::var("DEEPSEEK_API_KEY").unwrap_or_else(|_| "".to_string()),
                 base_url: "https://api.deepseek.com".to_string(),
-                model: "deepseek-chat".to_string(),
+                model: "deepseek-v4-flash".to_string(),
                 index: 2,
             },
         );
