@@ -7,7 +7,7 @@ import {
     DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Button } from "./ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IISettings } from "./icons/hugeicons";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
@@ -15,6 +15,7 @@ import { open } from "@tauri-apps/plugin-shell";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { EVENT_NAMES, useInvoke } from "@/lib/events";
 import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 import { s_CurrentLocale, s_CurrentModel } from "@/store";
 import { useStore } from "@tanstack/react-store";
 import type { ModelConfigMap } from "@/@types";
@@ -45,6 +46,16 @@ import {
 export function SettingsNew({ className }: { className?: string }) {
     const { t } = useTranslation();
     const [isOpen, setIsOpen] = useState(false)
+
+    useEffect(() => {
+        const unlisten = listen(EVENT_NAMES.TRANSLATE_HIDE, () => {
+            setIsOpen(false);
+        });
+        return () => {
+            unlisten.then((fn) => fn());
+        };
+    }, []);
+
     return <Drawer open={isOpen} onOpenChange={setIsOpen} >
         <DrawerTrigger onClick={async (e) => {
             (e.currentTarget as HTMLButtonElement).blur();

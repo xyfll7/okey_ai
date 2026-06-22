@@ -11,6 +11,7 @@ export const EVENT_NAMES = {
   AI_ERROR: "AI_ERROR",
   PAGE_LOADED: "PAGE_LOADED",
   CHAT_STREAM: "CHAT_STREAM",
+  TRANSLATE_HIDE: "TRANSLATE_HIDE",
 
   is_pin_translate_window_toggle: "is_pin_translate_window_toggle",
   is_pin_translate_window_get: "is_pin_translate_window_get",

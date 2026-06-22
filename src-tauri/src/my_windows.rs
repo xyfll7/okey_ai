@@ -219,7 +219,8 @@ where
                     let local_cancel = cancel_flag.clone();
                     let state_handle = state_handle.clone();
                     thread::spawn(move || {
-                        thread::sleep(Duration::from_millis(100));
+                        let _ = state_handle.emit(event_names::TRANSLATE_HIDE, {});
+                        thread::sleep(Duration::from_millis(150));
                         if *local_cancel.lock().unwrap() {
                             return;
                         }
