@@ -195,4 +195,9 @@ impl TranslationManager {
         let session_id = active_id.as_ref()?;
         self.chat_histories.get_messages(session_id).await
     }
+
+    pub async fn set_active_session(&self, session_id: &str) {
+        let mut active_id = self.active_session_id.write().await;
+        *active_id = Some(session_id.to_string());
+    }
 }

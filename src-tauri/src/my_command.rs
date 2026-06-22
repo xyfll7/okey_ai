@@ -159,6 +159,13 @@ pub async fn get_current_history(app: AppHandle) -> Result<Vec<ChatMessage>, Str
 }
 
 #[tauri::command(rename_all = "snake_case")]
+pub async fn set_current_session(app: AppHandle, session_id: String) -> Result<(), String> {
+    let translation_manager = app.state::<translation_manager::TranslationManager>();
+    translation_manager.set_active_session(&session_id).await;
+    Ok(())
+}
+
+#[tauri::command(rename_all = "snake_case")]
 pub async fn update_model_api_key(
     app: AppHandle,
     model_name: String,

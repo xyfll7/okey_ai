@@ -30,6 +30,7 @@ export const EVENT_NAMES = {
   update_model_api_key: "update_model_api_key",
   get_locale: "get_locale",
   set_locale: "set_locale",
+  set_current_session: "set_current_session",
 } as const;
 
 // Type for event names to provide type safety

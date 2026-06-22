@@ -8,12 +8,14 @@ import {
 } from "@/components/ui/drawer"
 import { Button } from "./ui/button"
 import { EVENT_NAMES, useInvoke } from "@/lib/events"
+import { invoke } from "@tauri-apps/api/core";
 import { useState } from "react"
-import type { ChatMessageHistory } from "@/lib/types"
+import type { ChatMessage, ChatMessageHistory } from "@/lib/types"
 import { IIList } from "./icons/hugeicons"
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils"
 import { useTranslation } from "react-i18next"
+import { s_ChatList } from "@/store"
 
 
 export function HistoriesNew({ className }: { className?: string }) {
@@ -44,7 +46,17 @@ export function HistoriesNew({ className }: { className?: string }) {
             <ScrollArea className={cn("h-[70vh]")}>
                 <div className="max-w-screen flex-coh items-start px-2">
                     {histories_X.state.map(([key, item]) => {
-                        return <Button className="w-full cursor-pointer" key={key} variant={"ghost"}>
+                        return <Button 
+                            className="w-full cursor-pointer" 
+                            key={key} 
+                            variant={"ghost"}
+                            onClick={async () => {
+                                await invoke(EVENT_NAMES.set_current_session, { session_id: key });
+                                const history = await invoke<ChatMessage[]>(EVENT_NAMES.get_current_history);
+                                s_ChatList.setState(() => history);
+                                setIsOpen(false);
+                            }}
+                        >
                             <span className="truncate w-full text-start">
                                 {item.messages.at(1)?.raw}
                             </span>
