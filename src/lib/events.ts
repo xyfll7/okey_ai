@@ -5,11 +5,14 @@ import { invoke } from "@tauri-apps/api/core";
 import { useCallback, useEffect, useState } from "react";
 
 export const EVENT_NAMES = {
+  // to backend
+  PAGE_LOADED: "PAGE_LOADED",
+  // from backend
   BUBBLE_AUTO_SPEAK: "BUBBLE_AUTO_SPEAK",
   BUBBLE_CLEAN: "BUBBLE_CLEAN",
   AI_RESPONSE: "AI_RESPONSE",
   AI_ERROR: "AI_ERROR",
-  PAGE_LOADED: "PAGE_LOADED",
+
   CHAT_STREAM: "CHAT_STREAM",
   TRANSLATE_HIDE: "TRANSLATE_HIDE",
   CHATTING_STATE_CHANGE: "CHATTING_STATE_CHANGE",

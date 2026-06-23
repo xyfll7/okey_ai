@@ -3,7 +3,7 @@
 // @refresh only-export-components
 import { createFileRoute } from "@tanstack/react-router";
 import { useStore } from "@tanstack/react-store";
-import { Channel, invoke } from "@tauri-apps/api/core";
+import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
 import { type as ostype } from "@tauri-apps/plugin-os";
 import Markdown from "markdown-to-jsx";
@@ -34,7 +34,7 @@ import {
 import { EVENT_NAMES, useInvoke } from "@/lib/events";
 import { AutoSpeakState, getModelProviderShowName, type ChatMessage } from "@/lib/types";
 import { cn, get_app_config, speak } from "@/lib/utils";
-import { s_ChatList, s_CurrentModel, s_LoadingChat, s_Selected } from "@/store";
+import { handleStream, s_ChatList, s_CurrentModel, s_LoadingChat, s_Selected } from "@/store";
 import { IIArrowUp, IIPin, IIAdd, IIVolumeHigh, IIX } from "@/components/icons";
 import { HistoriesNew } from "@/components/HistoriesNew";
 import { SettingsNew } from "@/components/SettingsNew";
@@ -47,10 +47,6 @@ export const Route = createFileRoute("/translate/")({
 	component: RouteComponent,
 });
 
-type StreamEvent =
-	| { event: "chunk"; data: { content: string } }
-	| { event: "done"; data?: unknown }
-	| { event: "error"; data: { message: string } };
 
 function RouteComponent() {
 	const _ostype = ostype();
@@ -165,54 +161,6 @@ function Header(props: React.ComponentProps<"div">) {
 }
 
 function Inputer({ className }: { className?: string; }) {
-	const handleStream = async (chatMessage: ChatMessage) => {
-		let accumulated = "";
-		const channel = new Channel<StreamEvent>();
-		channel.onmessage = (message) => {
-			switch (message.event) {
-				case "chunk": {
-					accumulated += message.data?.content ?? "";
-					s_ChatList.setState((list) => {
-						if (list.at(-1)?.role !== "assistant") {
-							return [...list, { role: "assistant", content: accumulated }];
-						}
-						const next = [...list];
-						next[next.length - 1] = {
-							...next[next.length - 1]!,
-							content: accumulated,
-						};
-						return next;
-					});
-					break;
-				}
-				case "error": {
-					console.log("Stream error:", message.data.message);
-					break;
-				}
-				case "done": {
-					console.log("Stream completed successfully");
-					break;
-				}
-				default:
-					break;
-			}
-		};
-
-		await invoke(EVENT_NAMES.chat_stream, {
-			chat_message: chatMessage,
-			on_event: channel,
-		});
-	};
-
-	useEffect(() => {
-		const unlistenChatStream = listen<string>(EVENT_NAMES.CHAT_STREAM, () => {
-			handleStream({ role: "user", content: "" } as ChatMessage)
-		});
-		return () => {
-			unlistenChatStream.then((fn) => fn());
-		};
-	}, []);
-
 	const [value, setValue] = useState("");
 	const selected = useStore(s_Selected, (state) => state);
 
@@ -226,7 +174,7 @@ function Inputer({ className }: { className?: string; }) {
 		<InputGroup className={cn(className, "rounded-xl", "has-[[data-slot=input-group-control]:focus-visible]:border-ring/70 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/7")}>
 			{selected.text && (
 				<InputGroupAddon align="block-start">
-					<SelectedText onStream={handleStream} />
+					<SelectedText onHandleStream={handleStream} />
 				</InputGroupAddon>
 			)}
 			<InputGroupTextarea
@@ -408,7 +356,7 @@ function MessageItem({ chat, className }: { chat: ChatMessage, className?: strin
 	);
 }
 
-function SelectedText({ onStream }: { onStream: (chatMessage: ChatMessage) => Promise<void> }) {
+function SelectedText({ onHandleStream }: { onHandleStream: (chatMessage: ChatMessage) => Promise<void> }) {
 	const selected = useStore(s_Selected, (state) => state);
 	if (!selected.text) return "";
 	const loadingChat = useStore(s_LoadingChat, (state) => state);
@@ -452,7 +400,7 @@ function SelectedText({ onStream }: { onStream: (chatMessage: ChatMessage) => Pr
 							key={`${e}-${i}`}
 							disabled={loadingChat}
 							onClick={() => {
-								void onStream({
+								void onHandleStream({
 									role: "user",
 									content: `${selected.text}\n${e}`,
 									raw: selected.text,

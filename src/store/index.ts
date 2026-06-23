@@ -1,7 +1,7 @@
 import { EVENT_NAMES } from "@/lib/events";
 import type { ChatMessage } from "@/lib/types";
 import { Store } from "@tanstack/react-store";
-import { invoke } from "@tauri-apps/api/core";
+import { Channel, invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 
 export const s_Selected = new Store({ text: "", raw: "" });
@@ -9,6 +9,50 @@ export const s_ChatList = new Store<ChatMessage[]>([]);
 export const s_CurrentModel = new Store("");
 export const s_CurrentLocale = new Store("en");
 export const s_LoadingChat = new Store(false);
+
+type StreamEvent =
+    | { event: "chunk"; data: { content: string } }
+    | { event: "done"; data?: unknown }
+    | { event: "error"; data: { message: string } };
+
+export const handleStream = async (chatMessage: ChatMessage) => {
+    let accumulated = "";
+    const channel = new Channel<StreamEvent>();
+    channel.onmessage = (message) => {
+        switch (message.event) {
+            case "chunk": {
+                accumulated += message.data?.content ?? "";
+                s_ChatList.setState((list) => {
+                    if (list.at(-1)?.role !== "assistant") {
+                        return [...list, { role: "assistant", content: accumulated }];
+                    }
+                    const next = [...list];
+                    next[next.length - 1] = {
+                        ...next[next.length - 1]!,
+                        content: accumulated,
+                    };
+                    return next;
+                });
+                break;
+            }
+            case "error": {
+                console.log("Stream error:", message.data.message);
+                break;
+            }
+            case "done": {
+                console.log("Stream completed successfully");
+                break;
+            }
+            default:
+                break;
+        }
+    };
+
+    await invoke(EVENT_NAMES.chat_stream, {
+        chat_message: chatMessage,
+        on_event: channel,
+    });
+};
 
 s_CurrentLocale.subscribe((locale) => {
     invoke(EVENT_NAMES.set_locale, { locale: locale });
@@ -21,7 +65,6 @@ async function init() {
     const result = await invoke<string>(EVENT_NAMES.get_current_model);
     s_CurrentModel.setState(()=>result);
     
-    // Initialize locale
     const localeResult = await invoke<string>(EVENT_NAMES.get_locale);
     s_CurrentLocale.setState(()=>localeResult);
     
@@ -30,6 +73,10 @@ async function init() {
     
     listen<boolean>(EVENT_NAMES.CHATTING_STATE_CHANGE, (event) => {
         s_LoadingChat.setState(() => event.payload);
+    });
+    
+    listen<string>(EVENT_NAMES.CHAT_STREAM, () => {
+        handleStream({ role: "user", content: "" } as ChatMessage);
     });
 }
 init();
