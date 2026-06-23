@@ -6,4 +6,5 @@ pub mod event_names {
     pub const PAGE_LOADED: &str = "PAGE_LOADED";
     pub const CHAT_STREAM: &str = "CHAT_STREAM";
     pub const TRANSLATE_HIDE: &str = "TRANSLATE_HIDE";
+    pub const CHATTING_STATE_CHANGE: &str = "CHATTING_STATE_CHANGE";
 }

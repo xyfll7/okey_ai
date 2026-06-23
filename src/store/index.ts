@@ -2,6 +2,7 @@ import { EVENT_NAMES } from "@/lib/events";
 import type { ChatMessage } from "@/lib/types";
 import { Store } from "@tanstack/react-store";
 import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 
 export const s_Selected = new Store({ text: "", raw: "" });
 export const s_ChatList = new Store<ChatMessage[]>([]);
@@ -26,6 +27,10 @@ async function init() {
     
     const i18n = await import("@/i18n/index");
     i18n.default.changeLanguage(localeResult);
+    
+    listen<boolean>(EVENT_NAMES.CHATTING_STATE_CHANGE, (event) => {
+        s_LoadingChat.setState(() => event.payload);
+    });
 }
 init();
 

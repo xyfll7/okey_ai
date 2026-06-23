@@ -171,7 +171,6 @@ function Inputer({ className }: { className?: string; }) {
 		channel.onmessage = (message) => {
 			switch (message.event) {
 				case "chunk": {
-					s_LoadingChat.setState(() => true);
 					accumulated += message.data?.content ?? "";
 					s_ChatList.setState((list) => {
 						if (list.at(-1)?.role !== "assistant") {
@@ -187,17 +186,14 @@ function Inputer({ className }: { className?: string; }) {
 					break;
 				}
 				case "error": {
-					s_LoadingChat.setState(() => false);
 					console.log("Stream error:", message.data.message);
 					break;
 				}
 				case "done": {
-					s_LoadingChat.setState(() => false);
 					console.log("Stream completed successfully");
 					break;
 				}
 				default:
-					s_LoadingChat.setState(() => false);
 					break;
 			}
 		};
@@ -288,6 +284,7 @@ function Inputer({ className }: { className?: string; }) {
 					disabled={!value}
 					onClick={async () => {
 						if (loadingChat) {
+							// TODO：
 							// Abort the current stream
 							// await invoke(EVENT_NAMES.abort_chat_stream);
 							// s_LoadingChat.setState(() => false);

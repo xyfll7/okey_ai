@@ -1,4 +1,5 @@
 use crate::my_events::event_names;
+use crate::states::chatting_state::ChattingState;
 use crate::utils::chat_message::Role;
 use crate::utils::{self, translation_manager};
 use crate::{my_command, my_windows};
@@ -15,6 +16,10 @@ pub enum DisplayType {
 
 pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType) {
     let app_handle = app_handle.clone();
+    let chatting_state = app_handle.state::<ChattingState>();
+    if chatting_state.get() {
+        return;
+    }
     async_runtime::spawn(async move {
         let selected_text = crate::utils::selecte_text::get_selected_text();
         if selected_text.is_empty() {

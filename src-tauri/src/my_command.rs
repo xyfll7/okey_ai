@@ -1,6 +1,7 @@
 use crate::my_api::traits::APIConfig;
 use crate::states::app_config::{AutoSpeakState, ModelProvider};
 use crate::states::app_state::AppConfigState;
+use crate::states::chatting_state::ChattingState;
 use crate::utils::chat_message::{ChatMessage, ChatMessageHistory, Role};
 use crate::utils::{language_detection, translation_manager};
 use crate::{my_events::event_names, my_windows};
@@ -33,16 +34,16 @@ pub async fn chat_stream(
     on_event: Channel<StreamEvent>,
 ) -> Result<(), String> {
     let translation_manager = app.state::<translation_manager::TranslationManager>();
+    let chatting_state = app.state::<ChattingState>().inner().clone();
     let on_event_clone = on_event.clone();
+    let chatting_state_clone = chatting_state.clone();
 
     let messages = if chat_message.content.trim().is_empty() {
-        // If chat_message.content is empty, get the current history
         translation_manager
             .get_current_history()
             .await
             .unwrap_or_default()
     } else {
-        // If chat_message.content is not empty, proceed normally
         let messages = translation_manager
             .add_get_user_message(None, &chat_message.content, None, Role::User)
             .await
@@ -52,6 +53,7 @@ pub async fn chat_stream(
     };
     let chat_histories = translation_manager
         .translate_stream(None, messages, move |chunk_content| {
+            chatting_state_clone.set(true);
             let _ = on_event_clone.send(StreamEvent::Chunk {
                 content: chunk_content.clone(),
             });
@@ -59,10 +61,12 @@ pub async fn chat_stream(
         .await;
     match chat_histories {
         Some(chat_histories) => {
+            chatting_state.set(false);
             let _ = app.emit(event_names::AI_RESPONSE, &chat_histories);
             let _ = on_event.send(StreamEvent::Done);
         }
         None => {
+            chatting_state.set(false);
             let _ = on_event.send(StreamEvent::Error {
                 message: "Translation failed".to_string(),
             });

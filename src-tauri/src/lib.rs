@@ -14,6 +14,7 @@ mod utils;
 use crate::my_types::TRKey;
 use states::app_state::AppStateManager;
 use states::chat_histories;
+use states::chatting_state::ChattingState;
 use tauri::Manager;
 use tauri_plugin_notification::NotificationExt;
 
@@ -80,6 +81,7 @@ pub fn run() {
             drop(config);
 
             app.manage(app_config_state);
+            app.manage(ChattingState::new(app.handle().clone()));
             my_api::setup_api_manager(&app.handle())?;
             let tray = my_tray::create_tray(&app.handle())?;
             app.handle().manage(my_tray::TrayState {

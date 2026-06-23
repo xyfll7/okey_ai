@@ -12,6 +12,7 @@ export const EVENT_NAMES = {
   PAGE_LOADED: "PAGE_LOADED",
   CHAT_STREAM: "CHAT_STREAM",
   TRANSLATE_HIDE: "TRANSLATE_HIDE",
+  CHATTING_STATE_CHANGE: "CHATTING_STATE_CHANGE",
 
   is_pin_translate_window_toggle: "is_pin_translate_window_toggle",
   is_pin_translate_window_get: "is_pin_translate_window_get",
