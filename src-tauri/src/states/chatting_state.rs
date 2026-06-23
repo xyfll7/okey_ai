@@ -27,11 +27,4 @@ impl ChattingState {
     pub fn get(&self) -> bool {
         self.inner.load(Ordering::SeqCst)
     }
-
-    pub fn inner(&self) -> Self {
-        Self {
-            inner: self.inner.clone(),
-            app_handle: self.app_handle.clone(),
-        }
-    }
 }
