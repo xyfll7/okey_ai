@@ -7,6 +7,7 @@ export const s_Selected = new Store({ text: "", raw: "" });
 export const s_ChatList = new Store<ChatMessage[]>([]);
 export const s_CurrentModel = new Store("");
 export const s_CurrentLocale = new Store("en");
+export const s_LoadingChat = new Store(false);
 
 s_CurrentLocale.subscribe((locale) => {
     invoke(EVENT_NAMES.set_locale, { locale: locale });

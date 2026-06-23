@@ -34,7 +34,7 @@ import {
 import { EVENT_NAMES, useInvoke } from "@/lib/events";
 import { AutoSpeakState, getModelProviderShowName, type ChatMessage } from "@/lib/types";
 import { cn, get_app_config, speak } from "@/lib/utils";
-import { s_ChatList, s_CurrentModel, s_Selected } from "@/store";
+import { s_ChatList, s_CurrentModel, s_LoadingChat, s_Selected } from "@/store";
 import { IIArrowUp, IIPin, IIAdd, IIVolumeHigh, IIX } from "@/components/icons";
 import { HistoriesNew } from "@/components/HistoriesNew";
 import { SettingsNew } from "@/components/SettingsNew";
@@ -170,6 +170,7 @@ function Inputer({ className }: { className?: string; }) {
 		channel.onmessage = (message) => {
 			switch (message.event) {
 				case "chunk": {
+					s_LoadingChat.setState(() => true);
 					accumulated += message.data?.content ?? "";
 					s_ChatList.setState((list) => {
 						if (list.at(-1)?.role !== "assistant") {
@@ -185,10 +186,17 @@ function Inputer({ className }: { className?: string; }) {
 					break;
 				}
 				case "error": {
+					s_LoadingChat.setState(() => false);
 					console.log("Stream error:", message.data.message);
 					break;
 				}
+				case "done": {
+					s_LoadingChat.setState(() => false);
+					console.log("Stream completed successfully");
+					break;
+				}
 				default:
+					s_LoadingChat.setState(() => false);
 					break;
 			}
 		};
@@ -213,7 +221,7 @@ function Inputer({ className }: { className?: string; }) {
 
 
 	const { ...modelsList_X } = useInvoke<ModelConfigMap>(EVENT_NAMES.list_available_models, {});
-	
+
 	const currentModel = useStore(s_CurrentModel, (state => state))
 	const { t } = useTranslation();
 	return (
@@ -262,7 +270,7 @@ function Inputer({ className }: { className?: string; }) {
 							.map((key) => (
 								<DropdownMenuItem onSelect={async () => {
 									await invoke(EVENT_NAMES.switch_model, { model_name: key })
-									s_CurrentModel.setState(()=>key)
+									s_CurrentModel.setState(() => key)
 								}} key={key}>{getModelProviderShowName(t)[key as keyof ReturnType<typeof getModelProviderShowName>]}</DropdownMenuItem>
 							))}
 					</DropdownMenuContent>
@@ -292,19 +300,19 @@ function ChatList({ className }: { className?: string; }) {
 	const rest = chatList.slice(0, -1);
 	useEffect(() => {
 		invoke<ChatMessage[]>(EVENT_NAMES.get_current_history).then((history) => {
-			s_ChatList.setState(()=>history);
+			s_ChatList.setState(() => history);
 		})
 		const unlistenResponse = listen<ChatMessage[]>(
 			EVENT_NAMES.AI_RESPONSE,
 			({ payload }) => {
 				const chat = payload.at(-1)?.role === "user" ? payload.at(-1) : payload.at(-2)
 				if (chat?.raw && chat.role === "user") {
-					s_Selected.setState(()=>({
+					s_Selected.setState(() => ({
 						text: chat.raw!,
 						raw: chat.content,
 					}));
 				}
-				s_ChatList.setState(()=>payload);
+				s_ChatList.setState(() => payload);
 				console.log(payload)
 			},
 		);
@@ -350,7 +358,7 @@ function MessageItem({ chat, className }: { chat: ChatMessage, className?: strin
 			if (selection && containerRef.current) {
 				const range = selection.getRangeAt(0);
 				if (containerRef.current.contains(range.commonAncestorContainer)) {
-					s_Selected.setState(()=>({
+					s_Selected.setState(() => ({
 						text: selectedText,
 						raw: chat.content,
 					}));
@@ -419,7 +427,7 @@ function SelectedText({ onStream }: { onStream: (chatMessage: ChatMessage) => Pr
 				)}
 				{selected.text?.trim() && (
 					<Button size={"icon-sm"} variant={"ghost"} onClick={() => {
-						s_Selected.setState(()=>({ text: "", raw: "" }))
+						s_Selected.setState(() => ({ text: "", raw: "" }))
 					}}>
 						<IIX />
 					</Button>
