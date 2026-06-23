@@ -40,6 +40,7 @@ import { HistoriesNew } from "@/components/HistoriesNew";
 import { SettingsNew } from "@/components/SettingsNew";
 import { useTranslation } from "react-i18next";
 import type { ModelConfigMap } from "@/@types";
+import { IIStop } from "@/components/icons/hugeicons";
 
 
 export const Route = createFileRoute("/translate/")({
@@ -224,6 +225,7 @@ function Inputer({ className }: { className?: string; }) {
 
 	const currentModel = useStore(s_CurrentModel, (state => state))
 	const { t } = useTranslation();
+	   const loadingChat = useStore(s_LoadingChat, (state => state))
 	return (
 		<InputGroup className={cn(className, "rounded-xl", "has-[[data-slot=input-group-control]:focus-visible]:border-ring/70 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/7")}>
 			{selected.text && (
@@ -236,6 +238,9 @@ function Inputer({ className }: { className?: string; }) {
 				value={value}
 				onChange={(e) => setValue(e.target.value)}
 				onKeyDown={async (e) => {
+					if (loadingChat) {
+						return;
+					}
 					if (e.key === "Enter" && !e.shiftKey) {
 						e.preventDefault();
 						setValue("");
@@ -257,7 +262,7 @@ function Inputer({ className }: { className?: string; }) {
 			/>
 			<InputGroupAddon align="block-end">
 				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
+					<DropdownMenuTrigger asChild disabled={loadingChat}>
 						<InputGroupButton variant="ghost">{getModelProviderShowName(t)[currentModel as keyof ReturnType<typeof getModelProviderShowName>]}</InputGroupButton>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent side="top" align="start">
@@ -275,19 +280,25 @@ function Inputer({ className }: { className?: string; }) {
 							))}
 					</DropdownMenuContent>
 				</DropdownMenu>
-
+					
 				<InputGroupButton
 					variant="default"
 					className="rounded-full ml-auto cursor-pointer"
 					size="icon-xs"
 					disabled={!value}
 					onClick={async () => {
+						if (loadingChat) {
+							// Abort the current stream
+							// await invoke(EVENT_NAMES.abort_chat_stream);
+							// s_LoadingChat.setState(() => false);
+							// return;
+						}
 						setValue("");
 						await handleStream({ role: "user", content: value } as ChatMessage)
 					}}
 				>
-					<IIArrowUp />
-					<span className="sr-only">Send</span>
+					{loadingChat ? <IIStop /> : <IIArrowUp />}	
+					<span className="sr-only">{loadingChat ? "abort" : "send"}</span>
 				</InputGroupButton>
 			</InputGroupAddon>
 		</InputGroup>
@@ -403,6 +414,7 @@ function MessageItem({ chat, className }: { chat: ChatMessage, className?: strin
 function SelectedText({ onStream }: { onStream: (chatMessage: ChatMessage) => Promise<void> }) {
 	const selected = useStore(s_Selected, (state) => state);
 	if (!selected.text) return "";
+	const loadingChat = useStore(s_LoadingChat, (state) => state);
 	return (
 		<div className="w-full">
 			<div className="w-full flex items-center mb-1">
@@ -441,6 +453,7 @@ function SelectedText({ onStream }: { onStream: (chatMessage: ChatMessage) => Pr
 							size={"xs"}
 							variant={"outline"}
 							key={`${e}-${i}`}
+							disabled={loadingChat}
 							onClick={() => {
 								void onStream({
 									role: "user",

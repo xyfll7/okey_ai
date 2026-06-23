@@ -15,15 +15,18 @@ import { IIList } from "./icons/hugeicons"
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils"
 import { useTranslation } from "react-i18next"
-import { s_ChatList } from "@/store"
+import { s_ChatList, s_LoadingChat } from "@/store"
+import { useStore } from "@tanstack/react-store";
+
 
 
 export function HistoriesNew({ className }: { className?: string }) {
     const { t } = useTranslation();
     const { ...histories_X } = useInvoke<[string, ChatMessageHistory][]>(EVENT_NAMES.get_histories, []);
     const [isOpen, setIsOpen] = useState(false);
+    const loadingChat = useStore(s_LoadingChat, (state) => state);
     return <Drawer open={isOpen} onOpenChange={setIsOpen}>
-        <DrawerTrigger onClick={async (e) => {
+        <DrawerTrigger disabled={loadingChat} onClick={async (e) => {
             (e.currentTarget as HTMLButtonElement).blur();
             histories_X.invokeState();
             setIsOpen(true)

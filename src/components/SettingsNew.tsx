@@ -41,6 +41,7 @@ import {
     DropdownMenuGroup,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { s_LoadingChat } from "@/store";
 
 
 export function SettingsNew({ className }: { className?: string }) {
@@ -55,9 +56,10 @@ export function SettingsNew({ className }: { className?: string }) {
             unlisten.then((fn) => fn());
         };
     }, []);
+    const loadingChat = useStore(s_LoadingChat, (state) => state);
 
     return <Drawer open={isOpen} onOpenChange={setIsOpen} >
-        <DrawerTrigger onClick={async (e) => {
+        <DrawerTrigger disabled={loadingChat} onClick={async (e) => {
             (e.currentTarget as HTMLButtonElement).blur();
             setIsOpen(true)
             setTimeout(() => {
