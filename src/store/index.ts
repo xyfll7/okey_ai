@@ -75,7 +75,7 @@ async function init() {
         s_LoadingChat.setState(() => event.payload);
     });
     
-    listen<string>(EVENT_NAMES.CHAT_STREAM, () => {
+    listen<string>(EVENT_NAMES.START_CHAT_STREAM, () => {
         handleStream({ role: "user", content: "" } as ChatMessage);
     });
 }

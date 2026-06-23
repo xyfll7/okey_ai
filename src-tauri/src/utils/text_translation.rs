@@ -60,7 +60,7 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
         if my_command::is_pin_translate_window_get(app_handle.clone())
             && app_handle.get_webview_window("translate").is_some()
         {
-            let _ = app_handle.emit(event_names::CHAT_STREAM, ());
+            let _ = app_handle.emit(event_names::START_CHAT_STREAM, ());
             return;
         } else if display_type == DisplayType::Bubble {
             my_windows::window_translate_bubble_show(&app_handle, None as Option<fn()>);
