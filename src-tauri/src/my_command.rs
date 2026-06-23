@@ -50,15 +50,14 @@ pub async fn chat_stream(
         let _ = app.emit(event_names::AI_RESPONSE, &messages);
         messages
     };
-
-    match translation_manager
+    let chat_histories = translation_manager
         .translate_stream(None, messages, move |chunk_content| {
             let _ = on_event_clone.send(StreamEvent::Chunk {
                 content: chunk_content.clone(),
             });
         })
-        .await
-    {
+        .await;
+    match chat_histories {
         Some(chat_histories) => {
             let _ = app.emit(event_names::AI_RESPONSE, &chat_histories);
             let _ = on_event.send(StreamEvent::Done);
