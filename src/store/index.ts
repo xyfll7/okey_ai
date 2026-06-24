@@ -9,6 +9,7 @@ export const s_ChatList = new Store<ChatMessage[]>([]);
 export const s_CurrentModel = new Store("");
 export const s_CurrentLocale = new Store("en");
 export const s_LoadingChat = new Store(false);
+export const s_StreamingContent = new Store<string>("");
 
 type StreamEvent =
     | { event: "chunk"; data: { content: string } }
@@ -22,25 +23,17 @@ export const handleStream = async (chatMessage: ChatMessage) => {
         switch (message.event) {
             case "chunk": {
                 accumulated += message.data?.content ?? "";
-                s_ChatList.setState((list) => {
-                    if (list.at(-1)?.role !== "assistant") {
-                        return [...list, { role: "assistant", content: accumulated }];
-                    }
-                    const next = [...list];
-                    next[next.length - 1] = {
-                        ...next[next.length - 1]!,
-                        content: accumulated,
-                    };
-                    return next;
-                });
+                s_StreamingContent.setState(() => accumulated);
                 break;
             }
             case "error": {
                 console.log("Stream error:", message.data.message);
+                s_StreamingContent.setState(() => "");
                 break;
             }
             case "done": {
                 console.log("Stream completed successfully");
+                s_StreamingContent.setState(() => "");
                 break;
             }
             default:

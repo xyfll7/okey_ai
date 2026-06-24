@@ -7,7 +7,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
 import { type as ostype } from "@tauri-apps/plugin-os";
 import Markdown from "markdown-to-jsx";
-import type React from "react";
+import React from "react";
 import { useEffect, useRef, useState } from "react";
 import AutoSpeakVolume from "@/components/AutoSpeakVolume";
 import Copyed from "@/components/Copyed";
@@ -34,7 +34,7 @@ import {
 import { EVENT_NAMES, useInvoke } from "@/lib/events";
 import { AutoSpeakState, getModelProviderShowName, type ChatMessage } from "@/lib/types";
 import { cn, get_app_config, speak } from "@/lib/utils";
-import { handleStream, s_ChatList, s_CurrentModel, s_LoadingChat, s_Selected } from "@/store";
+import { handleStream, s_ChatList, s_CurrentModel, s_LoadingChat, s_Selected, s_StreamingContent } from "@/store";
 import { IIArrowUp, IIPin, IIAdd, IIVolumeHigh, IIX } from "@/components/icons";
 import { HistoriesNew } from "@/components/HistoriesNew";
 import { SettingsNew } from "@/components/SettingsNew";
@@ -249,28 +249,14 @@ function Inputer({ className }: { className?: string; }) {
 
 function ChatList({ className }: { className?: string; }) {
 	const chatList = useStore(s_ChatList, (state) => state.filter((e) => e.role !== "system"));
-	const lastItem = chatList.at(-1)
-	const rest = chatList.slice(0, -1);
-	const scrollRef = useRef<HTMLDivElement>(null);
-	const scrollToLastUserMessage = (payload: ChatMessage[]) => {
-		const filteredPayload = payload.filter((e) => e.role !== "system");
-		const lastItem = filteredPayload.at(-1);
-		if (filteredPayload.length > 2 && lastItem?.role === "user") {
-			setTimeout(() => {
-				const container = scrollRef.current;
-				if (!container) return;
-				const lastIndex = filteredPayload.length - 1;
-				const targetItem = container.querySelector(`[data-index="${lastIndex}"]`);
-				if (targetItem) {
-					targetItem.scrollIntoView({ behavior: "smooth", block: "start" });
-				}
-			}, 300);
-		}
-	};
+	const streamingContent = useStore(s_StreamingContent, (state) => state);
+	const loadingChat = useStore(s_LoadingChat, (state) => state);
+
 
 	useEffect(() => {
 		invoke<ChatMessage[]>(EVENT_NAMES.get_current_history).then((history) => {
 			s_ChatList.setState(() => history);
+			s_StreamingContent.setState(() => "");
 		})
 		const unlistenResponse = listen<ChatMessage[]>(
 			EVENT_NAMES.AI_RESPONSE,
@@ -282,8 +268,24 @@ function ChatList({ className }: { className?: string; }) {
 						raw: chat.content,
 					}));
 				}
+
+				// 恢复：用 AI_RESPONSE 的 payload 更新 s_ChatList
 				s_ChatList.setState(() => payload);
-				scrollToLastUserMessage(payload);
+
+				// 滚动逻辑移到这里
+				const filtered = payload.filter((e) => e.role !== "system");
+				const lastItem = filtered.at(-1);
+				if (filtered.length > 2 && lastItem?.role === "user") {
+					setTimeout(() => {
+						const container = document.querySelector('[data-chat-container]');
+						if (!container) return;
+						const lastIndex = filtered.length - 1;
+						const targetItem = container.querySelector(`[data-index="${lastIndex}"]`);
+						if (targetItem) {
+							targetItem.scrollIntoView({ behavior: "smooth", block: "start" });
+						}
+					}, 300);
+				}
 			},
 		);
 		const unlistenError = listen<string>(EVENT_NAMES.AI_ERROR, (event) => {
@@ -300,19 +302,32 @@ function ChatList({ className }: { className?: string; }) {
 		};
 	}, []);
 	return (
-		<div ref={scrollRef} role="none" className={cn(className, "max-w-screen flex-coh")}>
-			{rest.map((chat, index) => {
+		<div role="none" className={cn(className, "max-w-screen flex-coh")} data-chat-container>
+			{chatList.map((chat, index) => {
 				return (
-					<MessageItem className="px-2.5 mb-2" key={`chat-${chat.content}-${index}`} chat={chat} index={index} />
+					<MessageItem className="px-2.5 mb-2" key={`msg-${index}`} chat={chat} index={index} />
 				);
 			})}
-			{lastItem && lastItem.role === "assistant" && <MessageItem className="px-2.5 mb-2" chat={lastItem} index={chatList.length - 1} />}
-			{lastItem?.role !== "assistant" && <div className="px-2.5">...</div>}
+			{streamingContent && <StreamingMessage content={streamingContent} />}
+			{!streamingContent && loadingChat && <div className="px-2.5">...</div>}
 		</div>
 	);
 }
 
-function MessageItem({ chat, className, index }: { chat: ChatMessage, className?: string, index: number }) {
+const StreamingMessage = React.memo(function StreamingMessage({ content }: { content: string }) {
+	const [displayed, setDisplayed] = useState(content);
+	useEffect(() => {
+		const id = requestAnimationFrame(() => setDisplayed(content));
+		return () => cancelAnimationFrame(id);
+	}, [content]);
+	return (
+		<div className="px-2.5 mb-2 w-full">
+			<Markdown className="mb-2">{displayed}</Markdown>
+		</div>
+	);
+}, (prev, next) => prev.content === next.content);
+
+const MessageItem = React.memo(function MessageItem({ chat, className, index }: { chat: ChatMessage, className?: string, index: number }) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const isMouseInsideRef = useRef<boolean>(false);
 
@@ -369,7 +384,7 @@ function MessageItem({ chat, className, index }: { chat: ChatMessage, className?
 			</div>
 		</div>
 	);
-}
+}, (prev, next) => prev.chat.content === next.chat.content && prev.chat.raw === next.chat.raw);
 
 function SelectedText({ onHandleStream }: { onHandleStream: (chatMessage: ChatMessage) => Promise<void> }) {
 	const selected = useStore(s_Selected, (state) => state);
