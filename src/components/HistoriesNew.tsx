@@ -48,7 +48,7 @@ export function HistoriesNew({ className }: { className?: string }) {
             </DrawerHeader>
             <ScrollArea className={cn("h-[70vh]")}>
                 <div className="max-w-screen flex-coh items-start px-2">
-                    {histories_X.state.map(([key, item]) => {
+                    {histories_X.state.filter(([_, item]) => Boolean(item.messages.at(1))).map(([key, item]) => {
                         return <Button 
                             className="w-full cursor-pointer" 
                             key={key} 
