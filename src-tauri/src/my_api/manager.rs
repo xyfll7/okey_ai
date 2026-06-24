@@ -6,6 +6,7 @@ use crate::my_api::traits::{
     APIConfig, ChatCompletionChunk, ChatCompletionRequest, ChatCompletionResponse, LLMClient,
 };
 use crate::states::app_config::ModelProvider;
+use futures::channel::oneshot;
 use futures::StreamExt; // Add this import for the .next() method
 use serde_json::Value;
 use std::collections::HashMap;
@@ -14,6 +15,7 @@ use tauri::async_runtime::RwLock;
 
 pub struct APIManager {
     clients: Arc<RwLock<HashMap<ModelProvider, Box<dyn LLMClient + Send + Sync>>>>,
+    current_cancel_sender: Arc<RwLock<Option<oneshot::Sender<()>>>>,
 }
 
 #[derive(Clone)]
@@ -23,6 +25,7 @@ impl APIManager {
     pub fn new() -> Self {
         Self {
             clients: Arc::new(RwLock::new(HashMap::new())),
+            current_cancel_sender: Arc::new(RwLock::new(None)),
         }
     }
 
@@ -83,7 +86,13 @@ impl APIManager {
             .get(model_type)
             .ok_or_else(|| format!("No client configured for model: {:?}", model_type))?;
 
-        let mut stream = client.chat_completion_stream(request).await?;
+        let stream_handle = client.chat_completion_stream(request).await?;
+        
+        let mut cancel_sender = self.current_cancel_sender.write().await;
+        *cancel_sender = Some(stream_handle.cancel);
+        drop(cancel_sender);
+
+        let mut stream = stream_handle.stream;
 
         while let Some(chunk_result) = stream.next().await {
             match chunk_result {
@@ -92,6 +101,18 @@ impl APIManager {
             }
         }
 
+        let mut cancel_sender = self.current_cancel_sender.write().await;
+        *cancel_sender = None;
+        drop(cancel_sender);
+
+        Ok(())
+    }
+
+    pub async fn abort_chat_stream(&self) -> Result<(), String> {
+        let mut cancel_sender = self.current_cancel_sender.write().await;
+        if let Some(sender) = cancel_sender.take() {
+            let _ = sender.send(());
+        }
         Ok(())
     }
 

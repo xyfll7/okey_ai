@@ -1,5 +1,6 @@
 use crate::utils::chat_message::ChatMessage;
 use crate::utils::chat_message::LLMChatMessage;
+use futures::channel::oneshot;
 use futures::stream::BoxStream;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -69,6 +70,11 @@ pub struct ChatMessageDelta {
     pub content: Option<String>,
 }
 
+pub struct StreamHandle {
+    pub stream: BoxStream<'static, Result<ChatCompletionChunk, String>>,
+    pub cancel: oneshot::Sender<()>,
+}
+
 pub trait LLMClient {
     fn get_config(&self) -> APIConfig;
 
@@ -85,13 +91,7 @@ pub trait LLMClient {
     fn chat_completion_stream<'a>(
         &'a self,
         request: &'a ChatCompletionRequest,
-    ) -> std::pin::Pin<
-        Box<
-            dyn Future<Output = Result<BoxStream<'a, Result<ChatCompletionChunk, String>>, String>>
-                + Send
-                + 'a,
-        >,
-    >;
+    ) -> std::pin::Pin<Box<dyn Future<Output = Result<StreamHandle, String>> + Send + 'a>>;
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

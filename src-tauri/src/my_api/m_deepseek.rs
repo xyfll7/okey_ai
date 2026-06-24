@@ -1,8 +1,12 @@
 use crate::my_api::traits::{
     APIConfig, ChatCompletionChunk, ChatCompletionRequest, ChatCompletionResponse,
-    ChatMessageDelta, ChoiceDelta, LLMClient,
+    ChatMessageDelta, ChoiceDelta, LLMClient, StreamHandle,
 };
-use futures::stream::{BoxStream, StreamExt};
+use futures::channel::oneshot;
+use futures::future::select;
+use futures::pin_mut;
+use futures::stream::StreamExt;
+use futures::FutureExt;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
@@ -83,17 +87,11 @@ impl LLMClient for DeepSeekClient {
         &'a self,
         request: &'a ChatCompletionRequest,
     ) -> std::pin::Pin<
-        Box<
-            dyn std::future::Future<
-                    Output = Result<BoxStream<'a, Result<ChatCompletionChunk, String>>, String>,
-                > + Send
-                + 'a,
-        >,
+        Box<dyn std::future::Future<Output = Result<StreamHandle, String>> + Send + 'a>,
     > {
         Box::pin(async move {
             let api_url = format!("{}/chat/completions", self.config.base_url);
 
-            // Clone the request and ensure stream is true for streaming requests
             let mut request = request.clone();
             request.stream = Some(true);
 
@@ -121,85 +119,76 @@ impl LLMClient for DeepSeekClient {
                 ));
             }
 
-            // Use bytes_stream for true streaming
             let byte_stream = response.bytes_stream();
 
-            // Create a channel to send chunks as they arrive
             let (tx, rx) = futures::channel::mpsc::unbounded();
+            let (cancel_tx, cancel_rx) = oneshot::channel::<()>();
 
-            // Spawn a task to process the stream and send chunks to the receiver
             let _handle = tauri::async_runtime::spawn(async move {
                 let mut buffer = String::new();
                 let mut stream = byte_stream;
+                let cancel_fut = cancel_rx.fuse();
+                pin_mut!(cancel_fut);
 
-                while let Some(chunk_result) = stream.next().await {
-                    match chunk_result {
-                        Ok(bytes) => {
-                            match std::str::from_utf8(&bytes) {
+                loop {
+                    let next_chunk = stream.next().fuse();
+                    pin_mut!(next_chunk);
+
+                    match select(&mut cancel_fut, next_chunk).await {
+                        futures::future::Either::Left((_, _)) => {
+                            break;
+                        }
+                        futures::future::Either::Right((chunk_result, _)) => match chunk_result {
+                            Some(Ok(bytes)) => match std::str::from_utf8(&bytes) {
                                 Ok(text) => {
                                     buffer.push_str(text);
-                                    // Process all complete lines from the buffer
-                                    loop {
-                                        let newline_pos = buffer.find('\n');
-                                        if let Some(pos) = newline_pos {
-                                            let (line, rest) = buffer.split_at(pos);
-                                            let line = line.to_string(); // Clone line to avoid borrow conflicts
-                                            let new_buffer = rest[1..].to_string(); // Skip the newline character
-                                            buffer = new_buffer;
+                                    while let Some(pos) = buffer.find('\n') {
+                                        let (line, rest) = buffer.split_at(pos);
+                                        let line = line.to_string();
+                                        buffer = rest[1..].to_string();
 
-                                            if line.trim().is_empty() {
-                                                continue;
+                                        if line.trim().is_empty() {
+                                            continue;
+                                        }
+
+                                        if line.starts_with("data: ") {
+                                            let data = line[6..].trim();
+
+                                            if data == "[DONE]" {
+                                                return;
                                             }
 
-                                            if line.starts_with("data: ") {
-                                                let data = line[6..].trim();
-
-                                                if data == "[DONE]" {
-                                                    break;
+                                            match serde_json::from_str::<DeepSeekStreamResponse>(
+                                                data,
+                                            ) {
+                                                Ok(stream_response) => {
+                                                    let chunk = ChatCompletionChunk {
+                                                        id: stream_response.id,
+                                                        object: stream_response.object,
+                                                        created: stream_response.created,
+                                                        model: stream_response.model,
+                                                        choices: stream_response
+                                                            .choices
+                                                            .into_iter()
+                                                            .map(|choice| ChoiceDelta {
+                                                                index: choice.index,
+                                                                delta: ChatMessageDelta {
+                                                                    role: choice.delta.role,
+                                                                    content: choice.delta.content,
+                                                                },
+                                                                finish_reason: choice.finish_reason,
+                                                            })
+                                                            .collect(),
+                                                    };
+                                                    let _ = tx.unbounded_send(Ok(chunk));
                                                 }
-
-                                                match serde_json::from_str::<DeepSeekStreamResponse>(
-                                                    data,
-                                                ) {
-                                                    Ok(stream_response) => {
-                                                        // Convert stream response to standard chunk format
-                                                        let chunk = ChatCompletionChunk {
-                                                            id: stream_response.id,
-                                                            object: stream_response.object,
-                                                            created: stream_response.created,
-                                                            model: stream_response.model,
-                                                            choices: stream_response
-                                                                .choices
-                                                                .into_iter()
-                                                                .map(|choice| ChoiceDelta {
-                                                                    index: choice.index,
-                                                                    delta: ChatMessageDelta {
-                                                                        role: choice.delta.role,
-                                                                        content: choice
-                                                                            .delta
-                                                                            .content,
-                                                                    },
-                                                                    finish_reason: choice
-                                                                        .finish_reason,
-                                                                })
-                                                                .collect(),
-                                                        };
-                                                        if tx.unbounded_send(Ok(chunk)).is_err() {
-                                                            break;
-                                                        }
-                                                    }
-                                                    Err(e) => {
-                                                        let _ = tx.unbounded_send(Err(format!(
-                                                            "Failed to parse stream data: {}",
-                                                            e
-                                                        )));
-                                                        break;
-                                                    }
+                                                Err(e) => {
+                                                    let _ = tx.unbounded_send(Err(format!(
+                                                        "Failed to parse stream data: {}",
+                                                        e
+                                                    )));
                                                 }
                                             }
-                                        } else {
-                                            // No complete line available, break and wait for more data
-                                            break;
                                         }
                                     }
                                 }
@@ -208,23 +197,27 @@ impl LLMClient for DeepSeekClient {
                                         "Failed to decode UTF-8: {}",
                                         e
                                     )));
-                                    break;
                                 }
+                            },
+                            Some(Err(e)) => {
+                                let _ = tx.unbounded_send(Err(format!(
+                                    "Failed to read response chunk: {}",
+                                    e
+                                )));
+                                return;
                             }
-                        }
-                        Err(e) => {
-                            let _ = tx.unbounded_send(Err(format!(
-                                "Failed to read response chunk: {}",
-                                e
-                            )));
-                            break;
-                        }
+                            None => {
+                                return;
+                            }
+                        },
                     }
                 }
             });
 
-            // Convert the receiver into a stream
-            Ok(rx.map(|x| x.map_err(|e| e.to_string())).boxed())
+            Ok(StreamHandle {
+                stream: rx.map(|x| x.map_err(|e| e.to_string())).boxed(),
+                cancel: cancel_tx,
+            })
         })
     }
 }

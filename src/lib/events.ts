@@ -24,6 +24,7 @@ export const EVENT_NAMES = {
   window_translate_show: "window_translate_show",
   close_main_window: "close_main_window",
   chat_stream: "chat_stream",
+  abort_chat_stream: "abort_chat_stream",
   detect_language: "detect_language",
   get_histories: "get_histories",
   get_current_history: "get_current_history",

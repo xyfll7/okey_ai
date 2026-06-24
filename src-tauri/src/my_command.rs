@@ -9,6 +9,15 @@ use crate::{my_events::event_names, my_windows};
 use serde::{Deserialize, Serialize};
 use tauri::{ipc::Channel, AppHandle, Emitter, Manager};
 
+#[tauri::command]
+pub async fn abort_chat_stream(app: AppHandle) -> Result<(), String> {
+    let translation_manager = app.state::<translation_manager::TranslationManager>();
+    let api_manager = translation_manager.get_api_manager().await;
+    let guard = api_manager.read().await;
+    let result = guard.abort_chat_stream().await;
+    result
+}
+
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", tag = "event", content = "data")]
 pub enum StreamEvent {

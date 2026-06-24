@@ -200,4 +200,8 @@ impl TranslationManager {
         let mut active_id = self.active_session_id.write().await;
         *active_id = Some(session_id.to_string());
     }
+
+    pub async fn get_api_manager(&self) -> std::sync::Arc<tauri::async_runtime::RwLock<crate::my_api::manager::APIManager>> {
+        self.api_manager.clone()
+    }
 }

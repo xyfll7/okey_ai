@@ -229,14 +229,11 @@ function Inputer({ className }: { className?: string; }) {
 					variant="default"
 					className="rounded-full ml-auto cursor-pointer"
 					size="icon-xs"
-					disabled={!value}
 					onClick={async () => {
 						if (loadingChat) {
-							// TODO：
-							// Abort the current stream
-							// await invoke(EVENT_NAMES.abort_chat_stream);
-							// s_LoadingChat.setState(() => false);
-							// return;
+							await invoke(EVENT_NAMES.abort_chat_stream);
+							s_LoadingChat.setState(() => false);
+							return;
 						}
 						setValue("");
 						await handleStream({ role: "user", content: value } as ChatMessage)
