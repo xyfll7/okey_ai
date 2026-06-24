@@ -169,7 +169,7 @@ function Inputer({ className }: { className?: string; }) {
 
 	const currentModel = useStore(s_CurrentModel, (state => state))
 	const { t } = useTranslation();
-	   const loadingChat = useStore(s_LoadingChat, (state => state))
+	const loadingChat = useStore(s_LoadingChat, (state => state))
 	return (
 		<InputGroup className={cn(className, "rounded-xl", "has-[[data-slot=input-group-control]:focus-visible]:border-ring/70 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/7")}>
 			{selected.text && (
@@ -224,7 +224,7 @@ function Inputer({ className }: { className?: string; }) {
 							))}
 					</DropdownMenuContent>
 				</DropdownMenu>
-					
+
 				<InputGroupButton
 					variant="default"
 					className="rounded-full ml-auto cursor-pointer"
@@ -239,7 +239,7 @@ function Inputer({ className }: { className?: string; }) {
 						await handleStream({ role: "user", content: value } as ChatMessage)
 					}}
 				>
-					{loadingChat ? <IIStop /> : <IIArrowUp />}	
+					{loadingChat ? <IIStop /> : <IIArrowUp />}
 					<span className="sr-only">{loadingChat ? "abort" : "send"}</span>
 				</InputGroupButton>
 			</InputGroupAddon>
@@ -251,6 +251,23 @@ function ChatList({ className }: { className?: string; }) {
 	const chatList = useStore(s_ChatList, (state) => state.filter((e) => e.role !== "system"));
 	const lastItem = chatList.at(-1)
 	const rest = chatList.slice(0, -1);
+	const scrollRef = useRef<HTMLDivElement>(null);
+	const scrollToLastUserMessage = (payload: ChatMessage[]) => {
+		const filteredPayload = payload.filter((e) => e.role !== "system");
+		const lastItem = filteredPayload.at(-1);
+		if (filteredPayload.length > 2 && lastItem?.role === "user") {
+			setTimeout(() => {
+				const container = scrollRef.current;
+				if (!container) return;
+				const lastIndex = filteredPayload.length - 1;
+				const targetItem = container.querySelector(`[data-index="${lastIndex}"]`);
+				if (targetItem) {
+					targetItem.scrollIntoView({ behavior: "smooth", block: "start" });
+				}
+			}, 300);
+		}
+	};
+
 	useEffect(() => {
 		invoke<ChatMessage[]>(EVENT_NAMES.get_current_history).then((history) => {
 			s_ChatList.setState(() => history);
@@ -266,7 +283,7 @@ function ChatList({ className }: { className?: string; }) {
 					}));
 				}
 				s_ChatList.setState(() => payload);
-				console.log(payload)
+				scrollToLastUserMessage(payload);
 			},
 		);
 		const unlistenError = listen<string>(EVENT_NAMES.AI_ERROR, (event) => {
@@ -283,19 +300,19 @@ function ChatList({ className }: { className?: string; }) {
 		};
 	}, []);
 	return (
-		<div role="none" className={cn(className, "max-w-screen flex-coh")}>
+		<div ref={scrollRef} role="none" className={cn(className, "max-w-screen flex-coh")}>
 			{rest.map((chat, index) => {
 				return (
-					<MessageItem className="px-2.5 mb-2" key={`chat-${chat.content}-${index}`} chat={chat} />
+					<MessageItem className="px-2.5 mb-2" key={`chat-${chat.content}-${index}`} chat={chat} index={index} />
 				);
 			})}
-			{lastItem && lastItem.role === "assistant" && <MessageItem className="px-2.5 mb-2" chat={lastItem} />}
+			{lastItem && lastItem.role === "assistant" && <MessageItem className="px-2.5 mb-2" chat={lastItem} index={chatList.length - 1} />}
 			{lastItem?.role !== "assistant" && <div className="px-2.5">...</div>}
 		</div>
 	);
 }
 
-function MessageItem({ chat, className }: { chat: ChatMessage, className?: string }) {
+function MessageItem({ chat, className, index }: { chat: ChatMessage, className?: string, index: number }) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const isMouseInsideRef = useRef<boolean>(false);
 
@@ -334,6 +351,7 @@ function MessageItem({ chat, className }: { chat: ChatMessage, className?: strin
 			ref={containerRef}
 			role="none"
 			className={cn(className, " w-full")}
+			data-index={index}
 			onMouseUp={extractSelectedText}
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}
