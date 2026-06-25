@@ -1,5 +1,5 @@
 use crate::my_api::traits::APIConfig;
-use crate::states::app_config::{AutoSpeakState, ModelProvider};
+use crate::states::app_config::{AutoSpeakState, Language, ModelProvider};
 use crate::states::app_state::AppConfigState;
 use crate::states::chatting_state::ChattingState;
 use crate::utils::chat_message::{ChatMessage, ChatMessageHistory, Role};
@@ -134,6 +134,42 @@ pub fn get_auto_speak_state(app: AppHandle) -> AutoSpeakState {
     let app_state = app.state::<AppConfigState>();
     let config = app_state.read();
     config.auto_speak
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn get_local_language(app: AppHandle) -> Language {
+    let app_state = app.state::<AppConfigState>();
+    let config = app_state.read();
+    config.local_language
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn set_local_language(app: AppHandle, language: Language) -> Result<Language, String> {
+    let app_state = app.state::<AppConfigState>();
+    app_state
+        .update(|config| {
+            config.local_language = language;
+        })
+        .map_err(|e| e.to_string())?;
+    Ok(language)
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn get_target_language(app: AppHandle) -> Language {
+    let app_state = app.state::<AppConfigState>();
+    let config = app_state.read();
+    config.target_language
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn set_target_language(app: AppHandle, language: Language) -> Result<Language, String> {
+    let app_state = app.state::<AppConfigState>();
+    app_state
+        .update(|config| {
+            config.target_language = language;
+        })
+        .map_err(|e| e.to_string())?;
+    Ok(language)
 }
 
 #[tauri::command(rename_all = "snake_case")]
