@@ -36,6 +36,7 @@ export const EVENT_NAMES = {
   get_locale: "get_locale",
   set_locale: "set_locale",
   set_current_session: "set_current_session",
+  create_new_session: "create_new_session",
 } as const;
 
 // Type for event names to provide type safety

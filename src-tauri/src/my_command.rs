@@ -178,6 +178,13 @@ pub async fn set_current_session(app: AppHandle, session_id: String) -> Result<(
 }
 
 #[tauri::command(rename_all = "snake_case")]
+pub async fn create_new_session(app: AppHandle) -> Result<(), String> {
+    let translation_manager = app.state::<translation_manager::TranslationManager>();
+    translation_manager.create_session().await;
+    Ok(())
+}
+
+#[tauri::command(rename_all = "snake_case")]
 pub async fn update_model_api_key(
     app: AppHandle,
     model_name: String,

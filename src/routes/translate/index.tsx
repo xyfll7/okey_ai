@@ -13,6 +13,7 @@ import AutoSpeakVolume from "@/components/AutoSpeakVolume";
 import Copyed from "@/components/Copyed";
 import HotKey from "@/components/HotKey";
 import { Button } from "@/components/ui/button";
+
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -35,7 +36,7 @@ import { EVENT_NAMES, useInvoke } from "@/lib/events";
 import { AutoSpeakState, getModelProviderShowName, type ChatMessage } from "@/lib/types";
 import { cn, get_app_config, speak } from "@/lib/utils";
 import { handleStream, s_ChatList, s_CurrentModel, s_LoadingChat, s_Selected, s_StreamingContent } from "@/store";
-import { IIArrowUp, IIPin, IIAdd, IIVolumeHigh, IIX } from "@/components/icons";
+import { IIArrowUp, IIPin, IIAdd, IIVolumeHigh, IIX, IIChat } from "@/components/icons";
 import { HistoriesNew } from "@/components/HistoriesNew";
 import { SettingsNew } from "@/components/SettingsNew";
 import { useTranslation } from "react-i18next";
@@ -86,13 +87,21 @@ function Header(props: React.ComponentProps<"div">) {
 			)}
 			data-tauri-drag-region
 		>
-			<SettingsNew className="mr-1" />
+			<Button size={"icon-sm"} variant={"ghost"} onClick={async () => {
+				await invoke(EVENT_NAMES.create_new_session);
+				const history = await invoke<ChatMessage[]>(EVENT_NAMES.get_current_history);
+				s_ChatList.setState(() => history);
+				s_Selected.setState(() => ({ text: "", raw: "" }));
+			}}>
+				<IIChat />
+			</Button>
 			<HistoriesNew className="mr-1" />
 			<HotKey
 				className="mr-1 px-1"
 				hotkey={hotkey}
 				onHotkeyChange={(e) => { setHotkey(e) }}
 			/>
+			<SettingsNew className="mr-1" />
 			<Tooltip>
 				<TooltipTrigger asChild>
 					<Button size="icon-sm" variant="ghost">
@@ -144,6 +153,14 @@ function Header(props: React.ComponentProps<"div">) {
 					onHotkeyChange={(e) => setHotkey(e)}
 				/>
 				<HistoriesNew className="ml-1" />
+				<Button size={"icon-sm"} variant={"ghost"} onClick={async () => {
+					await invoke(EVENT_NAMES.create_new_session);
+					const history = await invoke<ChatMessage[]>(EVENT_NAMES.get_current_history);
+					s_ChatList.setState(() => history);
+					s_Selected.setState(() => ({ text: "", raw: "" }));
+				}}>
+					<IIChat />
+				</Button>
 			</div>
 			<div className=" flex">
 				<SettingsNew />

@@ -11,5 +11,6 @@ export {
     IIVolumeLow,
     IIVolumeHigh,
     IISettings,
-    IILanguages
+    IILanguages,
+    IIChat
 } from "./hugeicons";
