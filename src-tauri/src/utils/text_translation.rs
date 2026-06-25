@@ -1,4 +1,5 @@
 use crate::my_events::event_names;
+use crate::states::app_config::Language;
 use crate::states::app_state::AppConfigState;
 use crate::states::chatting_state::ChattingState;
 use crate::utils::chat_message::Role;
@@ -32,14 +33,24 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
         let translation_prompt = {
             let app_config_read = app_config_state.read();
             let prompts = app_config_read.prompts.clone();
-            match detected_lang {
-                "zh-CN" => prompts
+            let detected_language = Language::from_locale(detected_lang);
+            match detected_language {
+                Language::ZhCn => prompts
                     .translate_into
-                    .replace("{target}", "English")
+                    .replace(
+                        "{target}",
+                        &app_config_read
+                            .target_language
+                            .to_display_name()
+                            .to_string(),
+                    )
                     .replace("{text}", &selected_text),
-                "en" => prompts
+                Language::En => prompts
                     .translate_into
-                    .replace("{target}", "Chinese")
+                    .replace(
+                        "{target}",
+                        &app_config_read.local_language.to_display_name().to_string(),
+                    )
                     .replace("{text}", &selected_text),
                 _ => prompts.summary_prompt.replace("{text}", &selected_text),
             }

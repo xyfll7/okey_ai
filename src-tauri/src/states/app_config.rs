@@ -52,6 +52,14 @@ impl Language {
         }
     }
 
+    pub fn to_display_name(&self) -> &'static str {
+        match self {
+            Language::Auto => "Auto",
+            Language::ZhCn => "Chinese",
+            Language::En => "English",
+        }
+    }
+
     pub fn from_locale(locale: &str) -> Self {
         match locale {
             "zh-CN" => Language::ZhCn,
@@ -79,6 +87,7 @@ impl Default for Prompts {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
 pub struct AppConfig {
     pub shortcuts: Vec<Shortcut>,
     pub is_pin_translate_window: bool,
@@ -86,6 +95,8 @@ pub struct AppConfig {
     pub current_model: ModelProvider,
     pub api_configs: HashMap<ModelProvider, APIConfig>,
     pub language: Language,
+    pub local_language: Language,
+    pub target_language: Language,
     pub prompts: Prompts,
 }
 
@@ -143,6 +154,8 @@ impl Default for AppConfig {
             current_model: ModelProvider::ZAI,
             api_configs,
             language: Language::default(),
+            local_language: Language::Auto,
+            target_language: Language::En,
             prompts: Prompts::default(),
         }
     }
