@@ -61,7 +61,7 @@ export function HistoriesNew({ className }: { className?: string }) {
                             }}
                         >
                             <span className="truncate w-full text-start">
-                                {item.messages.at(1)?.raw}
+                                {item.messages.at(1)?.raw ?? item.messages.at(1)?.content}
                             </span>
                         </Button>
                     })}
