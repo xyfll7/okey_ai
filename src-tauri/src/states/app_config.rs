@@ -62,6 +62,23 @@ impl Language {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Prompts {
+    pub system_prompt: String,
+    pub translate_into: String,
+    pub summary_prompt: String,
+}
+
+impl Default for Prompts {
+    fn default() -> Self {
+        Prompts {
+            system_prompt: "You are a professional translation assistant. Please accurately translate the language, preserving the original meaning and tone.".to_string(),
+            translate_into: "Please translate the following text into {target}:\n\n{text}".to_string(),
+            summary_prompt: "Please analyze the following text and provide a summary:\n\n{text}".to_string(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppConfig {
     pub shortcuts: Vec<Shortcut>,
     pub is_pin_translate_window: bool,
@@ -69,6 +86,7 @@ pub struct AppConfig {
     pub current_model: ModelProvider,
     pub api_configs: HashMap<ModelProvider, APIConfig>,
     pub language: Language,
+    pub prompts: Prompts,
 }
 
 impl Default for AppConfig {
@@ -125,6 +143,7 @@ impl Default for AppConfig {
             current_model: ModelProvider::ZAI,
             api_configs,
             language: Language::default(),
+            prompts: Prompts::default(),
         }
     }
 }

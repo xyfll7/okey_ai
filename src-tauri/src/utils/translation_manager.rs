@@ -39,13 +39,13 @@ impl TranslationManager {
                 .as_millis()
         );
 
+        let system_prompt = {
+            let app_config_read = self.app_config_state.read();
+            app_config_read.prompts.system_prompt.clone()
+        };
+
         self.chat_histories
-            .add_message(
-                &session_id,
-                Role::System,
-                "You are a professional translation assistant. Please accurately translate the language, preserving the original meaning and tone.".to_string(),
-                None,
-            )
+            .add_message(&session_id, Role::System, system_prompt, None)
             .await;
 
         let mut active_id = self.active_session_id.write().await;
@@ -201,7 +201,9 @@ impl TranslationManager {
         *active_id = Some(session_id.to_string());
     }
 
-    pub async fn get_api_manager(&self) -> std::sync::Arc<tauri::async_runtime::RwLock<crate::my_api::manager::APIManager>> {
+    pub async fn get_api_manager(
+        &self,
+    ) -> std::sync::Arc<tauri::async_runtime::RwLock<crate::my_api::manager::APIManager>> {
         self.api_manager.clone()
     }
 }

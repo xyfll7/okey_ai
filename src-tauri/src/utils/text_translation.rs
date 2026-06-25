@@ -1,4 +1,5 @@
 use crate::my_events::event_names;
+use crate::states::app_state::AppConfigState;
 use crate::states::chatting_state::ChattingState;
 use crate::utils::chat_message::Role;
 use crate::utils::{self, translation_manager};
@@ -25,22 +26,23 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
         if selected_text.is_empty() {
             return;
         }
-        println!("selected_text: {}", selected_text);
         let detected_lang = language_detection::detect_language(&selected_text);
 
-        let translation_prompt = match detected_lang {
-            "zh-CN" => format!(
-                "Please translate the following text into English:\n\n{}",
-                selected_text
-            ),
-            "en" => format!(
-                "Please translate the following text into Chinese: \n\n{}",
-                selected_text
-            ),
-            _ => format!(
-                "Please analyze the following text and provide a summary：\n\n{}",
-                selected_text
-            ),
+        let app_config_state = app_handle.state::<AppConfigState>();
+        let translation_prompt = {
+            let app_config_read = app_config_state.read();
+            let prompts = app_config_read.prompts.clone();
+            match detected_lang {
+                "zh-CN" => prompts
+                    .translate_into
+                    .replace("{target}", "English")
+                    .replace("{text}", &selected_text),
+                "en" => prompts
+                    .translate_into
+                    .replace("{target}", "Chinese")
+                    .replace("{text}", &selected_text),
+                _ => prompts.summary_prompt.replace("{text}", &selected_text),
+            }
         };
         let translation_manager = app_handle.state::<translation_manager::TranslationManager>();
 
