@@ -79,6 +79,15 @@ function Header(props: React.ComponentProps<"div">) {
 		});
 	}, []);
 
+	const CreateNewSession = ()=> <Button size={"icon-sm"} variant={"ghost"} onClick={async () => {
+		await invoke(EVENT_NAMES.create_new_session);
+		const history = await invoke<ChatMessage[]>(EVENT_NAMES.get_current_history);
+		s_ChatList.setState(() => history);
+		s_Selected.setState(() => ({ text: "", raw: "" }));
+	}}>
+		<IIChat />
+	</Button>
+
 	if (["macos"].includes(_ostype)) {
 		return <div
 			className={cn(
@@ -87,14 +96,7 @@ function Header(props: React.ComponentProps<"div">) {
 			)}
 			data-tauri-drag-region
 		>
-			<Button size={"icon-sm"} variant={"ghost"} onClick={async () => {
-				await invoke(EVENT_NAMES.create_new_session);
-				const history = await invoke<ChatMessage[]>(EVENT_NAMES.get_current_history);
-				s_ChatList.setState(() => history);
-				s_Selected.setState(() => ({ text: "", raw: "" }));
-			}}>
-				<IIChat />
-			</Button>
+			<CreateNewSession />
 			<HistoriesNew className="mr-1" />
 			<HotKey
 				className="mr-1 px-1"
@@ -153,14 +155,7 @@ function Header(props: React.ComponentProps<"div">) {
 					onHotkeyChange={(e) => setHotkey(e)}
 				/>
 				<HistoriesNew className="ml-1" />
-				<Button size={"icon-sm"} variant={"ghost"} onClick={async () => {
-					await invoke(EVENT_NAMES.create_new_session);
-					const history = await invoke<ChatMessage[]>(EVENT_NAMES.get_current_history);
-					s_ChatList.setState(() => history);
-					s_Selected.setState(() => ({ text: "", raw: "" }));
-				}}>
-					<IIChat />
-				</Button>
+				<CreateNewSession />
 			</div>
 			<div className=" flex">
 				<SettingsNew />
