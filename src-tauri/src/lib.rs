@@ -43,6 +43,8 @@ pub fn run() {
             my_command::set_local_language,
             my_command::get_target_language,
             my_command::set_target_language,
+            my_command::get_self_explaining_model,
+            my_command::set_self_explaining_model,
             my_command::window_translate_show,
             my_command::close_main_window,
             my_command::chat_stream,

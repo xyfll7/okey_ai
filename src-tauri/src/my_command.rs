@@ -231,3 +231,21 @@ pub async fn update_model_api_key(app: AppHandle, model_name: String, api_key: S
     crate::my_api::refresh_api_clients_from_app_config(&app).await;
     Ok(())
 }
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn get_self_explaining_model(app: AppHandle) -> bool {
+    let app_state = app.state::<AppConfigState>();
+    let config = app_state.read();
+    config.self_explaining_model
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn set_self_explaining_model(app: AppHandle, enabled: bool) -> Result<bool, String> {
+    let app_state = app.state::<AppConfigState>();
+    app_state
+        .update(|config| {
+            config.self_explaining_model = enabled;
+        })
+        .map_err(|e| e.to_string())?;
+    Ok(enabled)
+}

@@ -38,6 +38,8 @@ export const EVENT_NAMES = {
   set_local_language: "set_local_language",
   get_target_language: "get_target_language",
   set_target_language: "set_target_language",
+  get_self_explaining_model: "get_self_explaining_model",
+  set_self_explaining_model: "set_self_explaining_model",
   get_locale: "get_locale",
   set_locale: "set_locale",
   set_current_session: "set_current_session",

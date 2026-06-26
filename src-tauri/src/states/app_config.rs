@@ -80,6 +80,7 @@ impl Language {
 pub struct Prompts {
     pub system_prompt: String,
     pub translate_into: String,
+    pub explain_prompt: String,
     pub summary_prompt: String,
 }
 
@@ -88,6 +89,7 @@ impl Default for Prompts {
         Prompts {
             system_prompt: "You are a professional translation assistant. Please accurately translate the language, preserving the original meaning and tone.".to_string(),
             translate_into: "Please translate the following text into {target}:\n\n{text}".to_string(),
+            explain_prompt: "Please explain the following text in {target}, as if explaining to a language learner:\n\n{text}".to_string(),
             summary_prompt: "Please analyze the following text and provide a summary:\n\n{text}".to_string(),
         }
     }
@@ -104,6 +106,7 @@ pub struct AppConfig {
     pub language: Language,
     pub local_language: Language,
     pub target_language: Language,
+    pub self_explaining_model: bool,
     pub prompts: Prompts,
 }
 
@@ -124,6 +127,7 @@ impl Default for AppConfig {
             language: Language::default(),
             local_language: Language::Auto.effective_language(),
             target_language: Language::Auto.effective_language(),
+            self_explaining_model: false,
             prompts: Prompts::default(),
         }
     }

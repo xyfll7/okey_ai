@@ -485,6 +485,7 @@ export default function LanguageSelector() {
 	const [localLanguage, setLocalLanguage] = useState<string>("zh-CN");
 	const [targetLanguage, setTargetLanguage] = useState<string>("en");
 	const [options, setOptions] = useState<{ label: string; value: string }[]>([]);
+	const { ...selfExplaining_X } = useInvoke<boolean>(EVENT_NAMES.get_self_explaining_model, false);
 
 	useEffect(() => {
 		(async () => {
@@ -506,7 +507,7 @@ export default function LanguageSelector() {
 	return (
 		<div className="px-2 pb-2 flex  flex-wrap">
 			<DropdownMenu>
-				<DropdownMenuTrigger asChild>
+				<DropdownMenuTrigger asChild disabled={!!selfExplaining_X.state}>
 					<Button size="xs" variant="ghost">
 						Local: {options.find((item) => item.value === localLanguage)?.label ?? "Chinese"}
 					</Button>
@@ -529,7 +530,7 @@ export default function LanguageSelector() {
 				<IIExchange />
 			</Button>
 			<DropdownMenu>
-				<DropdownMenuTrigger asChild>
+				<DropdownMenuTrigger asChild disabled={!!selfExplaining_X.state}>
 					<Button size="xs" variant="ghost">
 						Target: {options.find((item) => item.value === targetLanguage)?.label ?? "English"}
 					</Button>
@@ -548,6 +549,21 @@ export default function LanguageSelector() {
 					))}
 				</DropdownMenuContent>
 			</DropdownMenu>
+			<Button
+				size="xs"
+				variant="ghost"
+				className={cn(
+					!!selfExplaining_X.state ? "" : "opacity-50",
+					"hover:text-inherit",
+				)}
+				onClick={async () => {
+					const enabled = !selfExplaining_X.state;
+					await invoke(EVENT_NAMES.set_self_explaining_model as any, { enabled });
+					selfExplaining_X.setState(enabled as any);
+				}}
+			>
+				{!!selfExplaining_X.state ? "Self-explaining: On" : "Self-explaining: Off"}
+			</Button>
 		</div>
 	);
 }
