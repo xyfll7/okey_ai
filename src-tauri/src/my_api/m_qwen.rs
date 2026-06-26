@@ -1,7 +1,4 @@
-use crate::my_api::traits::{
-    APIConfig, ChatCompletionChunk, ChatCompletionRequest, ChatCompletionResponse,
-    ChatMessageDelta, ChoiceDelta, LLMClient, StreamHandle,
-};
+use crate::my_api::traits::{APIConfig, ChatCompletionChunk, ChatCompletionRequest, ChatCompletionResponse, ChatMessageDelta, ChoiceDelta, LLMClient, StreamHandle};
 use crate::utils::chat_message::ChatMessage;
 use futures::channel::oneshot;
 use futures::future::select;
@@ -21,10 +18,7 @@ pub struct QwenClient {
 
 impl QwenClient {
     pub fn new(config: APIConfig) -> Self {
-        Self {
-            config,
-            client: reqwest::Client::new(),
-        }
+        Self { config, client: reqwest::Client::new() }
     }
 }
 
@@ -40,51 +34,26 @@ impl LLMClient for QwenClient {
         params
     }
 
-    fn chat_completion<'a>(
-        &'a self,
-        request: &'a ChatCompletionRequest,
-    ) -> std::pin::Pin<
-        Box<dyn std::future::Future<Output = Result<ChatCompletionResponse, String>> + Send + 'a>,
-    > {
+    fn chat_completion<'a>(&'a self, request: &'a ChatCompletionRequest) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<ChatCompletionResponse, String>> + Send + 'a>> {
         Box::pin(async move {
-            let api_url = format!(
-                "{}/compatible-mode/v1/chat/completions",
-                self.config.base_url
-            );
+            let api_url = format!("{}/compatible-mode/v1/chat/completions", self.config.base_url);
 
             let mut request = request.clone();
             request.stream = Some(false); // Ensure stream is false for non-streaming requests
 
-            let json_body = serde_json::to_string(&request)
-                .map_err(|e| format!("Failed to serialize request: {}", e))?;
+            let json_body = serde_json::to_string(&request).map_err(|e| format!("Failed to serialize request: {}", e))?;
 
-            let response = self
-                .client
-                .post(&api_url)
-                .header("Authorization", format!("Bearer {}", self.config.api_key))
-                .header("Content-Type", "application/json")
-                .header("Accept", "application/json")
-                .body(json_body)
-                .send()
-                .await
-                .map_err(|e| format!("Failed to send request: {}", e))?;
+            let response = self.client.post(&api_url).header("Authorization", format!("Bearer {}", self.config.api_key)).header("Content-Type", "application/json").header("Accept", "application/json").body(json_body).send().await.map_err(|e| format!("Failed to send request: {}", e))?;
 
             if !response.status().is_success() {
                 let status = response.status();
                 let error_text = response.text().await.unwrap_or_default();
-                return Err(format!(
-                    "API request failed with status: {}, error: {}",
-                    status, error_text
-                ));
+                return Err(format!("API request failed with status: {}, error: {}", status, error_text));
             }
 
-            let response_text = response
-                .text()
-                .await
-                .map_err(|e| format!("Failed to read response text: {}", e))?;
+            let response_text = response.text().await.map_err(|e| format!("Failed to read response text: {}", e))?;
 
-            let qwen_response: QwenChatResponse = serde_json::from_str(&response_text)
-                .map_err(|e| format!("Failed to parse response: {}", e))?;
+            let qwen_response: QwenChatResponse = serde_json::from_str(&response_text).map_err(|e| format!("Failed to parse response: {}", e))?;
 
             // Convert Qwen response to standard format
             Ok(ChatCompletionResponse {
@@ -92,67 +61,27 @@ impl LLMClient for QwenClient {
                 object: qwen_response.object,
                 created: qwen_response.created,
                 model: qwen_response.model,
-                choices: qwen_response
-                    .choices
-                    .into_iter()
-                    .map(|choice| crate::my_api::traits::Choice {
-                        index: choice.index,
-                        message: choice.message,
-                        finish_reason: choice.finish_reason,
-                    })
-                    .collect(),
-                usage: Some(crate::my_api::traits::Usage {
-                    prompt_tokens: qwen_response.usage.prompt_tokens,
-                    completion_tokens: qwen_response.usage.completion_tokens,
-                    total_tokens: qwen_response.usage.total_tokens,
-                }),
+                choices: qwen_response.choices.into_iter().map(|choice| crate::my_api::traits::Choice { index: choice.index, message: choice.message, finish_reason: choice.finish_reason }).collect(),
+                usage: Some(crate::my_api::traits::Usage { prompt_tokens: qwen_response.usage.prompt_tokens, completion_tokens: qwen_response.usage.completion_tokens, total_tokens: qwen_response.usage.total_tokens }),
             })
         })
     }
 
-    fn chat_completion_stream<'a>(
-        &'a self,
-        request: &'a ChatCompletionRequest,
-    ) -> std::pin::Pin<
-        Box<
-            dyn std::future::Future<
-                    Output = Result<StreamHandle, String>,
-                > + Send
-                + 'a,
-        >,
-    > {
+    fn chat_completion_stream<'a>(&'a self, request: &'a ChatCompletionRequest) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<StreamHandle, String>> + Send + 'a>> {
         Box::pin(async move {
-            let api_url = format!(
-                "{}/compatible-mode/v1/chat/completions",
-                self.config.base_url
-            );
+            let api_url = format!("{}/compatible-mode/v1/chat/completions", self.config.base_url);
 
             let mut request = request.clone();
             request.stream = Some(true); // Enable streaming
 
-            let json_body = serde_json::to_string(&request)
-                .map_err(|e| format!("Failed to serialize request: {}", e))?;
+            let json_body = serde_json::to_string(&request).map_err(|e| format!("Failed to serialize request: {}", e))?;
 
-            let response = self
-                .client
-                .post(&api_url)
-                .header("Authorization", format!("Bearer {}", self.config.api_key))
-                .header("Content-Type", "application/json")
-                .header("Accept", "text/event-stream")
-                .header("Cache-Control", "no-cache")
-                .header("Connection", "keep-alive")
-                .body(json_body)
-                .send()
-                .await
-                .map_err(|e| format!("Failed to send request: {}", e))?;
+            let response = self.client.post(&api_url).header("Authorization", format!("Bearer {}", self.config.api_key)).header("Content-Type", "application/json").header("Accept", "text/event-stream").header("Cache-Control", "no-cache").header("Connection", "keep-alive").body(json_body).send().await.map_err(|e| format!("Failed to send request: {}", e))?;
 
             if !response.status().is_success() {
                 let status = response.status();
                 let error_text = response.text().await.unwrap_or_default();
-                return Err(format!(
-                    "API request failed with status: {}, error: {}",
-                    status, error_text
-                ));
+                return Err(format!("API request failed with status: {}, error: {}", status, error_text));
             }
 
             let byte_stream = response.bytes_stream();
@@ -174,88 +103,61 @@ impl LLMClient for QwenClient {
                         futures::future::Either::Left((_, _)) => {
                             break;
                         }
-                        futures::future::Either::Right((chunk_result, _)) => {
-                            match chunk_result {
-                                Some(Ok(bytes)) => {
-                                    match std::str::from_utf8(&bytes) {
-                                        Ok(text) => {
-                                            buffer.push_str(text);
-                                            while let Some(pos) = buffer.find('\n') {
-                                                let (line, rest) = buffer.split_at(pos);
-                                                let line = line.to_string();
-                                                buffer = rest[1..].to_string();
+                        futures::future::Either::Right((chunk_result, _)) => match chunk_result {
+                            Some(Ok(bytes)) => match std::str::from_utf8(&bytes) {
+                                Ok(text) => {
+                                    buffer.push_str(text);
+                                    while let Some(pos) = buffer.find('\n') {
+                                        let (line, rest) = buffer.split_at(pos);
+                                        let line = line.to_string();
+                                        buffer = rest[1..].to_string();
 
-                                                if line.trim().is_empty() {
-                                                    continue;
+                                        if line.trim().is_empty() {
+                                            continue;
+                                        }
+
+                                        if line.starts_with("data: ") {
+                                            let data = line[6..].trim();
+
+                                            if data == "[DONE]" {
+                                                return;
+                                            }
+
+                                            match serde_json::from_str::<QwenChatStreamResponse>(data) {
+                                                Ok(stream_response) => {
+                                                    let chunk = ChatCompletionChunk {
+                                                        id: stream_response.id,
+                                                        object: stream_response.object,
+                                                        created: stream_response.created,
+                                                        model: stream_response.model,
+                                                        choices: stream_response.choices.into_iter().map(|choice| ChoiceDelta { index: choice.index, delta: ChatMessageDelta { role: choice.delta.role, content: choice.delta.content }, finish_reason: choice.finish_reason }).collect(),
+                                                    };
+                                                    let _ = tx.unbounded_send(Ok(chunk));
                                                 }
-
-                                                if line.starts_with("data: ") {
-                                                    let data = line[6..].trim();
-
-                                                    if data == "[DONE]" {
-                                                        return;
-                                                    }
-
-                                                    match serde_json::from_str::<QwenChatStreamResponse>(data) {
-                                                        Ok(stream_response) => {
-                                                            let chunk = ChatCompletionChunk {
-                                                                id: stream_response.id,
-                                                                object: stream_response.object,
-                                                                created: stream_response.created,
-                                                                model: stream_response.model,
-                                                                choices: stream_response
-                                                                    .choices
-                                                                    .into_iter()
-                                                                    .map(|choice| ChoiceDelta {
-                                                                        index: choice.index,
-                                                                        delta: ChatMessageDelta {
-                                                                            role: choice.delta.role,
-                                                                            content: choice.delta.content,
-                                                                        },
-                                                                        finish_reason: choice.finish_reason,
-                                                                    })
-                                                                    .collect(),
-                                                            };
-                                                            let _ = tx.unbounded_send(Ok(chunk));
-                                                        }
-                                                        Err(e) => {
-                                                            let _ = tx.unbounded_send(Err(format!(
-                                                                "Failed to parse stream data: {}",
-                                                                e
-                                                            )));
-                                                        }
-                                                    }
+                                                Err(e) => {
+                                                    let _ = tx.unbounded_send(Err(format!("Failed to parse stream data: {}", e)));
                                                 }
                                             }
                                         }
-                                        Err(e) => {
-                                            let _ = tx.unbounded_send(Err(format!(
-                                                "Failed to decode UTF-8: {}",
-                                                e
-                                            )));
-                                        }
                                     }
                                 }
-                                Some(Err(e)) => {
-                                    let _ = tx.unbounded_send(Err(format!(
-                                        "Failed to read response chunk: {}",
-                                        e
-                                    )));
-                                    return;
+                                Err(e) => {
+                                    let _ = tx.unbounded_send(Err(format!("Failed to decode UTF-8: {}", e)));
                                 }
-                                None => {
-                                    return;
-                                }
+                            },
+                            Some(Err(e)) => {
+                                let _ = tx.unbounded_send(Err(format!("Failed to read response chunk: {}", e)));
+                                return;
                             }
-                        }
+                            None => {
+                                return;
+                            }
+                        },
                     }
                 }
             });
 
-            Ok(StreamHandle {
-                stream: rx.map(|x| x.map_err(|e| e.to_string())).boxed(),
-                cancel: cancel_tx,
-            })
+            Ok(StreamHandle { stream: rx.map(|x| x.map_err(|e| e.to_string())).boxed(), cancel: cancel_tx })
         })
     }
 }

@@ -1,7 +1,4 @@
-use crate::my_api::traits::{
-    APIConfig, ChatCompletionChunk, ChatCompletionRequest, ChatCompletionResponse,
-    ChatMessageDelta, ChoiceDelta, LLMClient, StreamHandle,
-};
+use crate::my_api::traits::{APIConfig, ChatCompletionChunk, ChatCompletionRequest, ChatCompletionResponse, ChatMessageDelta, ChoiceDelta, LLMClient, StreamHandle};
 use crate::utils::chat_message::ChatMessage;
 use futures::channel::oneshot;
 use futures::future::select;
@@ -21,10 +18,7 @@ pub struct ZAIClient {
 
 impl ZAIClient {
     pub fn new(config: APIConfig) -> Self {
-        Self {
-            config,
-            client: reqwest::Client::new(),
-        }
+        Self { config, client: reqwest::Client::new() }
     }
 }
 
@@ -42,47 +36,25 @@ impl LLMClient for ZAIClient {
         params
     }
 
-    fn chat_completion<'a>(
-        &'a self,
-        request: &'a ChatCompletionRequest,
-    ) -> std::pin::Pin<
-        Box<dyn std::future::Future<Output = Result<ChatCompletionResponse, String>> + Send + 'a>,
-    > {
+    fn chat_completion<'a>(&'a self, request: &'a ChatCompletionRequest) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<ChatCompletionResponse, String>> + Send + 'a>> {
         Box::pin(async move {
             let api_url = format!("{}/chat/completions", self.config.base_url);
 
             let mut request = request.clone();
             request.stream = Some(false); // Ensure stream is false for non-streaming requests
 
-            let json_body = serde_json::to_string(&request)
-                .map_err(|e| format!("Failed to serialize request: {}", e))?;
+            let json_body = serde_json::to_string(&request).map_err(|e| format!("Failed to serialize request: {}", e))?;
 
-            let response = self
-                .client
-                .post(&api_url)
-                .header("Authorization", format!("Bearer {}", self.config.api_key))
-                .header("Content-Type", "application/json")
-                .header("Accept", "application/json")
-                .body(json_body)
-                .send()
-                .await
-                .map_err(|e| format!("Failed to send request: {}", e))?;
+            let response = self.client.post(&api_url).header("Authorization", format!("Bearer {}", self.config.api_key)).header("Content-Type", "application/json").header("Accept", "application/json").body(json_body).send().await.map_err(|e| format!("Failed to send request: {}", e))?;
 
             if !response.status().is_success() {
                 let status = response.status();
                 let error_text = response.text().await.unwrap_or_default();
-                return Err(format!(
-                    "API request failed with status: {}, error: {}",
-                    status, error_text
-                ));
+                return Err(format!("API request failed with status: {}, error: {}", status, error_text));
             }
 
-            let response_text = response
-                .text()
-                .await
-                .map_err(|e| format!("Failed to read response text: {}", e))?;
-            let zai_response: ZAIChatResponse = serde_json::from_str(&response_text)
-                .map_err(|e| format!("Failed to parse response: {}", e))?;
+            let response_text = response.text().await.map_err(|e| format!("Failed to read response text: {}", e))?;
+            let zai_response: ZAIChatResponse = serde_json::from_str(&response_text).map_err(|e| format!("Failed to parse response: {}", e))?;
             // Convert ZAI response to standard format
             Ok(ChatCompletionResponse {
                 id: zai_response.id,
@@ -94,61 +66,29 @@ impl LLMClient for ZAIClient {
                     .into_iter()
                     .map(|choice| crate::my_api::traits::Choice {
                         index: choice.index,
-                        message: ChatMessage {
-                            role: choice.message.role.as_deref().unwrap_or("user").into(),
-                            content: choice
-                                .message
-                                .content
-                                .or(choice.message.reasoning_content)
-                                .unwrap_or_default(),
-                            raw: None,
-                        },
+                        message: ChatMessage { role: choice.message.role.as_deref().unwrap_or("user").into(), content: choice.message.content.or(choice.message.reasoning_content).unwrap_or_default(), raw: None },
                         finish_reason: choice.finish_reason,
                     })
                     .collect(),
-                usage: Some(crate::my_api::traits::Usage {
-                    prompt_tokens: zai_response.usage.prompt_tokens,
-                    completion_tokens: zai_response.usage.completion_tokens,
-                    total_tokens: zai_response.usage.total_tokens,
-                }),
+                usage: Some(crate::my_api::traits::Usage { prompt_tokens: zai_response.usage.prompt_tokens, completion_tokens: zai_response.usage.completion_tokens, total_tokens: zai_response.usage.total_tokens }),
             })
         })
     }
 
-    fn chat_completion_stream<'a>(
-        &'a self,
-        request: &'a ChatCompletionRequest,
-    ) -> std::pin::Pin<
-        Box<dyn std::future::Future<Output = Result<StreamHandle, String>> + Send + 'a>,
-    > {
+    fn chat_completion_stream<'a>(&'a self, request: &'a ChatCompletionRequest) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<StreamHandle, String>> + Send + 'a>> {
         Box::pin(async move {
             let api_url = format!("{}/chat/completions", self.config.base_url);
 
             let mut request = request.clone();
             request.stream = Some(true); // Enable streaming
 
-            let json_body = serde_json::to_string(&request)
-                .map_err(|e| format!("Failed to serialize request: {}", e))?;
+            let json_body = serde_json::to_string(&request).map_err(|e| format!("Failed to serialize request: {}", e))?;
 
-            let response = self
-                .client
-                .post(&api_url)
-                .header("Authorization", format!("Bearer {}", self.config.api_key))
-                .header("Content-Type", "application/json")
-                .header("Accept", "text/event-stream")
-                .header("Cache-Control", "no-cache")
-                .header("Connection", "keep-alive")
-                .body(json_body)
-                .send()
-                .await
-                .map_err(|e| format!("Failed to send request: {}", e))?;
+            let response = self.client.post(&api_url).header("Authorization", format!("Bearer {}", self.config.api_key)).header("Content-Type", "application/json").header("Accept", "text/event-stream").header("Cache-Control", "no-cache").header("Connection", "keep-alive").body(json_body).send().await.map_err(|e| format!("Failed to send request: {}", e))?;
             if !response.status().is_success() {
                 let status = response.status();
                 let error_text = response.text().await.unwrap_or_default();
-                return Err(format!(
-                    "API request failed with status: {}, error: {}",
-                    status, error_text
-                ));
+                return Err(format!("API request failed with status: {}, error: {}", status, error_text));
             }
 
             let byte_stream = response.bytes_stream();
@@ -190,57 +130,30 @@ impl LLMClient for ZAIClient {
                                                 return;
                                             }
 
-                                            match serde_json::from_str::<ZAIChatStreamResponse>(
-                                                data,
-                                            ) {
+                                            match serde_json::from_str::<ZAIChatStreamResponse>(data) {
                                                 Ok(stream_response) => {
                                                     let chunk = ChatCompletionChunk {
                                                         id: stream_response.id,
                                                         object: stream_response.object,
                                                         created: stream_response.created,
                                                         model: stream_response.model,
-                                                        choices: stream_response
-                                                            .choices
-                                                            .into_iter()
-                                                            .map(|choice| ChoiceDelta {
-                                                                index: choice.index,
-                                                                delta: ChatMessageDelta {
-                                                                    role: choice.delta.role,
-                                                                    content: choice
-                                                                        .delta
-                                                                        .content
-                                                                        .or(choice
-                                                                            .delta
-                                                                            .reasoning_content),
-                                                                },
-                                                                finish_reason: choice.finish_reason,
-                                                            })
-                                                            .collect(),
+                                                        choices: stream_response.choices.into_iter().map(|choice| ChoiceDelta { index: choice.index, delta: ChatMessageDelta { role: choice.delta.role, content: choice.delta.content.or(choice.delta.reasoning_content) }, finish_reason: choice.finish_reason }).collect(),
                                                     };
                                                     let _ = tx.unbounded_send(Ok(chunk));
                                                 }
                                                 Err(e) => {
-                                                    let _ = tx.unbounded_send(Err(format!(
-                                                        "Failed to parse stream data: {}",
-                                                        e
-                                                    )));
+                                                    let _ = tx.unbounded_send(Err(format!("Failed to parse stream data: {}", e)));
                                                 }
                                             }
                                         }
                                     }
                                 }
                                 Err(e) => {
-                                    let _ = tx.unbounded_send(Err(format!(
-                                        "Failed to decode UTF-8: {}",
-                                        e
-                                    )));
+                                    let _ = tx.unbounded_send(Err(format!("Failed to decode UTF-8: {}", e)));
                                 }
                             },
                             Some(Err(e)) => {
-                                let _ = tx.unbounded_send(Err(format!(
-                                    "Failed to read response chunk: {}",
-                                    e
-                                )));
+                                let _ = tx.unbounded_send(Err(format!("Failed to read response chunk: {}", e)));
                                 return;
                             }
                             None => {
@@ -251,10 +164,7 @@ impl LLMClient for ZAIClient {
                 }
             });
 
-            Ok(StreamHandle {
-                stream: rx.map(|x| x.map_err(|e| e.to_string())).boxed(),
-                cancel: cancel_tx,
-            })
+            Ok(StreamHandle { stream: rx.map(|x| x.map_err(|e| e.to_string())).boxed(), cancel: cancel_tx })
         })
     }
 }

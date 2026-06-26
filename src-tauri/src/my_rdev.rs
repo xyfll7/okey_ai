@@ -23,10 +23,7 @@ struct InputMethodEditorHandler {
 
 impl InputMethodEditorHandler {
     fn new() -> Self {
-        Self {
-            was_pressed: false,
-            press_start_time: None,
-        }
+        Self { was_pressed: false, press_start_time: None }
     }
 
     fn handle(&mut self, is_pressed: bool, app: &AppHandle) {
@@ -56,11 +53,7 @@ struct TranslateBubbleHandler {
 
 impl TranslateBubbleHandler {
     fn new() -> Self {
-        Self {
-            was_pressed: false,
-            last_release_time: None,
-            double_click_timeout: 1000,
-        }
+        Self { was_pressed: false, last_release_time: None, double_click_timeout: 1000 }
     }
 
     fn handle(&mut self, is_pressed: bool, app: &AppHandle) {
@@ -93,10 +86,7 @@ struct ClickOutsideHandler {
 
 impl ClickOutsideHandler {
     fn new() -> Self {
-        Self {
-            mouse_x: 0,
-            mouse_y: 0,
-        }
+        Self { mouse_x: 0, mouse_y: 0 }
     }
 
     fn update_mouse_position(&mut self, x: f64, y: f64) {
@@ -113,10 +103,7 @@ impl ClickOutsideHandler {
                     let win_w = size.width as i32;
                     let win_h = size.height as i32;
 
-                    let inside = self.mouse_x >= win_x
-                        && self.mouse_x <= win_x + win_w
-                        && self.mouse_y >= win_y
-                        && self.mouse_y <= win_y + win_h;
+                    let inside = self.mouse_x >= win_x && self.mouse_x <= win_x + win_w && self.mouse_y >= win_y && self.mouse_y <= win_y + win_h;
 
                     if !inside {
                         let _ = window.hide();
@@ -131,11 +118,7 @@ impl ClickOutsideHandler {
 pub fn init_global_input_listener(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     let app_clone = app.clone();
 
-    let global_state = Arc::new(Mutex::new(GlobalState {
-        ime_handler: InputMethodEditorHandler::new(),
-        translate_bubble_handler: TranslateBubbleHandler::new(),
-        click_outside_handler: ClickOutsideHandler::new(),
-    }));
+    let global_state = Arc::new(Mutex::new(GlobalState { ime_handler: InputMethodEditorHandler::new(), translate_bubble_handler: TranslateBubbleHandler::new(), click_outside_handler: ClickOutsideHandler::new() }));
 
     let state_clone = global_state.clone();
 

@@ -8,13 +8,11 @@ use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
 
 #[tauri::command]
 pub fn register_hotkey_okey_ai(app: AppHandle, new_hotkey: String) -> Result<(), String> {
-    match app
-        .global_shortcut()
-        .on_shortcut(new_hotkey.as_str(), move |app, _shortcut, event| {
-            if event.state == ShortcutState::Pressed {
-                text_translation::translate_selected_text(&app, DisplayType::Normal);
-            }
-        }) {
+    match app.global_shortcut().on_shortcut(new_hotkey.as_str(), move |app, _shortcut, event| {
+        if event.state == ShortcutState::Pressed {
+            text_translation::translate_selected_text(&app, DisplayType::Normal);
+        }
+    }) {
         Ok(_) => println!("Successfully registered new_hotkey: {}", new_hotkey),
         Err(e) => {
             println!("Failed to register new new_hotkey: {}", e);
@@ -35,10 +33,7 @@ pub fn register_hotkey_okey_ai(app: AppHandle, new_hotkey: String) -> Result<(),
                 }
 
                 if old_shortcut_result.is_none() {
-                    config.shortcuts.push(Shortcut {
-                        name: "okey_ai".to_string(),
-                        hot_key: new_hotkey.clone(),
-                    });
+                    config.shortcuts.push(Shortcut { name: "okey_ai".to_string(), hot_key: new_hotkey.clone() });
                 }
             })
             .map_err(|e| format!("Failed to save config: {}", e))?;
@@ -47,10 +42,7 @@ pub fn register_hotkey_okey_ai(app: AppHandle, new_hotkey: String) -> Result<(),
 
     if let Some(old_key) = old_shortcut {
         if let Err(e) = app.global_shortcut().unregister(old_key.as_str()) {
-            println!(
-                "Failed to deregister the old shortcut key {}: {}",
-                old_key, e
-            );
+            println!("Failed to deregister the old shortcut key {}: {}", old_key, e);
         }
     }
     println!("Old shortcut key has been deactivated");
@@ -68,24 +60,16 @@ pub fn init_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>>
 
         let hot_key_for_message = hot_key.clone();
         let name_for_message = name.clone();
-        match app
-            .global_shortcut()
-            .on_shortcut(hot_key.as_str(), move |app, _, event| {
-                if event.state == ShortcutState::Pressed {
-                    if name == "okey_ai" {
-                        text_translation::translate_selected_text(&app, DisplayType::Normal);
-                    }
+        match app.global_shortcut().on_shortcut(hot_key.as_str(), move |app, _, event| {
+            if event.state == ShortcutState::Pressed {
+                if name == "okey_ai" {
+                    text_translation::translate_selected_text(&app, DisplayType::Normal);
                 }
-            }) {
-            Ok(_) => println!(
-                "Successfully registered shortcut key: {} ({})",
-                name_for_message, hot_key_for_message
-            ),
+            }
+        }) {
+            Ok(_) => println!("Successfully registered shortcut key: {} ({})", name_for_message, hot_key_for_message),
             Err(e) => {
-                eprintln!(
-                    "Failed to register shortcut key {}: {}",
-                    hot_key_for_message, e
-                );
+                eprintln!("Failed to register shortcut key {}: {}", hot_key_for_message, e);
             }
         }
     }

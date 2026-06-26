@@ -4,10 +4,7 @@ use std::{
     time::Duration,
 };
 use tauri::Emitter;
-use tauri::{
-    window::Color, AppHandle, Listener, LogicalSize, Manager, PhysicalPosition, Runtime,
-    WebviewUrl, WebviewWindowBuilder,
-};
+use tauri::{window::Color, AppHandle, Listener, LogicalSize, Manager, PhysicalPosition, Runtime, WebviewUrl, WebviewWindowBuilder};
 
 use crate::{my_events::event_names, states::app_state::AppConfigState};
 use mouse_position::mouse_position::{Mouse, Position};
@@ -24,8 +21,7 @@ pub fn window_input_method_editor_show<R: Runtime>(app: &AppHandle<R>) {
         let _ = window.set_min_size(Some(size));
         let _ = window.set_background_color(Some(Color(0, 0, 0, 0)));
 
-        let (logical_x, logical_y) =
-            calculate_window_position(app, WINDOW_WIDTH, WINDOW_HEIGHT, CURSOR_OFFSET);
+        let (logical_x, logical_y) = calculate_window_position(app, WINDOW_WIDTH, WINDOW_HEIGHT, CURSOR_OFFSET);
 
         let mut target_scale = 1.0;
 
@@ -40,11 +36,7 @@ pub fn window_input_method_editor_show<R: Runtime>(app: &AppHandle<R>) {
                 let mon_w = size_mon.width as f64 / scale;
                 let mon_h = size_mon.height as f64 / scale;
 
-                if logical_x >= mon_x
-                    && logical_x < mon_x + mon_w
-                    && logical_y >= mon_y
-                    && logical_y < mon_y + mon_h
-                {
+                if logical_x >= mon_x && logical_x < mon_x + mon_w && logical_y >= mon_y && logical_y < mon_y + mon_h {
                     target_scale = scale;
                     break;
                 }
@@ -54,10 +46,7 @@ pub fn window_input_method_editor_show<R: Runtime>(app: &AppHandle<R>) {
         let physical_x = (logical_x * target_scale) as i32;
         let physical_y = (logical_y * target_scale) as i32;
 
-        let _ = window.set_position(tauri::Position::Physical(PhysicalPosition {
-            x: physical_x,
-            y: physical_y,
-        }));
+        let _ = window.set_position(tauri::Position::Physical(PhysicalPosition { x: physical_x, y: physical_y }));
 
         let _ = window.show();
         let _ = window.set_always_on_top(true);
@@ -83,17 +72,9 @@ where
         let _ = window.set_size(size);
         let _ = window.set_min_size(Some(size));
         let _ = window.set_background_color(Some(Color(0, 0, 0, 1)));
-        let _ = window.set_max_size(Some(LogicalSize::new(
-            10_000.0,
-            WINDOW_HEIGHT_TRANSLATE_BUBBLE,
-        )));
+        let _ = window.set_max_size(Some(LogicalSize::new(10_000.0, WINDOW_HEIGHT_TRANSLATE_BUBBLE)));
 
-        let (logical_x, logical_y) = calculate_window_position(
-            app,
-            WINDOW_WIDTH,
-            WINDOW_HEIGHT_TRANSLATE_BUBBLE,
-            CURSOR_OFFSET,
-        );
+        let (logical_x, logical_y) = calculate_window_position(app, WINDOW_WIDTH, WINDOW_HEIGHT_TRANSLATE_BUBBLE, CURSOR_OFFSET);
 
         #[cfg(target_os = "macos")]
         {
@@ -113,11 +94,7 @@ where
                 let mon_w = size_mon.width as f64 / scale;
                 let mon_h = size_mon.height as f64 / scale;
 
-                if logical_x >= mon_x
-                    && logical_x < mon_x + mon_w
-                    && logical_y >= mon_y
-                    && logical_y < mon_y + mon_h
-                {
+                if logical_x >= mon_x && logical_x < mon_x + mon_w && logical_y >= mon_y && logical_y < mon_y + mon_h {
                     target_scale = scale;
                     break;
                 }
@@ -127,10 +104,7 @@ where
         let physical_x = (logical_x * target_scale) as i32;
         let physical_y = (logical_y * target_scale) as i32;
 
-        let _ = window.set_position(tauri::Position::Physical(PhysicalPosition {
-            x: physical_x,
-            y: physical_y,
-        }));
+        let _ = window.set_position(tauri::Position::Physical(PhysicalPosition { x: physical_x, y: physical_y }));
 
         let _ = window.show();
         let _ = window.set_always_on_top(true);
@@ -162,29 +136,13 @@ where
         const WINDOW_HEIGHT: f64 = 600.0;
         const CURSOR_OFFSET: f64 = 10.0;
 
-        let (adjusted_x, adjusted_y) = if callback.is_none() {
-            calculate_center_position(app, WINDOW_WIDTH, WINDOW_HEIGHT)
-        } else {
-            calculate_window_position(app, WINDOW_WIDTH, WINDOW_HEIGHT, CURSOR_OFFSET)
-        };
+        let (adjusted_x, adjusted_y) = if callback.is_none() { calculate_center_position(app, WINDOW_WIDTH, WINDOW_HEIGHT) } else { calculate_window_position(app, WINDOW_WIDTH, WINDOW_HEIGHT, CURSOR_OFFSET) };
 
-        let mut builder =
-            WebviewWindowBuilder::new(app, "translate", WebviewUrl::App("/translate".into()))
-                .title("Translate Window")
-                .resizable(true)
-                .fullscreen(false)
-                .skip_taskbar(true)
-                .always_on_top(true)
-                .min_inner_size(350.0, 600.0)
-                .background_color(Color(0, 0, 0, 1))
-                .inner_size(WINDOW_WIDTH, WINDOW_HEIGHT)
-                .position(adjusted_x, adjusted_y);
+        let mut builder = WebviewWindowBuilder::new(app, "translate", WebviewUrl::App("/translate".into())).title("Translate Window").resizable(true).fullscreen(false).skip_taskbar(true).always_on_top(true).min_inner_size(350.0, 600.0).background_color(Color(0, 0, 0, 1)).inner_size(WINDOW_WIDTH, WINDOW_HEIGHT).position(adjusted_x, adjusted_y);
 
         #[cfg(target_os = "macos")]
         {
-            builder = builder
-                .title_bar_style(tauri::TitleBarStyle::Overlay)
-                .hidden_title(true);
+            builder = builder.title_bar_style(tauri::TitleBarStyle::Overlay).hidden_title(true);
         }
         #[cfg(target_os = "linux")]
         {
@@ -258,10 +216,7 @@ pub fn window_about_show<R: Runtime>(app: &AppHandle<R>) {
         let _ = window.show();
         let _ = window.set_focus();
     } else {
-        let _ = WebviewWindowBuilder::new(app, "about", WebviewUrl::App("/about".into()))
-            .title("About")
-            .resizable(true)
-            .build();
+        let _ = WebviewWindowBuilder::new(app, "about", WebviewUrl::App("/about".into())).title("About").resizable(true).build();
     }
 }
 
@@ -271,11 +226,7 @@ fn get_monitor_at_position<R: Runtime>(app: &AppHandle<R>, x: i32, y: i32) -> Op
             let size = monitor.size();
             let position = monitor.position();
 
-            if x >= position.x
-                && x < position.x + size.width as i32
-                && y >= position.y
-                && y < position.y + size.height as i32
-            {
+            if x >= position.x && x < position.x + size.width as i32 && y >= position.y && y < position.y + size.height as i32 {
                 return Some(monitor);
             }
         }
@@ -284,11 +235,7 @@ fn get_monitor_at_position<R: Runtime>(app: &AppHandle<R>, x: i32, y: i32) -> Op
     app.primary_monitor().ok().flatten()
 }
 
-fn calculate_center_position<R: Runtime>(
-    app: &AppHandle<R>,
-    width: f64,
-    height: f64,
-) -> (f64, f64) {
+fn calculate_center_position<R: Runtime>(app: &AppHandle<R>, width: f64, height: f64) -> (f64, f64) {
     if let Ok(Some(primary_monitor)) = app.primary_monitor() {
         let scale_factor = primary_monitor.scale_factor();
 
@@ -309,12 +256,7 @@ fn calculate_center_position<R: Runtime>(
     }
 }
 
-fn calculate_window_position<R: Runtime>(
-    app: &AppHandle<R>,
-    width: f64,
-    height: f64,
-    cursor_offset: f64,
-) -> (f64, f64) {
+fn calculate_window_position<R: Runtime>(app: &AppHandle<R>, width: f64, height: f64, cursor_offset: f64) -> (f64, f64) {
     let mouse_position = match Mouse::get_mouse_position() {
         Mouse::Position { x, y } => Position { x, y },
         Mouse::Error => Position { x: 0, y: 0 },

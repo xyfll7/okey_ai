@@ -28,44 +28,28 @@ pub enum StreamEvent {
 
 #[tauri::command]
 pub fn close_main_window(app: AppHandle) -> Result<(), String> {
-    let window = app
-        .get_webview_window("translate")
-        .ok_or("Translate window not found")?;
-    window
-        .destroy()
-        .map_err(|e| format!("Failed to close window: {}", e))
+    let window = app.get_webview_window("translate").ok_or("Translate window not found")?;
+    window.destroy().map_err(|e| format!("Failed to close window: {}", e))
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub async fn chat_stream(
-    app: AppHandle,
-    chat_message: ChatMessage,
-    on_event: Channel<StreamEvent>,
-) -> Result<(), String> {
+pub async fn chat_stream(app: AppHandle, chat_message: ChatMessage, on_event: Channel<StreamEvent>) -> Result<(), String> {
     let translation_manager = app.state::<translation_manager::TranslationManager>();
     let chatting_state = app.state::<ChattingState>().inner().clone();
     let on_event_clone = on_event.clone();
     let chatting_state_clone = chatting_state.clone();
 
     let messages = if chat_message.content.trim().is_empty() {
-        translation_manager
-            .get_current_history()
-            .await
-            .unwrap_or_default()
+        translation_manager.get_current_history().await.unwrap_or_default()
     } else {
-        let messages = translation_manager
-            .add_get_user_message(None, &chat_message.content, None, Role::User)
-            .await
-            .unwrap_or_default();
+        let messages = translation_manager.add_get_user_message(None, &chat_message.content, None, Role::User).await.unwrap_or_default();
         let _ = app.emit(event_names::AI_RESPONSE, &messages);
         messages
     };
     let chat_histories = translation_manager
         .translate_stream(None, messages, move |chunk_content| {
             chatting_state_clone.set(true);
-            let _ = on_event_clone.send(StreamEvent::Chunk {
-                content: chunk_content.clone(),
-            });
+            let _ = on_event_clone.send(StreamEvent::Chunk { content: chunk_content.clone() });
         })
         .await;
     match chat_histories {
@@ -76,9 +60,7 @@ pub async fn chat_stream(
         }
         None => {
             chatting_state.set(false);
-            let _ = on_event.send(StreamEvent::Error {
-                message: "Translation failed".to_string(),
-            });
+            let _ = on_event.send(StreamEvent::Error { message: "Translation failed".to_string() });
         }
     }
     Ok(())
@@ -139,22 +121,14 @@ pub fn get_auto_speak_state(app: AppHandle) -> AutoSpeakState {
 #[tauri::command]
 pub fn get_language_options() -> Vec<(String, String)> {
     use crate::states::app_config::Language;
-    vec![
-        (
-            Language::ZhCn.to_locale(),
-            Language::ZhCn.to_display_name().to_string(),
-        ),
-        (
-            Language::En.to_locale(),
-            Language::En.to_display_name().to_string(),
-        ),
-    ]
+    vec![(Language::ZhCn.to_locale(), Language::ZhCn.to_display_name().to_string()), (Language::En.to_locale(), Language::En.to_display_name().to_string())]
 }
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn get_local_language(app: AppHandle) -> Language {
     let app_state = app.state::<AppConfigState>();
     let config = app_state.read();
+    println!("get_local_language: {:?}", config.local_language);
     config.local_language
 }
 
@@ -236,14 +210,9 @@ pub async fn create_new_session(app: AppHandle) -> Result<(), String> {
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub async fn update_model_api_key(
-    app: AppHandle,
-    model_name: String,
-    api_key: String,
-) -> Result<(), String> {
+pub async fn update_model_api_key(app: AppHandle, model_name: String, api_key: String) -> Result<(), String> {
     let app_state = app.state::<AppConfigState>();
-    let model_provider: ModelProvider = serde_json::from_str(&format!("\"{}\"", model_name))
-        .map_err(|e| format!("Failed to parse model: {}", e))?;
+    let model_provider: ModelProvider = serde_json::from_str(&format!("\"{}\"", model_name)).map_err(|e| format!("Failed to parse model: {}", e))?;
 
     app_state
         .update(|config| {
@@ -251,14 +220,7 @@ pub async fn update_model_api_key(
                 .api_configs
                 .iter()
                 .map(|(provider, api_config)| {
-                    let updated_api_config = if *provider == model_provider {
-                        APIConfig {
-                            api_key: api_key.clone(),
-                            ..api_config.clone()
-                        }
-                    } else {
-                        api_config.clone()
-                    };
+                    let updated_api_config = if *provider == model_provider { APIConfig { api_key: api_key.clone(), ..api_config.clone() } } else { api_config.clone() };
                     (provider.clone(), updated_api_config)
                 })
                 .collect();

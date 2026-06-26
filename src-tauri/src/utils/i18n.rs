@@ -8,11 +8,7 @@ pub fn get_locale() -> String {
 }
 
 #[tauri::command]
-pub fn set_locale(
-    app_handle: tauri::AppHandle,
-    locale: String,
-    app_config_state: tauri::State<AppConfigState>,
-) {
+pub fn set_locale(app_handle: tauri::AppHandle, locale: String, app_config_state: tauri::State<AppConfigState>) {
     rust_i18n::set_locale(&locale);
 
     // Map locale string to Language enum

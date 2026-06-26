@@ -81,17 +81,9 @@ pub trait LLMClient {
     // 获取特定于模型的请求参数
     fn get_request_params(&self) -> HashMap<String, Value>;
 
-    fn chat_completion<'a>(
-        &'a self,
-        request: &'a ChatCompletionRequest,
-    ) -> std::pin::Pin<
-        Box<dyn std::future::Future<Output = Result<ChatCompletionResponse, String>> + Send + 'a>,
-    >;
+    fn chat_completion<'a>(&'a self, request: &'a ChatCompletionRequest) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<ChatCompletionResponse, String>> + Send + 'a>>;
 
-    fn chat_completion_stream<'a>(
-        &'a self,
-        request: &'a ChatCompletionRequest,
-    ) -> std::pin::Pin<Box<dyn Future<Output = Result<StreamHandle, String>> + Send + 'a>>;
+    fn chat_completion_stream<'a>(&'a self, request: &'a ChatCompletionRequest) -> std::pin::Pin<Box<dyn Future<Output = Result<StreamHandle, String>> + Send + 'a>>;
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

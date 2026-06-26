@@ -11,17 +11,12 @@ pub struct ChattingState {
 
 impl ChattingState {
     pub fn new(app_handle: AppHandle<tauri::Wry>) -> Self {
-        Self {
-            inner: Arc::new(AtomicBool::new(false)),
-            app_handle,
-        }
+        Self { inner: Arc::new(AtomicBool::new(false)), app_handle }
     }
 
     pub fn set(&self, value: bool) {
         self.inner.store(value, Ordering::SeqCst);
-        let _ = self
-            .app_handle
-            .emit(event_names::CHATTING_STATE_CHANGE, value);
+        let _ = self.app_handle.emit(event_names::CHATTING_STATE_CHANGE, value);
     }
 
     pub fn get(&self) -> bool {

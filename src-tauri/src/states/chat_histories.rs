@@ -14,25 +14,13 @@ pub struct ChatHistoriesState(Arc<RwLock<InnerState>>);
 
 impl ChatHistoriesState {
     pub fn new() -> Self {
-        Self(Arc::new(RwLock::new(InnerState {
-            histories: BTreeMap::new(),
-        })))
+        Self(Arc::new(RwLock::new(InnerState { histories: BTreeMap::new() })))
     }
 
     /// Add a message to a specific chat history
-    pub async fn add_message(
-        &self,
-        key: &str,
-        role: Role,
-        content: String,
-        raw: Option<String>,
-    ) -> &Self {
+    pub async fn add_message(&self, key: &str, role: Role, content: String, raw: Option<String>) -> &Self {
         let mut state = self.0.write().await;
-        state
-            .histories
-            .entry(key.to_string())
-            .or_insert_with(ChatMessageHistory::new)
-            .add_message(role, content, raw);
+        state.histories.entry(key.to_string()).or_insert_with(ChatMessageHistory::new).add_message(role, content, raw);
         self
     }
 

@@ -26,12 +26,7 @@ pub fn create_tray(app_handle: &AppHandle) -> tauri::Result<TrayIcon<tauri::Wry>
         .menu(&menu)
         .show_menu_on_left_click(false)
         .on_tray_icon_event(move |tray, event| {
-            if let TrayIconEvent::Click {
-                button,
-                button_state: MouseButtonState::Up,
-                ..
-            } = event
-            {
+            if let TrayIconEvent::Click { button, button_state: MouseButtonState::Up, .. } = event {
                 match button {
                     MouseButton::Left => {
                         my_windows::window_translate_show(&tray.app_handle(), None as Option<fn()>);
@@ -77,25 +72,12 @@ fn build_tray_menu(app_handle: &AppHandle) -> tauri::Result<tauri::menu::Menu<ta
     // Create autostart menu item
     let autostart_manager = app_handle.state::<AutoLaunchManager>();
     let is_auto_start = autostart_manager.is_enabled().unwrap_or(false);
-    let autostart_item = CheckMenuItem::with_id(
-        app_handle,
-        "autostart",
-        &TRKey::Autostart.t(),
-        true,
-        is_auto_start,
-        None::<&str>,
-    )?;
+    let autostart_item = CheckMenuItem::with_id(app_handle, "autostart", &TRKey::Autostart.t(), true, is_auto_start, None::<&str>)?;
 
     let quit_item = MenuItem::with_id(app_handle, "quit", &TRKey::Quit.t(), true, None::<&str>)?;
 
     // Build menu
-    let menu = MenuBuilder::new(app_handle)
-        .item(&show_item)
-        .item(&test_item)
-        .item(&autostart_item)
-        .separator()
-        .item(&quit_item)
-        .build()?;
+    let menu = MenuBuilder::new(app_handle).item(&show_item).item(&test_item).item(&autostart_item).separator().item(&quit_item).build()?;
 
     Ok(menu)
 }

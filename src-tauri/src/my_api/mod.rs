@@ -16,12 +16,7 @@ pub async fn refresh_api_clients_from_app_config(app: &AppHandle) {
         let config_guard = app_config_state.read();
         config_guard.api_configs.clone()
     };
-    api_manager_state
-        .0
-        .write()
-        .await
-        .initialize_default_clients(config_map)
-        .await;
+    api_manager_state.0.write().await.initialize_default_clients(config_map).await;
 }
 
 pub fn setup_api_manager(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {

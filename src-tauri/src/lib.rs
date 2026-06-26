@@ -20,29 +20,19 @@ use tauri_plugin_notification::NotificationExt;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let api_manager = std::sync::Arc::new(tauri::async_runtime::RwLock::new(
-        my_api::manager::APIManager::new(),
-    ));
+    let api_manager = std::sync::Arc::new(tauri::async_runtime::RwLock::new(my_api::manager::APIManager::new()));
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
-            app.notification()
-                .builder()
-                .title(TRKey::NotificationTitle.t())
-                .body(TRKey::NotificationBody.t())
-                .show()
-                .unwrap();
+            app.notification().builder().title(TRKey::NotificationTitle.t()).body(TRKey::NotificationBody.t()).show().unwrap();
         }))
         .manage(my_api::manager::GlobalAPIManager(api_manager))
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
-        .plugin(tauri_plugin_autostart::init(
-            tauri_plugin_autostart::MacosLauncher::LaunchAgent,
-            Some(vec!["--autostart"]),
-        ))
+        .plugin(tauri_plugin_autostart::init(tauri_plugin_autostart::MacosLauncher::LaunchAgent, Some(vec!["--autostart"])))
         .invoke_handler(tauri::generate_handler![
             my_command::is_pin_translate_window_toggle,
             my_command::is_pin_translate_window_get,
@@ -72,12 +62,7 @@ pub fn run() {
         ])
         .setup(|app| {
             if cfg!(debug_assertions) {
-                app.handle().plugin(
-                    tauri_plugin_log::Builder::default()
-                        .level(log::LevelFilter::Info)
-                        .filter(utils::log_filter::log_filter)
-                        .build(),
-                )?;
+                app.handle().plugin(tauri_plugin_log::Builder::default().level(log::LevelFilter::Info).filter(utils::log_filter::log_filter).build())?;
             }
             let state_manager = AppStateManager::new("app_config");
             let app_config_state = state_manager.init_app_config_state(app.handle())?;
@@ -91,9 +76,7 @@ pub fn run() {
             app.manage(ChattingState::new(app.handle().clone()));
             my_api::setup_api_manager(&app.handle())?;
             let tray = my_tray::create_tray(&app.handle())?;
-            app.handle().manage(my_tray::TrayState {
-                tray: std::sync::Arc::new(tray),
-            });
+            app.handle().manage(my_tray::TrayState { tray: std::sync::Arc::new(tray) });
             my_rdev::init_global_input_listener(&app.handle())?;
             my_shortcut::init_shortcuts(&app.handle())?;
             setup_translation_manager(app)?;
@@ -118,11 +101,7 @@ fn setup_translation_manager(app: &mut tauri::App) -> Result<(), Box<dyn std::er
     let chat_history = app.state::<chat_histories::ChatHistoriesState>();
     let api_manager = app.state::<my_api::manager::GlobalAPIManager>();
     let app_config_state = app.state::<states::app_state::AppConfigState>();
-    let translation_mgr = utils::translation_manager::TranslationManager::new(
-        chat_history.inner(),
-        api_manager.0.clone(),
-        app_config_state.inner().clone(),
-    );
+    let translation_mgr = utils::translation_manager::TranslationManager::new(chat_history.inner(), api_manager.0.clone(), app_config_state.inner().clone());
     app.manage(translation_mgr);
     Ok(())
 }

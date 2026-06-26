@@ -17,10 +17,7 @@ pub struct ChatMessage {
 
 impl ChatMessage {
     pub fn as_llm(&self) -> LLMChatMessage {
-        LLMChatMessage {
-            role: self.role.clone(),
-            content: self.content.clone(),
-        }
+        LLMChatMessage { role: self.role.clone(), content: self.content.clone() }
     }
 }
 
@@ -86,9 +83,7 @@ pub struct ChatMessageHistory {
 impl ChatMessageHistory {
     /// Creates a new empty ChatMessageHistory
     pub fn new() -> Self {
-        ChatMessageHistory {
-            messages: Vec::new(),
-        }
+        ChatMessageHistory { messages: Vec::new() }
     }
 
     /// Adds a new message to the history

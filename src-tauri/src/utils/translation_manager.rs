@@ -17,36 +17,19 @@ pub struct TranslationManager {
 }
 
 impl TranslationManager {
-    pub fn new(
-        chat_histories: &ChatHistoriesState,
-        api_manager: Arc<RwLock<APIManager>>,
-        app_config_state: AppConfigState,
-    ) -> Self {
-        Self {
-            chat_histories: chat_histories.clone(),
-            active_session_id: Arc::new(RwLock::new(None)),
-            api_manager,
-            app_config_state,
-        }
+    pub fn new(chat_histories: &ChatHistoriesState, api_manager: Arc<RwLock<APIManager>>, app_config_state: AppConfigState) -> Self {
+        Self { chat_histories: chat_histories.clone(), active_session_id: Arc::new(RwLock::new(None)), api_manager, app_config_state }
     }
 
     pub async fn create_session(&self) {
-        let session_id = format!(
-            "translate_{}",
-            SystemTime::now()
-                .duration_since(UNIX_EPOCH)
-                .unwrap()
-                .as_millis()
-        );
+        let session_id = format!("translate_{}", SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis());
 
         let system_prompt = {
             let app_config_read = self.app_config_state.read();
             app_config_read.prompts.system_prompt.clone()
         };
 
-        self.chat_histories
-            .add_message(&session_id, Role::System, system_prompt, None)
-            .await;
+        self.chat_histories.add_message(&session_id, Role::System, system_prompt, None).await;
 
         let mut active_id = self.active_session_id.write().await;
         *active_id = Some(session_id.clone());
@@ -59,13 +42,7 @@ impl TranslationManager {
         model_type
     }
 
-    pub async fn add_get_user_message(
-        &self,
-        session_id: Option<&str>,
-        content: &str,
-        raw: Option<String>,
-        role: Role,
-    ) -> Option<Vec<ChatMessage>> {
+    pub async fn add_get_user_message(&self, session_id: Option<&str>, content: &str, raw: Option<String>, role: Role) -> Option<Vec<ChatMessage>> {
         let session_id = match session_id {
             Some(id) => id.to_string(),
             None => {
@@ -74,26 +51,17 @@ impl TranslationManager {
             }
         };
 
-        self.chat_histories
-            .add_message(&session_id, role, content.to_string(), raw)
-            .await;
+        self.chat_histories.add_message(&session_id, role, content.to_string(), raw).await;
 
         self.chat_histories.get_messages(&session_id).await
     }
 
-    pub async fn translate(
-        &self,
-        session_id: Option<&str>,
-        messages: Vec<ChatMessage>,
-    ) -> Result<Vec<ChatMessage>, String> {
+    pub async fn translate(&self, session_id: Option<&str>, messages: Vec<ChatMessage>) -> Result<Vec<ChatMessage>, String> {
         let session_id = match session_id {
             Some(id) => id.to_string(),
             None => {
                 let active_id = self.active_session_id.read().await;
-                active_id
-                    .as_ref()
-                    .cloned()
-                    .ok_or_else(|| "missing active session id".to_string())?
+                active_id.as_ref().cloned().ok_or_else(|| "missing active session id".to_string())?
             }
         };
 
@@ -113,28 +81,14 @@ impl TranslationManager {
             extra_params: model_specific_params,
         };
         let response = manager.chat_completion(&request, &model_type).await?;
-        let content = response
-            .choices
-            .first()
-            .map(|choice| choice.message.content.clone())
-            .ok_or_else(|| "empty choices in API response".to_string())?;
+        let content = response.choices.first().map(|choice| choice.message.content.clone()).ok_or_else(|| "empty choices in API response".to_string())?;
 
-        self.chat_histories
-            .add_message(&session_id, Role::Assistant, content.clone(), None)
-            .await;
+        self.chat_histories.add_message(&session_id, Role::Assistant, content.clone(), None).await;
 
-        self.chat_histories
-            .get_messages(&session_id)
-            .await
-            .ok_or_else(|| "failed to load chat history after translation".to_string())
+        self.chat_histories.get_messages(&session_id).await.ok_or_else(|| "failed to load chat history after translation".to_string())
     }
 
-    pub async fn translate_stream<StreamCallback>(
-        &self,
-        session_id: Option<&str>,
-        messages: Vec<ChatMessage>,
-        stream_callback: StreamCallback,
-    ) -> Option<Vec<ChatMessage>>
+    pub async fn translate_stream<StreamCallback>(&self, session_id: Option<&str>, messages: Vec<ChatMessage>, stream_callback: StreamCallback) -> Option<Vec<ChatMessage>>
     where
         StreamCallback: Fn(String) + Send + 'static,
     {
@@ -180,9 +134,7 @@ impl TranslationManager {
             return None;
         }
         let final_content = content_chunks.lock().unwrap().clone();
-        self.chat_histories
-            .add_message(&session_id, Role::Assistant, final_content, None)
-            .await;
+        self.chat_histories.add_message(&session_id, Role::Assistant, final_content, None).await;
         self.chat_histories.get_messages(&session_id).await
     }
 
@@ -201,9 +153,7 @@ impl TranslationManager {
         *active_id = Some(session_id.to_string());
     }
 
-    pub async fn get_api_manager(
-        &self,
-    ) -> std::sync::Arc<tauri::async_runtime::RwLock<crate::my_api::manager::APIManager>> {
+    pub async fn get_api_manager(&self) -> std::sync::Arc<tauri::async_runtime::RwLock<crate::my_api::manager::APIManager>> {
         self.api_manager.clone()
     }
 }
