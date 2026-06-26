@@ -48,6 +48,7 @@ pub fn run() {
             my_command::is_pin_translate_window_get,
             my_command::toggle_auto_speak,
             my_command::get_auto_speak_state,
+            my_command::get_language_options,
             my_command::get_local_language,
             my_command::set_local_language,
             my_command::get_target_language,

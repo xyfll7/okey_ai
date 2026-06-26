@@ -136,6 +136,21 @@ pub fn get_auto_speak_state(app: AppHandle) -> AutoSpeakState {
     config.auto_speak
 }
 
+#[tauri::command]
+pub fn get_language_options() -> Vec<(String, String)> {
+    use crate::states::app_config::Language;
+    vec![
+        (
+            Language::ZhCn.to_locale(),
+            Language::ZhCn.to_display_name().to_string(),
+        ),
+        (
+            Language::En.to_locale(),
+            Language::En.to_display_name().to_string(),
+        ),
+    ]
+}
+
 #[tauri::command(rename_all = "snake_case")]
 pub fn get_local_language(app: AppHandle) -> Language {
     let app_state = app.state::<AppConfigState>();

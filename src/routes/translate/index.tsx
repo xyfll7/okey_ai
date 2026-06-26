@@ -43,7 +43,6 @@ import { useTranslation } from "react-i18next";
 import type { ModelConfigMap } from "@/@types";
 import { IIStop } from "@/components/icons/hugeicons";
 
-
 export const Route = createFileRoute("/translate/")({
 	component: RouteComponent,
 });
@@ -62,6 +61,7 @@ function RouteComponent() {
 			<div className="px-2 pb-2">
 				<Inputer />
 			</div>
+			<LanguageSelector />
 		</div>
 	);
 }
@@ -79,7 +79,7 @@ function Header(props: React.ComponentProps<"div">) {
 		});
 	}, []);
 
-	const CreateNewSession = ()=> <Button size={"icon-sm"} variant={"ghost"} onClick={async () => {
+	const CreateNewSession = () => <Button size={"icon-sm"} variant={"ghost"} onClick={async () => {
 		await invoke(EVENT_NAMES.create_new_session);
 		const history = await invoke<ChatMessage[]>(EVENT_NAMES.get_current_history);
 		s_ChatList.setState(() => history);
@@ -478,4 +478,74 @@ function PinWindow({ className }: { className?: string }) {
 			/>
 		</Button>
 	);
+}
+
+
+export default function LanguageSelector() {
+  const [localLanguage, setLocalLanguage] = useState<string>("zh-CN");
+  const [targetLanguage, setTargetLanguage] = useState<string>("en");
+  const [options, setOptions] = useState<{ label: string; value: string }[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const local = await invoke<string>(EVENT_NAMES.get_local_language as any);
+        const target = await invoke<string>(EVENT_NAMES.get_target_language as any);
+        const remoteOptions = await invoke<any>(EVENT_NAMES.get_language_options as any);
+        if (Array.isArray(remoteOptions)) {
+          setOptions(remoteOptions.map((r: any) => ({ label: r[1], value: r[0] })));
+        }
+        if (local) setLocalLanguage(local);
+        if (target) setTargetLanguage(target);
+      } catch (e) {
+        // ignore
+      }
+    })();
+  }, []);
+
+  return (
+    <div className="px-2 pb-2 flex gap-2 flex-wrap">
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button size="xs" variant="ghost">
+            Local: {options.find((item) => item.value === localLanguage)?.label ?? "Chinese"}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent side="top" align="start">
+          {options.map((item) => (
+            <DropdownMenuItem
+              key={item.value}
+              onSelect={async () => {
+                await invoke(EVENT_NAMES.set_local_language as any, { language: item.value });
+                setLocalLanguage(item.value);
+              }}
+            >
+              {item.label}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button size="xs" variant="ghost">
+            Target: {options.find((item) => item.value === targetLanguage)?.label ?? "English"}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent side="top" align="start">
+          {options.map((item) => (
+            <DropdownMenuItem
+              key={item.value}
+              onSelect={async () => {
+                await invoke(EVENT_NAMES.set_target_language as any, { language: item.value });
+                setTargetLanguage(item.value);
+              }}
+            >
+              {item.label}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
 }
