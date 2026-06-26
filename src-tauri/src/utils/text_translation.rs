@@ -34,24 +34,18 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
             let app_config_read = app_config_state.read();
             let prompts = app_config_read.prompts.clone();
             let detected_language = Language::from_locale(detected_lang);
+            let effective_local_language: Language = app_config_read.local_language.effective_language();
+            let effective_target_language = app_config_read.target_language.effective_language();
+
             match detected_language {
-                Language::ZhCn => prompts
-                    .translate_into
-                    .replace(
-                        "{target}",
-                        &app_config_read
-                            .target_language
-                            .to_display_name()
-                            .to_string(),
-                    )
-                    .replace("{text}", &selected_text),
-                Language::En => prompts
-                    .translate_into
-                    .replace(
-                        "{target}",
-                        &app_config_read.local_language.to_display_name().to_string(),
-                    )
-                    .replace("{text}", &selected_text),
+                lang if lang == effective_local_language => {
+                    // 检测到本地语言，翻译为目标语言
+                    prompts.translate_into.replace("{target}", &effective_target_language.to_display_name().to_string()).replace("{text}", &selected_text)
+                }
+                lang if lang == effective_target_language => {
+                    // 检测到目标语言，翻译为本地语言
+                    prompts.translate_into.replace("{target}", &effective_local_language.to_display_name().to_string()).replace("{text}", &selected_text)
+                }
                 _ => prompts.summary_prompt.replace("{text}", &selected_text),
             }
         };
@@ -59,20 +53,10 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
 
         translation_manager.create_session().await;
 
-        let messages = translation_manager
-            .add_get_user_message(
-                None,
-                &translation_prompt,
-                Some(selected_text.clone()),
-                Role::User,
-            )
-            .await
-            .unwrap_or_default();
+        let messages = translation_manager.add_get_user_message(None, &translation_prompt, Some(selected_text.clone()), Role::User).await.unwrap_or_default();
         let _ = app_handle.emit(event_names::BUBBLE_AUTO_SPEAK, &messages);
         let _ = app_handle.emit(event_names::AI_RESPONSE, &messages);
-        if my_command::is_pin_translate_window_get(app_handle.clone())
-            && app_handle.get_webview_window("translate").is_some()
-        {
+        if my_command::is_pin_translate_window_get(app_handle.clone()) && app_handle.get_webview_window("translate").is_some() {
             let _ = app_handle.emit(event_names::START_CHAT_STREAM, ());
             return;
         } else if display_type == DisplayType::Bubble {
@@ -90,8 +74,7 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
                             let app_handle_for_thread = app_handle_for_normal.clone();
                             std::thread::spawn(move || {
                                 std::thread::sleep(std::time::Duration::from_millis(100));
-                                let _ = app_handle_for_thread
-                                    .emit(event_names::AI_RESPONSE, &chat_history_clone);
+                                let _ = app_handle_for_thread.emit(event_names::AI_RESPONSE, &chat_history_clone);
                             });
                         }),
                     );
@@ -101,9 +84,7 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
 
                     let window = app_handle.get_webview_window("translate_bubble");
                     if let Some(window) = window {
-                        let size = utils::calculate_text_width::calculate_text_width(
-                            &chat_history.last().unwrap().content,
-                        );
+                        let size = utils::calculate_text_width::calculate_text_width(&chat_history.last().unwrap().content);
                         let _ = window.set_size(size);
                     }
                 }

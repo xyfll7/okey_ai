@@ -60,6 +60,28 @@ impl Language {
         }
     }
 
+    pub fn to_display_name_with_default(&self) -> String {
+        match self {
+            Language::Auto => {
+                let default_locale = crate::utils::i18n::get_default_locale();
+                match default_locale.split('-').next().unwrap_or("en") {
+                    "zh" => "Chinese".to_string(),
+                    "en" => "English".to_string(),
+                    _ => "English".to_string(),
+                }
+            }
+            Language::ZhCn => "Chinese".to_string(),
+            Language::En => "English".to_string(),
+        }
+    }
+
+    pub fn effective_language(&self) -> Self {
+        match self {
+            Language::Auto => Language::from_locale(&crate::utils::i18n::get_default_locale()),
+            _ => *self,
+        }
+    }
+
     pub fn from_locale(locale: &str) -> Self {
         match locale {
             "zh-CN" => Language::ZhCn,
