@@ -39,11 +39,11 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
 
             match detected_language {
                 lang if lang == effective_local_language => {
-                    // 检测到本地语言，翻译为目标语言
+                    // Detected local language, translating to target language.
                     prompts.translate_into.replace("{target}", &effective_target_language.to_display_name().to_string()).replace("{text}", &selected_text)
                 }
                 lang if lang == effective_target_language => {
-                    // 检测到目标语言，翻译为本地语言
+                    // Target language detected, translate to local language.
                     prompts.translate_into.replace("{target}", &effective_local_language.to_display_name().to_string()).replace("{text}", &selected_text)
                 }
                 _ => prompts.summary_prompt.replace("{text}", &selected_text),
