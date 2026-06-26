@@ -73,7 +73,6 @@ interface UseInvokeReturn<T> {
  * model_X.setState(...) // update value
  * model_X.setState(..., true) // update and auto refresh from backend
  * model_X.invokeState() // re-invoke
- * model_X.subscribe(...) // subscribe to shared state changes
  *
  * onStateChange optional callback: useInvoke(event, init, false, (value) => { ... })
  */
