@@ -15,7 +15,8 @@ import {
   Settings01Icon,
   LanguageCircleIcon,
   StopIcon,
-  Chatting01Icon
+  Chatting01Icon,
+  ArrowDataTransferHorizontalIcon
 } from "@hugeicons/core-free-icons";
 
 const strokeWidth = 2
@@ -36,3 +37,4 @@ export const IISettings = (props: React.ComponentProps<"svg">) => <HugeiconsIcon
 export const IILanguages = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={LanguageCircleIcon} {...props} strokeWidth={strokeWidth} />;
 export const IIStop = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={StopIcon} {...props} strokeWidth={strokeWidth} />;
 export const IIChat = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={Chatting01Icon} {...props} strokeWidth={strokeWidth} />;
+export const IIExchange = (props: React.ComponentProps<"svg">) => <HugeiconsIcon icon={ArrowDataTransferHorizontalIcon} {...props} strokeWidth={strokeWidth} />;

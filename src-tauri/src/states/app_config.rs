@@ -112,13 +112,9 @@ impl Default for AppConfig {
         dotenvy::dotenv().ok();
         let mut api_configs = HashMap::new();
         api_configs.insert(ModelProvider::OpenAI, APIConfig { api_key: std::env::var("OPENAI_API_KEY").unwrap_or_else(|_| "".to_string()), base_url: "https://api.openai.com/v1".to_string(), model: "gpt-4".to_string(), index: 0 });
-
         api_configs.insert(ModelProvider::Qwen, APIConfig { api_key: std::env::var("QWEN_API_KEY").unwrap_or_else(|_| "".to_string()), base_url: "https://dashscope.aliyuncs.com".to_string(), model: "qwen3.6-plus".to_string(), index: 1 });
-
         api_configs.insert(ModelProvider::DeepSeek, APIConfig { api_key: std::env::var("DEEPSEEK_API_KEY").unwrap_or_else(|_| "".to_string()), base_url: "https://api.deepseek.com".to_string(), model: "deepseek-v4-flash".to_string(), index: 2 });
-
         api_configs.insert(ModelProvider::ZAI, APIConfig { api_key: std::env::var("ZAI_API_KEY").unwrap_or_else(|_| "".to_string()), base_url: "https://open.bigmodel.cn/api/paas/v4".to_string(), model: "glm-4.7".to_string(), index: 3 });
-
         AppConfig {
             shortcuts: vec![Shortcut { name: "okey_ai".to_string(), hot_key: ["Ctrl+G", "Cmd+G"][cfg!(target_os = "macos") as usize].to_string() }],
             is_pin_translate_window: false,
@@ -127,7 +123,7 @@ impl Default for AppConfig {
             api_configs,
             language: Language::default(),
             local_language: Language::Auto.effective_language(),
-            target_language: Language::En,
+            target_language: Language::Auto.effective_language(),
             prompts: Prompts::default(),
         }
     }
