@@ -2,7 +2,11 @@
 // This centralizes event name management to avoid typos and make refactoring easier
 
 import { invoke } from "@tauri-apps/api/core";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useStore, Store } from "@tanstack/react-store";
+
+// 缓存 Store 实例，避免为同一个事件创建多个 Store
+const storeCache = new Map<string, Store<any>>();
 
 export const EVENT_NAMES = {
   // to backend
@@ -49,18 +53,85 @@ export const EVENT_NAMES = {
 // Type for event names to provide type safety
 export type EventName = keyof typeof EVENT_NAMES;
 
+interface UseInvokeReturn<T> {
+  store: Store<T>;
+  state: T;
+  setState: (value: T | ((prev: T) => T), autoRefresh?: boolean) => Promise<void>;
+  invokeState: () => Promise<void>;
+}
 
-export function useInvoke<T = undefined>(event_name: string, init: T | (() => T)) {
-  const [state, setState] = useState<T>(init);
-  const invokeState = useCallback(async () => {
-    const result = await invoke<T>(event_name);
-    setState(result);
-  }, [event_name]);
+/**
+ * Store-driven hook that shares state across components
+ * @param event_name - The Tauri event to invoke
+ * @param init - Initial value or function to generate initial value
+ * @param autoSync - Auto call invokeState after setState (default: false)
+ * @returns Object with store, state, setState, and invokeState
+ * 
+ * Usage in component:
+ * const { ...model_X } = useInvoke<string>(EVENT_NAMES.get_current_model, "");
+ * model_X.state // get current value
+ * model_X.setState(...) // update value
+ * model_X.setState(..., true) // update and auto refresh from backend
+ * model_X.invokeState() // re-invoke
+ * model_X.subscribe(...) // subscribe to shared state changes
+ *
+ * onStateChange optional callback: useInvoke(event, init, false, (value) => { ... })
+ */
+export function useInvoke<T = undefined>(
+  event_name: string,
+  init: T | (() => T),
+  autoSync = false,
+  onStateChange?: (value: T) => void,
+): UseInvokeReturn<T> {
+  // 如果 Store 不存在，创建一个
+  if (!storeCache.has(event_name)) {
+    const initialValue = typeof init === "function" ? (init as () => T)() : init;
+    storeCache.set(event_name, new Store<T>(initialValue));
+  }
+
+  const store = storeCache.get(event_name)!;
+  // 使用 useStore hook 获取响应式状态
+  const state = useStore(store, (s) => s);
+
+  // 在组件挂载时，调用 invoke 并更新 Store
   useEffect(() => {
+    let mounted = true;
+
+    const subscription = onStateChange
+      ? store.subscribe((value) => {
+          onStateChange(value);
+        })
+      : undefined;
+
     (async () => {
       const result = await invoke<T>(event_name);
-      setState(result);
-    })()
-  }, [event_name]);
-  return { state, setState, invokeState };
+      if (!mounted) return;
+      store.setState(() => result);
+    })();
+
+    return () => {
+      mounted = false;
+      subscription?.unsubscribe();
+    };
+  }, [event_name, store, onStateChange]);
+
+  // 提供 invokeState 方法供手动重新调用
+  const invokeState = async () => {
+    const result = await invoke<T>(event_name);
+    store.setState(() => result);
+  };
+
+  // 返回兼容对象：既有 state/setState，又有 store 实例
+  return {
+    store,
+    state,
+    setState: async (value, shouldRefresh = autoSync) => {
+      store.setState(() => (typeof value === "function" ? (value as (prev: T) => T)(state) : value));
+      if (shouldRefresh) {
+        await invokeState();
+      }
+    },
+    invokeState,
+  };
 }
+

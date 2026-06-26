@@ -16,10 +16,10 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { EVENT_NAMES, useInvoke } from "@/lib/events";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { s_CurrentLocale, s_CurrentModel } from "@/store";
-import { useStore } from "@tanstack/react-store";
 import type { ModelConfigMap } from "@/@types";
 import { getModelProviderShowName } from "@/lib/types";
+import { useStore } from "@tanstack/react-store";
+import { s_LoadingChat } from "@/store";
 import {
     Field,
     FieldDescription,
@@ -41,7 +41,6 @@ import {
     DropdownMenuGroup,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { s_LoadingChat } from "@/store";
 
 
 export function SettingsNew({ className }: { className?: string }) {
@@ -97,7 +96,7 @@ export function SettingsNew({ className }: { className?: string }) {
 function ModelConfigurationForm() {
     const { t } = useTranslation();
     const { ...modelsList_X } = useInvoke<ModelConfigMap>(EVENT_NAMES.list_available_models, {});
-    const currentModel = useStore(s_CurrentModel, (state => state))
+    const { state: currentModel, setState: setCurrentModel } = useInvoke<string>(EVENT_NAMES.get_current_model, "");
     const resetKey = `${currentModel}-${modelsList_X.state?.[currentModel]?.api_key ?? ''}`;
     return (
         <Card className="px-2.5 w-full">
@@ -128,7 +127,7 @@ function ModelConfigurationForm() {
                                                 <ToggleGroupItem value={key} aria-label="Toggle top" key={key}
                                                     onClick={async () => {
                                                         await invoke(EVENT_NAMES.switch_model, { model_name: key })
-                                                        s_CurrentModel.setState(()=>key)
+                                                        await setCurrentModel(() => key)
                                                     }}
                                                 >
                                                     {getModelProviderShowName(t)[key as keyof ReturnType<typeof getModelProviderShowName>]}
@@ -181,7 +180,19 @@ export function LanguageSelector({
     ...props
 }: React.ComponentProps<"div">) {
     const { t } = useTranslation();
-    const currentLocale = useStore(s_CurrentLocale, (state => state))
+    const { state: currentLocale, setState: setCurrentLocale } = useInvoke<string>(
+        EVENT_NAMES.get_locale,
+        "en",
+        false,
+        (locale) => {
+            if (!locale) return;
+            invoke(EVENT_NAMES.set_locale, { locale });
+            import("@/i18n/index").then((i18n) => {
+                i18n.default.changeLanguage(locale);
+            });
+        },
+    );
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -197,7 +208,9 @@ export function LanguageSelector({
                             className="flex flex-col items-start"
                             key={key}
                             checked={currentLocale === key}
-                            onCheckedChange={() => { s_CurrentLocale.setState(()=>key) }}
+                            onCheckedChange={async () => {
+                                await setCurrentLocale(() => key);
+                            }}
                         >
                             <span className="text-nowrap">{displayLabel}</span>
                             <span className="text-xs text-muted-foreground">

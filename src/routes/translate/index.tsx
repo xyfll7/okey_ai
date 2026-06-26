@@ -35,7 +35,7 @@ import {
 import { EVENT_NAMES, useInvoke } from "@/lib/events";
 import { AutoSpeakState, getModelProviderShowName, type ChatMessage } from "@/lib/types";
 import { cn, get_app_config, speak } from "@/lib/utils";
-import { handleStream, s_ChatList, s_CurrentModel, s_LoadingChat, s_Selected, s_StreamingContent } from "@/store";
+import { handleStream, s_ChatList, s_LoadingChat, s_Selected, s_StreamingContent } from "@/store";
 import { IIArrowUp, IIPin, IIAdd, IIVolumeHigh, IIX, IIChat } from "@/components/icons";
 import { HistoriesNew } from "@/components/HistoriesNew";
 import { SettingsNew } from "@/components/SettingsNew";
@@ -178,10 +178,9 @@ function Inputer({ className }: { className?: string; }) {
 
 
 	const { ...modelsList_X } = useInvoke<ModelConfigMap>(EVENT_NAMES.list_available_models, {});
-
-	const currentModel = useStore(s_CurrentModel, (state => state))
-	const { t } = useTranslation();
+	const { state: currentModel, setState: setCurrentModel } = useInvoke<string>(EVENT_NAMES.get_current_model, "");
 	const loadingChat = useStore(s_LoadingChat, (state => state))
+	const { t } = useTranslation();
 	return (
 		<InputGroup className={cn(className, "rounded-xl", "has-[[data-slot=input-group-control]:focus-visible]:border-ring/70 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/7")}>
 			{selected.text && (
@@ -231,7 +230,7 @@ function Inputer({ className }: { className?: string; }) {
 							.map((key) => (
 								<DropdownMenuItem onSelect={async () => {
 									await invoke(EVENT_NAMES.switch_model, { model_name: key })
-									s_CurrentModel.setState(() => key)
+									await setCurrentModel(() => key)
 								}} key={key}>{getModelProviderShowName(t)[key as keyof ReturnType<typeof getModelProviderShowName>]}</DropdownMenuItem>
 							))}
 					</DropdownMenuContent>
@@ -400,8 +399,8 @@ const MessageItem = React.memo(function MessageItem({ chat, className, index }: 
 
 function SelectedText({ onHandleStream }: { onHandleStream: (chatMessage: ChatMessage) => Promise<void> }) {
 	const selected = useStore(s_Selected, (state) => state);
-	if (!selected.text) return "";
 	const loadingChat = useStore(s_LoadingChat, (state) => state);
+	if (!selected.text) return "";
 	return (
 		<div className="w-full">
 			<div className="w-full flex items-center mb-1">
