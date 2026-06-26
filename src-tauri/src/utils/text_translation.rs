@@ -46,7 +46,10 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
                     // Target language detected, translate to local language.
                     prompts.translate_into.replace("{target}", &effective_local_language.to_display_name().to_string()).replace("{text}", &selected_text)
                 }
-                _ => prompts.summary_prompt.replace("{text}", &selected_text),
+                _ => {
+                    // Other language detected, translate to target language.
+                    prompts.translate_into.replace("{target}", &effective_target_language.to_display_name().to_string()).replace("{text}", &selected_text)
+                }
             }
         };
         let translation_manager = app_handle.state::<translation_manager::TranslationManager>();
