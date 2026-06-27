@@ -15,6 +15,7 @@ type StreamEvent =
     | { event: "error"; data: { message: string } };
 
 export const handleStream = async (chatMessage: ChatMessage) => {
+    s_LoadingChat.setState(() => true);
     let accumulated = "";
     const channel = new Channel<StreamEvent>();
     channel.onmessage = (message) => {
@@ -47,14 +48,15 @@ export const handleStream = async (chatMessage: ChatMessage) => {
 
 async function init() {
     const localeResult = await invoke<string>(EVENT_NAMES.get_locale);
-    
+
     const i18n = await import("@/i18n/index");
     i18n.default.changeLanguage(localeResult);
-    
+
     listen<boolean>(EVENT_NAMES.CHATTING_STATE_CHANGE, (event) => {
+        console.log("CHATTING_STATE_CHANGE event received:", event.payload);
         s_LoadingChat.setState(() => event.payload);
     });
-    
+
     listen<string>(EVENT_NAMES.START_CHAT_STREAM, () => {
         handleStream({ role: "user", content: "" } as ChatMessage);
     });
