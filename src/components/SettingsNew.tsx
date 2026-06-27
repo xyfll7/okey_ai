@@ -96,7 +96,8 @@ export function SettingsNew({ className }: { className?: string }) {
 function ModelConfigurationForm() {
     const { t } = useTranslation();
     const { ...modelsList_X } = useInvoke<ModelConfigMap>(EVENT_NAMES.list_available_models, {});
-    const { state: currentModel, setState: setCurrentModel } = useInvoke<string>(EVENT_NAMES.get_current_model, "");
+    const { ...currentModel_X } = useInvoke<string>(EVENT_NAMES.get_current_model, "");
+    const currentModel = currentModel_X.state;
     const resetKey = `${currentModel}-${modelsList_X.state?.[currentModel]?.api_key ?? ''}`;
     return (
         <Card className="px-2.5 w-full">
@@ -127,7 +128,7 @@ function ModelConfigurationForm() {
                                                 <ToggleGroupItem value={key} aria-label="Toggle top" key={key}
                                                     onClick={async () => {
                                                         await invoke(EVENT_NAMES.switch_model, { model_name: key })
-                                                        await setCurrentModel(() => key)
+                                                        await currentModel_X.setState(() => key)
                                                     }}
                                                 >
                                                     {getModelProviderShowName(t)[key as keyof ReturnType<typeof getModelProviderShowName>]}
@@ -180,7 +181,7 @@ export function LanguageSelector({
     ...props
 }: React.ComponentProps<"div">) {
     const { t } = useTranslation();
-    const { state: currentLocale, setState: setCurrentLocale } = useInvoke<string>(
+    const { ...currentLocale_X } = useInvoke<string>(
         EVENT_NAMES.get_locale,
         "en",
         false,
@@ -207,9 +208,9 @@ export function LanguageSelector({
                         <DropdownMenuCheckboxItem
                             className="flex flex-col items-start"
                             key={key}
-                            checked={currentLocale === key}
+                            checked={currentLocale_X.state === key}
                             onCheckedChange={async () => {
-                                await setCurrentLocale(() => key);
+                                await currentLocale_X.setState(() => key);
                             }}
                         >
                             <span className="text-nowrap">{displayLabel}</span>

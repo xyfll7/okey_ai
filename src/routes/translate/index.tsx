@@ -178,7 +178,8 @@ function Inputer({ className }: { className?: string; }) {
 
 
 	const { ...modelsList_X } = useInvoke<ModelConfigMap>(EVENT_NAMES.list_available_models, {});
-	const { state: currentModel, setState: setCurrentModel } = useInvoke<string>(EVENT_NAMES.get_current_model, "");
+	const { ...currentModel_X } = useInvoke<string>(EVENT_NAMES.get_current_model, "");
+	const currentModel = currentModel_X.state;
 	const loadingChat = useStore(s_LoadingChat, (state => state))
 	const { t } = useTranslation();
 	return (
@@ -230,7 +231,7 @@ function Inputer({ className }: { className?: string; }) {
 							.map((key) => (
 								<DropdownMenuItem onSelect={async () => {
 									await invoke(EVENT_NAMES.switch_model, { model_name: key })
-									await setCurrentModel(() => key)
+									await currentModel_X.setState(() => key)
 								}} key={key}>{getModelProviderShowName(t)[key as keyof ReturnType<typeof getModelProviderShowName>]}</DropdownMenuItem>
 							))}
 					</DropdownMenuContent>
