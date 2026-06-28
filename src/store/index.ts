@@ -46,11 +46,12 @@ export const handleStream = async (chatMessage: ChatMessage) => {
     });
 };
 
+import { setLocale } from "@/paraglide/runtime.js";
+
 async function init() {
     const localeResult = await invoke<string>(EVENT_NAMES.get_locale);
 
-    const i18n = await import("@/i18n/index");
-    i18n.default.changeLanguage(localeResult);
+    setLocale(localeResult as "en" | "zh-CN");
 
     listen<boolean>(EVENT_NAMES.CHATTING_STATE_CHANGE, (event) => {
         s_LoadingChat.setState(() => event.payload);
