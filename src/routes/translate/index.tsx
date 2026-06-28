@@ -509,7 +509,7 @@ export default function LanguageSelector() {
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild disabled={!!selfExplaining_X.state}>
 					<Button size="xs" variant="ghost">
-						{options.find((item) => item.value === localLanguage)?.label ?? "Chinese"}
+						{options.find((item) => item.value === localLanguage)?.label}
 					</Button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent side="top" align="start">
@@ -532,7 +532,7 @@ export default function LanguageSelector() {
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild disabled={!!selfExplaining_X.state}>
 					<Button size="xs" variant="ghost">
-						{options.find((item) => item.value === targetLanguage)?.label ?? "English"}
+						{options.find((item) => item.value === targetLanguage)?.label}
 					</Button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent side="top" align="start">

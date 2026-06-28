@@ -28,7 +28,9 @@ fn build_translation_prompt(app_config_state: &AppConfigState, detected_lang: &s
         let effective_target_language = app_config_read.target_language.effective_language();
 
         match detected_language {
+            // Translate the local language into the target language.
             lang if lang == effective_local_language => prompts.translate_into.replace("{target}", &effective_target_language.to_display_name().to_string()).replace("{text}", selected_text),
+            // Translate any other language into the local language.
             _ => prompts.translate_into.replace("{target}", &effective_local_language.to_display_name().to_string()).replace("{text}", selected_text),
         }
     }
