@@ -16,6 +16,26 @@ pub enum DisplayType {
     Bubble,
 }
 
+fn build_translation_prompt(app_config_state: &AppConfigState, detected_lang: &str, selected_text: &str) -> String {
+    let app_config_read = app_config_state.read();
+    let prompts = app_config_read.prompts.clone();
+    let detected_language = Language::from_locale(detected_lang);
+    if app_config_read.self_explaining_model {
+        let target = detected_language.to_display_name().to_string();
+        prompts.explain_prompt.replace("{target}", &target).replace("{text}", selected_text)
+    } else {
+        let effective_local_language: Language = app_config_read.local_language.effective_language();
+        let effective_target_language = app_config_read.target_language.effective_language();
+
+        match detected_language {
+            lang if lang == effective_target_language => prompts.translate_into.replace("{target}", &effective_local_language.to_display_name().to_string()).replace("{text}", selected_text),
+
+            lang if lang == effective_local_language => prompts.translate_into.replace("{target}", &effective_target_language.to_display_name().to_string()).replace("{text}", selected_text),
+            _ => prompts.translate_into.replace("{target}", &effective_local_language.to_display_name().to_string()).replace("{text}", selected_text),
+        }
+    }
+}
+
 pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType) {
     let app_handle = app_handle.clone();
     let chatting_state = app_handle.state::<ChattingState>();
@@ -30,35 +50,7 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
         let detected_lang = language_detection::detect_language(&selected_text);
 
         let app_config_state = app_handle.state::<AppConfigState>();
-        let translation_prompt = {
-            let app_config_read = app_config_state.read();
-            let prompts = app_config_read.prompts.clone();
-            let detected_language = Language::from_locale(detected_lang);
-            // If self-explaining mode is enabled, use the explain prompt and set {target} to the detected language.
-            if app_config_read.self_explaining_model {
-                let target = detected_language.to_display_name().to_string();
-                prompts.explain_prompt.replace("{target}", &target).replace("{text}", &selected_text)
-            } else {
-                let effective_local_language: Language = app_config_read.local_language.effective_language();
-                let effective_target_language = app_config_read.target_language.effective_language();
-
-                match detected_language {
-                    lang if lang == effective_target_language => {
-                        // Target language detected, translate to local language.
-                        prompts.translate_into.replace("{target}", &effective_local_language.to_display_name().to_string()).replace("{text}", &selected_text)
-                    }
-
-                    lang if lang == effective_local_language => {
-                        // Detected local language, translating to target language.
-                        prompts.translate_into.replace("{target}", &effective_target_language.to_display_name().to_string()).replace("{text}", &selected_text)
-                    }
-                    _ => {
-                        // Other language detected, translate to local language.
-                        prompts.translate_into.replace("{target}", &effective_local_language.to_display_name().to_string()).replace("{text}", &selected_text)
-                    }
-                }
-            }
-        };
+        let translation_prompt = build_translation_prompt(&app_config_state, &detected_lang, &selected_text);
         let translation_manager = app_handle.state::<translation_manager::TranslationManager>();
 
         translation_manager.create_session().await;
