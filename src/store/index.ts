@@ -53,7 +53,6 @@ async function init() {
     i18n.default.changeLanguage(localeResult);
 
     listen<boolean>(EVENT_NAMES.CHATTING_STATE_CHANGE, (event) => {
-        console.log("CHATTING_STATE_CHANGE event received:", event.payload);
         s_LoadingChat.setState(() => event.payload);
     });
 
