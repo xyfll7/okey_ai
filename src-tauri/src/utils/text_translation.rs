@@ -1,10 +1,10 @@
 use crate::my_events::event_names;
+use crate::my_windows;
 use crate::states::app_config::Language;
 use crate::states::app_state::AppConfigState;
 use crate::states::chatting_state::ChattingState;
 use crate::utils::chat_message::Role;
 use crate::utils::{self, translation_manager};
-use crate::{my_command, my_windows};
 use tauri::AppHandle;
 use tauri::{async_runtime, Emitter, Manager};
 
@@ -58,7 +58,7 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
         let messages = translation_manager.add_get_user_message(None, &translation_prompt, Some(selected_text.clone()), Role::User).await.unwrap_or_default();
         let _ = app_handle.emit(event_names::BUBBLE_AUTO_SPEAK, &messages);
         let _ = app_handle.emit(event_names::AI_RESPONSE, &messages);
-        if my_command::is_pin_translate_window_get(app_handle.clone()) && app_handle.get_webview_window("translate").is_some() {
+        if my_windows::should_use_existing_translate_window(app_handle.clone()) {
             let _ = app_handle.emit(event_names::START_CHAT_STREAM, ());
             return;
         } else if display_type == DisplayType::Bubble {

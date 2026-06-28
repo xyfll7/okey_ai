@@ -6,7 +6,7 @@ use std::{
 use tauri::Emitter;
 use tauri::{window::Color, AppHandle, Listener, LogicalSize, Manager, PhysicalPosition, Runtime, WebviewUrl, WebviewWindowBuilder};
 
-use crate::{my_events::event_names, states::app_state::AppConfigState};
+use crate::{my_command, my_events::event_names, states::app_state::AppConfigState};
 use mouse_position::mouse_position::{Mouse, Position};
 use tauri::Monitor;
 
@@ -113,6 +113,13 @@ where
             cb();
         }
     }
+}
+
+pub fn should_use_existing_translate_window(app: AppHandle) -> bool {
+    let translate_window = app.get_webview_window("translate");
+    let is_pinned = my_command::is_pin_translate_window_get(app.clone());
+    let is_focused = translate_window.as_ref().map(|w| w.is_focused().unwrap_or(false)).unwrap_or(false);
+    (is_pinned && translate_window.is_some()) || is_focused
 }
 
 pub fn window_translate_show<R: Runtime, F>(app: &AppHandle<R>, callback: Option<F>)
