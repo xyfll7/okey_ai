@@ -1,6 +1,5 @@
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import ReactDOM from "react-dom/client";
-import { I18nextProvider } from "react-i18next";
 
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
@@ -9,7 +8,6 @@ import "./styles_my.css";
 import "./index.css";
 
 import reportWebVitals from "./reportWebVitals.ts";
-import i18n from "./i18n/index.ts";
 
 // Create a new router instance
 const router = createRouter({
@@ -33,9 +31,7 @@ const rootElement = document.getElementById("app");
 if (rootElement && !rootElement.innerHTML) {
 	const root = ReactDOM.createRoot(rootElement);
 	root.render(
-		<I18nextProvider i18n={i18n}>
-			<RouterProvider router={router} />
-		</I18nextProvider>
+		<RouterProvider router={router} />
 	);
 }
 

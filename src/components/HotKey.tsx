@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import React, { useRef, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { m } from "@/paraglide/messages.js";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { EVENT_NAMES } from "@/lib/events";
 import { cn } from "@/lib/utils";
@@ -15,7 +15,6 @@ export default function HotKey({
 	onHotkeyChange?: (hotkey: string) => void;
 }) {
 	const MODIFIER_KEYS = new Set(["Ctrl", "Cmd", "Alt", "Shift"]);
-	const { t } = useTranslation();
 	const [isRecording, setIsRecording] = useState<boolean>(false);
 	const [keys, setKeys] = useState<string[]>([]);
 	const inputRef = useRef<HTMLDivElement>(null);
@@ -167,7 +166,7 @@ export default function HotKey({
 			onBlur={handleBlur}
 			tabIndex={0}
 			aria-label={
-				isRecording ? t("hotkey.recording_hotkey") : t("hotkey.set_hotkey")
+				isRecording ? m.hotkey_recording_hotkey() : m.hotkey_set_hotkey()
 			}
 		>
 			<Kbd>
@@ -180,7 +179,7 @@ export default function HotKey({
 							</React.Fragment>
 						))
 					) : (
-						<span>{t("hotkey.press_to_set_hotkey")}</span>
+						<span>{m.hotkey_press_to_set_hotkey()}</span>
 					)}
 				</span>
 				{isRecording && (

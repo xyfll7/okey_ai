@@ -20,16 +20,17 @@ export const AutoSpeakState = {
 
 export type AutoSpeakState = typeof AutoSpeakState[keyof typeof AutoSpeakState];
 
+import { m } from "@/paraglide/messages.js";
+
 /**
  * Get localized model provider display names.
- * Use this function with the translation hook: const { t } = useTranslation();
- * Then call: getModelProviderShowName(t)
+ * Uses Paraglide JS message functions.
  */
-export function getModelProviderShowName(t: { (key: "model_providers.Qwen" | "model_providers.DeepSeek" | "model_providers.OpenAI" | "model_providers.ZAI"): string; (key: string): string }) {
+export function getModelProviderShowName() {
 	return {
-		"Qwen": t("model_providers.Qwen"),
-		"DeepSeek": t("model_providers.DeepSeek"),
-		"OpenAI": t("model_providers.OpenAI"),
-		"ZAI": t("model_providers.ZAI"),
+		"Qwen": m.model_providers_Qwen(),
+		"DeepSeek": m.model_providers_DeepSeek(),
+		"OpenAI": m.model_providers_OpenAI(),
+		"ZAI": m.model_providers_ZAI(),
 	};
 }

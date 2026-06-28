@@ -39,7 +39,7 @@ import { handleStream, s_ChatList, s_LoadingChat, s_Selected, s_StreamingContent
 import { Icons } from "@/components/icon";
 import { HistoriesNew } from "@/components/HistoriesNew";
 import { SettingsNew } from "@/components/SettingsNew";
-import { useTranslation } from "react-i18next";
+import { m } from "@/paraglide/messages.js";
 import type { ModelConfigMap } from "@/@types";
 
 export const Route = createFileRoute("/translate/")({
@@ -180,7 +180,6 @@ function Inputer({ className }: { className?: string; }) {
 	const { ...currentModel_X } = useInvoke<string>(EVENT_NAMES.get_current_model, "");
 	const currentModel = currentModel_X.state;
 	const loadingChat = useStore(s_LoadingChat, (state => state))
-	const { t } = useTranslation();
 	return (
 		<InputGroup className={cn(className, "rounded-xl", "has-[[data-slot=input-group-control]:focus-visible]:border-ring/70 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/7")}>
 			{selected.text && (
@@ -218,7 +217,7 @@ function Inputer({ className }: { className?: string; }) {
 			<InputGroupAddon align="block-end">
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild disabled={loadingChat}>
-						<InputGroupButton variant="ghost">{getModelProviderShowName(t)[currentModel as keyof ReturnType<typeof getModelProviderShowName>]}</InputGroupButton>
+						<InputGroupButton variant="ghost">{getModelProviderShowName()[currentModel as keyof ReturnType<typeof getModelProviderShowName>]}</InputGroupButton>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent side="top" align="start">
 						{modelsList_X.state && Object.keys(modelsList_X.state)
@@ -231,7 +230,7 @@ function Inputer({ className }: { className?: string; }) {
 								<DropdownMenuItem onSelect={async () => {
 									await invoke(EVENT_NAMES.switch_model, { model_name: key })
 									await currentModel_X.setState(() => key)
-								}} key={key}>{getModelProviderShowName(t)[key as keyof ReturnType<typeof getModelProviderShowName>]}</DropdownMenuItem>
+								}} key={key}>{getModelProviderShowName()[key as keyof ReturnType<typeof getModelProviderShowName>]}</DropdownMenuItem>
 							))}
 					</DropdownMenuContent>
 				</DropdownMenu>
@@ -486,7 +485,6 @@ export default function LanguageSelector() {
 	const [targetLanguage, setTargetLanguage] = useState<string>("en");
 	const [options, setOptions] = useState<{ label: string; value: string }[]>([]);
 	const { ...selfExplaining_X } = useInvoke<boolean>(EVENT_NAMES.get_self_explaining_model, false);
-	const { t } = useTranslation();
 
 	const localLanguageLabel = options.find((item) => item.value === localLanguage)?.label || localLanguage;
 	const targetLanguageLabel = options.find((item) => item.value === targetLanguage)?.label || targetLanguage;
@@ -517,8 +515,8 @@ export default function LanguageSelector() {
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					{t("translate.language_selector.tooltip_line1", { localLanguage: localLanguageLabel })}
-					{t("translate.language_selector.tooltip_line2", { localLanguage: localLanguageLabel, targetLanguage: targetLanguageLabel })}
+					{m.translate_language_selector_tooltip_line1({ localLanguage: localLanguageLabel })}
+					{m.translate_language_selector_tooltip_line2({ localLanguage: localLanguageLabel, targetLanguage: targetLanguageLabel })}
 				</TooltipContent>
 			</Tooltip>
 
@@ -578,7 +576,7 @@ export default function LanguageSelector() {
 					selfExplaining_X.setState(enabled as any);
 				}}
 			>
-				{!!selfExplaining_X.state ? t("translate.language_selector.self_explaining_on") : t("translate.language_selector.self_explaining_off")}
+				{!!selfExplaining_X.state ? m.translate_language_selector_self_explaining_on() : m.translate_language_selector_self_explaining_off()}
 			</Button>
 		</div>
 	);
