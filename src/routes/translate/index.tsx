@@ -36,12 +36,11 @@ import { EVENT_NAMES, useInvoke } from "@/lib/events";
 import { AutoSpeakState, getModelProviderShowName, type ChatMessage } from "@/lib/types";
 import { cn, get_app_config, speak } from "@/lib/utils";
 import { handleStream, s_ChatList, s_LoadingChat, s_Selected, s_StreamingContent } from "@/store";
-import { IIArrowUp, IIPin, IIAdd, IIVolumeHigh, IIX, IIChat } from "@/components/icons";
+import { Icons } from "@/components/icons";
 import { HistoriesNew } from "@/components/HistoriesNew";
 import { SettingsNew } from "@/components/SettingsNew";
 import { useTranslation } from "react-i18next";
 import type { ModelConfigMap } from "@/@types";
-import { IIExchange, IIStop } from "@/components/icons/hugeicons";
 
 export const Route = createFileRoute("/translate/")({
 	component: RouteComponent,
@@ -85,7 +84,7 @@ function Header(props: React.ComponentProps<"div">) {
 		s_ChatList.setState(() => history);
 		s_Selected.setState(() => ({ text: "", raw: "" }));
 	}}>
-		<IIChat />
+		<Icons.chat />
 	</Button>
 
 	if (["macos"].includes(_ostype)) {
@@ -165,7 +164,7 @@ function Header(props: React.ComponentProps<"div">) {
 					variant={"ghost"}
 					onClick={() => invoke(EVENT_NAMES.close_main_window)}
 				>
-					<IIX />
+					<Icons.x />
 				</Button>
 			</div>
 		</div>
@@ -251,7 +250,7 @@ function Inputer({ className }: { className?: string; }) {
 						await handleStream({ role: "user", content: value } as ChatMessage)
 					}}
 				>
-					{loadingChat ? <IIStop /> : <IIArrowUp />}
+					{loadingChat ? <Icons.stop /> : <Icons.arrowUp />}
 					<span className="sr-only">{loadingChat ? "abort" : "send"}</span>
 				</InputGroupButton>
 			</InputGroupAddon>
@@ -391,7 +390,7 @@ const MessageItem = React.memo(function MessageItem({ chat, className, index }: 
 						<Copyed text={chat.content} />
 					</Button>
 					<Button size={"icon-sm"} variant={"ghost"} onClick={() => speak(chat.raw ?? chat.content)} >
-						<IIVolumeHigh />
+						<Icons.volumeHigh />
 					</Button>
 				</div>
 			</div>
@@ -422,14 +421,14 @@ function SelectedText({ onHandleStream }: { onHandleStream: (chatMessage: ChatMe
 						if (!selected.text) return;
 						speak(selected.text);
 					}}>
-						<IIVolumeHigh />
+						<Icons.volumeHigh />
 					</Button>
 				)}
 				{selected.text?.trim() && (
 					<Button size={"icon-sm"} variant={"ghost"} onClick={() => {
 						s_Selected.setState(() => ({ text: "", raw: "" }))
 					}}>
-						<IIX />
+						<Icons.x />
 					</Button>
 				)}
 			</div>
@@ -454,7 +453,7 @@ function SelectedText({ onHandleStream }: { onHandleStream: (chatMessage: ChatMe
 						</Button>
 					))}
 					<Button size={"xs"} variant={"outline"}>
-						<IIAdd />
+						<Icons.add />
 					</Button>
 				</div>
 			)
@@ -474,7 +473,7 @@ function PinWindow({ className }: { className?: string }) {
 				pin_X.setState(await invoke<boolean>(EVENT_NAMES.is_pin_translate_window_toggle))
 			}
 		>
-			<IIPin
+			<Icons.pin
 				className={cn(pin_X.state && "text-green-300 dark:text-green-20")}
 			/>
 		</Button>
@@ -528,7 +527,7 @@ export default function LanguageSelector() {
 				</DropdownMenuContent>
 			</DropdownMenu>
 			<Button size="icon-xs" variant="ghost" disabled>
-				<IIExchange />
+				<Icons.exchange />
 			</Button>
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild disabled={!!selfExplaining_X.state}>

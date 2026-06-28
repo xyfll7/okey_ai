@@ -7,4 +7,7 @@
 
 ### Tools
 
-cargo clean
+删除上下文功能
+主window置顶时，不弹出bublue窗口
+获取模型列表
+icon 的处理方式

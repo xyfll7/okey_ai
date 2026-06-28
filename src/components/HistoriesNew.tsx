@@ -11,7 +11,7 @@ import { EVENT_NAMES, useInvoke } from "@/lib/events"
 import { invoke } from "@tauri-apps/api/core";
 import { useState } from "react"
 import type { ChatMessage, ChatMessageHistory } from "@/lib/types"
-import { IIList } from "./icons/hugeicons"
+import { Icons } from "@/components/icons"
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils"
 import { useTranslation } from "react-i18next"
@@ -38,7 +38,7 @@ export function HistoriesNew({ className }: { className?: string }) {
             }, 0);
         }} asChild >
             <Button size={"icon-sm"} variant={"ghost"} className={className} >
-                <IIList />
+                <Icons.list />
             </Button>
         </DrawerTrigger>
         <DrawerContent className="pb-2 [&_.bg-muted.mx-auto.mt-4.hidden.h-1.w-\[100px\].shrink-0.rounded-full]:hidden">

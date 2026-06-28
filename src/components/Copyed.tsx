@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { IICopy, IITick } from "@/components/icons";
+import { Icons } from "@/components/icons";
 
 const Copyed = ({ text, className }: { text?: string; className?: string }) => {
 	const [copied, setCopied] = useState(false);
@@ -47,7 +47,7 @@ const Copyed = ({ text, className }: { text?: string; className?: string }) => {
 			className="inline-block"
 			style={{ pointerEvents: 'auto' }} // 关键：强制启用指针事件
 		>
-			{copied ? <IITick className={className}/> : <IICopy className={className}/>}
+			{copied ? <Icons.tick className={className}/> : <Icons.copy className={className}/>}
 		</div>
 	);
 };

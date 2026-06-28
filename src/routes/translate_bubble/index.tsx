@@ -8,7 +8,7 @@ import { EVENT_NAMES } from "@/lib/events";
 import { type as ostype } from "@tauri-apps/plugin-os";
 import { AutoSpeakState, type ChatMessage } from "@/lib/types";
 import { cn, speak } from "@/lib/utils";
-import { IIGripVertical, IIArrowExpand, IIVolumeHigh } from "@/components/icons";
+import { Icons } from "@/components/icons";
 
 export const Route = createFileRoute("/translate_bubble/")({
 	component: RouteComponent,
@@ -84,7 +84,7 @@ function RouteComponent() {
 						onClick={() => { }}
 						data-tauri-drag-region
 					>
-						<IIGripVertical
+						<Icons.gripVertical
 							strokeWidth={3}
 							className="cursor-grab  active:cursor-grabbing"
 							data-tauri-drag-region
@@ -122,7 +122,7 @@ function RouteComponent() {
 						speak(chat_user?.raw ?? chat_user?.content ?? "")
 					}}
 				>
-					<IIVolumeHigh />
+					<Icons.volumeHigh />
 				</Button>
 				<Button
 					className={cn("")}
@@ -135,7 +135,7 @@ function RouteComponent() {
 						});
 					}}
 				>
-					<IIArrowExpand />
+					<Icons.arrowExpand />
 				</Button>
 			</div>
 		</div>

@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "./ui/button";
 import { useEffect, useState } from "react";
-import { IISettings } from "./icons/hugeicons";
+import { Icons } from "@/components/icons";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { open } from "@tauri-apps/plugin-shell";
@@ -29,7 +29,6 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Card } from "./ui/card";
-import { IILanguages } from "./icons/index";
 import { useTranslation } from "react-i18next";
 
 import * as React from "react";
@@ -69,7 +68,7 @@ export function SettingsNew({ className }: { className?: string }) {
             }, 0);
         }} asChild >
             <Button size={"icon-sm"} variant={"ghost"} className={className} >
-                <IISettings />
+                <Icons.settings />
             </Button>
         </DrawerTrigger>
         <DrawerContent className="pb-2 [&_.bg-muted.mx-auto.mt-4.hidden.h-1.w-\[100px\].shrink-0.rounded-full]:hidden">
@@ -78,7 +77,7 @@ export function SettingsNew({ className }: { className?: string }) {
                     {t("common.settings")}
                     <LanguageSelector>
                         <Button size={"icon-sm"} variant={"ghost"}>
-                            <IILanguages />
+                            <Icons.languages />
                         </Button>
                     </LanguageSelector>
                 </DrawerTitle>
