@@ -1,7 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { EVENT_NAMES, useInvoke } from "@/lib/events";
 import { AutoSpeakState } from "@/lib/types";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/icon";
 
 const AutoSpeakVolume = ({ className }: { className?: string }) => {
 	const { ...autoSpeak_X } = useInvoke<AutoSpeakState>(EVENT_NAMES.get_auto_speak_state, AutoSpeakState.Off);

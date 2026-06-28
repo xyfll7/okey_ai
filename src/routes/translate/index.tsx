@@ -36,7 +36,7 @@ import { EVENT_NAMES, useInvoke } from "@/lib/events";
 import { AutoSpeakState, getModelProviderShowName, type ChatMessage } from "@/lib/types";
 import { cn, get_app_config, speak } from "@/lib/utils";
 import { handleStream, s_ChatList, s_LoadingChat, s_Selected, s_StreamingContent } from "@/store";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/icon";
 import { HistoriesNew } from "@/components/HistoriesNew";
 import { SettingsNew } from "@/components/SettingsNew";
 import { useTranslation } from "react-i18next";

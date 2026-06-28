@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "./ui/button";
 import { useEffect, useState } from "react";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/icon";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { open } from "@tauri-apps/plugin-shell";

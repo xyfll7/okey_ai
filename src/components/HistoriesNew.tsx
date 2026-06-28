@@ -11,7 +11,7 @@ import { EVENT_NAMES, useInvoke } from "@/lib/events"
 import { invoke } from "@tauri-apps/api/core";
 import { useState } from "react"
 import type { ChatMessage, ChatMessageHistory } from "@/lib/types"
-import { Icons } from "@/components/icons"
+import { Icons } from "@/components/icon"
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils"
 import { useTranslation } from "react-i18next"

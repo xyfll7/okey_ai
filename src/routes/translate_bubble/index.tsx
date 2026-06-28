@@ -8,7 +8,7 @@ import { EVENT_NAMES } from "@/lib/events";
 import { type as ostype } from "@tauri-apps/plugin-os";
 import { AutoSpeakState, type ChatMessage } from "@/lib/types";
 import { cn, speak } from "@/lib/utils";
-import { Icons } from "@/components/icons";
+import { Icons } from "@/components/icon";
 
 export const Route = createFileRoute("/translate_bubble/")({
 	component: RouteComponent,
