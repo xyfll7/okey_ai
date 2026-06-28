@@ -321,7 +321,7 @@ function ChatList({ className }: { className?: string; }) {
 			})}
 			{!streamingContent && loadingChat && <div className="px-2.5" ><span data-loading="...">...</span></div>}
 			{<StreamingMessage content={streamingContent} />}
-			
+
 		</div>
 	);
 }
@@ -333,7 +333,7 @@ const StreamingMessage = React.memo(function StreamingMessage({ content }: { con
 		return () => cancelAnimationFrame(id);
 	}, [content]);
 	return (
-		<div className={cn("px-2.5 mb-2 w-full","min-h-30")}>
+		<div className={cn("px-2.5 mb-2 w-full", "min-h-30")}>
 			<Markdown className="mb-2">{displayed}</Markdown>
 		</div>
 	);
@@ -486,6 +486,10 @@ export default function LanguageSelector() {
 	const [targetLanguage, setTargetLanguage] = useState<string>("en");
 	const [options, setOptions] = useState<{ label: string; value: string }[]>([]);
 	const { ...selfExplaining_X } = useInvoke<boolean>(EVENT_NAMES.get_self_explaining_model, false);
+	const { t } = useTranslation();
+
+	const localLanguageLabel = options.find((item) => item.value === localLanguage)?.label || localLanguage;
+	const targetLanguageLabel = options.find((item) => item.value === targetLanguage)?.label || targetLanguage;
 
 	useEffect(() => {
 		(async () => {
@@ -506,6 +510,18 @@ export default function LanguageSelector() {
 
 	return (
 		<div className="px-2 pb-2 flex  flex-wrap">
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<Button size="icon-xs" variant="ghost" >
+						<Icons.question />
+					</Button>
+				</TooltipTrigger>
+				<TooltipContent>
+					{t("translate.language_selector.tooltip_line1", { localLanguage: localLanguageLabel })}
+					{t("translate.language_selector.tooltip_line2", { localLanguage: localLanguageLabel, targetLanguage: targetLanguageLabel })}
+				</TooltipContent>
+			</Tooltip>
+
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild disabled={!!selfExplaining_X.state}>
 					<Button size="xs" variant="ghost">
@@ -562,7 +578,7 @@ export default function LanguageSelector() {
 					selfExplaining_X.setState(enabled as any);
 				}}
 			>
-				{!!selfExplaining_X.state ? "Self-explaining: On" : "Self-explaining: Off"}
+				{!!selfExplaining_X.state ? t("translate.language_selector.self_explaining_on") : t("translate.language_selector.self_explaining_off")}
 			</Button>
 		</div>
 	);

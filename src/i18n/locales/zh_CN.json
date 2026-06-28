@@ -21,7 +21,13 @@
 			"en": "英语"
 		},
 		"translate": {
-			"translate": "翻译"
+			"translate": "翻译",
+			"language_selector": {
+				"tooltip_line1": "将其他语言翻译为「{{localLanguage}}」。",
+				"tooltip_line2": "将「{{localLanguage}}」翻译为「{{targetLanguage}}」。",
+				"self_explaining_on": "自解释：开启",
+				"self_explaining_off": "自解释：关闭"
+			}
 		},
         "hotkey": {
             "press_to_set_hotkey": "按下设置快捷键",

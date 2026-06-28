@@ -21,7 +21,13 @@
             "en": "English"
         },
         "translate": {
-            "translate": "Translate"
+            "translate": "Translate",
+            "language_selector": {
+                "tooltip_line1": "Translate any other language into the 「{{localLanguage}}」.",
+                "tooltip_line2": "Translate the 「{{localLanguage}}」 into the 「{{targetLanguage}}」.",
+                "self_explaining_on": "Self-explaining: On",
+                "self_explaining_off": "Self-explaining: Off"
+            }
         },
         "hotkey":{
             "press_to_set_hotkey": "Press to Set Hotkey",

@@ -17,6 +17,7 @@ import {
   StopIcon,
   Chatting01Icon,
   ArrowDataTransferHorizontalIcon,
+  MessageQuestionIcon,
 } from "@hugeicons/core-free-icons";
 
 export type Icon = React.ComponentType<React.ComponentProps<"svg"> & { strokeWidth?: number }>;
@@ -46,6 +47,7 @@ const _Icons = {
   stop: createHugeicon(StopIcon),
   chat: createHugeicon(Chatting01Icon),
   exchange: createHugeicon(ArrowDataTransferHorizontalIcon),
+  question: createHugeicon(MessageQuestionIcon),
 } satisfies Record<string, Icon>;
 
 export const Icons = Object.fromEntries(
