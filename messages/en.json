@@ -21,6 +21,7 @@
   "translate_language_selector_tooltip_line2": "Translate the 「{localLanguage}」 into the 「{targetLanguage}」.",
   "translate_language_selector_self_explaining_on": "Self-explaining: On",
   "translate_language_selector_self_explaining_off": "Self-explaining: Off",
+  "translate_input_placeholder": "Ask, Search or Chat...",
   "hotkey_press_to_set_hotkey": "Press to Set Hotkey",
   "hotkey_recording_hotkey": "recording hotkey",
   "hotkey_set_hotkey": "set hotkey",

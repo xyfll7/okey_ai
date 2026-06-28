@@ -188,7 +188,7 @@ function Inputer({ className }: { className?: string; }) {
 				</InputGroupAddon>
 			)}
 			<InputGroupTextarea
-				placeholder="Ask, Search or Chat..."
+				placeholder={m.translate_input_placeholder()}
 				value={value}
 				onChange={(e) => setValue(e.target.value)}
 				onKeyDown={async (e) => {
