@@ -11,3 +11,4 @@
 
 获取模型列表
 
+用openai兼容模式和Anthropic兼容模式
