@@ -52,13 +52,16 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
         let app_config_state = app_handle.state::<AppConfigState>();
         let translation_prompt = build_translation_prompt(&app_config_state, &detected_lang, &selected_text);
         let translation_manager = app_handle.state::<translation_manager::TranslationManager>();
+        let should_use_existing_window = my_windows::should_use_existing_translate_window(app_handle.clone());
 
-        translation_manager.create_session().await;
+        if !should_use_existing_window {
+            translation_manager.create_session().await;
+        }
 
         let messages = translation_manager.add_get_user_message(None, &translation_prompt, Some(selected_text.clone()), Role::User).await.unwrap_or_default();
         let _ = app_handle.emit(event_names::BUBBLE_AUTO_SPEAK, &messages);
         let _ = app_handle.emit(event_names::AI_RESPONSE, &messages);
-        if my_windows::should_use_existing_translate_window(app_handle.clone()) {
+        if should_use_existing_window {
             let _ = app_handle.emit(event_names::START_CHAT_STREAM, ());
             return;
         } else if display_type == DisplayType::Bubble {
