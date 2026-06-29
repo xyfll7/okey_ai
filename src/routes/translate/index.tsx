@@ -41,6 +41,7 @@ import { HistoriesNew } from "@/components/HistoriesNew";
 import { SettingsNew } from "@/components/SettingsNew";
 import { m } from "@/paraglide/messages.js";
 import type { ModelConfigMap } from "@/@types";
+import { PromptTags } from "@/components/PromptTags";
 
 export const Route = createFileRoute("/translate/")({
 	component: RouteComponent,
@@ -451,9 +452,7 @@ function SelectedText({ onHandleStream }: { onHandleStream: (chatMessage: ChatMe
 							{e}
 						</Button>
 					))}
-					<Button size={"xs"} variant={"outline"}>
-						<Icons.add />
-					</Button>
+					<PromptTags />
 				</div>
 			)
 			}
