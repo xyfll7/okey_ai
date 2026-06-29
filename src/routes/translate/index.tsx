@@ -515,8 +515,12 @@ export default function LanguageSelector() {
 					</Button>
 				</TooltipTrigger>
 				<TooltipContent>
-					{m.translate_language_selector_tooltip_line1({ localLanguage: localLanguageLabel })}
-					{m.translate_language_selector_tooltip_line2({ localLanguage: localLanguageLabel, targetLanguage: targetLanguageLabel })}
+					<div>
+						{m.translate_language_selector_tooltip_line1({ localLanguage: localLanguageLabel })}
+					</div>
+					<div>
+						{m.translate_language_selector_tooltip_line2({ localLanguage: localLanguageLabel, targetLanguage: targetLanguageLabel })}
+					</div>
 				</TooltipContent>
 			</Tooltip>
 
