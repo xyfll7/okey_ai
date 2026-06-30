@@ -45,6 +45,7 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
     async_runtime::spawn(async move {
         let selected_text = crate::utils::selecte_text::get_selected_text();
         if selected_text.is_empty() {
+            my_windows::window_translate_show(&app_handle, None as Option<fn()>);
             return;
         }
         let detected_lang = language_detection::detect_language(&selected_text);
