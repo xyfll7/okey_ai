@@ -42,6 +42,7 @@ import { SettingsNew } from "@/components/SettingsNew";
 import { m } from "@/paraglide/messages.js";
 import type { ModelConfigMap } from "@/@types";
 import { PromptTags } from "@/components/PromptTags";
+import MessageNavigator from "@/components/MessageNavigator";
 
 export const Route = createFileRoute("/translate/")({
 	component: RouteComponent,
@@ -55,8 +56,9 @@ function RouteComponent() {
 			{ "border rounded-xl": ["linux"].includes(_ostype) },
 			"bg-background", "h-full", "flex-coh")}>
 			<Header className="p-1" />
-			<ScrollArea className={cn("h-full flex-coh")}>
+			<ScrollArea className={cn("h-full flex-coh","relative")}>
 				<ChatList className="px-2 pt-2" />
+				<MessageNavigator />
 			</ScrollArea>
 			<div className="px-2 pb-2">
 				<Inputer />
