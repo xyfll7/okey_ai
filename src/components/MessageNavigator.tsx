@@ -57,9 +57,27 @@ const MessageNavigator = () => {
 	const scrollEndHandlerRef = useRef<(() => void) | null>(null);
 	const ratiosRef = useRef<Map<number, number>>(new Map());
 
+	// Adjusting state during render (not in an effect) when a derived value
+	// (`total`) crosses the threshold. This isn't synchronizing with an
+	// external system — it's a pure derivation of state from state — so per
+	// https://react.dev/learn/you-might-not-need-an-effect it belongs here,
+	// not in an effect. Guarded by the current value so it only fires once
+	// per transition instead of every render. Refs aren't touched here since
+	// render must stay pure — activeIndexRef is kept in sync separately.
+	if (total <= MIN_MESSAGES && activeIndex !== 0) {
+		setActiveIndexState(0);
+	}
+
+	// Keep the ref mirror of activeIndex up to date after render commits, so
+	// effects/handlers that read activeIndexRef.current (e.g. pickActive,
+	// finishProgrammaticScroll) always see the latest value without needing
+	// activeIndex itself as a dependency.
+	useEffect(() => {
+		activeIndexRef.current = activeIndex;
+	}, [activeIndex]);
+
 	useEffect(() => {
 		if (total <= MIN_MESSAGES) {
-			updateActive(0);
 			return;
 		}
 		const container = document.querySelector("[data-chat-container]");
@@ -202,7 +220,7 @@ const MessageNavigator = () => {
 		<div className="absolute right-3 top-1/2 -translate-y-1/2 z-20">
 			<div className="group flex flex-col items-center gap-1">
 				<button
-					className="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium leading-[normal] cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-60 disabled:cursor-not-allowed [&_svg]:shrink-0 select-none text-fg-secondary hover:bg-button-ghost-hover hover:text-fg-primary disabled:hover:bg-transparent border border-transparent h-8 gap-1.5 rounded-full overflow-hidden w-8 px-1.5 py-1.5 !opacity-0 transition-all duration-200 group-hover:!opacity-100 disabled:group-hover:!opacity-60 -me-2 translate-y-1 group-hover:translate-y-0"
+					className="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium leading-[normal] cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-60 disabled:cursor-not-allowed [&_svg]:shrink-0 select-none text-fg-secondary hover:bg-button-ghost-hover hover:text-fg-primary disabled:hover:bg-transparent border border-transparent h-8 gap-1.5 rounded-full overflow-hidden w-8 px-1.5 py-1.5 opacity-0! transition-all duration-200 group-hover:opacity-100! disabled:group-hover:opacity-60! -me-2 translate-y-1 group-hover:translate-y-0"
 					type="button"
 					aria-label="Navigate to previous message"
 					disabled={!canGoPrev}
@@ -225,7 +243,7 @@ const MessageNavigator = () => {
 				</div>
 
 				<button
-					className="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium leading-[normal] cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-60 disabled:cursor-not-allowed [&_svg]:shrink-0 select-none text-fg-secondary hover:bg-button-ghost-hover hover:text-fg-primary disabled:hover:bg-transparent border border-transparent h-8 gap-1.5 rounded-full overflow-hidden w-8 px-1.5 py-1.5 !opacity-0 transition-all duration-200 group-hover:!opacity-100 disabled:group-hover:!opacity-60 -me-2 -translate-y-1 group-hover:translate-y-0"
+					className="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium leading-[normal] cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-60 disabled:cursor-not-allowed [&_svg]:shrink-0 select-none text-fg-secondary hover:bg-button-ghost-hover hover:text-fg-primary disabled:hover:bg-transparent border border-transparent h-8 gap-1.5 rounded-full overflow-hidden w-8 px-1.5 py-1.5 opacity-0! transition-all duration-200 group-hover:opacity-100! disabled:group-hover:opacity-60! -me-2 -translate-y-1 group-hover:translate-y-0"
 					type="button"
 					aria-label="Navigate to next message"
 					disabled={!canGoNext}
