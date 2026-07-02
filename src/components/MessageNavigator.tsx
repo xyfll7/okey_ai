@@ -59,174 +59,130 @@ const NavTick = ({
 	);
 };
 
+/**
+ * Finds the DOM elements for the currently rendered chat container/viewport.
+ * Re-queried on demand rather than cached, since the container isn't owned
+ * by this component and can be remounted elsewhere.
+ */
+const getScrollElements = () => {
+	const container = document.querySelector<HTMLElement>(
+		"[data-chat-container]",
+	);
+	const viewport = container?.closest<HTMLElement>(
+		'[data-slot="scroll-area-viewport"]',
+	);
+	return { container, viewport };
+};
+
+/**
+ * Scrollspy: walks messages top-to-bottom and returns the index of the
+ * last one whose top edge is at or above the viewport's top edge (plus a
+ * small offset). This mirrors where `scrollIntoView({ block: "start" })`
+ * lands, so programmatic and organic scrolling agree on the same answer.
+ *
+ * Reads layout synchronously via getBoundingClientRect — no async
+ * batching, no staleness, no "has it settled yet" question to answer.
+ */
+const computeActiveIndex = (
+	container: HTMLElement,
+	viewportTop: number,
+	total: number,
+	offset = 8,
+): number => {
+	let active = 0;
+	for (let i = 0; i < total; i++) {
+		const el = container.querySelector<HTMLElement>(`[data-index="${i}"]`);
+		if (!el) break;
+		const top = el.getBoundingClientRect().top;
+		if (top - viewportTop <= offset) {
+			active = i;
+		} else {
+			break;
+		}
+	}
+	return active;
+};
+
 const MessageNavigator = () => {
 	const chatList = useStore(s_ChatList, (state) =>
 		state.filter((e) => e.role !== "system").slice(0, MAX_MESSAGES),
 	);
 	const total = chatList.length;
-	const [activeIndex, setActiveIndexState] = useState(0);
-	const activeIndexRef = useRef(0);
-	const updateActive = (index: number) => {
-		activeIndexRef.current = index;
-		setActiveIndexState(index);
-	};
+	const [activeIndex, setActiveIndex] = useState(0);
 
-	const programmaticScrollRef = useRef(false);
-	const scrollEndTimerRef = useRef<number>(0);
-	const scrollEndHandlerRef = useRef<(() => void) | null>(null);
-	const ratiosRef = useRef<Map<number, number>>(new Map());
+	// Single mode flag: 'auto' means the scrollspy is free to update
+	// activeIndex from scroll position. 'manual' means a click just set
+	// the index and it should stick until the user genuinely scrolls by
+	// hand (wheel/touch/pointer) — a real input event, not a timer or
+	// frame count standing in for one.
+	const modeRef = useRef<"auto" | "manual">("auto");
+	const rafPendingRef = useRef(false);
 
-	// Adjusting state during render (not in an effect) when a derived value
-	// (`total`) crosses the threshold. This isn't synchronizing with an
-	// external system — it's a pure derivation of state from state — so per
-	// https://react.dev/learn/you-might-not-need-an-effect it belongs here,
-	// not in an effect. Guarded by the current value so it only fires once
-	// per transition instead of every render. Refs aren't touched here since
-	// render must stay pure — activeIndexRef is kept in sync separately.
+	// Pure derivation: collapse activeIndex back to 0 once the nav drops
+	// below the visibility threshold. Per https://react.dev/learn/you-might-not-need-an-effect
+	// this belongs in render, not an effect, since it's just state
+	// derived from state and must only fire once per crossing.
 	if (total <= MIN_MESSAGES && activeIndex !== 0) {
-		setActiveIndexState(0);
+		setActiveIndex(0);
 	}
 
-	// Keep the ref mirror of activeIndex up to date after render commits, so
-	// effects/handlers that read activeIndexRef.current (e.g. pickActive,
-	// finishProgrammaticScroll) always see the latest value without needing
-	// activeIndex itself as a dependency.
 	useEffect(() => {
-		activeIndexRef.current = activeIndex;
-	}, [activeIndex]);
+		if (total <= MIN_MESSAGES) return;
 
-	useEffect(() => {
-		if (total <= MIN_MESSAGES) {
-			return;
-		}
-		const container = document.querySelector("[data-chat-container]");
-		const viewport = (container as HTMLElement | null)?.closest<HTMLElement>(
-			'[data-slot="scroll-area-viewport"]',
-		);
+		const { container, viewport } = getScrollElements();
 		if (!container || !viewport) return;
 
-		ratiosRef.current.clear();
-
-		const pickActive = () => {
-			let best = -1;
-			let bestRatio = 0;
-			for (let i = 0; i < total; i++) {
-				const r = ratiosRef.current.get(i) ?? 0;
-				if (r > bestRatio) {
-					bestRatio = r;
-					best = i;
-				}
-			}
-			const current = activeIndexRef.current;
-			const currentRatio = ratiosRef.current.get(current) ?? 0;
-			if (best >= 0 && (best === current || bestRatio > currentRatio + 0.15)) {
-				updateActive(best);
-			}
+		const recompute = () => {
+			rafPendingRef.current = false;
+			if (modeRef.current === "manual") return;
+			const viewportTop = viewport.getBoundingClientRect().top;
+			const next = computeActiveIndex(container, viewportTop, total);
+			setActiveIndex((prev) => (prev === next ? prev : next));
 		};
 
-		const observer = new IntersectionObserver(
-			(entries) => {
-				for (const entry of entries) {
-					const idx = Number((entry.target as HTMLElement).dataset.index);
-					if (!Number.isNaN(idx)) {
-						ratiosRef.current.set(idx, entry.intersectionRatio);
-					}
-				}
-				if (programmaticScrollRef.current) return;
-				pickActive();
-			},
-			{
-				root: viewport,
-				threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
-			},
-		);
+		const onScroll = () => {
+			if (rafPendingRef.current) return;
+			rafPendingRef.current = true;
+			requestAnimationFrame(recompute);
+		};
 
-		for (let i = 0; i < total; i++) {
-			const el = container.querySelector(`[data-index="${i}"]`);
-			if (el) observer.observe(el);
-		}
+		// Any of these is unambiguous evidence the user is scrolling by
+		// hand right now, so hand control back to the scrollspy
+		// immediately — no cooldown or guesswork needed.
+		const onUserInput = () => {
+			modeRef.current = "auto";
+		};
 
-		return () => observer.disconnect();
+		viewport.addEventListener("scroll", onScroll, { passive: true });
+		viewport.addEventListener("wheel", onUserInput, { passive: true });
+		viewport.addEventListener("touchstart", onUserInput, { passive: true });
+		viewport.addEventListener("pointerdown", onUserInput, { passive: true });
+		window.addEventListener("resize", onScroll);
+
+		// Establish the initial position.
+		recompute();
+
+		return () => {
+			viewport.removeEventListener("scroll", onScroll);
+			viewport.removeEventListener("wheel", onUserInput);
+			viewport.removeEventListener("touchstart", onUserInput);
+			viewport.removeEventListener("pointerdown", onUserInput);
+			window.removeEventListener("resize", onScroll);
+		};
 	}, [total]);
-
-	// On unmount: clear the fallback timer AND detach any pending scrollend
-	// listener so it can't fire after the component is gone. The viewport
-	// isn't owned by this component, so re-query it here for cleanup.
-	useEffect(
-		() => () => {
-			window.clearTimeout(scrollEndTimerRef.current);
-			const container = document.querySelector("[data-chat-container]");
-			const viewport = (container as HTMLElement | null)?.closest<HTMLElement>(
-				'[data-slot="scroll-area-viewport"]',
-			);
-			if (scrollEndHandlerRef.current && viewport) {
-				viewport.removeEventListener("scrollend", scrollEndHandlerRef.current);
-				scrollEndHandlerRef.current = null;
-			}
-		},
-		[],
-	);
 
 	const scrollToIndex = (index: number) => {
 		if (index < 0 || index >= total) return;
-		const container = document.querySelector("[data-chat-container]");
+		const { container } = getScrollElements();
 		const target = container?.querySelector(`[data-index="${index}"]`);
 		if (!target) return;
 
-		const viewport = (container as HTMLElement | null)?.closest<HTMLElement>(
-			'[data-slot="scroll-area-viewport"]',
-		);
-
-		// Runs once the scroll is confirmed finished (by scrollend OR the
-		// fallback timer). Idempotent: guards against double-fire.
-		const finishProgrammaticScroll = () => {
-			if (!programmaticScrollRef.current) return;
-			programmaticScrollRef.current = false;
-			window.clearTimeout(scrollEndTimerRef.current);
-			if (scrollEndHandlerRef.current && viewport) {
-				viewport.removeEventListener("scrollend", scrollEndHandlerRef.current);
-				scrollEndHandlerRef.current = null;
-			}
-			let best = -1;
-			let bestRatio = 0;
-			for (let i = 0; i < total; i++) {
-				const r = ratiosRef.current.get(i) ?? 0;
-				if (r > bestRatio) {
-					bestRatio = r;
-					best = i;
-				}
-			}
-			if (best >= 0) updateActive(best);
-		};
-
-		programmaticScrollRef.current = true;
-		updateActive(index);
-
-		// Tear down any still-pending listener/timer from a previous
-		// scrollToIndex call before starting a new one (no double-attach).
-		if (scrollEndHandlerRef.current && viewport) {
-			viewport.removeEventListener("scrollend", scrollEndHandlerRef.current);
-			scrollEndHandlerRef.current = null;
-		}
-		window.clearTimeout(scrollEndTimerRef.current);
-
-		// Native scrollend: fires exactly when the browser reports the smooth
-		// scroll has ended. Attached to the scroll viewport (the actual
-		// scrolling element), not window.
-		if (viewport) {
-			scrollEndHandlerRef.current = finishProgrammaticScroll;
-			viewport.addEventListener("scrollend", finishProgrammaticScroll);
-		}
-
+		// Lock immediately: the click is the source of truth for the new
+		// index. Nothing recomputes or overrides it until the user
+		// actually scrolls by hand (see onUserInput above).
+		modeRef.current = "manual";
+		setActiveIndex(index);
 		target.scrollIntoView({ behavior: "smooth", block: "start" });
-
-		// Fallback: if scrollend isn't supported (older Safari) or never
-		// fires, clear programmatic mode after 1.5s so the nav doesn't get
-		// stuck ignoring real intersection updates forever.
-		scrollEndTimerRef.current = window.setTimeout(
-			finishProgrammaticScroll,
-			1500,
-		);
 	};
 
 	if (total <= MIN_MESSAGES) return null;
