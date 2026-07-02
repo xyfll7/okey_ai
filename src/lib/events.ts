@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { useStore, Store } from "@tanstack/react-store";
 
 // 缓存 Store 实例，避免为同一个事件创建多个 Store
-const storeCache = new Map<string, Store<any>>();
+const storeCache = new Map<string, Store<unknown>>();
 
 export const EVENT_NAMES = {
   // to backend
@@ -85,10 +85,10 @@ export function useInvoke<T = undefined>(
   // 如果 Store 不存在，创建一个
   if (!storeCache.has(event_name)) {
     const initialValue = typeof init === "function" ? (init as () => T)() : init;
-    storeCache.set(event_name, new Store<T>(initialValue));
+    storeCache.set(event_name, new Store<T>(initialValue) as Store<unknown>);
   }
 
-  const store = storeCache.get(event_name)!;
+  const store = storeCache.get(event_name)! as Store<T>;
   // 使用 useStore hook 获取响应式状态
   const state = useStore(store, (s) => s);
 
