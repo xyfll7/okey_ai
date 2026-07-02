@@ -2,6 +2,11 @@ import { useStore } from "@tanstack/react-store";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { s_ChatList } from "@/store";
+import {
+	HoverCard,
+	HoverCardTrigger,
+	HoverCardContent,
+} from "@/components/ui/hover-card";
 
 const MIN_MESSAGES = 4;
 const MAX_MESSAGES = 10;
@@ -9,32 +14,48 @@ const MAX_MESSAGES = 10;
 const NavTick = ({
 	isActive,
 	role,
+	content,
 	onClick,
 }: {
 	isActive: boolean;
 	role: string;
+	content: string;
 	onClick: () => void;
 }) => {
 	return (
-		<button
-			className="group/tick gap-2 whitespace-nowrap font-medium cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-60 disabled:cursor-not-allowed transition-colors duration-100 [&_svg]:shrink-0 select-none text-fg-secondary hover:text-fg-primary disabled:hover:bg-transparent border border-transparent px-2.5 text-xs rounded-full relative flex items-center justify-end w-10 h-3 animate-none hover:bg-transparent"
-			type="button"
-			aria-label={role === "user" ? "Go to your message" : "Go to response"}
-			aria-current={isActive ? "true" : undefined}
-			onClick={onClick}
-		>
-			<div
-				className={cn(
-					"overflow-hidden",
-					"rounded-full h-px transition-[width,opacity,background-color] duration-150 will-change-[width] bg-fg-tertiary opacity-50 group-hover:opacity-70 group-hover/tick:w-4 group-hover/tick:bg-fg-primary group-hover/tick:opacity-100",
-					isActive
-						? "w-4 bg-fg-primary! opacity-100!"
-						: role === "assistant"
-							? "w-3"
-							: "w-1.5",
-				)}
-			/>
-		</button>
+		<HoverCard openDelay={300} closeDelay={100}>
+			<HoverCardTrigger asChild>
+				<button
+					className="group/tick gap-2 whitespace-nowrap font-medium cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-60 disabled:cursor-not-allowed transition-colors duration-100 [&_svg]:shrink-0 select-none text-fg-secondary hover:text-fg-primary disabled:hover:bg-transparent border border-transparent px-2.5 text-xs rounded-full relative flex items-center justify-end w-10 h-3 animate-none hover:bg-transparent"
+					type="button"
+					aria-label={role === "user" ? "Go to your message" : "Go to response"}
+					aria-current={isActive ? "true" : undefined}
+					onClick={onClick}
+				>
+					<div
+						className={cn(
+							"overflow-hidden",
+							"rounded-full h-px transition-[width,opacity,background-color] duration-150 will-change-[width] bg-fg-tertiary opacity-50 group-hover:opacity-70 group-hover/tick:w-4 group-hover/tick:bg-fg-primary group-hover/tick:opacity-100",
+							isActive
+								? "w-4 bg-fg-primary! opacity-100!"
+								: role === "assistant"
+									? "w-3"
+									: "w-1.5",
+						)}
+					/>
+				</button>
+			</HoverCardTrigger>
+			<HoverCardContent
+				side="left"
+				align="center"
+				sideOffset={8}
+				className="max-w-64 max-h-40 overflow-hidden"
+			>
+				<p className="text-xs text-fg-secondary leading-relaxed line-clamp-5">
+					{content}
+				</p>
+			</HoverCardContent>
+		</HoverCard>
 	);
 };
 
@@ -42,9 +63,7 @@ const MessageNavigator = () => {
 	const chatList = useStore(s_ChatList, (state) =>
 		state.filter((e) => e.role !== "system").slice(0, MAX_MESSAGES),
 	);
-
 	const total = chatList.length;
-
 	const [activeIndex, setActiveIndexState] = useState(0);
 	const activeIndexRef = useRef(0);
 	const updateActive = (index: number) => {
@@ -237,6 +256,7 @@ const MessageNavigator = () => {
 							key={index}
 							isActive={index === clampedActive}
 							role={item.role}
+							content={item.raw ?? item.content}
 							onClick={() => scrollToIndex(index)}
 						/>
 					))}
