@@ -6,7 +6,6 @@ import { listen } from "@tauri-apps/api/event";
 
 export const s_Selected = new Store({ text: "", raw: "" });
 export const s_ChatList = new Store<ChatMessage[]>([]);
-export const s_LoadingChat = new Store(false);
 export const s_StreamingContent = new Store<string>("");
 
 type StreamEvent =
@@ -15,7 +14,6 @@ type StreamEvent =
     | { event: "error"; data: { message: string } };
 
 export const handleStream = async (chatMessage: ChatMessage) => {
-    s_LoadingChat.setState(() => true);
     let accumulated = "";
     const channel = new Channel<StreamEvent>();
     channel.onmessage = (message) => {
@@ -52,10 +50,6 @@ async function init() {
     const localeResult = await invoke<string>(EVENT_NAMES.get_locale);
 
     setLocale(localeResult as "en" | "zh-CN");
-
-    listen<boolean>(EVENT_NAMES.CHATTING_STATE_CHANGE, (event) => {
-        s_LoadingChat.setState(() => event.payload);
-    });
 
     listen<string>(EVENT_NAMES.START_CHAT_STREAM, () => {
         handleStream({ role: "user", content: "" } as ChatMessage);

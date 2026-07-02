@@ -15,17 +15,16 @@ import { Icons } from "@/components/icon"
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils"
 import { m } from "@/paraglide/messages.js"
-import { s_ChatList, s_LoadingChat } from "@/store"
-import { useStore } from "@tanstack/react-store";
+import { s_ChatList } from "@/store"
 
 
 
 export function HistoriesNew({ className }: { className?: string }) {
     const { ...histories_X } = useInvoke<[string, ChatMessageHistory][]>(EVENT_NAMES.get_histories, []);
     const [isOpen, setIsOpen] = useState(false);
-    const loadingChat = useStore(s_LoadingChat, (state) => state);
+    const { ...loadingChat_X } = useInvoke<boolean>(EVENT_NAMES.get_chatting_state, false, false, undefined, EVENT_NAMES.CHATTING_STATE_CHANGE);
     return <Drawer open={isOpen} onOpenChange={setIsOpen}>
-        <DrawerTrigger disabled={loadingChat} onClick={async (e) => {
+        <DrawerTrigger disabled={loadingChat_X.state} onClick={async (e) => {
             (e.currentTarget as HTMLButtonElement).blur();
             histories_X.invokeState();
             setIsOpen(true)
@@ -47,7 +46,7 @@ export function HistoriesNew({ className }: { className?: string }) {
             </DrawerHeader>
             <ScrollArea className={cn("h-[70vh]")}>
                 <div className="max-w-screen flex-coh items-start px-2">
-                    {histories_X.state.filter(([_, item]) => Boolean(item.messages.at(1))).map(([key, item]) => {
+                    {histories_X.state.filter(([, item]) => Boolean(item.messages.at(1))).map(([key, item]) => {
                         return <Button 
                             className="w-full cursor-pointer" 
                             key={key} 

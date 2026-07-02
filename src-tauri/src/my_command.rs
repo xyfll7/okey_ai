@@ -18,6 +18,12 @@ pub async fn abort_chat_stream(app: AppHandle) -> Result<(), String> {
     result
 }
 
+#[tauri::command(rename_all = "snake_case")]
+pub fn get_chatting_state(app: AppHandle) -> bool {
+    let chatting_state = app.state::<ChattingState>();
+    chatting_state.get()
+}
+
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", tag = "event", content = "data")]
 pub enum StreamEvent {

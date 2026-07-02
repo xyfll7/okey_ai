@@ -2,6 +2,7 @@
 // This centralizes event name management to avoid typos and make refactoring easier
 
 import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 import { useEffect } from "react";
 import { useStore, Store } from "@tanstack/react-store";
 
@@ -48,6 +49,7 @@ export const EVENT_NAMES = {
   set_locale: "set_locale",
   set_current_session: "set_current_session",
   create_new_session: "create_new_session",
+  get_chatting_state: "get_chatting_state",
 } as const;
 
 // Type for event names to provide type safety
@@ -81,6 +83,7 @@ export function useInvoke<T = undefined>(
   init: T | (() => T),
   autoSync = false,
   onStateChange?: (value: T) => void,
+  listenEvent?: string,
 ): UseInvokeReturn<T> {
   // 如果 Store 不存在，创建一个
   if (!storeCache.has(event_name)) {
@@ -92,9 +95,10 @@ export function useInvoke<T = undefined>(
   // 使用 useStore hook 获取响应式状态
   const state = useStore(store, (s) => s);
 
-  // 在组件挂载时，调用 invoke 并更新 Store
+  // 在组件挂载时，调用 invoke 拉取初值；若提供 listenEvent，则同时订阅后端推送
   useEffect(() => {
     let mounted = true;
+    let unlistenFn: (() => void) | undefined;
 
     const subscription = onStateChange
       ? store.subscribe((value) => {
@@ -108,11 +112,26 @@ export function useInvoke<T = undefined>(
       store.setState(() => result);
     })();
 
+    if (listenEvent) {
+      (async () => {
+        const unlisten = await listen<T>(listenEvent, (event) => {
+          if (!mounted) return;
+          store.setState(() => event.payload);
+        });
+        if (!mounted) {
+          unlisten();
+          return;
+        }
+        unlistenFn = unlisten;
+      })();
+    }
+
     return () => {
       mounted = false;
       subscription?.unsubscribe();
+      unlistenFn?.();
     };
-  }, [event_name, store, onStateChange]);
+  }, [event_name, store, onStateChange, listenEvent]);
 
   // 提供 invokeState 方法供手动重新调用
   const invokeState = async () => {

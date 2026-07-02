@@ -35,7 +35,7 @@ import {
 import { EVENT_NAMES, useInvoke } from "@/lib/events";
 import { AutoSpeakState, getModelProviderShowName, type ChatMessage } from "@/lib/types";
 import { cn, get_app_config, speak } from "@/lib/utils";
-import { handleStream, s_ChatList, s_LoadingChat, s_Selected, s_StreamingContent } from "@/store";
+import { handleStream, s_ChatList, s_Selected, s_StreamingContent } from "@/store";
 import { Icons } from "@/components/icon";
 import { HistoriesNew } from "@/components/HistoriesNew";
 import { SettingsNew } from "@/components/SettingsNew";
@@ -71,8 +71,8 @@ function RouteComponent() {
 }
 
 function CreateNewSession() {
-	const loadingChat = useStore(s_LoadingChat, (state) => state);
-	return <Button size={"icon-sm"} variant={"ghost"} disabled={loadingChat} onClick={async () => {
+	const { ...loadingChat_X } = useInvoke<boolean>(EVENT_NAMES.get_chatting_state, false, false, undefined, EVENT_NAMES.CHATTING_STATE_CHANGE);
+	return <Button size={"icon-sm"} variant={"ghost"} disabled={loadingChat_X.state} onClick={async () => {
 		await invoke(EVENT_NAMES.create_new_session);
 		const history = await invoke<ChatMessage[]>(EVENT_NAMES.get_current_history);
 		s_ChatList.setState(() => history);
@@ -187,7 +187,7 @@ function Inputer({ className }: { className?: string; }) {
 	const { ...modelsList_X } = useInvoke<ModelConfigMap>(EVENT_NAMES.list_available_models, {});
 	const { ...currentModel_X } = useInvoke<string>(EVENT_NAMES.get_current_model, "");
 	const currentModel = currentModel_X.state;
-	const loadingChat = useStore(s_LoadingChat, (state => state))
+	const { ...loadingChat_X } = useInvoke<boolean>(EVENT_NAMES.get_chatting_state, false, false, undefined, EVENT_NAMES.CHATTING_STATE_CHANGE);
 	return (
 		<InputGroup className={cn(className, "rounded-xl", "has-[[data-slot=input-group-control]:focus-visible]:border-ring/70 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/7")}>
 			{selected.text && (
@@ -200,7 +200,7 @@ function Inputer({ className }: { className?: string; }) {
 				value={value}
 				onChange={(e) => setValue(e.target.value)}
 				onKeyDown={async (e) => {
-					if (loadingChat) {
+					if (loadingChat_X.state) {
 						return;
 					}
 					if (e.key === "Enter" && !e.shiftKey) {
@@ -224,7 +224,7 @@ function Inputer({ className }: { className?: string; }) {
 			/>
 			<InputGroupAddon align="block-end">
 				<DropdownMenu>
-					<DropdownMenuTrigger asChild disabled={loadingChat}>
+					<DropdownMenuTrigger asChild disabled={loadingChat_X.state}>
 						<InputGroupButton variant="ghost">{getModelProviderShowName()[currentModel as keyof ReturnType<typeof getModelProviderShowName>]}</InputGroupButton>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent side="top" align="start">
@@ -248,17 +248,16 @@ function Inputer({ className }: { className?: string; }) {
 					className="rounded-full ml-auto cursor-pointer"
 					size="icon-xs"
 					onClick={async () => {
-						if (loadingChat) {
-							await invoke(EVENT_NAMES.abort_chat_stream);
-							s_LoadingChat.setState(() => false);
-							return;
-						}
-						setValue("");
-						await handleStream({ role: "user", content: value } as ChatMessage)
-					}}
-				>
-					{loadingChat ? <Icons.stop /> : <Icons.arrowUp />}
-					<span className="sr-only">{loadingChat ? "abort" : "send"}</span>
+				if (loadingChat_X.state) {
+					await invoke(EVENT_NAMES.abort_chat_stream);
+					return;
+				}
+					setValue("");
+					await handleStream({ role: "user", content: value } as ChatMessage)
+				}}
+			>
+				{loadingChat_X.state ? <Icons.stop /> : <Icons.arrowUp />}
+				<span className="sr-only">{loadingChat_X.state ? "abort" : "send"}</span>
 				</InputGroupButton>
 			</InputGroupAddon>
 		</InputGroup>
@@ -268,7 +267,7 @@ function Inputer({ className }: { className?: string; }) {
 function ChatList({ className }: { className?: string; }) {
 	const chatList = useStore(s_ChatList, (state) => state.filter((e) => e.role !== "system"));
 	const streamingContent = useStore(s_StreamingContent, (state) => state);
-	const loadingChat = useStore(s_LoadingChat, (state) => state);
+	const { ...loadingChat_X } = useInvoke<boolean>(EVENT_NAMES.get_chatting_state, false, false, undefined, EVENT_NAMES.CHATTING_STATE_CHANGE);
 
 
 	useEffect(() => {
@@ -326,7 +325,7 @@ function ChatList({ className }: { className?: string; }) {
 					<MessageItem className="px-2.5 mb-2" key={`msg-${index}`} chat={chat} index={index} />
 				);
 			})}
-			{!streamingContent && loadingChat && <div className="px-2.5" ><span data-loading="...">...</span></div>}
+			{!streamingContent && loadingChat_X.state && <div className="px-2.5" ><span data-loading="...">...</span></div>}
 			{<StreamingMessage content={streamingContent} />}
 
 		</div>
@@ -407,7 +406,7 @@ const MessageItem = React.memo(function MessageItem({ chat, className, index }: 
 
 function SelectedText({ onHandleStream }: { onHandleStream: (chatMessage: ChatMessage) => Promise<void> }) {
 	const selected = useStore(s_Selected, (state) => state);
-	const loadingChat = useStore(s_LoadingChat, (state) => state);
+	const { ...loadingChat_X } = useInvoke<boolean>(EVENT_NAMES.get_chatting_state, false, false, undefined, EVENT_NAMES.CHATTING_STATE_CHANGE);
 	if (!selected.text) return "";
 	return (
 		<div className="w-full">
@@ -447,7 +446,7 @@ function SelectedText({ onHandleStream }: { onHandleStream: (chatMessage: ChatMe
 							size={"xs"}
 							variant={"outline"}
 							key={`${e}-${i}`}
-							disabled={loadingChat}
+							disabled={loadingChat_X.state}
 							onClick={() => {
 								void onHandleStream({
 									role: "user",

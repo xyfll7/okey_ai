@@ -18,8 +18,6 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import type { ModelConfigMap } from "@/@types";
 import { getModelProviderShowName } from "@/lib/types";
-import { useStore } from "@tanstack/react-store";
-import { s_LoadingChat } from "@/store";
 import {
     Field,
     FieldDescription,
@@ -54,10 +52,10 @@ export function SettingsNew({ className }: { className?: string }) {
             unlisten.then((fn) => fn());
         };
     }, []);
-    const loadingChat = useStore(s_LoadingChat, (state) => state);
+    const { ...loadingChat_X } = useInvoke<boolean>(EVENT_NAMES.get_chatting_state, false, false, undefined, EVENT_NAMES.CHATTING_STATE_CHANGE);
 
     return <Drawer open={isOpen} onOpenChange={setIsOpen} >
-        <DrawerTrigger disabled={loadingChat} onClick={async (e) => {
+        <DrawerTrigger disabled={loadingChat_X.state} onClick={async (e) => {
             (e.currentTarget as HTMLButtonElement).blur();
             setIsOpen(true)
             setTimeout(() => {
