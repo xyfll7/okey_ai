@@ -70,6 +70,18 @@ function RouteComponent() {
 	);
 }
 
+function CreateNewSession() {
+	const loadingChat = useStore(s_LoadingChat, (state) => state);
+	return <Button size={"icon-sm"} variant={"ghost"} disabled={loadingChat} onClick={async () => {
+		await invoke(EVENT_NAMES.create_new_session);
+		const history = await invoke<ChatMessage[]>(EVENT_NAMES.get_current_history);
+		s_ChatList.setState(() => history);
+		s_Selected.setState(() => ({ text: "", raw: "" }));
+	}}>
+		<Icons.chat />
+	</Button>;
+}
+
 function Header(props: React.ComponentProps<"div">) {
 	const { ...autoSpeak_X } = useInvoke<AutoSpeakState>(EVENT_NAMES.get_auto_speak_state, AutoSpeakState.Off);
 	const _ostype = ostype();
@@ -82,15 +94,6 @@ function Header(props: React.ComponentProps<"div">) {
 			);
 		});
 	}, []);
-
-	const CreateNewSession = () => <Button size={"icon-sm"} variant={"ghost"} onClick={async () => {
-		await invoke(EVENT_NAMES.create_new_session);
-		const history = await invoke<ChatMessage[]>(EVENT_NAMES.get_current_history);
-		s_ChatList.setState(() => history);
-		s_Selected.setState(() => ({ text: "", raw: "" }));
-	}}>
-		<Icons.chat />
-	</Button>
 
 	if (["macos"].includes(_ostype)) {
 		return <div
@@ -495,15 +498,15 @@ export default function LanguageSelector() {
 	useEffect(() => {
 		(async () => {
 			try {
-				const local = await invoke<string>(EVENT_NAMES.get_local_language as any);
-				const target = await invoke<string>(EVENT_NAMES.get_target_language as any);
-				const remoteOptions = await invoke<any>(EVENT_NAMES.get_language_options as any);
+				const local = await invoke<string>(EVENT_NAMES.get_local_language);
+				const target = await invoke<string>(EVENT_NAMES.get_target_language);
+				const remoteOptions = await invoke<[string, string][]>(EVENT_NAMES.get_language_options);
 				if (Array.isArray(remoteOptions)) {
-					setOptions(remoteOptions.map((r: any) => ({ label: r[1], value: r[0] })));
+					setOptions(remoteOptions.map((r) => ({ label: r[1], value: r[0] })));
 				}
 				if (local) setLocalLanguage(local);
 				if (target) setTargetLanguage(target);
-			} catch (e) {
+			} catch {
 				// ignore
 			}
 		})();
@@ -538,7 +541,7 @@ export default function LanguageSelector() {
 						<DropdownMenuItem
 							key={item.value}
 							onSelect={async () => {
-								await invoke(EVENT_NAMES.set_local_language as any, { language: item.value });
+								await invoke(EVENT_NAMES.set_local_language, { language: item.value });
 								setLocalLanguage(item.value);
 							}}
 						>
@@ -561,7 +564,7 @@ export default function LanguageSelector() {
 						<DropdownMenuItem
 							key={item.value}
 							onSelect={async () => {
-								await invoke(EVENT_NAMES.set_target_language as any, { language: item.value });
+								await invoke(EVENT_NAMES.set_target_language, { language: item.value });
 								setTargetLanguage(item.value);
 							}}
 						>
@@ -574,16 +577,16 @@ export default function LanguageSelector() {
 				size="xs"
 				variant="ghost"
 				className={cn(
-					!!selfExplaining_X.state ? "" : "opacity-50",
-					"hover:text-inherit",
-				)}
-				onClick={async () => {
-					const enabled = !selfExplaining_X.state;
-					await invoke(EVENT_NAMES.set_self_explaining_model as any, { enabled });
-					selfExplaining_X.setState(enabled as any);
-				}}
-			>
-				{!!selfExplaining_X.state ? m.translate_language_selector_self_explaining_on() : m.translate_language_selector_self_explaining_off()}
+				selfExplaining_X.state ? "" : "opacity-50",
+				"hover:text-inherit",
+			)}
+			onClick={async () => {
+				const enabled = !selfExplaining_X.state;
+				await invoke(EVENT_NAMES.set_self_explaining_model, { enabled });
+				selfExplaining_X.setState(enabled);
+			}}
+		>
+			{selfExplaining_X.state ? m.translate_language_selector_self_explaining_on() : m.translate_language_selector_self_explaining_off()}
 			</Button>
 		</div>
 	);
