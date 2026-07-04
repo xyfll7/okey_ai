@@ -1,6 +1,4 @@
-// @refresh reset
-// 或
-// @refresh only-export-components
+
 import { createFileRoute } from "@tanstack/react-router";
 import { useStore } from "@tanstack/react-store";
 import { invoke } from "@tauri-apps/api/core";
@@ -43,6 +41,7 @@ import { m } from "@/paraglide/messages.js";
 import type { ModelConfigMap } from "@/@types";
 import { PromptTags } from "@/components/PromptTags";
 import MessageNavigator from "@/components/MessageNavigator";
+import { Card, CardContent } from "@/components/ui/card";
 
 export const Route = createFileRoute("/translate/")({
 	component: RouteComponent,
@@ -55,14 +54,14 @@ function RouteComponent() {
 		<div className={cn(
 			{ "border rounded-xl": ["linux"].includes(_ostype) },
 			"bg-background", "h-full", "flex-coh")}>
-		<Header className="p-1" />
-		<div className="relative h-full flex-coh">
-			<ScrollArea className="h-full flex-coh">
-				<ChatList className="px-2 pt-2" />
-			</ScrollArea>
-			<MessageNavigator />
-		</div>
-		<div className="px-2 pb-2">
+			<Header className="p-1" />
+			<div className="relative h-full flex-coh">
+				<ScrollArea className="h-full flex-coh">
+					<ChatList className="px-2 pt-2" />
+				</ScrollArea>
+				<MessageNavigator />
+			</div>
+			<div className="px-2 pb-2">
 				<Inputer />
 			</div>
 			<LanguageSelector />
@@ -179,6 +178,68 @@ function Header(props: React.ComponentProps<"div">) {
 	);
 }
 
+function SearchResultCard({ searchText, onClose }: { searchText: string; onClose: () => void }) {
+	const containerRef = useRef<HTMLDivElement>(null);
+	const isMouseInsideRef = useRef<boolean>(false);
+
+	function extractSelectedText() {
+		if (!isMouseInsideRef.current) return;
+
+		const selection = window.getSelection();
+		const selectedText = selection?.toString().trim();
+
+		if (selectedText) {
+			if (selection && containerRef.current) {
+				const range = selection.getRangeAt(0);
+				if (containerRef.current.contains(range.commonAncestorContainer)) {
+					s_Selected.setState(() => ({
+						text: selectedText,
+						raw: searchText,
+					}));
+				}
+			}
+		}
+	}
+
+	function handleMouseEnter() {
+		isMouseInsideRef.current = true;
+	}
+
+	function handleMouseLeave() {
+		isMouseInsideRef.current = false;
+	}
+
+	return (
+		<div className="pb-2">
+			<Card
+				ref={containerRef}
+				className="relative --card-spacing:--spacing(2)"
+				size="sm"
+				onMouseUp={extractSelectedText}
+				onMouseEnter={handleMouseEnter}
+				onMouseLeave={handleMouseLeave}
+			>
+				<Button
+					size="icon-xs"
+					variant="ghost"
+					className="absolute top-0 right-0"
+					onClick={(e) => {
+						e.preventDefault();
+						onClose();
+					}}
+				>
+					<Icons.x />
+				</Button>
+				<CardContent>
+					<p>
+						{searchText}
+					</p>
+				</CardContent>
+			</Card>
+		</div>
+	);
+}
+
 function Inputer({ className }: { className?: string; }) {
 	const [value, setValue] = useState("");
 	const selected = useStore(s_Selected, (state) => state);
@@ -188,11 +249,15 @@ function Inputer({ className }: { className?: string; }) {
 	const { ...currentModel_X } = useInvoke<string>(EVENT_NAMES.get_current_model, "");
 	const currentModel = currentModel_X.state;
 	const { ...loadingChat_X } = useInvoke<boolean>(EVENT_NAMES.get_chatting_state, false, false, undefined, EVENT_NAMES.CHATTING_STATE_CHANGE);
-	return (
+	const [searchText, setSearchText] = useState("");
+	return (<>
+		{searchText &&
+			<SearchResultCard searchText={searchText} onClose={() => setSearchText("")} />
+		}
 		<InputGroup className={cn(className, "rounded-xl", "has-[[data-slot=input-group-control]:focus-visible]:border-ring/70 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/7")}>
 			{selected.text && (
 				<InputGroupAddon align="block-start">
-					<SelectedText onHandleStream={handleStream} />
+					<SelectedText onHandleStream={handleStream} onSearching={(e) => { setSearchText(e) }} />
 				</InputGroupAddon>
 			)}
 			<InputGroupTextarea
@@ -248,19 +313,20 @@ function Inputer({ className }: { className?: string; }) {
 					className="rounded-full ml-auto cursor-pointer"
 					size="icon-xs"
 					onClick={async () => {
-				if (loadingChat_X.state) {
-					await invoke(EVENT_NAMES.abort_chat_stream);
-					return;
-				}
-					setValue("");
-					await handleStream({ role: "user", content: value } as ChatMessage)
-				}}
-			>
-				{loadingChat_X.state ? <Icons.stop /> : <Icons.arrowUp />}
-				<span className="sr-only">{loadingChat_X.state ? "abort" : "send"}</span>
+						if (loadingChat_X.state) {
+							await invoke(EVENT_NAMES.abort_chat_stream);
+							return;
+						}
+						setValue("");
+						await handleStream({ role: "user", content: value } as ChatMessage)
+					}}
+				>
+					{loadingChat_X.state ? <Icons.stop /> : <Icons.arrowUp />}
+					<span className="sr-only">{loadingChat_X.state ? "abort" : "send"}</span>
 				</InputGroupButton>
 			</InputGroupAddon>
 		</InputGroup>
+	</>
 	);
 }
 
@@ -350,14 +416,12 @@ const MessageItem = React.memo(function MessageItem({ chat, className, index }: 
 	const isMouseInsideRef = useRef<boolean>(false);
 
 	function extractSelectedText() {
-		// 只在鼠标在当前组件内部时才处理
 		if (!isMouseInsideRef.current) return;
 
 		const selection = window.getSelection();
 		const selectedText = selection?.toString().trim();
 
 		if (selectedText) {
-			// 检查选中的文本是否在当前组件内
 			if (selection && containerRef.current) {
 				const range = selection.getRangeAt(0);
 				if (containerRef.current.contains(range.commonAncestorContainer)) {
@@ -376,7 +440,6 @@ const MessageItem = React.memo(function MessageItem({ chat, className, index }: 
 
 	function handleMouseLeave() {
 		isMouseInsideRef.current = false;
-		// 鼠标移出时什么也不做，保留已选中的文本
 	}
 
 	return (
@@ -404,7 +467,7 @@ const MessageItem = React.memo(function MessageItem({ chat, className, index }: 
 	);
 }, (prev, next) => prev.chat.content === next.chat.content && prev.chat.raw === next.chat.raw);
 
-function SelectedText({ onHandleStream }: { onHandleStream: (chatMessage: ChatMessage) => Promise<void> }) {
+function SelectedText({ onHandleStream, onSearching }: { onSearching: (e: string) => void; onHandleStream: (chatMessage: ChatMessage) => Promise<void> }) {
 	const selected = useStore(s_Selected, (state) => state);
 	const { ...loadingChat_X } = useInvoke<boolean>(EVENT_NAMES.get_chatting_state, false, false, undefined, EVENT_NAMES.CHATTING_STATE_CHANGE);
 	if (!selected.text) return "";
@@ -414,6 +477,11 @@ function SelectedText({ onHandleStream }: { onHandleStream: (chatMessage: ChatMe
 				<div className="max-w-full truncate overflow-hidden">
 					<span className={cn("mr-1")}>{selected.text}</span>
 				</div>
+				{selected.text?.trim() && (
+					<Button size={"icon-sm"} variant={"ghost"} onClick={() => onSearching(selected.text ?? "")}>
+						<Icons.searching />
+					</Button>
+				)}
 				{selected.text?.trim() && (
 					<Button size={"icon-sm"} variant={"ghost"}>
 						<Copyed
@@ -576,16 +644,16 @@ export default function LanguageSelector() {
 				size="xs"
 				variant="ghost"
 				className={cn(
-				selfExplaining_X.state ? "" : "opacity-50",
-				"hover:text-inherit",
-			)}
-			onClick={async () => {
-				const enabled = !selfExplaining_X.state;
-				await invoke(EVENT_NAMES.set_self_explaining_model, { enabled });
-				selfExplaining_X.setState(enabled);
-			}}
-		>
-			{selfExplaining_X.state ? m.translate_language_selector_self_explaining_on() : m.translate_language_selector_self_explaining_off()}
+					selfExplaining_X.state ? "" : "opacity-50",
+					"hover:text-inherit",
+				)}
+				onClick={async () => {
+					const enabled = !selfExplaining_X.state;
+					await invoke(EVENT_NAMES.set_self_explaining_model, { enabled });
+					selfExplaining_X.setState(enabled);
+				}}
+			>
+				{selfExplaining_X.state ? m.translate_language_selector_self_explaining_on() : m.translate_language_selector_self_explaining_off()}
 			</Button>
 		</div>
 	);
