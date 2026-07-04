@@ -300,36 +300,49 @@ function SelectionFloatingButton() {
 	);
 }
 
+/**
+ * Tracks text selection made inside `containerRef`. On mouseup (only when the
+ * cursor has entered the container), extracts the current selection and calls
+ * `onSelect(text)` if the selection's range actually lives inside the
+ * container. Collapses the mouseup/getSelection/container-contains logic that
+ * was previously copy-pasted across SearchResultCard and MessageItem, which
+ * had drifted apart in subtle ways (e.g. inconsistent `raw` semantics).
+ */
+function useContainerSelection(
+	containerRef: React.RefObject<HTMLElement | null>,
+	onSelect: (text: string) => void,
+) {
+	const isMouseInsideRef = useRef(false);
+	// Keep the latest onSelect in a ref so the mouseup handler doesn't need to
+	// be re-created when the caller's closure changes (e.g. MessageItem's
+	// chat.content-dependent callback), keeping handler identity stable.
+	const onSelectRef = useRef(onSelect);
+	useEffect(() => {
+		onSelectRef.current = onSelect;
+	}, [onSelect]);
+
+	const handleMouseEnter = () => { isMouseInsideRef.current = true; };
+	const handleMouseLeave = () => { isMouseInsideRef.current = false; };
+	const handleMouseUp = () => {
+		if (!isMouseInsideRef.current) return;
+		const selection = window.getSelection();
+		const text = selection?.toString().trim();
+		if (!text || !selection || selection.rangeCount === 0) return;
+		const range = selection.getRangeAt(0);
+		if (containerRef.current?.contains(range.commonAncestorContainer)) {
+			onSelectRef.current(text);
+		}
+	};
+
+	return { handleMouseEnter, handleMouseLeave, handleMouseUp };
+}
+
 function SearchResultCard({ searchText, onClose }: { searchText: string; onClose: () => void }) {
 	const containerRef = useRef<HTMLDivElement>(null);
-	const isMouseInsideRef = useRef<boolean>(false);
-
-	function extractSelectedText() {
-		if (!isMouseInsideRef.current) return;
-
-		const selection = window.getSelection();
-		const selectedText = selection?.toString().trim();
-
-		if (selectedText) {
-			if (selection && containerRef.current) {
-				const range = selection.getRangeAt(0);
-				if (containerRef.current.contains(range.commonAncestorContainer)) {
-					s_Selected.setState(() => ({
-						text: selectedText,
-						raw: searchText,
-					}));
-				}
-			}
-		}
-	}
-
-	function handleMouseEnter() {
-		isMouseInsideRef.current = true;
-	}
-
-	function handleMouseLeave() {
-		isMouseInsideRef.current = false;
-	}
+	const { handleMouseEnter, handleMouseLeave, handleMouseUp } = useContainerSelection(
+		containerRef,
+		(text) => s_Selected.setState(() => ({ text, raw: searchText })),
+	);
 
 	return (
 		<div className="pb-2">
@@ -337,7 +350,7 @@ function SearchResultCard({ searchText, onClose }: { searchText: string; onClose
 				ref={containerRef}
 				className="relative --card-spacing:--spacing(2)"
 				size="sm"
-				onMouseUp={extractSelectedText}
+				onMouseUp={handleMouseUp}
 				onMouseEnter={handleMouseEnter}
 				onMouseLeave={handleMouseLeave}
 			>
@@ -390,11 +403,12 @@ function Inputer({ className }: { className?: string; }) {
 					if (loadingChat_X.state) {
 						return;
 					}
-					if (e.key === "Enter" && !e.shiftKey) {
-						e.preventDefault();
-						setValue("");
-						await handleStream({ role: "user", content: value } as ChatMessage)
-					}
+				if (e.key === "Enter" && !e.shiftKey) {
+					e.preventDefault();
+					if (!value.trim()) return;
+					setValue("");
+					await handleStream({ role: "user", content: value } as ChatMessage)
+				}
 					if (e.key === "Enter" && e.shiftKey) {
 						e.preventDefault();
 						const target = e.target as HTMLTextAreaElement;
@@ -430,22 +444,23 @@ function Inputer({ className }: { className?: string; }) {
 					</DropdownMenuContent>
 				</DropdownMenu>
 
-				<InputGroupButton
-					variant="default"
-					className="rounded-full ml-auto cursor-pointer"
-					size="icon-xs"
-					onClick={async () => {
-						if (loadingChat_X.state) {
-							await invoke(EVENT_NAMES.abort_chat_stream);
-							return;
-						}
-						setValue("");
-						await handleStream({ role: "user", content: value } as ChatMessage)
-					}}
-				>
-					{loadingChat_X.state ? <Icons.stop /> : <Icons.arrowUp />}
-					<span className="sr-only">{loadingChat_X.state ? "abort" : "send"}</span>
-				</InputGroupButton>
+			<InputGroupButton
+				variant="default"
+				className="rounded-full ml-auto cursor-pointer"
+				size="icon-xs"
+				onClick={async () => {
+					if (loadingChat_X.state) {
+						await invoke(EVENT_NAMES.abort_chat_stream);
+						return;
+					}
+					if (!value.trim()) return;
+					setValue("");
+					await handleStream({ role: "user", content: value } as ChatMessage)
+				}}
+			>
+				{loadingChat_X.state ? <Icons.stop /> : <Icons.arrowUp />}
+				<span className="sr-only">{loadingChat_X.state ? "abort" : "send"}</span>
+			</InputGroupButton>
 			</InputGroupAddon>
 		</InputGroup>
 	</>
@@ -535,34 +550,10 @@ const StreamingMessage = React.memo(function StreamingMessage({ content }: { con
 
 const MessageItem = React.memo(function MessageItem({ chat, className, index }: { chat: ChatMessage, className?: string, index: number }) {
 	const containerRef = useRef<HTMLDivElement>(null);
-	const isMouseInsideRef = useRef<boolean>(false);
-
-	function extractSelectedText() {
-		if (!isMouseInsideRef.current) return;
-
-		const selection = window.getSelection();
-		const selectedText = selection?.toString().trim();
-
-		if (selectedText) {
-			if (selection && containerRef.current) {
-				const range = selection.getRangeAt(0);
-				if (containerRef.current.contains(range.commonAncestorContainer)) {
-					s_Selected.setState(() => ({
-						text: selectedText,
-						raw: chat.content,
-					}));
-				}
-			}
-		}
-	}
-
-	function handleMouseEnter() {
-		isMouseInsideRef.current = true;
-	}
-
-	function handleMouseLeave() {
-		isMouseInsideRef.current = false;
-	}
+	const { handleMouseEnter, handleMouseLeave, handleMouseUp } = useContainerSelection(
+		containerRef,
+		(text) => s_Selected.setState(() => ({ text, raw: chat.content })),
+	);
 
 	return (
 		<div
@@ -570,7 +561,7 @@ const MessageItem = React.memo(function MessageItem({ chat, className, index }: 
 			role="none"
 			className={cn(className, " w-full")}
 			data-index={index}
-			onMouseUp={extractSelectedText}
+			onMouseUp={handleMouseUp}
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}
 		>
