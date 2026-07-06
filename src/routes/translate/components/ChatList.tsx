@@ -80,24 +80,17 @@ export function ChatList({ className }: { className?: string; }) {
 					}));
 				}
 
-				// 恢复：用 AI_RESPONSE 的 payload 更新 s_ChatList
-				s_ChatList.setState(() => payload);
+			s_ChatList.setState(() => payload);
 
-				// 滚动逻辑移到这里
-				const filtered = payload.filter((e) => e.role !== "system");
-				const lastItem = filtered.at(-1);
-				if (filtered.length > 2 && lastItem?.role === "user") {
-					setTimeout(() => {
-						const container = document.querySelector('[data-chat-container]');
-						if (!container) return;
-						const lastIndex = filtered.length - 1;
-						const targetItem = container.querySelector(`[data-index="${lastIndex}"]`);
-						if (targetItem) {
-							targetItem.scrollIntoView({ behavior: "smooth", block: "start" });
-						}
-					}, 300);
-				}
-			},
+			const filtered = payload.filter((e) => e.role !== "system");
+			if (filtered.length > 2 && filtered.at(-1)?.role === "user") {
+				const lastIndex = filtered.length - 1;
+				requestAnimationFrame(() => {
+					document.querySelector(`[data-index="${lastIndex}"]`)
+						?.scrollIntoView({ behavior: "smooth", block: "start" });
+				});
+			}
+		},
 		);
 		const unlistenError = listen<string>(EVENT_NAMES.AI_ERROR, (event) => {
 			const errorPayload: ChatMessage = {
