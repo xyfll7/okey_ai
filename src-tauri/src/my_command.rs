@@ -52,9 +52,9 @@ pub async fn chat_stream(app: AppHandle, chat_message: ChatMessage, on_event: Ch
         let _ = app.emit(event_names::AI_RESPONSE, &messages);
         messages
     };
+    chatting_state_clone.set(true);
     let chat_histories = translation_manager
         .translate_stream(None, messages, move |chunk_content| {
-            chatting_state_clone.set(true);
             let _ = on_event_clone.send(StreamEvent::Chunk { content: chunk_content.clone() });
         })
         .await;
