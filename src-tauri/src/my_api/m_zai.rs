@@ -1,5 +1,4 @@
-use crate::my_api::traits::{APIConfig, ChatCompletionChunk, ChatCompletionRequest, ChatCompletionResponse, ChatMessageDelta, ChoiceDelta, LLMClient, StreamHandle};
-use crate::utils::chat_message::ChatMessage;
+use crate::my_api::traits::{APIConfig, ChatCompletionChunk, ChatCompletionRequest, ChatMessageDelta, ChoiceDelta, LLMClient, StreamHandle};
 use futures::channel::oneshot;
 use futures::future::select;
 use futures::pin_mut;
@@ -34,45 +33,6 @@ impl LLMClient for ZAIClient {
         });
         params.insert("thinking".to_string(), thinking_config);
         params
-    }
-
-    fn chat_completion<'a>(&'a self, request: &'a ChatCompletionRequest) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<ChatCompletionResponse, String>> + Send + 'a>> {
-        Box::pin(async move {
-            let api_url = format!("{}/chat/completions", self.config.base_url);
-
-            let mut request = request.clone();
-            request.stream = Some(false); // Ensure stream is false for non-streaming requests
-
-            let json_body = serde_json::to_string(&request).map_err(|e| format!("Failed to serialize request: {}", e))?;
-
-            let response = self.client.post(&api_url).header("Authorization", format!("Bearer {}", self.config.api_key)).header("Content-Type", "application/json").header("Accept", "application/json").body(json_body).send().await.map_err(|e| format!("Failed to send request: {}", e))?;
-
-            if !response.status().is_success() {
-                let status = response.status();
-                let error_text = response.text().await.unwrap_or_default();
-                return Err(format!("API request failed with status: {}, error: {}", status, error_text));
-            }
-
-            let response_text = response.text().await.map_err(|e| format!("Failed to read response text: {}", e))?;
-            let zai_response: ZAIChatResponse = serde_json::from_str(&response_text).map_err(|e| format!("Failed to parse response: {}", e))?;
-            // Convert ZAI response to standard format
-            Ok(ChatCompletionResponse {
-                id: zai_response.id,
-                object: zai_response.object,
-                created: zai_response.created,
-                model: zai_response.model,
-                choices: zai_response
-                    .choices
-                    .into_iter()
-                    .map(|choice| crate::my_api::traits::Choice {
-                        index: choice.index,
-                        message: ChatMessage { role: choice.message.role.as_deref().unwrap_or("user").into(), content: choice.message.content.or(choice.message.reasoning_content).unwrap_or_default(), raw: None },
-                        finish_reason: choice.finish_reason,
-                    })
-                    .collect(),
-                usage: Some(crate::my_api::traits::Usage { prompt_tokens: zai_response.usage.prompt_tokens, completion_tokens: zai_response.usage.completion_tokens, total_tokens: zai_response.usage.total_tokens }),
-            })
-        })
     }
 
     fn chat_completion_stream<'a>(&'a self, request: &'a ChatCompletionRequest) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<StreamHandle, String>> + Send + 'a>> {
@@ -170,16 +130,6 @@ impl LLMClient for ZAIClient {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct ZAIChatResponse {
-    id: String,
-    object: String,
-    created: u64,
-    model: String,
-    choices: Vec<ZAIChoice>,
-    usage: ZAIUsage,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
 struct ZAIChatStreamResponse {
     id: String,
     object: String,
@@ -201,41 +151,4 @@ struct ZAIStreamDelta {
     content: Option<String>,
     #[serde(rename = "reasoning_content")]
     reasoning_content: Option<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct ZAIMessage {
-    role: Option<String>,
-    content: Option<String>,
-    #[serde(rename = "reasoning_content")]
-    reasoning_content: Option<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct ZAIChoice {
-    message: ZAIMessage,
-    finish_reason: String,
-    index: u32,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct ZAIUsage {
-    prompt_tokens: u32,
-    completion_tokens: u32,
-    total_tokens: u32,
-    #[serde(rename = "prompt_tokens_details")]
-    prompt_tokens_details: Option<PromptTokensDetails>,
-    #[serde(rename = "completion_tokens_details")]
-    completion_tokens_details: Option<CompletionTokensDetails>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct PromptTokensDetails {
-    cached_tokens: Option<u32>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct CompletionTokensDetails {
-    #[serde(rename = "reasoning_tokens")]
-    reasoning_tokens: Option<u32>,
 }

@@ -1,4 +1,4 @@
-use crate::my_api::traits::{APIConfig, ChatCompletionChunk, ChatCompletionRequest, ChatCompletionResponse, ChatMessageDelta, ChoiceDelta, LLMClient, StreamHandle};
+use crate::my_api::traits::{APIConfig, ChatCompletionChunk, ChatCompletionRequest, ChatMessageDelta, ChoiceDelta, LLMClient, StreamHandle};
 use futures::channel::oneshot;
 use futures::future::select;
 use futures::pin_mut;
@@ -29,31 +29,6 @@ impl LLMClient for OpenAIClient {
     fn get_request_params(&self) -> HashMap<String, Value> {
         // OpenAI 模型通常不需要特殊的思维功能参数
         HashMap::new()
-    }
-
-    fn chat_completion<'a>(&'a self, request: &'a ChatCompletionRequest) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<ChatCompletionResponse, String>> + Send + 'a>> {
-        Box::pin(async move {
-            let api_url = format!("{}/chat/completions", self.config.base_url);
-
-            let mut request = request.clone();
-            request.stream = Some(false); // Ensure stream is false for non-streaming requests
-
-            let json_body = serde_json::to_string(&request).map_err(|e| format!("Failed to serialize request: {}", e))?;
-
-            let response = self.client.post(&api_url).header("Authorization", format!("Bearer {}", self.config.api_key)).header("Content-Type", "application/json").header("Accept", "application/json").body(json_body).send().await.map_err(|e| format!("Failed to send request: {}", e))?;
-
-            if !response.status().is_success() {
-                let status = response.status();
-                let error_text = response.text().await.unwrap_or_default();
-                return Err(format!("API request failed with status: {}, error: {}", status, error_text));
-            }
-
-            let response_text = response.text().await.map_err(|e| format!("Failed to read response text: {}", e))?;
-
-            let openai_response: ChatCompletionResponse = serde_json::from_str(&response_text).map_err(|e| format!("Failed to parse response: {}", e))?;
-
-            Ok(openai_response)
-        })
     }
 
     fn chat_completion_stream<'a>(&'a self, request: &'a ChatCompletionRequest) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<StreamHandle, String>> + Send + 'a>> {

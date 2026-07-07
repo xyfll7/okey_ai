@@ -2,7 +2,7 @@ use crate::my_api::m_deepseek::DeepSeekClient;
 use crate::my_api::m_openai::OpenAIClient;
 use crate::my_api::m_qwen::QwenClient;
 use crate::my_api::m_zai::ZAIClient;
-use crate::my_api::traits::{APIConfig, ChatCompletionChunk, ChatCompletionRequest, ChatCompletionResponse, LLMClient};
+use crate::my_api::traits::{APIConfig, ChatCompletionChunk, ChatCompletionRequest, LLMClient};
 use crate::states::app_config::ModelProvider;
 use futures::channel::oneshot;
 use futures::StreamExt; // Add this import for the .next() method
@@ -42,15 +42,6 @@ impl APIManager {
         let client = clients.get(model_type).expect(&format!("No client configured for model: {:?}", model_type));
 
         client.get_request_params()
-    }
-
-    pub async fn chat_completion(&self, request: &ChatCompletionRequest, model_type: &ModelProvider) -> Result<ChatCompletionResponse, String> {
-        let clients = self.clients.read().await;
-
-        let client = clients.get(model_type).ok_or_else(|| format!("No client configured for model: {:?}", model_type))?;
-
-        // Call the client's chat_completion method which returns a future
-        client.chat_completion(request).await
     }
 
     pub async fn chat_completion_stream<F>(&self, request: &ChatCompletionRequest, model_type: &ModelProvider, mut callback: F) -> Result<(), String>

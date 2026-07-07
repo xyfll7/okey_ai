@@ -1,5 +1,4 @@
-use crate::my_api::traits::{APIConfig, ChatCompletionChunk, ChatCompletionRequest, ChatCompletionResponse, ChatMessageDelta, ChoiceDelta, LLMClient, StreamHandle};
-use crate::utils::chat_message::ChatMessage;
+use crate::my_api::traits::{APIConfig, ChatCompletionChunk, ChatCompletionRequest, ChatMessageDelta, ChoiceDelta, LLMClient, StreamHandle};
 use futures::channel::oneshot;
 use futures::future::select;
 use futures::pin_mut;
@@ -32,39 +31,6 @@ impl LLMClient for QwenClient {
         // 为通义千问模型启用思维功能
         params.insert("enable_thinking".to_string(), Value::Bool(false));
         params
-    }
-
-    fn chat_completion<'a>(&'a self, request: &'a ChatCompletionRequest) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<ChatCompletionResponse, String>> + Send + 'a>> {
-        Box::pin(async move {
-            let api_url = format!("{}/compatible-mode/v1/chat/completions", self.config.base_url);
-
-            let mut request = request.clone();
-            request.stream = Some(false); // Ensure stream is false for non-streaming requests
-
-            let json_body = serde_json::to_string(&request).map_err(|e| format!("Failed to serialize request: {}", e))?;
-
-            let response = self.client.post(&api_url).header("Authorization", format!("Bearer {}", self.config.api_key)).header("Content-Type", "application/json").header("Accept", "application/json").body(json_body).send().await.map_err(|e| format!("Failed to send request: {}", e))?;
-
-            if !response.status().is_success() {
-                let status = response.status();
-                let error_text = response.text().await.unwrap_or_default();
-                return Err(format!("API request failed with status: {}, error: {}", status, error_text));
-            }
-
-            let response_text = response.text().await.map_err(|e| format!("Failed to read response text: {}", e))?;
-
-            let qwen_response: QwenChatResponse = serde_json::from_str(&response_text).map_err(|e| format!("Failed to parse response: {}", e))?;
-
-            // Convert Qwen response to standard format
-            Ok(ChatCompletionResponse {
-                id: qwen_response.id,
-                object: qwen_response.object,
-                created: qwen_response.created,
-                model: qwen_response.model,
-                choices: qwen_response.choices.into_iter().map(|choice| crate::my_api::traits::Choice { index: choice.index, message: choice.message, finish_reason: choice.finish_reason }).collect(),
-                usage: Some(crate::my_api::traits::Usage { prompt_tokens: qwen_response.usage.prompt_tokens, completion_tokens: qwen_response.usage.completion_tokens, total_tokens: qwen_response.usage.total_tokens }),
-            })
-        })
     }
 
     fn chat_completion_stream<'a>(&'a self, request: &'a ChatCompletionRequest) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<StreamHandle, String>> + Send + 'a>> {
@@ -163,16 +129,6 @@ impl LLMClient for QwenClient {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-struct QwenChatResponse {
-    id: String,
-    object: String,
-    created: u64,
-    model: String,
-    choices: Vec<QwenChoice>,
-    usage: QwenUsage,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
 struct QwenChatStreamResponse {
     id: String,
     object: String,
@@ -192,25 +148,4 @@ struct QwenStreamChoice {
 struct QwenStreamDelta {
     role: Option<String>,
     content: Option<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct QwenChoice {
-    message: ChatMessage,
-    finish_reason: String,
-    index: u32,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct QwenUsage {
-    prompt_tokens: u32,
-    completion_tokens: u32,
-    total_tokens: u32,
-    #[serde(rename = "prompt_tokens_details")]
-    prompt_tokens_details: Option<PromptTokensDetails>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct PromptTokensDetails {
-    cached_tokens: Option<u32>,
 }

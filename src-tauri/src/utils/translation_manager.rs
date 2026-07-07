@@ -56,38 +56,6 @@ impl TranslationManager {
         self.chat_histories.get_messages(&session_id).await
     }
 
-    pub async fn translate(&self, session_id: Option<&str>, messages: Vec<ChatMessage>) -> Result<Vec<ChatMessage>, String> {
-        let session_id = match session_id {
-            Some(id) => id.to_string(),
-            None => {
-                let active_id = self.active_session_id.read().await;
-                active_id.as_ref().cloned().ok_or_else(|| "missing active session id".to_string())?
-            }
-        };
-
-        let model_type = self.get_current_model_type().await;
-
-        let manager = self.api_manager.read().await;
-        let current_client_config = manager.get_current_client_config(&model_type).await;
-        let model_specific_params = manager.get_current_model_request_params(&model_type).await;
-
-        let request = ChatCompletionRequest {
-            model: current_client_config.model,
-            messages: messages.iter().map(ChatMessage::as_llm).collect::<Vec<_>>(),
-            temperature: Some(0.1),
-            max_tokens: Some(1500),
-            top_p: Some(1.0),
-            stream: Some(false),
-            extra_params: model_specific_params,
-        };
-        let response = manager.chat_completion(&request, &model_type).await?;
-        let content = response.choices.first().map(|choice| choice.message.content.clone()).ok_or_else(|| "empty choices in API response".to_string())?;
-
-        self.chat_histories.add_message(&session_id, Role::Assistant, content.clone(), None).await;
-
-        self.chat_histories.get_messages(&session_id).await.ok_or_else(|| "failed to load chat history after translation".to_string())
-    }
-
     pub async fn translate_stream<StreamCallback>(&self, session_id: Option<&str>, messages: Vec<ChatMessage>, stream_callback: StreamCallback) -> Option<Vec<ChatMessage>>
     where
         StreamCallback: Fn(String) + Send + 'static,

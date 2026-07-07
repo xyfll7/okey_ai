@@ -1,4 +1,3 @@
-use crate::utils::chat_message::ChatMessage;
 use crate::utils::chat_message::LLMChatMessage;
 use futures::channel::oneshot;
 use futures::stream::BoxStream;
@@ -21,30 +20,6 @@ pub struct ChatCompletionRequest {
     pub stream: Option<bool>,
     #[serde(flatten)]
     pub extra_params: HashMap<String, Value>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct ChatCompletionResponse {
-    pub id: String,
-    pub object: String,
-    pub created: u64,
-    pub model: String,
-    pub choices: Vec<Choice>,
-    pub usage: Option<Usage>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Choice {
-    pub index: u32,
-    pub message: ChatMessage,
-    pub finish_reason: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Usage {
-    pub prompt_tokens: u32,
-    pub completion_tokens: u32,
-    pub total_tokens: u32,
 }
 
 // Streaming response types
@@ -80,8 +55,6 @@ pub trait LLMClient {
 
     // 获取特定于模型的请求参数
     fn get_request_params(&self) -> HashMap<String, Value>;
-
-    fn chat_completion<'a>(&'a self, request: &'a ChatCompletionRequest) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<ChatCompletionResponse, String>> + Send + 'a>>;
 
     fn chat_completion_stream<'a>(&'a self, request: &'a ChatCompletionRequest) -> std::pin::Pin<Box<dyn Future<Output = Result<StreamHandle, String>> + Send + 'a>>;
 }

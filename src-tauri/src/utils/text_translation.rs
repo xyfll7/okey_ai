@@ -3,8 +3,9 @@ use crate::my_windows;
 use crate::states::app_config::Language;
 use crate::states::app_state::AppConfigState;
 use crate::states::chatting_state::ChattingState;
-use crate::utils::chat_message::Role;
+use crate::utils::chat_message::{ChatMessage, Role};
 use crate::utils::{self, translation_manager};
+use std::sync::Arc;
 use tauri::AppHandle;
 use tauri::{async_runtime, Emitter, Manager};
 
@@ -69,23 +70,25 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
             my_windows::window_translate_bubble_show(&app_handle, None as Option<fn()>);
         }
 
-        match translation_manager.translate(None, messages).await {
-            Ok(chat_history) => match display_type {
-                DisplayType::Normal => {
-                    let app_handle_for_normal = app_handle.clone();
-                    let chat_history_clone = chat_history.clone();
-                    my_windows::window_translate_show(
-                        &app_handle,
-                        Some(move || {
-                            let app_handle_for_thread = app_handle_for_normal.clone();
-                            std::thread::spawn(move || {
-                                std::thread::sleep(std::time::Duration::from_millis(100));
-                                let _ = app_handle_for_thread.emit(event_names::AI_RESPONSE, &chat_history_clone);
-                            });
-                        }),
-                    );
+        let app_handle_for_stream = app_handle.clone();
+        let is_bubble = display_type == DisplayType::Bubble;
+        let accumulated = Arc::new(std::sync::Mutex::new(String::new()));
+        let accumulated_clone = accumulated.clone();
+        let chat_histories = translation_manager
+            .translate_stream(None, messages, move |chunk| {
+                if !is_bubble {
+                    return;
                 }
-                DisplayType::Bubble => {
+                let mut acc = accumulated_clone.lock().unwrap();
+                *acc += &chunk;
+                let partial = vec![ChatMessage { role: Role::Assistant, content: acc.clone(), raw: None }];
+                let _ = app_handle_for_stream.emit(event_names::AI_RESPONSE, &partial);
+            })
+            .await;
+
+        match chat_histories {
+            Some(chat_history) => {
+                if display_type == DisplayType::Bubble {
                     let _ = app_handle.emit(event_names::AI_RESPONSE, &chat_history);
 
                     let window = app_handle.get_webview_window("translate_bubble");
@@ -94,9 +97,9 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
                         let _ = window.set_size(size);
                     }
                 }
-            },
-            Err(err) => {
-                eprintln!("Translation failed at API layer: {}", err);
+            }
+            None => {
+                eprintln!("Translation failed at API layer");
             }
         }
     });
