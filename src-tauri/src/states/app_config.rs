@@ -96,6 +96,13 @@ impl Default for Prompts {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PromptTag {
+    pub label: String,
+    pub content: String,
+    pub id: u32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default)]
 pub struct AppConfig {
     pub shortcuts: Vec<Shortcut>,
@@ -108,6 +115,7 @@ pub struct AppConfig {
     pub target_language: Language,
     pub self_explaining_model: bool,
     pub prompts: Prompts,
+    pub prompt_tags: Vec<PromptTag>,
 }
 
 impl Default for AppConfig {
@@ -129,6 +137,12 @@ impl Default for AppConfig {
             target_language: Language::Auto.effective_language(),
             self_explaining_model: false,
             prompts: Prompts::default(),
+            prompt_tags: vec![
+                PromptTag { label: "单词详解".to_string(), content: "单词详解".to_string(), id: 1 },
+                PromptTag { label: "在句中的含义".to_string(), content: "在句中的含义".to_string(), id: 2 },
+                PromptTag { label: "详解".to_string(), content: "详解".to_string(), id: 3 },
+                PromptTag { label: "解读".to_string(), content: "解读".to_string(), id: 4 },
+            ],
         }
     }
 }

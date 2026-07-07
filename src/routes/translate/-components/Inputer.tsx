@@ -23,7 +23,7 @@ import { cn, speak } from "@/lib/utils";
 import { handleStream, s_Selected } from "@/store";
 import { Icons } from "@/components/icon";
 import { m } from "@/paraglide/messages.js";
-import type { ModelConfigMap } from "@/@types";
+import type { ModelConfigMap, PromptTag } from "@/@types";
 import { PromptTags } from "@/components/PromptTags";
 import { useContainerSelection } from "../-hooks/useContainerSelection";
 
@@ -68,6 +68,7 @@ function SearchResultCard({ searchText, onClose }: { searchText: string; onClose
 function SelectedText({ onHandleStream, onSearching }: { onSearching: (e: string) => void; onHandleStream: (chatMessage: ChatMessage) => Promise<void> }) {
 	const selected = useStore(s_Selected, (state) => state);
 	const { ...loadingChat_X } = useInvoke<boolean>(EVENT_NAMES.get_chatting_state, false, false, undefined, EVENT_NAMES.CHATTING_STATE_CHANGE);
+	const { state: promptTags } = useInvoke<PromptTag[]>(EVENT_NAMES.get_prompt_tags, []);
 	if (!selected.text) return "";
 	return (
 		<div className="w-full">
@@ -106,12 +107,7 @@ function SelectedText({ onHandleStream, onSearching }: { onSearching: (e: string
 			</div>
 			{selected.text?.trim() && (
 				<div className="flex flex-wrap">
-				{[
-					{ label: "单词详解", content: "单词详解", id: 1 },
-					{ label: "在句中的含义", content: "在句中的含义", id: 2 },
-					{ label: "详解", content: "详解", id: 3 },
-					{ label: "解读", content: "解读", id: 4 },
-				].map((e) => (
+				{promptTags.map((e) => (
 					<Button
 						className="mr-1 mb-1"
 						size={"xs"}

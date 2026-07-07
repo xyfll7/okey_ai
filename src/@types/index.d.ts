@@ -18,3 +18,9 @@ export interface APIConfig {
 export interface ModelConfigMap {
   [key: string]: APIConfig;
 }
+
+export interface PromptTag {
+  label: string;
+  content: string;
+  id: number;
+}

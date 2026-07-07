@@ -1,5 +1,5 @@
 use crate::my_api::traits::APIConfig;
-use crate::states::app_config::{AutoSpeakState, Language, ModelProvider};
+use crate::states::app_config::{AutoSpeakState, Language, ModelProvider, PromptTag};
 use crate::states::app_state::AppConfigState;
 use crate::states::chatting_state::ChattingState;
 use crate::utils::chat_message::{ChatMessage, ChatMessageHistory, Role};
@@ -243,6 +243,13 @@ pub fn get_self_explaining_model(app: AppHandle) -> bool {
     let app_state = app.state::<AppConfigState>();
     let config = app_state.read();
     config.self_explaining_model
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn get_prompt_tags(app: AppHandle) -> Vec<PromptTag> {
+    let app_state = app.state::<AppConfigState>();
+    let config = app_state.read();
+    config.prompt_tags.clone()
 }
 
 #[tauri::command(rename_all = "snake_case")]
