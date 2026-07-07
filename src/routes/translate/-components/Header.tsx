@@ -14,6 +14,7 @@ import { EVENT_NAMES, useInvoke } from "@/lib/events";
 import { AutoSpeakState, type ChatMessage } from "@/lib/types";
 import { cn, get_app_config } from "@/lib/utils";
 import { s_ChatList, s_Selected } from "@/store";
+import { m } from "@/paraglide/messages.js";
 import { Icons } from "@/components/icon";
 import { HistoriesNew } from "@/components/HistoriesNew";
 import { SettingsNew } from "@/components/SettingsNew";
@@ -83,17 +84,17 @@ export function Header(props: React.ComponentProps<"div">) {
 						<AutoSpeakVolume />
 					</Button>
 				</TooltipTrigger>
-				<TooltipContent>
+			<TooltipContent>
+				{
 					{
-						{
-							[AutoSpeakState.Off]: "Speech off",
-							[AutoSpeakState.Single]: "Read single words only",
-							[AutoSpeakState.All]: "Read full sentences",
-						}[autoSpeak_X.state]
-					}
-				</TooltipContent>
-			</Tooltip>
-			<PinWindow className="mr-1" />
+						[AutoSpeakState.Off]: m.auto_speak_off(),
+						[AutoSpeakState.Single]: m.auto_speak_single(),
+						[AutoSpeakState.All]: m.auto_speak_all(),
+					}[autoSpeak_X.state]
+				}
+			</TooltipContent>
+		</Tooltip>
+		<PinWindow className="mr-1" />
 		</div>
 	}
 	return (
@@ -112,15 +113,15 @@ export function Header(props: React.ComponentProps<"div">) {
 							<AutoSpeakVolume />
 						</Button>
 					</TooltipTrigger>
-					<TooltipContent>
+				<TooltipContent>
+					{
 						{
-							{
-								[AutoSpeakState.Off]: "Speech off",
-								[AutoSpeakState.Single]: "Read single words only",
-								[AutoSpeakState.All]: "Read full sentences",
-							}[autoSpeak_X.state]
-						}
-					</TooltipContent>
+							[AutoSpeakState.Off]: m.auto_speak_off(),
+							[AutoSpeakState.Single]: m.auto_speak_single(),
+							[AutoSpeakState.All]: m.auto_speak_all(),
+						}[autoSpeak_X.state]
+					}
+				</TooltipContent>
 				</Tooltip>
 				<HotKey
 					className="ml-1"
