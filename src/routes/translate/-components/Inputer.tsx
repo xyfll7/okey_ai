@@ -106,24 +106,29 @@ function SelectedText({ onHandleStream, onSearching }: { onSearching: (e: string
 			</div>
 			{selected.text?.trim() && (
 				<div className="flex flex-wrap">
-					{["单词详解", "在句中的含义", "详解", "解读",].map((e, i) => (
-						<Button
-							className="mr-1 mb-1"
-							size={"xs"}
-							variant={"outline"}
-							key={`${e}-${i}`}
-							disabled={loadingChat_X.state}
-							onClick={() => {
-								void onHandleStream({
-									role: "user",
-									content: `${selected.text}\n${e}`,
-									raw: selected.text,
-								} as ChatMessage);
-							}}
-						>
-							{e}
-						</Button>
-					))}
+				{[
+					{ label: "单词详解", content: "单词详解", id: 1 },
+					{ label: "在句中的含义", content: "在句中的含义", id: 2 },
+					{ label: "详解", content: "详解", id: 3 },
+					{ label: "解读", content: "解读", id: 4 },
+				].map((e) => (
+					<Button
+						className="mr-1 mb-1"
+						size={"xs"}
+						variant={"outline"}
+						key={e.id}
+						disabled={loadingChat_X.state}
+						onClick={() => {
+							void onHandleStream({
+								role: "user",
+								content: `${selected.text}\n${e.content}`,
+								raw: selected.text,
+							} as ChatMessage);
+						}}
+					>
+						{e.label}
+					</Button>
+				))}
 					<PromptTags />
 				</div>
 			)
