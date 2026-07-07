@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { computePosition, flip, offset, shift } from "@floating-ui/dom";
 import { Button } from "@/components/ui/button";
+import { ButtonGroup, ButtonGroupSeparator } from "@/components/ui/button-group";
 import { speak } from "@/lib/utils";
 import { Icons } from "@/components/icon";
 
@@ -35,7 +36,7 @@ function getSelectionRect(range: Range): DOMRect {
  * right where the selection is.
  */
 export function SelectionFloatingButton() {
-	const buttonRef = useRef<HTMLButtonElement>(null);
+	const buttonRef = useRef<HTMLDivElement>(null);
 	const [visible, setVisible] = useState(false);
 	const [coords, setCoords] = useState({ x: 0, y: 0 });
 	const pendingTextRef = useRef<string>("");
@@ -101,26 +102,43 @@ export function SelectionFloatingButton() {
 	}, []);
 
 	return (
-		<Button
+		<ButtonGroup
 			ref={buttonRef}
-			size="icon-sm"
-			variant="default"
-			className="fixed z-50 rounded-full shadow-md transition-opacity"
+			className="fixed z-50 transition-none rounded-lg border bg-background shadow-md"
 			style={{
 				left: coords.x,
 				top: coords.y,
 				opacity: visible ? 1 : 0,
 				pointerEvents: visible ? "auto" : "none",
 			}}
-			onClick={() => {
-				if (pendingTextRef.current) {
-					speak(pendingTextRef.current);
-				}
-				setVisible(false);
-				pendingTextRef.current = "";
-			}}
 		>
-			<Icons.volumeHigh />
-		</Button>
+			<Button
+				size="icon-sm"
+				variant={"secondary"}
+				onClick={() => {
+					if (pendingTextRef.current) {
+						speak(pendingTextRef.current);
+					}
+					setVisible(false);
+					pendingTextRef.current = "";
+				}}
+			>
+				<Icons.volumeHigh />
+			</Button>
+			 <ButtonGroupSeparator />
+			<Button
+				size="icon-sm"
+				variant={"secondary"}
+				onClick={() => {
+					if (pendingTextRef.current) {
+						navigator.clipboard?.writeText(pendingTextRef.current);
+					}
+					setVisible(false);
+					pendingTextRef.current = "";
+				}}
+			>
+				<Icons.copy />
+			</Button>
+		</ButtonGroup>
 	);
 }
