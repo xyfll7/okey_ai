@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { useStore } from "@tanstack/react-store";
 import { invoke } from "@tauri-apps/api/core";
 import { Button } from "@/components/ui/button";
@@ -171,11 +172,10 @@ export function Inputer({ className }: { className?: string; }) {
 						const start = target.selectionStart;
 						const end = target.selectionEnd;
 						const newValue = `${value.substring(0, start)}\n${value.substring(end)}`;
-						setValue(newValue);
-						setTimeout(() => {
-							target.selectionStart = target.selectionEnd = start + 1;
-						}, 0);
-
+						flushSync(() => {
+							setValue(newValue);
+						});
+						target.selectionStart = target.selectionEnd = start + 1;
 					}
 				}}
 			/>
