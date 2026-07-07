@@ -52,18 +52,19 @@ export function SettingsNew({ className }: { className?: string }) {
             unlisten.then((fn) => fn());
         };
     }, []);
+    useEffect(() => {
+        if (!isOpen) return;
+        const overlay = document.querySelector('[data-slot="drawer-overlay"]');
+        if (overlay) {
+            (overlay as HTMLElement).setAttribute('data-tauri-drag-region', 'true');
+        }
+    }, [isOpen]);
     const { ...loadingChat_X } = useInvoke<boolean>(EVENT_NAMES.get_chatting_state, false, false, undefined, EVENT_NAMES.CHATTING_STATE_CHANGE);
 
     return <Drawer open={isOpen} onOpenChange={setIsOpen} >
         <DrawerTrigger disabled={loadingChat_X.state} onClick={async (e) => {
             (e.currentTarget as HTMLButtonElement).blur();
             setIsOpen(true)
-            setTimeout(() => {
-                const overlay = document.querySelector('[data-slot="drawer-overlay"]');
-                if (overlay) {
-                    (overlay as HTMLElement).setAttribute('data-tauri-drag-region', 'true');
-                }
-            }, 0);
         }} asChild >
             <Button size={"icon-sm"} variant={"ghost"} className={className} >
                 <Icons.settings />
