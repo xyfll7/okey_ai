@@ -11,7 +11,7 @@ import { type ChatMessage } from "@/lib/types";
 import { cn, speak } from "@/lib/utils";
 import { s_ChatList, s_Selected, s_StreamingContent } from "@/store";
 import { Icons } from "@/components/icon";
-import { useContainerSelection } from "../hooks/useContainerSelection";
+import { useContainerSelection } from "../-hooks/useContainerSelection";
 
 const StreamingMessage = React.memo(function StreamingMessage({ content }: { content: string }) {
 	const [displayed, setDisplayed] = useState(content);

@@ -25,7 +25,7 @@ import { Icons } from "@/components/icon";
 import { m } from "@/paraglide/messages.js";
 import type { ModelConfigMap } from "@/@types";
 import { PromptTags } from "@/components/PromptTags";
-import { useContainerSelection } from "../hooks/useContainerSelection";
+import { useContainerSelection } from "../-hooks/useContainerSelection";
 
 function SearchResultCard({ searchText, onClose }: { searchText: string; onClose: () => void }) {
 	const containerRef = useRef<HTMLDivElement>(null);
