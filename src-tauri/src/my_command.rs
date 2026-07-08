@@ -253,6 +253,31 @@ pub fn get_prompt_tags(app: AppHandle) -> Vec<PromptTag> {
 }
 
 #[tauri::command(rename_all = "snake_case")]
+pub fn delete_prompt_tag(app: AppHandle, id: u32) -> Result<Vec<PromptTag>, String> {
+    let app_state = app.state::<AppConfigState>();
+    app_state
+        .update(|config| {
+            config.prompt_tags.retain(|tag| tag.id != id);
+        })
+        .map_err(|e| e.to_string())?;
+    let tags = app_state.read().prompt_tags.clone();
+    Ok(tags)
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn add_prompt_tag(app: AppHandle, label: String, content: String) -> Result<Vec<PromptTag>, String> {
+    let app_state = app.state::<AppConfigState>();
+    app_state
+        .update(|config| {
+            let next_id = config.prompt_tags.iter().map(|t| t.id).max().unwrap_or(0) + 1;
+            config.prompt_tags.push(PromptTag { label, content, id: next_id });
+        })
+        .map_err(|e| e.to_string())?;
+    let tags = app_state.read().prompt_tags.clone();
+    Ok(tags)
+}
+
+#[tauri::command(rename_all = "snake_case")]
 pub fn set_self_explaining_model(app: AppHandle, enabled: bool) -> Result<bool, String> {
     let app_state = app.state::<AppConfigState>();
     app_state

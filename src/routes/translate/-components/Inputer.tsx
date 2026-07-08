@@ -68,7 +68,17 @@ function SearchResultCard({ searchText, onClose }: { searchText: string; onClose
 function SelectedText({ onHandleStream, onSearching }: { onSearching: (e: string) => void; onHandleStream: (chatMessage: ChatMessage) => Promise<void> }) {
 	const selected = useStore(s_Selected, (state) => state);
 	const { ...loadingChat_X } = useInvoke<boolean>(EVENT_NAMES.get_chatting_state, false, false, undefined, EVENT_NAMES.CHATTING_STATE_CHANGE);
-	const { state: promptTags } = useInvoke<PromptTag[]>(EVENT_NAMES.get_prompt_tags, []);
+	const { state: promptTags, invokeState: refreshPromptTags } = useInvoke<PromptTag[]>(EVENT_NAMES.get_prompt_tags, []);
+
+	const handleDeletePromptTag = async (id: number) => {
+		await invoke<PromptTag[]>(EVENT_NAMES.delete_prompt_tag, { id });
+		await refreshPromptTags();
+	};
+
+	const handleAddPromptTag = async (label: string, content: string) => {
+		await invoke<PromptTag[]>(EVENT_NAMES.add_prompt_tag, { label, content });
+		await refreshPromptTags();
+	};
 	if (!selected.text) return "";
 	return (
 		<div className="w-full">
@@ -125,7 +135,7 @@ function SelectedText({ onHandleStream, onSearching }: { onSearching: (e: string
 						{e.label}
 					</Button>
 				))}
-					<PromptTags />
+					<PromptTags promptTags={promptTags} onDelete={handleDeletePromptTag} onAdd={handleAddPromptTag} />
 				</div>
 			)
 			}
