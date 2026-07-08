@@ -46,36 +46,58 @@ impl InputMethodEditorHandler {
 }
 
 struct TranslateBubbleHandler {
-    was_pressed: bool,
+    click_count: u32,
     last_release_time: Option<Instant>,
-    double_click_timeout: u128,
+    click_timeout: u128,
 }
 
 impl TranslateBubbleHandler {
     fn new() -> Self {
-        Self { was_pressed: false, last_release_time: None, double_click_timeout: 1000 }
+        Self { click_count: 0, last_release_time: None, click_timeout: 400 }
     }
 
-    fn handle(&mut self, is_pressed: bool, app: &AppHandle) {
+    fn handle_release(&mut self) {
         let now = Instant::now();
 
-        if !is_pressed && self.was_pressed {
-            if let Some(last_release) = self.last_release_time {
-                let elapsed = now.duration_since(last_release);
-
-                if elapsed.as_millis() < self.double_click_timeout {
-                    self.trigger_action(app);
-                }
+        if let Some(last_release) = self.last_release_time {
+            if now.duration_since(last_release).as_millis() < self.click_timeout {
+                self.click_count += 1;
+            } else {
+                self.click_count = 1;
             }
-            self.last_release_time = Some(now);
+        } else {
+            self.click_count = 1;
         }
 
-        self.was_pressed = is_pressed;
+        self.last_release_time = Some(now);
     }
 
-    fn trigger_action(&self, app: &AppHandle) {
+    // 在时间窗口结束后根据点击次数分发动作（用于区分双击与三连击）
+    fn check_timeout(&mut self, app: &AppHandle) {
+        if self.click_count == 0 {
+            return;
+        }
+
+        if let Some(last_release) = self.last_release_time {
+            if last_release.elapsed().as_millis() >= self.click_timeout {
+                match self.click_count {
+                    2 => self.trigger_double_click(app),
+                    3 => self.trigger_triple_click(app),
+                    _ => {}
+                }
+                self.click_count = 0;
+                self.last_release_time = None;
+            }
+        }
+    }
+
+    fn trigger_double_click(&self, app: &AppHandle) {
         let app_clone = app.clone();
         text_translation::translate_selected_text(&app_clone, DisplayType::Bubble);
+    }
+
+    fn trigger_triple_click(&self, _app: &AppHandle) {
+        // TODO: 三连击的具体逻辑待实现
     }
 }
 
@@ -137,7 +159,6 @@ pub fn init_global_input_listener(app: &AppHandle) -> Result<(), Box<dyn std::er
 
                     if is_target_key {
                         state.ime_handler.handle(true, &app);
-                        state.translate_bubble_handler.handle(true, &app);
                     }
                 }
                 EventType::KeyRelease(key) => {
@@ -148,7 +169,7 @@ pub fn init_global_input_listener(app: &AppHandle) -> Result<(), Box<dyn std::er
 
                     if is_target_key {
                         state.ime_handler.handle(false, &app);
-                        state.translate_bubble_handler.handle(false, &app);
+                        state.translate_bubble_handler.handle_release();
                     }
                 }
                 EventType::MouseMove { x, y } => {
@@ -174,6 +195,7 @@ pub fn init_global_input_listener(app: &AppHandle) -> Result<(), Box<dyn std::er
             if state.ime_handler.was_pressed {
                 state.ime_handler.handle(true, &app_clone2);
             }
+            state.translate_bubble_handler.check_timeout(&app_clone2);
         }
         thread::sleep(Duration::from_millis(16));
     });
