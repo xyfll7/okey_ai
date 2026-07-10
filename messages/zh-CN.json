@@ -31,5 +31,9 @@
   "model_providers_ZAI": "智谱 AI",
   "auto_speak_off": "语音关闭",
   "auto_speak_single": "仅朗读单词",
-  "auto_speak_all": "朗读完整句子"
+  "auto_speak_all": "朗读完整句子",
+  "prompts_title": "提示词",
+  "prompts_label_placeholder": "标签",
+  "prompts_content_placeholder": "内容",
+  "prompts_add": "添加"
 }

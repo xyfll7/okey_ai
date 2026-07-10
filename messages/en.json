@@ -31,5 +31,9 @@
   "model_providers_ZAI": "Z AI",
   "auto_speak_off": "Speech off",
   "auto_speak_single": "Read single words only",
-  "auto_speak_all": "Read full sentences"
+  "auto_speak_all": "Read full sentences",
+  "prompts_title": "Prompts",
+  "prompts_label_placeholder": "Label",
+  "prompts_content_placeholder": "Content",
+  "prompts_add": "Add"
 }

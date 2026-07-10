@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { ScrollArea } from "./ui/scroll-area";
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from "./ui/item";
 import type { PromptTag } from "@/@types";
+import { m } from "@/paraglide/messages.js";
 
 export function Prompts({ className, prompts, onDelete, onAdd }: { className?: string; prompts: PromptTag[]; onDelete?: (id: number) => void; onAdd?: (label: string, content: string) => void }) {
     const [isOpen, setIsOpen] = useState(false)
@@ -48,18 +49,18 @@ export function Prompts({ className, prompts, onDelete, onAdd }: { className?: s
         <DrawerContent className={cn("h-[80vh]  overflow-hidden","pb-2 [&_.bg-muted.mx-auto.mt-4.hidden.h-1.w-[100px].shrink-0.rounded-full]:hidden")}>
             <DrawerHeader className="" data-tauri-drag-region>
                 <DrawerTitle className={cn("flex justify-between select-none", "")} data-tauri-drag-region>
-                    Prompts
+                    {m.prompts_title()}
                 </DrawerTitle>
                 <DrawerDescription className="sr-only" />
             </DrawerHeader>
             <div className="flex flex-col gap-2 px-2 pb-2">
                 <Input
-                    placeholder="Label"
+                    placeholder={m.prompts_label_placeholder()}
                     value={newLabel}
                     onChange={(e) => setNewLabel(e.target.value)}
                 />
                 <Input
-                    placeholder="Content"
+                    placeholder={m.prompts_content_placeholder()}
                     value={newContent}
                     onChange={(e) => setNewContent(e.target.value)}
                 />
@@ -68,10 +69,10 @@ export function Prompts({ className, prompts, onDelete, onAdd }: { className?: s
                         setNewLabel("");
                         setNewContent("");
                     }}>
-                        Cancel
+                        {m.common_cancel()}
                     </Button>
                     <Button size={"xs"} variant={"default"} onClick={handleAdd}>
-                        Add
+                        {m.prompts_add()}
                     </Button>
                 </div>
             </div>
