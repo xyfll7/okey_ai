@@ -1,0 +1,102 @@
+import {
+    Drawer,
+    DrawerContent,
+    DrawerDescription,
+    DrawerHeader,
+    DrawerTitle,
+    DrawerTrigger,
+} from "@/components/ui/drawer";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { useEffect, useState } from "react";
+import { Icons } from "@/components/icon";
+import { cn } from "@/lib/utils";
+import { ScrollArea } from "./ui/scroll-area";
+import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from "./ui/item";
+import type { PromptTag } from "@/@types";
+
+export function Prompts({ className, prompts, onDelete, onAdd }: { className?: string; prompts: PromptTag[]; onDelete?: (id: number) => void; onAdd?: (label: string, content: string) => void }) {
+    const [isOpen, setIsOpen] = useState(false)
+    const [newLabel, setNewLabel] = useState("")
+    const [newContent, setNewContent] = useState("")
+
+    useEffect(() => {
+        if (!isOpen) return;
+        const overlay = document.querySelector('[data-slot="drawer-overlay"]');
+        if (overlay) {
+            (overlay as HTMLElement).setAttribute('data-tauri-drag-region', 'true');
+        }
+    }, [isOpen]);
+
+    const handleAdd = () => {
+        const label = newLabel.trim();
+        if (!label) return;
+        onAdd?.(label, newContent.trim() || label);
+        setNewLabel("");
+        setNewContent("");
+    };
+
+    return <Drawer open={isOpen} onOpenChange={setIsOpen} >
+        <DrawerTrigger onClick={async (e) => {
+            (e.currentTarget as HTMLButtonElement).blur();
+            setIsOpen(true)
+        }} asChild >
+            <Button size={"xs"} variant={"outline"} className={className} >
+                <Icons.add />
+            </Button>
+        </DrawerTrigger>
+        <DrawerContent className={cn("h-[80vh]  overflow-hidden","pb-2 [&_.bg-muted.mx-auto.mt-4.hidden.h-1.w-[100px].shrink-0.rounded-full]:hidden")}>
+            <DrawerHeader className="" data-tauri-drag-region>
+                <DrawerTitle className={cn("flex justify-between select-none", "")} data-tauri-drag-region>
+                    Prompts
+                </DrawerTitle>
+                <DrawerDescription className="sr-only" />
+            </DrawerHeader>
+            <div className="flex flex-col gap-2 px-2 pb-2">
+                <Input
+                    placeholder="Label"
+                    value={newLabel}
+                    onChange={(e) => setNewLabel(e.target.value)}
+                />
+                <Input
+                    placeholder="Content"
+                    value={newContent}
+                    onChange={(e) => setNewContent(e.target.value)}
+                />
+                <div className="flex justify-end gap-2">
+                    <Button size={"xs"} variant={"ghost"} onClick={() => {
+                        setNewLabel("");
+                        setNewContent("");
+                    }}>
+                        Cancel
+                    </Button>
+                    <Button size={"xs"} variant={"default"} onClick={handleAdd}>
+                        Add
+                    </Button>
+                </div>
+            </div>
+            <ScrollArea className={cn("h-full","overflow-hidden")}>
+                <ItemGroup className="px-2">
+                    {[...prompts,...prompts].map((e) => (
+                        <Item key={e.id} variant="outline" size="xs">
+                            <ItemContent>
+                                <ItemTitle>{e.label}</ItemTitle>
+                                <ItemDescription>{e.content}</ItemDescription>
+                            </ItemContent>
+                            <ItemActions>
+                                <Button
+                                    size={"icon-xs"}
+                                    variant={"ghost"}
+                                    className="h-4 w-4"
+                                    onClick={() => onDelete?.(e.id)}
+                                >
+                                    <Icons.x />
+                                </Button>
+                            </ItemActions>
+                        </Item>
+                    ))}
+                </ItemGroup>
+            </ScrollArea>
+        </DrawerContent>
+    </Drawer>
+}

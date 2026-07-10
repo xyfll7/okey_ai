@@ -70,7 +70,7 @@ export function SettingsNew({ className }: { className?: string }) {
                 <Icons.settings />
             </Button>
         </DrawerTrigger>
-        <DrawerContent className="pb-2 [&_.bg-muted.mx-auto.mt-4.hidden.h-1.w-\[100px\].shrink-0.rounded-full]:hidden">
+        <DrawerContent className={cn("h-[80vh]  overflow-hidden","pb-2 [&_.bg-muted.mx-auto.mt-4.hidden.h-1.w-[100px].shrink-0.rounded-full]:hidden")}>
             <DrawerHeader className="" data-tauri-drag-region>
                 <DrawerTitle className={cn("flex justify-between select-none", "")} data-tauri-drag-region>
                     {m.common_settings()}
@@ -82,7 +82,7 @@ export function SettingsNew({ className }: { className?: string }) {
                 </DrawerTitle>
                 <DrawerDescription className="sr-only" />
             </DrawerHeader>
-            <ScrollArea className={cn("h-[70vh]")}>
+            <ScrollArea className={cn("h-full","overflow-hidden")}>
                 <div className="max-w-screen flex-coh items-start px-2">
                     <ModelConfigurationForm />
                 </div>

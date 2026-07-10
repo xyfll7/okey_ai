@@ -23,7 +23,7 @@ import { handleStream, s_Selected } from "@/store";
 import { Icons } from "@/components/icon";
 import { m } from "@/paraglide/messages.js";
 import type { ModelConfigMap, PromptTag } from "@/@types";
-import { PromptTags } from "@/components/PromptTags";
+import { Prompts } from "@/components/Prompts";
 
 function SelectedText({ onHandleStream }: { onHandleStream: (chatMessage: ChatMessage) => Promise<void> }) {
 	const selected = useStore(s_Selected, (state) => state);
@@ -90,7 +90,7 @@ function SelectedText({ onHandleStream }: { onHandleStream: (chatMessage: ChatMe
 						{e.label}
 					</Button>
 				))}
-					<PromptTags promptTags={promptTags} onDelete={handleDeletePromptTag} onAdd={handleAddPromptTag} />
+					<Prompts prompts={promptTags} onDelete={handleDeletePromptTag} onAdd={handleAddPromptTag} />
 				</div>
 			)
 			}
