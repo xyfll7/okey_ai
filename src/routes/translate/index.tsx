@@ -26,12 +26,12 @@ function RouteComponent() {
 					<ChatList className="px-2 pt-2" />
 				</ScrollArea>
 				<MessageNavigator />
+				<SelectionFloatingButton />
 			</div>
 			<div className="px-2 pb-2">
 				<Inputer />
 			</div>
 			<LanguageSelector />
-			<SelectionFloatingButton />
 		</div>
 	);
 }
