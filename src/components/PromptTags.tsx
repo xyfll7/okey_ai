@@ -16,7 +16,7 @@ import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle }
 import type { PromptTag } from "@/@types";
 import { m } from "@/paraglide/messages.js";
 
-export function Prompts({ className, prompts, onDelete, onAdd }: { className?: string; prompts: PromptTag[]; onDelete?: (id: number) => void; onAdd?: (label: string, content: string) => void }) {
+export function PromptTags({ className, prompts, onDelete, onAdd }: { className?: string; prompts: PromptTag[]; onDelete?: (id: number) => void; onAdd?: (label: string, content: string) => void }) {
     const [isOpen, setIsOpen] = useState(false)
     const [newLabel, setNewLabel] = useState("")
     const [newContent, setNewContent] = useState("")
