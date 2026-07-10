@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { flushSync } from "react-dom";
 import { useStore } from "@tanstack/react-store";
 import { invoke } from "@tauri-apps/api/core";
@@ -15,7 +15,6 @@ import {
 	InputGroupButton,
 	InputGroupTextarea,
 } from "@/components/ui/input-group";
-import { Card, CardContent } from "@/components/ui/card";
 import Copyed from "@/components/Copyed";
 import { EVENT_NAMES, useInvoke } from "@/lib/events";
 import { getModelProviderShowName, type ChatMessage } from "@/lib/types";
@@ -25,47 +24,8 @@ import { Icons } from "@/components/icon";
 import { m } from "@/paraglide/messages.js";
 import type { ModelConfigMap, PromptTag } from "@/@types";
 import { PromptTags } from "@/components/PromptTags";
-import { useContainerSelection } from "../-hooks/useContainerSelection";
 
-function SearchResultCard({ searchText, onClose }: { searchText: string; onClose: () => void }) {
-	const containerRef = useRef<HTMLDivElement>(null);
-	const { handleMouseEnter, handleMouseLeave, handleMouseUp } = useContainerSelection(
-		containerRef,
-		(text) => s_Selected.setState(() => ({ text, raw: searchText })),
-	);
-
-	return (
-		<div className="pb-2">
-			<Card
-				ref={containerRef}
-				className="relative --card-spacing:--spacing(2)"
-				size="sm"
-				onMouseUp={handleMouseUp}
-				onMouseEnter={handleMouseEnter}
-				onMouseLeave={handleMouseLeave}
-			>
-				<Button
-					size="icon-xs"
-					variant="ghost"
-					className="absolute top-0 right-0"
-					onClick={(e) => {
-						e.preventDefault();
-						onClose();
-					}}
-				>
-					<Icons.x />
-				</Button>
-				<CardContent>
-					<p>
-						{searchText}
-					</p>
-				</CardContent>
-			</Card>
-		</div>
-	);
-}
-
-function SelectedText({ onHandleStream, onSearching }: { onSearching: (e: string) => void; onHandleStream: (chatMessage: ChatMessage) => Promise<void> }) {
+function SelectedText({ onHandleStream }: { onHandleStream: (chatMessage: ChatMessage) => Promise<void> }) {
 	const selected = useStore(s_Selected, (state) => state);
 	const { ...loadingChat_X } = useInvoke<boolean>(EVENT_NAMES.get_chatting_state, false, false, undefined, EVENT_NAMES.CHATTING_STATE_CHANGE);
 	const { state: promptTags, invokeState: refreshPromptTags } = useInvoke<PromptTag[]>(EVENT_NAMES.get_prompt_tags, []);
@@ -86,11 +46,6 @@ function SelectedText({ onHandleStream, onSearching }: { onSearching: (e: string
 				<div className="max-w-full truncate overflow-hidden">
 					<span className={cn("mr-1")}>{selected.text}</span>
 				</div>
-				{selected.text?.trim() && (
-					<Button size={"icon-sm"} variant={"ghost"} onClick={() => onSearching(selected.text ?? "")}>
-						<Icons.searching />
-					</Button>
-				)}
 				{selected.text?.trim() && (
 					<Button size={"icon-sm"} variant={"ghost"}>
 						<Copyed
@@ -152,15 +107,11 @@ export function Inputer({ className }: { className?: string; }) {
 	const { ...currentModel_X } = useInvoke<string>(EVENT_NAMES.get_current_model, "");
 	const currentModel = currentModel_X.state;
 	const { ...loadingChat_X } = useInvoke<boolean>(EVENT_NAMES.get_chatting_state, false, false, undefined, EVENT_NAMES.CHATTING_STATE_CHANGE);
-	const [searchText, setSearchText] = useState("");
 	return (<>
-		{searchText &&
-			<SearchResultCard searchText={searchText} onClose={() => setSearchText("")} />
-		}
 		<InputGroup className={cn(className, "rounded-xl", "has-[[data-slot=input-group-control]:focus-visible]:border-ring/70 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/7")}>
 			{selected.text && (
 				<InputGroupAddon align="block-start">
-					<SelectedText onHandleStream={handleStream} onSearching={(e) => { setSearchText(e) }} />
+					<SelectedText onHandleStream={handleStream} />
 				</InputGroupAddon>
 			)}
 			<InputGroupTextarea
