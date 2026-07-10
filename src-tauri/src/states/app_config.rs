@@ -80,7 +80,6 @@ impl Language {
 pub struct Prompts {
     pub system_prompt: String,
     pub translate_into: String,
-    pub explain_prompt: String,
     pub summary_prompt: String,
 }
 
@@ -89,7 +88,6 @@ impl Default for Prompts {
         Prompts {
             system_prompt: "You are a professional translation assistant. Please accurately translate the language, preserving the original meaning and tone.".to_string(),
             translate_into: "Please translate the following text into {target}:\n\n{text}".to_string(),
-            explain_prompt: "Please explain the following text in {target}, as if explaining to a language learner:\n\n{text}".to_string(),
             summary_prompt: "Please analyze the following text and provide a summary:\n\n{text}".to_string(),
         }
     }
@@ -97,9 +95,10 @@ impl Default for Prompts {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PromptTag {
-    pub label: String,
-    pub content: String,
-    pub id: u32,
+    pub raw: Option<String>,
+    pub label: Option<String>,
+    pub content: Option<String>,
+    pub id: Option<u32>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -137,11 +136,11 @@ impl Default for AppConfig {
             target_language: Language::Auto.effective_language(),
             self_explaining_model: false,
             prompts: Prompts::default(),
+            #[rustfmt::skip]
             prompt_tags: vec![
-                PromptTag { label: "单词详解".to_string(), content: "单词详解".to_string(), id: 1 },
-                PromptTag { label: "在句中的含义".to_string(), content: "在句中的含义".to_string(), id: 2 },
-                PromptTag { label: "详解".to_string(), content: "详解".to_string(), id: 3 },
-                PromptTag { label: "解读".to_string(), content: "解读".to_string(), id: 4 },
+                PromptTag { raw: None, label: Some("自解释".to_string()), content: Some("Please explain the following text in {target}, as if explaining to a language learner:\n\n{text}.".to_string()), id: Some(1) }, 
+                PromptTag { raw: None, label: Some("单词详解".to_string()), content: Some("Please use {local} to explain the word {text} in detail.".to_string()), id: Some(2) }, 
+                PromptTag { raw: None, label: Some("在句中的含义".to_string()), content: Some("Please use {local} to explain the meaning of {text} in the sentence.".to_string()), id: Some(3) }, 
             ],
         }
     }

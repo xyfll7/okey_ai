@@ -1,5 +1,6 @@
 import { EVENT_NAMES } from "@/lib/events";
 import type { ChatMessage } from "@/lib/types";
+import type { PromptTag } from "@/@types";
 import { Store } from "@tanstack/react-store";
 import { Channel, invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
@@ -13,35 +14,35 @@ type StreamEvent =
     | { event: "done"; data?: unknown }
     | { event: "error"; data: { message: string } };
 
-export const handleStream = async (chatMessage: ChatMessage) => {
-    let accumulated = "";
-    const channel = new Channel<StreamEvent>();
-    channel.onmessage = (message) => {
-        switch (message.event) {
-            case "chunk": {
-                accumulated += message.data?.content ?? "";
-                s_StreamingContent.setState(() => accumulated);
-                break;
-            }
-            case "error": {
-                console.log("Stream error:", message.data.message);
-                s_StreamingContent.setState(() => "");
-                break;
-            }
-            case "done": {
-                console.log("Stream completed successfully");
-                s_StreamingContent.setState(() => "");
-                break;
-            }
-            default:
-                break;
-        }
-    };
+export const handleStream = async (promptTag: PromptTag) => {
+	let accumulated = "";
+	const channel = new Channel<StreamEvent>();
+	channel.onmessage = (message) => {
+		switch (message.event) {
+			case "chunk": {
+				accumulated += message.data?.content ?? "";
+				s_StreamingContent.setState(() => accumulated);
+				break;
+			}
+			case "error": {
+				console.log("Stream error:", message.data.message);
+				s_StreamingContent.setState(() => "");
+				break;
+			}
+			case "done": {
+				console.log("Stream completed successfully");
+				s_StreamingContent.setState(() => "");
+				break;
+			}
+			default:
+				break;
+		}
+	};
 
-    await invoke(EVENT_NAMES.chat_stream, {
-        chat_message: chatMessage,
-        on_event: channel,
-    });
+	await invoke(EVENT_NAMES.chat_stream, {
+		prompt_tag: promptTag,
+		on_event: channel,
+	});
 };
 
 import { setLocale } from "@/paraglide/runtime.js";
@@ -51,9 +52,9 @@ async function init() {
 
     setLocale(localeResult as "en" | "zh-CN");
 
-    listen<string>(EVENT_NAMES.START_CHAT_STREAM, () => {
-        handleStream({ role: "user", content: "" } as ChatMessage);
-    });
+	listen<string>(EVENT_NAMES.START_CHAT_STREAM, () => {
+		handleStream({ });
+	});
 }
 init();
 

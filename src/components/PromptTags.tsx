@@ -78,7 +78,7 @@ export function PromptTags({ className, prompts, onDelete, onAdd }: { className?
             </div>
             <ScrollArea className={cn("h-full","overflow-hidden")}>
                 <ItemGroup className="px-2">
-                    {[...prompts,...prompts].map((e) => (
+                    {[...prompts].map((e) => (
                         <Item key={e.id} variant="outline" size="xs">
                             <ItemContent>
                                 <ItemTitle>{e.label}</ItemTitle>
@@ -89,7 +89,7 @@ export function PromptTags({ className, prompts, onDelete, onAdd }: { className?
                                     size={"icon-xs"}
                                     variant={"ghost"}
                                     className="h-4 w-4"
-                                    onClick={() => onDelete?.(e.id)}
+                                    onClick={() => onDelete?.(e.id!)}
                                 >
                                     <Icons.x />
                                 </Button>

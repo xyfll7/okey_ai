@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/input-group";
 import Copyed from "@/components/Copyed";
 import { EVENT_NAMES, useInvoke } from "@/lib/events";
-import { getModelProviderShowName, type ChatMessage } from "@/lib/types";
+import { getModelProviderShowName } from "@/lib/types";
 import { cn, speak } from "@/lib/utils";
 import { handleStream, s_Selected } from "@/store";
 import { Icons } from "@/components/icon";
@@ -25,7 +25,7 @@ import { m } from "@/paraglide/messages.js";
 import type { ModelConfigMap, PromptTag } from "@/@types";
 import { PromptTags } from "@/components/PromptTags";
 
-function SelectedText({ onHandleStream }: { onHandleStream: (chatMessage: ChatMessage) => Promise<void> }) {
+function SelectedText() {
 	const selected = useStore(s_Selected, (state) => state);
 	const { ...loadingChat_X } = useInvoke<boolean>(EVENT_NAMES.get_chatting_state, false, false, undefined, EVENT_NAMES.CHATTING_STATE_CHANGE);
 	const { state: promptTags, invokeState: refreshPromptTags } = useInvoke<PromptTag[]>(EVENT_NAMES.get_prompt_tags, []);
@@ -72,24 +72,20 @@ function SelectedText({ onHandleStream }: { onHandleStream: (chatMessage: ChatMe
 			</div>
 			{selected.text?.trim() && (
 				<div className="flex flex-wrap">
-				{promptTags.map((e) => (
-					<Button
-						className="mr-1 mb-1"
-						size={"xs"}
-						variant={"outline"}
-						key={e.id}
-						disabled={loadingChat_X.state}
-						onClick={() => {
-							void onHandleStream({
-								role: "user",
-								content: `${selected.text}\n${e.content}`,
-								raw: selected.text,
-							} as ChatMessage);
-						}}
-					>
-						{e.label}
-					</Button>
-				))}
+					{promptTags.map((e) => (
+						<Button
+							className="mr-1 mb-1"
+							size={"xs"}
+							variant={"outline"}
+							key={e.id}
+							disabled={loadingChat_X.state}
+							onClick={() => {
+								void handleStream({ raw: selected.text, label: e.label, content: e.content, id: e.id, });
+							}}
+						>
+							{e.label}
+						</Button>
+					))}
 					<PromptTags prompts={promptTags} onDelete={handleDeletePromptTag} onAdd={handleAddPromptTag} />
 				</div>
 			)
@@ -111,7 +107,7 @@ export function Inputer({ className }: { className?: string; }) {
 		<InputGroup className={cn(className, "rounded-xl", "has-[[data-slot=input-group-control]:focus-visible]:border-ring/70 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/7")}>
 			{selected.text && (
 				<InputGroupAddon align="block-start">
-					<SelectedText onHandleStream={handleStream} />
+					<SelectedText />
 				</InputGroupAddon>
 			)}
 			<InputGroupTextarea
@@ -122,12 +118,12 @@ export function Inputer({ className }: { className?: string; }) {
 					if (loadingChat_X.state) {
 						return;
 					}
-				if (e.key === "Enter" && !e.shiftKey) {
-					e.preventDefault();
-					if (!value.trim()) return;
-					setValue("");
-					await handleStream({ role: "user", content: value } as ChatMessage)
-				}
+					if (e.key === "Enter" && !e.shiftKey) {
+						e.preventDefault();
+						if (!value.trim()) return;
+						setValue("");
+						await handleStream({ raw: value, })
+					}
 					if (e.key === "Enter" && e.shiftKey) {
 						e.preventDefault();
 						const target = e.target as HTMLTextAreaElement;
@@ -162,23 +158,23 @@ export function Inputer({ className }: { className?: string; }) {
 					</DropdownMenuContent>
 				</DropdownMenu>
 
-			<InputGroupButton
-				variant="default"
-				className="rounded-full ml-auto cursor-pointer"
-				size="icon-xs"
-				onClick={async () => {
-					if (loadingChat_X.state) {
-						await invoke(EVENT_NAMES.abort_chat_stream);
-						return;
-					}
-					if (!value.trim()) return;
-					setValue("");
-					await handleStream({ role: "user", content: value } as ChatMessage)
-				}}
-			>
-				{loadingChat_X.state ? <Icons.stop /> : <Icons.arrowUp />}
-				<span className="sr-only">{loadingChat_X.state ? "abort" : "send"}</span>
-			</InputGroupButton>
+				<InputGroupButton
+					variant="default"
+					className="rounded-full ml-auto cursor-pointer"
+					size="icon-xs"
+					onClick={async () => {
+						if (loadingChat_X.state) {
+							await invoke(EVENT_NAMES.abort_chat_stream);
+							return;
+						}
+						if (!value.trim()) return;
+						setValue("");
+						await handleStream({ raw: value, })
+					}}
+				>
+					{loadingChat_X.state ? <Icons.stop /> : <Icons.arrowUp />}
+					<span className="sr-only">{loadingChat_X.state ? "abort" : "send"}</span>
+				</InputGroupButton>
 			</InputGroupAddon>
 		</InputGroup>
 	</>

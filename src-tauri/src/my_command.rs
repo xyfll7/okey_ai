@@ -39,16 +39,29 @@ pub fn close_main_window(app: AppHandle) -> Result<(), String> {
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub async fn chat_stream(app: AppHandle, chat_message: ChatMessage, on_event: Channel<StreamEvent>) -> Result<(), String> {
+pub async fn chat_stream(app: AppHandle, prompt_tag: PromptTag, on_event: Channel<StreamEvent>) -> Result<(), String> {
     let translation_manager = app.state::<translation_manager::TranslationManager>();
     let chatting_state = app.state::<ChattingState>().inner().clone();
     let on_event_clone = on_event.clone();
     let chatting_state_clone = chatting_state.clone();
 
-    let messages = if chat_message.content.trim().is_empty() {
+    let messages = if prompt_tag.content.as_deref().unwrap_or_default().trim().is_empty() {
         translation_manager.get_current_history().await.unwrap_or_default()
     } else {
-        let messages = translation_manager.add_get_user_message(None, &chat_message.content, None, Role::User).await.unwrap_or_default();
+        let raw = prompt_tag.raw.clone().unwrap_or_default();
+        let content_template = prompt_tag.content.as_deref().unwrap_or_default();
+        let target = if raw.is_empty() {
+            String::new()
+        } else {
+            let detected_lang = language_detection::detect_language(&raw);
+            Language::from_locale(detected_lang).to_display_name().to_string()
+        };
+        let local = app.state::<AppConfigState>().read().local_language.effective_language().to_display_name().to_string();
+        let assembled = content_template
+            .replace("{target}", &target)
+            .replace("{local}", &local)
+            .replace("{text}", &raw);
+        let messages = translation_manager.add_get_user_message(None, &assembled, None, Role::User).await.unwrap_or_default();
         let _ = app.emit(event_names::AI_RESPONSE, &messages);
         messages
     };
@@ -257,7 +270,7 @@ pub fn delete_prompt_tag(app: AppHandle, id: u32) -> Result<Vec<PromptTag>, Stri
     let app_state = app.state::<AppConfigState>();
     app_state
         .update(|config| {
-            config.prompt_tags.retain(|tag| tag.id != id);
+            config.prompt_tags.retain(|tag| tag.id != Some(id));
         })
         .map_err(|e| e.to_string())?;
     let tags = app_state.read().prompt_tags.clone();
@@ -269,8 +282,8 @@ pub fn add_prompt_tag(app: AppHandle, label: String, content: String) -> Result<
     let app_state = app.state::<AppConfigState>();
     app_state
         .update(|config| {
-            let next_id = config.prompt_tags.iter().map(|t| t.id).max().unwrap_or(0) + 1;
-            config.prompt_tags.push(PromptTag { label, content, id: next_id });
+            let next_id = config.prompt_tags.iter().map(|t| t.id.unwrap_or(0)).max().unwrap_or(0) + 1;
+            config.prompt_tags.push(PromptTag { label: Some(label), content: Some(content), id: Some(next_id), raw: None });
         })
         .map_err(|e| e.to_string())?;
     let tags = app_state.read().prompt_tags.clone();

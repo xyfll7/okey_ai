@@ -20,7 +20,8 @@ export interface ModelConfigMap {
 }
 
 export interface PromptTag {
-  label: string;
-  content: string;
-  id: number;
+  raw?: string
+  label?: string;
+  content?: string;
+  id?: number;
 }
