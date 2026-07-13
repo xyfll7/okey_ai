@@ -35,7 +35,11 @@ function getSelectionRect(range: Range): DOMRect {
  * selection handling — it just offers a "speak this selection" shortcut
  * right where the selection is.
  */
-export function SelectionFloatingButton() {
+export function SelectionFloatingButton({
+	containerRef,
+}: {
+	containerRef?: React.RefObject<HTMLElement | null>;
+}) {
 	const buttonRef = useRef<HTMLDivElement>(null);
 	const [visible, setVisible] = useState(false);
 	const [coords, setCoords] = useState({ x: 0, y: 0 });
@@ -59,6 +63,13 @@ export function SelectionFloatingButton() {
 			}
 
 			const range = selection.getRangeAt(0);
+
+			// Only react to selections made inside the target container.
+			if (containerRef?.current && !containerRef.current.contains(range.commonAncestorContainer)) {
+				hide();
+				return;
+			}
+
 			pendingTextRef.current = text;
 
 			const virtualEl = {
