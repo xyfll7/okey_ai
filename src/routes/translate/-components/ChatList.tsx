@@ -8,9 +8,8 @@ import { Button } from "@/components/ui/button";
 import Copyed from "@/components/Copyed";
 import { EVENT_NAMES, useInvoke } from "@/lib/events";
 import { type ChatMessage } from "@/lib/types";
-import { cn, speak } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { s_ChatList, s_Selected, s_StreamingContent } from "@/store";
-import { Icons } from "@/components/icon";
 import { useContainerSelection } from "../-hooks/useContainerSelection";
 
 const StreamingMessage = React.memo(function StreamingMessage({ content }: { content: string }) {
@@ -49,9 +48,6 @@ const MessageItem = React.memo(function MessageItem({ chat, className, index }: 
 					<Button size={"icon-sm"} variant={"ghost"}>
 						<Copyed text={chat.content} />
 					</Button>
-					<Button size={"icon-sm"} variant={"ghost"} onClick={() => speak(chat.raw ?? chat.content)} >
-						<Icons.volumeHigh />
-					</Button>
 				</div>
 			</div>
 		</div>
@@ -80,17 +76,17 @@ export function ChatList({ className }: { className?: string; }) {
 					}));
 				}
 
-			s_ChatList.setState(() => payload);
+				s_ChatList.setState(() => payload);
 
-			const filtered = payload.filter((e) => e.role !== "system");
-			if (filtered.length > 2 && filtered.at(-1)?.role === "user") {
-				const lastIndex = filtered.length - 1;
-				requestAnimationFrame(() => {
-					document.querySelector(`[data-index="${lastIndex}"]`)
-						?.scrollIntoView({ behavior: "smooth", block: "start" });
-				});
-			}
-		},
+				const filtered = payload.filter((e) => e.role !== "system");
+				if (filtered.length > 2 && filtered.at(-1)?.role === "user") {
+					const lastIndex = filtered.length - 1;
+					requestAnimationFrame(() => {
+						document.querySelector(`[data-index="${lastIndex}"]`)
+							?.scrollIntoView({ behavior: "smooth", block: "start" });
+					});
+				}
+			},
 		);
 		const unlistenError = listen<string>(EVENT_NAMES.AI_ERROR, (event) => {
 			const errorPayload: ChatMessage = {
