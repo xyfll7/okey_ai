@@ -110,7 +110,7 @@ export function SelectionFloatingButton({
 			document.removeEventListener("selectionchange", handleSelectionChange);
 			document.removeEventListener("scroll", handleScroll, true);
 		};
-	}, []);
+	}, [containerRef]);
 
 	return (
 		<ButtonGroup
