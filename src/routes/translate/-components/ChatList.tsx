@@ -81,10 +81,17 @@ export function ChatList({ className }: { className?: string; }) {
 				const filtered = payload.filter((e) => e.role !== "system");
 				if (filtered.length > 2 && filtered.at(-1)?.role === "user") {
 					const lastIndex = filtered.length - 1;
-					requestAnimationFrame(() => {
+				// Wait a few more frames for the markdown/streaming content layout to stabilize before scrolling.
+				// Avoid smooth scrolling from being interrupted during layout jitter and failing to scroll to the correct position.
+				const runAfterFrames = (frames: number) => {
+					if (frames <= 0) {
 						document.querySelector(`[data-index="${lastIndex}"]`)
 							?.scrollIntoView({ behavior: "smooth", block: "start" });
-					});
+					} else {
+						requestAnimationFrame(() => runAfterFrames(frames - 1));
+					}
+				};
+				runAfterFrames(7);
 				}
 			},
 		);
