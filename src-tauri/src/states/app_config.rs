@@ -129,7 +129,7 @@ impl Default for AppConfig {
             shortcuts: vec![Shortcut { name: "okey_ai".to_string(), hot_key: ["Ctrl+G", "Cmd+G"][cfg!(target_os = "macos") as usize].to_string() }],
             is_pin_translate_window: false,
             auto_speak: AutoSpeakState::default(),
-            current_model: ModelProvider::ZAI,
+            current_model: ModelProvider::DeepSeek,
             api_configs,
             language: Language::default(),
             local_language: Language::Auto.effective_language(),
@@ -141,7 +141,7 @@ impl Default for AppConfig {
                 PromptTag { raw: None, label: Some("自解释".to_string()), content: Some("Please explain the following text in {target}, as if explaining to a language learner:\n\n{text}.".to_string()), id: Some(1) }, 
                 PromptTag { raw: None, label: Some("单词详解".to_string()), content: Some("Please use {local} to explain the word {text} in detail.".to_string()), id: Some(2) }, 
                 PromptTag { raw: None, label: Some("在句中的含义".to_string()), content: Some("Please use {local} to explain the meaning of {text} in the sentence.".to_string()), id: Some(3) }, 
-                PromptTag { raw: None, label: Some("详解".to_string()), content: Some("Please explain the following content in detail in {local}: {text}".to_string()), id: Some(3) }, 
+                PromptTag { raw: None, label: Some("详解".to_string()), content: Some("Please explain the following content in detail in {local}: {text}".to_string()), id: Some(4) }, 
             ],
         }
     }
