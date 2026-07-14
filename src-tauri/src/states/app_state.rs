@@ -16,6 +16,21 @@ impl AppStateManager {
         Self { store_key: store_key.into() }
     }
 
+    #[cfg(debug_assertions)]
+    pub fn clear_store_dev(&self, app: &AppHandle) {
+        if let Ok(app_data_dir) = app.path().app_data_dir() {
+            let store_path = app_data_dir.join("store.json");
+            if store_path.exists() {
+                match std::fs::remove_file(&store_path) {
+                    Ok(_) => println!("🧹 [dev] cleared store.json at {}", store_path.display()),
+                    Err(e) => eprintln!("⚠️ [dev] failed to remove store.json at {}: {e}", store_path.display()),
+                }
+            } else {
+                println!("🧹 [dev] store.json not found at {}, nothing to clear", store_path.display());
+            }
+        }
+    }
+
     pub fn init_app_config_state(&self, app: &AppHandle) -> Result<AppConfigState, Box<dyn std::error::Error>> {
         let config = self.load(app)?;
         let state = Arc::new(RwLock::new(config));

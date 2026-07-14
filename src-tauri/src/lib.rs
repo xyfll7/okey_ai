@@ -71,6 +71,8 @@ pub fn run() {
                 app.handle().plugin(tauri_plugin_log::Builder::default().level(log::LevelFilter::Info).filter(utils::log_filter::log_filter).build())?;
             }
             let state_manager = AppStateManager::new("app_config");
+            #[cfg(debug_assertions)]
+            state_manager.clear_store_dev(app.handle());
             let app_config_state = state_manager.init_app_config_state(app.handle())?;
 
             // 应用用户保存的语言设置
