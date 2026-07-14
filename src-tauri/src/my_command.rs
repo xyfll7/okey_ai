@@ -57,14 +57,12 @@ pub async fn chat_stream(app: AppHandle, prompt_tag: PromptTag, on_event: Channe
             Language::from_locale(detected_lang).to_display_name().to_string()
         };
         let local = app.state::<AppConfigState>().read().local_language.effective_language().to_display_name().to_string();
-        let assembled = content_template
-            .replace("{target}", &target)
-            .replace("{local}", &local)
-            .replace("{text}", &raw);
+        let assembled = content_template.replace("{target}", &target).replace("{local}", &local).replace("{text}", &raw);
         let messages = translation_manager.add_get_user_message(None, &assembled, None, Role::User).await.unwrap_or_default();
         let _ = app.emit(event_names::AI_RESPONSE, &messages);
         messages
     };
+    println!("[chat_stream] prompt_tag: {:#?}", messages);
     chatting_state_clone.set(true);
     let chat_histories = translation_manager
         .translate_stream(None, messages, move |chunk_content| {

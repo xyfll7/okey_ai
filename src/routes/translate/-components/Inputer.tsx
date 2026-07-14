@@ -122,7 +122,7 @@ export function Inputer({ className }: { className?: string; }) {
 						e.preventDefault();
 						if (!value.trim()) return;
 						setValue("");
-						await handleStream({ raw: value, })
+						await handleStream({ content: value, })
 					}
 					if (e.key === "Enter" && e.shiftKey) {
 						e.preventDefault();
@@ -169,7 +169,7 @@ export function Inputer({ className }: { className?: string; }) {
 						}
 						if (!value.trim()) return;
 						setValue("");
-						await handleStream({ raw: value, })
+						await handleStream({ content: value, })
 					}}
 				>
 					{loadingChat_X.state ? <Icons.stop /> : <Icons.arrowUp />}
