@@ -19,7 +19,7 @@ const StreamingMessage = React.memo(function StreamingMessage({ content }: { con
 		return () => cancelAnimationFrame(id);
 	}, [content]);
 	return (
-		<div className={cn("px-2.5 mb-2 w-full", "min-h-30")}>
+		<div className={cn("px-2.5 mb-2 w-full", "min-h-70")}>
 			<Markdown className="mb-2">{displayed}</Markdown>
 		</div>
 	);
@@ -38,6 +38,7 @@ const MessageItem = React.memo(function MessageItem({ chat, className, index }: 
 			role="none"
 			className={cn(className, " w-full")}
 			data-index={index}
+			style={{ scrollMarginTop: "10rem" }}
 			onMouseUp={handleMouseUp}
 			onMouseEnter={handleMouseEnter}
 			onMouseLeave={handleMouseLeave}
@@ -115,9 +116,8 @@ export function ChatList({ className }: { className?: string; }) {
 					<MessageItem className="px-2.5 mb-2" key={`msg-${index}`} chat={chat} index={index} />
 				);
 			})}
-			{!streamingContent && loadingChat_X.state && <div className="px-2.5" ><span data-loading="...">...</span></div>}
-			{<StreamingMessage content={streamingContent} />}
-
+			<div className={cn("px-2.5", (!streamingContent && loadingChat_X.state) ? "": "sr-only")} ><span data-loading="...">...</span></div>
+			<StreamingMessage content={streamingContent} />
 		</div>
 	);
 }
