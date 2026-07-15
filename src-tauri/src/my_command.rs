@@ -59,7 +59,7 @@ pub async fn chat_stream(app: AppHandle, prompt_tag: PromptTag, on_event: Channe
         let local = app.state::<AppConfigState>().read().local_language.effective_language().to_display_name().to_string();
         let assembled = content_template.replace("{detected_lang}", &detected_lang).replace("{local}", &local).replace("{text}", &raw);
         let messages = translation_manager.add_get_user_message(None, &assembled, None, Role::User).await.unwrap_or_default();
-        let _ = app.emit(event_names::AI_RESPONSE, &messages);
+        let _ = app.emit(event_names::CHAT_HISTORY_UPDATE, &messages);
         messages
     };
     chatting_state_clone.set(true);
@@ -71,7 +71,7 @@ pub async fn chat_stream(app: AppHandle, prompt_tag: PromptTag, on_event: Channe
     match chat_histories {
         Some(chat_histories) => {
             chatting_state.set(false);
-            let _ = app.emit(event_names::AI_RESPONSE, &chat_histories);
+            let _ = app.emit(event_names::CHAT_HISTORY_UPDATE, &chat_histories);
             let _ = on_event.send(StreamEvent::Done);
         }
         None => {
@@ -182,7 +182,7 @@ pub async fn window_translate_show(app: AppHandle, chat_message: Vec<ChatMessage
     my_windows::window_translate_show(
         &app,
         Some(move || {
-            let _ = app_clone.emit(event_names::AI_RESPONSE, chat_message);
+            let _ = app_clone.emit(event_names::CHAT_HISTORY_UPDATE, chat_message);
         }),
     );
 }

@@ -37,7 +37,7 @@ function RouteComponent() {
 			},
 		);
 		const unlistenResponse = listen<ChatMessage[]>(
-			EVENT_NAMES.AI_RESPONSE,
+			EVENT_NAMES.CHAT_HISTORY_UPDATE,
 			({ payload }) => {
 				setChatHistory(payload);
 			},

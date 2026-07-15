@@ -67,7 +67,7 @@ export function ChatList({ className }: { className?: string; }) {
 			s_StreamingContent.setState(() => "");
 		})
 		const unlistenResponse = listen<ChatMessage[]>(
-			EVENT_NAMES.AI_RESPONSE,
+			EVENT_NAMES.CHAT_HISTORY_UPDATE,
 			({ payload }) => {
 				const chat = payload.at(-1)?.role === "user" ? payload.at(-1) : payload.at(-2)
 				if (chat?.raw && chat.role === "user") {

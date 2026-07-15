@@ -63,7 +63,7 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
 
         let messages = translation_manager.add_get_user_message(None, &translation_prompt, Some(selected_text.clone()), Role::User).await.unwrap_or_default();
         let _ = app_handle.emit(event_names::BUBBLE_AUTO_SPEAK, &messages);
-        let _ = app_handle.emit(event_names::AI_RESPONSE, &messages);
+        let _ = app_handle.emit(event_names::CHAT_HISTORY_UPDATE, &messages);
         if should_use_existing_window {
             let _ = app_handle.emit(event_names::START_CHAT_STREAM, ());
             // 若翻译窗口已置顶(pin)，则同时唤起 translate 主窗口
@@ -87,14 +87,14 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
                 let mut acc = accumulated_clone.lock().unwrap();
                 *acc += &chunk;
                 let partial = vec![ChatMessage { role: Role::Assistant, content: acc.clone(), raw: None }];
-                let _ = app_handle_for_stream.emit(event_names::AI_RESPONSE, &partial);
+                let _ = app_handle_for_stream.emit(event_names::CHAT_HISTORY_UPDATE, &partial);
             })
             .await;
 
         match chat_histories {
             Some(chat_history) => {
                 if display_type == DisplayType::Bubble {
-                    let _ = app_handle.emit(event_names::AI_RESPONSE, &chat_history);
+                    let _ = app_handle.emit(event_names::CHAT_HISTORY_UPDATE, &chat_history);
 
                     let window = app_handle.get_webview_window("translate_bubble");
                     if let Some(window) = window {
