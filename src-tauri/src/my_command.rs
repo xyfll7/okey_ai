@@ -69,14 +69,15 @@ pub async fn chat_stream(app: AppHandle, prompt_tag: PromptTag, on_event: Channe
         })
         .await;
     match chat_histories {
-        Some(chat_histories) => {
+        Ok(chat_histories) => {
             chatting_state.set(false);
             let _ = app.emit(event_names::CHAT_HISTORY_UPDATE, &chat_histories);
             let _ = on_event.send(StreamEvent::Done);
         }
-        None => {
+        Err(err) => {
             chatting_state.set(false);
-            let _ = on_event.send(StreamEvent::Error { message: "Translation failed".to_string() });
+            eprintln!("[my_command::chat_stream] Translation failed: {}", err);
+            let _ = on_event.send(StreamEvent::Error { message: err });
         }
     }
     Ok(())

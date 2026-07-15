@@ -92,7 +92,7 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
             .await;
 
         match chat_histories {
-            Some(chat_history) => {
+            Ok(chat_history) => {
                 if display_type == DisplayType::Bubble {
                     let _ = app_handle.emit(event_names::CHAT_HISTORY_UPDATE, &chat_history);
 
@@ -103,8 +103,8 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
                     }
                 }
             }
-            None => {
-                eprintln!("Translation failed at API layer");
+            Err(err) => {
+                eprintln!("[text_translation::translate_selected_text] Translation failed: {}", err);
             }
         }
     });

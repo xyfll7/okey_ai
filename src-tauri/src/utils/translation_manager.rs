@@ -56,7 +56,7 @@ impl TranslationManager {
         self.chat_histories.get_messages(&session_id).await
     }
 
-    pub async fn translate_stream<StreamCallback>(&self, session_id: Option<&str>, messages: Vec<ChatMessage>, stream_callback: StreamCallback) -> Option<Vec<ChatMessage>>
+    pub async fn translate_stream<StreamCallback>(&self, session_id: Option<&str>, messages: Vec<ChatMessage>, stream_callback: StreamCallback) -> Result<Vec<ChatMessage>, String>
     where
         StreamCallback: Fn(String) + Send + 'static,
     {
@@ -64,7 +64,7 @@ impl TranslationManager {
             Some(id) => id.to_string(),
             None => {
                 let active_id = self.active_session_id.read().await;
-                active_id.as_ref()?.clone()
+                active_id.clone().ok_or_else(|| "No active translation session".to_string())?
             }
         };
 
@@ -98,12 +98,13 @@ impl TranslationManager {
             })
             .await;
 
-        if result.is_err() {
-            return None;
+        if let Err(err) = result {
+            eprintln!("[translation_manager::translate_stream] chat_completion_stream failed: {}", err);
+            return Err(err);
         }
         let final_content = content_chunks.lock().unwrap().clone();
         self.chat_histories.add_message(&session_id, Role::Assistant, final_content, None).await;
-        self.chat_histories.get_messages(&session_id).await
+        self.chat_histories.get_messages(&session_id).await.ok_or_else(|| "Failed to retrieve translation history after streaming".to_string())
     }
 
     pub async fn get_histories(&self) -> BTreeMap<String, ChatMessageHistory> {
