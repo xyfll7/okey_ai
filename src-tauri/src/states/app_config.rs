@@ -132,7 +132,7 @@ impl Default for AppConfig {
             current_model: ModelProvider::DeepSeek,
             api_configs,
             language: Language::default(),
-            local_language: Language::Auto.effective_language(),
+            local_language: if cfg!(debug_assertions) { Language::ZhCn } else { Language::Auto.effective_language() },
             target_language: Language::Auto.effective_language(),
             self_explaining_model: false,
             prompts: Prompts::default(),
