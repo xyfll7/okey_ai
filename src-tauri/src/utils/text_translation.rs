@@ -104,7 +104,7 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
                 }
             }
             Err(err) => {
-                eprintln!("[text_translation::translate_selected_text] Translation failed: {}", err);
+                log::error!("[text_translation::translate_selected_text] Translation failed: {}", err);
             }
         }
     });

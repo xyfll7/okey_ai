@@ -22,11 +22,11 @@ impl AppStateManager {
             let store_path = app_data_dir.join("store.json");
             if store_path.exists() {
                 match std::fs::remove_file(&store_path) {
-                    Ok(_) => println!("🧹 [dev] cleared store.json at {}", store_path.display()),
-                    Err(e) => eprintln!("⚠️ [dev] failed to remove store.json at {}: {e}", store_path.display()),
+                    Ok(_) => log::info!("🧹 [dev] cleared store.json at {}", store_path.display()),
+                    Err(e) => log::error!("⚠️ [dev] failed to remove store.json at {}: {e}", store_path.display()),
                 }
             } else {
-                println!("🧹 [dev] store.json not found at {}, nothing to clear", store_path.display());
+                log::info!("🧹 [dev] store.json not found at {}, nothing to clear", store_path.display());
             }
         }
     }
@@ -42,7 +42,7 @@ impl AppStateManager {
     fn print_store_path(&self, app: &AppHandle) {
         let app_data_dir = app.path().app_data_dir().expect("Failed to get app data directory");
         let store_path = app_data_dir.join("store.json");
-        println!("📁 store.json path: {}", store_path.to_string_lossy());
+        log::debug!("📁 store.json path: {}", store_path.to_string_lossy());
     }
 
     fn load(&self, app: &AppHandle) -> Result<AppConfig, Box<dyn std::error::Error>> {
@@ -56,7 +56,7 @@ impl AppStateManager {
             match config_result {
                 Ok(config) => Ok(config),
                 Err(e) => {
-                    eprintln!("Failed to parse `{}` from store.json, reset to defaults: {e}", self.store_key);
+                    log::error!("Failed to parse `{}` from store.json, reset to defaults: {e}", self.store_key);
                     let config = AppConfig::default();
                     self.save(app, &config)?;
                     Ok(config)

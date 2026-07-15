@@ -24,7 +24,7 @@ pub fn setup_api_manager(app: &AppHandle) -> Result<(), Box<dyn std::error::Erro
         let app_handle = app.clone();
         async move {
             refresh_api_clients_from_app_config(&app_handle).await;
-            println!("API manager initialized successfully");
+            log::info!("API manager initialized successfully");
         }
     });
     Ok(())

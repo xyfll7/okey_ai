@@ -183,7 +183,7 @@ pub fn init_global_input_listener(app: &AppHandle) -> Result<(), Box<dyn std::er
         };
 
         if let Err(error) = listen(callback) {
-            eprintln!("rdev Listening error: {:?}", error);
+            log::error!("rdev Listening error: {:?}", error);
         }
     });
 

@@ -76,7 +76,7 @@ pub async fn chat_stream(app: AppHandle, prompt_tag: PromptTag, on_event: Channe
         }
         Err(err) => {
             chatting_state.set(false);
-            eprintln!("[my_command::chat_stream] Translation failed: {}", err);
+            log::error!("[my_command::chat_stream] Translation failed: {}", err);
             let _ = on_event.send(StreamEvent::Error { message: err });
         }
     }

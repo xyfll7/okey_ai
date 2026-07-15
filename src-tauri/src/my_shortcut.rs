@@ -13,9 +13,9 @@ pub fn register_hotkey_okey_ai(app: AppHandle, new_hotkey: String) -> Result<(),
             text_translation::translate_selected_text(&app, DisplayType::Normal);
         }
     }) {
-        Ok(_) => println!("Successfully registered new_hotkey: {}", new_hotkey),
+        Ok(_) => log::info!("Successfully registered new_hotkey: {}", new_hotkey),
         Err(e) => {
-            println!("Failed to register new new_hotkey: {}", e);
+            log::error!("Failed to register new new_hotkey: {}", e);
         }
     }
 
@@ -42,10 +42,10 @@ pub fn register_hotkey_okey_ai(app: AppHandle, new_hotkey: String) -> Result<(),
 
     if let Some(old_key) = old_shortcut {
         if let Err(e) = app.global_shortcut().unregister(old_key.as_str()) {
-            println!("Failed to deregister the old shortcut key {}: {}", old_key, e);
+            log::error!("Failed to deregister the old shortcut key {}: {}", old_key, e);
         }
     }
-    println!("Old shortcut key has been deactivated");
+    log::info!("Old shortcut key has been deactivated");
 
     Ok(())
 }
@@ -67,9 +67,9 @@ pub fn init_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>>
                 }
             }
         }) {
-            Ok(_) => println!("Successfully registered shortcut key: {} ({})", name_for_message, hot_key_for_message),
+            Ok(_) => log::info!("Successfully registered shortcut key: {} ({})", name_for_message, hot_key_for_message),
             Err(e) => {
-                eprintln!("Failed to register shortcut key {}: {}", hot_key_for_message, e);
+                log::error!("Failed to register shortcut key {}: {}", hot_key_for_message, e);
             }
         }
     }

@@ -44,7 +44,7 @@ pub fn create_tray(app_handle: &AppHandle) -> tauri::Result<TrayIcon<tauri::Wry>
         "test" => {
             let app_state = app.state::<AppConfigState>();
             let config = app_state.read();
-            println!("config: {:#?}", *config);
+            log::debug!("config: {:#?}", *config);
         }
         "autostart" => {
             let autostart_manager = app.state::<AutoLaunchManager>();

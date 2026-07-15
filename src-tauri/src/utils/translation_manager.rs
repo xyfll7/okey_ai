@@ -99,7 +99,7 @@ impl TranslationManager {
             .await;
 
         if let Err(err) = result {
-            eprintln!("[translation_manager::translate_stream] chat_completion_stream failed: {}", err);
+            log::error!("[translation_manager::translate_stream] chat_completion_stream failed: {}", err);
             return Err(err);
         }
         let final_content = content_chunks.lock().unwrap().clone();
