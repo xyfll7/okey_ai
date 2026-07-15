@@ -62,7 +62,6 @@ pub async fn chat_stream(app: AppHandle, prompt_tag: PromptTag, on_event: Channe
         let _ = app.emit(event_names::AI_RESPONSE, &messages);
         messages
     };
-    println!("[chat_stream] prompt_tag: {:#?}", messages);
     chatting_state_clone.set(true);
     let chat_histories = translation_manager
         .translate_stream(None, messages, move |chunk_content| {
@@ -145,7 +144,6 @@ pub fn get_language_options() -> Vec<(String, String)> {
 pub fn get_local_language(app: AppHandle) -> Language {
     let app_state = app.state::<AppConfigState>();
     let config = app_state.read();
-    println!("get_local_language: {:?}", config.local_language);
     config.local_language
 }
 
