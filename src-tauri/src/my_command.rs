@@ -50,14 +50,14 @@ pub async fn chat_stream(app: AppHandle, prompt_tag: PromptTag, on_event: Channe
     } else {
         let raw = prompt_tag.raw.clone().unwrap_or_default();
         let content_template = prompt_tag.content.as_deref().unwrap_or_default();
-        let target = if raw.is_empty() {
+        let detected_lang = if raw.is_empty() {
             String::new()
         } else {
-            let detected_lang = language_detection::detect_language(&raw);
-            Language::from_locale(detected_lang).to_display_name().to_string()
+            let detected = language_detection::detect_language(&raw);
+            Language::from_locale(detected).to_display_name().to_string()
         };
         let local = app.state::<AppConfigState>().read().local_language.effective_language().to_display_name().to_string();
-        let assembled = content_template.replace("{target}", &target).replace("{local}", &local).replace("{text}", &raw);
+        let assembled = content_template.replace("{detected_lang}", &detected_lang).replace("{local}", &local).replace("{text}", &raw);
         let messages = translation_manager.add_get_user_message(None, &assembled, None, Role::User).await.unwrap_or_default();
         let _ = app.emit(event_names::AI_RESPONSE, &messages);
         messages

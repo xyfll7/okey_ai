@@ -138,7 +138,7 @@ impl Default for AppConfig {
             prompts: Prompts::default(),
             #[rustfmt::skip]
             prompt_tags: vec![
-                PromptTag { raw: None, label: Some("自解释".to_string()), content: Some("Please explain the following text in {target}, as if explaining to a language learner:\n\n{text}.".to_string()), id: Some(1) }, 
+                PromptTag { raw: None, label: Some("自解释".to_string()), content: Some("Please explain the following text in {detected_lang}, as if explaining to a language learner:\n\n{text}.".to_string()), id: Some(1) }, 
                 PromptTag { raw: None, label: Some("单词详解".to_string()), content: Some("Please use {local} to explain the word {text} in detail.".to_string()), id: Some(2) }, 
                 PromptTag { raw: None, label: Some("在句中的含义".to_string()), content: Some("Please use {local} to explain the meaning of {text} in the sentence.".to_string()), id: Some(3) }, 
                 PromptTag { raw: None, label: Some("详解".to_string()), content: Some("Please explain the following content in detail in {local}: {text}".to_string()), id: Some(4) }, 
