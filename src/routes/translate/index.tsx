@@ -9,7 +9,8 @@ import { Header } from "./-components/Header";
 import { Inputer } from "./-components/Inputer";
 import LanguageSelector from "./-components/LanguageSelector";
 import { SelectionFloatingButton } from "./-components/SelectionFloatingButton";
-import { TanStackAiHelperDemo } from "./-components/test";
+// import { TanStackAiHelperDemo } from "./-components/test";
+import { TanStackAiHelperDemoNew } from "./-components/testnew";
 
 export const Route = createFileRoute("/translate/")({
 	component: RouteComponent,
@@ -33,7 +34,8 @@ function RouteComponent() {
 						<ChatList className="px-2 pt-2" />
 					</ScrollArea>
 				</div> */}
-				<TanStackAiHelperDemo />
+				<TanStackAiHelperDemoNew />
+				{/* <TanStackAiHelperDemo /> */}
 				<MessageNavigator />
 				<SelectionFloatingButton containerRef={chatListRef} />
 			</div>
