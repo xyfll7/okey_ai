@@ -6,6 +6,32 @@
   }
 }
 
+/* Native scrollbar that matches the Radix ScrollArea scrollbar
+   (w-2.5 = 10px wide, bg-border thumb, rounded-full, transparent track, 1px gap) */
+@utility scrollbar-area {
+  /* Always reserve the scrollbar gutter so it never appears from nothing
+     (prevents layout shift / jitter when content starts to overflow) */
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+
+  &::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--border);
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    background-clip: padding-box;
+  }
+}
+
 
 
 @keyframes dots {
