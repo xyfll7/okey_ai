@@ -25,12 +25,10 @@ export const handleStream = async (promptTag: PromptTag) => {
 				break;
 			}
 			case "error": {
-				console.log("Stream error:", message.data.message);
 				s_StreamingContent.setState(() => "");
 				break;
 			}
 			case "done": {
-				console.log("Stream completed successfully");
 				s_StreamingContent.setState(() => "");
 				break;
 			}

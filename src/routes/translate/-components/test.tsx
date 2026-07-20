@@ -66,7 +66,6 @@ export function TanStackAiHelperDemo() {
 						raw: chat.content,
 					}))
 				}
-				console.log(payload)
 				setMessages(chatMessagesToUIMessages(payload))
 			},
 		)

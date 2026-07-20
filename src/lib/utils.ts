@@ -9,7 +9,6 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export async function speak(text: string) {
-	console.log("speak", text);
 	if ("speechSynthesis" in window) {
 		const utterance = new SpeechSynthesisUtterance(text);
 		utterance.rate = 1.0; // 语速
@@ -30,7 +29,5 @@ export async function get_app_config() {
 	const config = await store.get<GlobalConfig>("app_config");
 	if (config) {
 		return config;
-	} else {
-		console.log("val is null");
 	}
 }
