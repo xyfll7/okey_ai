@@ -1,17 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useRef } from "react";
 import { type as ostype } from "@tauri-apps/plugin-os";
-// import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import MessageNavigator from "@/components/MessageNavigator";
 import { Header } from "./-components/Header";
-// import { ChatList } from "./-components/ChatList";
+import { ChatList } from "./-components/ChatList";
 import { Inputer } from "./-components/Inputer";
 import LanguageSelector from "./-components/LanguageSelector";
 import { SelectionFloatingButton } from "./-components/SelectionFloatingButton";
 // import { TanStackAiHelperDemo } from "./-components/test";
 // import { TanStackAiHelperDemoNew } from "./-components/testnew";
-import { TanStackAiHelperDemoRaw } from "./-components/test_raw";
+// import { TanStackAiHelperDemoRaw } from "./-components/test_raw";
 
 export const Route = createFileRoute("/translate/")({
 	component: RouteComponent,
@@ -30,12 +30,12 @@ function RouteComponent() {
 
 
 			<div className="relative h-full flex-coh">
-				{/* <div ref={chatListRef} className="h-full flex-coh">
+				<div ref={chatListRef} className="h-full flex-coh">
 					<ScrollArea className="h-full flex-coh">
 						<ChatList className="px-2 pt-2" />
 					</ScrollArea>
-				</div> */}
-				<TanStackAiHelperDemoRaw />
+				</div>
+				{/* <TanStackAiHelperDemoRaw /> */}
 				{/* <TanStackAiHelperDemoNew /> */}
 				{/* <TanStackAiHelperDemo /> */}
 				<MessageNavigator />
