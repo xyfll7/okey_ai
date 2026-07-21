@@ -1,5 +1,5 @@
 
-import { useChat, type UIMessage } from "@tanstack/ai-react"
+import { type UIMessage } from "@tanstack/ai-react"
 import {
     MessageCircleDashedIcon,
     RotateCwIcon,
@@ -24,14 +24,8 @@ import {
     MessageScrollerProvider,
     MessageScrollerViewport,
 } from "@/components/ui/message-scroller"
-import { useEffect } from "react"
-import { chatMessagesToUIMessages, chatMessageToUIMessage, } from "./chatConnection"
-import { invoke } from "@tauri-apps/api/core"
-import type { ChatMessage } from "@/lib/types"
-import { EVENT_NAMES } from "@/lib/events"
-// import { emit, listen } from "@tauri-apps/api/event"
-// import { s_Selected } from "@/store";
-import { createMockAdapter } from "./mockAdapter"
+import { chatMessageToUIMessage } from "./chatConnection"
+import { useChatContext } from "./chatProvider"
 
 
 
@@ -42,15 +36,7 @@ function getMessageText(message: UIMessage) {
 }
 
 export function TanStackAiHelperDemoNew() {
-    const { messages, append, status, setMessages, sendMessage } = useChat({
-        initialMessages: [],
-        connection: createMockAdapter(),
-    })
-    useEffect(() => {
-        invoke<ChatMessage[]>(EVENT_NAMES.get_current_history).then((history) => {
-            setMessages(chatMessagesToUIMessages(history))
-        })
-    }, [setMessages])
+    const { messages, append, status, setMessages, sendMessage } = useChatContext()
 
     const isBusy = status === "submitted" || status === "streaming"
     return (

@@ -2,57 +2,20 @@ import { EVENT_NAMES } from "@/lib/events";
 import type { ChatMessage } from "@/lib/types";
 
 import { Store } from "@tanstack/react-store";
-import { Channel, invoke } from "@tauri-apps/api/core";
-import { listen } from "@tauri-apps/api/event";
+import { invoke } from "@tauri-apps/api/core";
 
 export const s_Selected = new Store({ text: "", raw: "" });
 export const s_ChatList = new Store<ChatMessage[]>([]);
 export const s_StreamingContent = new Store<string>("");
 
-type StreamEvent =
-    | { event: "chunk"; data: { content: string } }
-    | { event: "done"; data?: unknown }
-    | { event: "error"; data: { message: string } };
 
-export const handleStream = async (promptTag: ChatMessage) => {
-	let accumulated = "";
-	const channel = new Channel<StreamEvent>();
-	channel.onmessage = (message) => {
-		switch (message.event) {
-			case "chunk": {
-				accumulated += message.data?.content ?? "";
-				s_StreamingContent.setState(() => accumulated);
-				break;
-			}
-			case "error": {
-				s_StreamingContent.setState(() => "");
-				break;
-			}
-			case "done": {
-				s_StreamingContent.setState(() => "");
-				break;
-			}
-			default:
-				break;
-		}
-	};
-
-	await invoke(EVENT_NAMES.chat_stream, {
-		prompt_tag: promptTag,
-		on_event: channel,
-	});
-};
 
 import { setLocale } from "@/paraglide/runtime.js";
 
 async function init() {
-    const localeResult = await invoke<string>(EVENT_NAMES.get_locale);
+	const localeResult = await invoke<string>(EVENT_NAMES.get_locale);
 
-    setLocale(localeResult as "en" | "zh-CN");
-
-	listen<string>(EVENT_NAMES.START_CHAT_STREAM, () => {
-		handleStream({ });
-	});
+	setLocale(localeResult as "en" | "zh-CN");
 }
 init();
 

@@ -17,26 +17,28 @@ import {
 } from "@/components/ui/input-group";
 import Copyed from "@/components/Copyed";
 import { EVENT_NAMES, useInvoke } from "@/lib/events";
-import { getModelProviderShowName } from "@/lib/types";
+import { getModelProviderShowName, type ChatMessage } from "@/lib/types";
 import { cn, speak } from "@/lib/utils";
 import { s_Selected } from "@/store";
 import { Icons } from "@/components/icon";
 import { m } from "@/paraglide/messages.js";
-import type { ModelConfigMap, PromptTag } from "@/@types";
+import type { ModelConfigMap, } from "@/@types";
 import { PromptTags } from "@/components/PromptTags";
+import { useChatContext } from "./chatProvider";
+import { chatMessageToUIMessage } from "./chatConnection";
 
-function SelectedText({ onChat }: { onChat: (e: PromptTag) => void }) {
+function SelectedText({ onChat }: { onChat: (e: ChatMessage) => void }) {
 	const selected = useStore(s_Selected, (state) => state);
 	const { ...loadingChat_X } = useInvoke<boolean>(EVENT_NAMES.get_chatting_state, false, false, undefined, EVENT_NAMES.CHATTING_STATE_CHANGE);
-	const { state: promptTags, invokeState: refreshPromptTags } = useInvoke<PromptTag[]>(EVENT_NAMES.get_prompt_tags, []);
+	const { state: promptTags, invokeState: refreshPromptTags } = useInvoke<ChatMessage[]>(EVENT_NAMES.get_prompt_tags, []);
 
 	const handleDeletePromptTag = async (id: number) => {
-		await invoke<PromptTag[]>(EVENT_NAMES.delete_prompt_tag, { id });
+		await invoke<ChatMessage[]>(EVENT_NAMES.delete_prompt_tag, { id });
 		await refreshPromptTags();
 	};
 
 	const handleAddPromptTag = async (label: string, content: string) => {
-		await invoke<PromptTag[]>(EVENT_NAMES.add_prompt_tag, { label, content });
+		await invoke<ChatMessage[]>(EVENT_NAMES.add_prompt_tag, { label, content });
 		await refreshPromptTags();
 	};
 	if (!selected.text) return "";
@@ -94,10 +96,11 @@ function SelectedText({ onChat }: { onChat: (e: PromptTag) => void }) {
 	);
 }
 
-export function Inputer({ className, onChat }: { className?: string; onChat: (e: PromptTag) => void }) {
+export function Inputer({ className, }: { className?: string; }) {
 	const [value, setValue] = useState("");
 	const selected = useStore(s_Selected, (state) => state);
 
+	const { append } = useChatContext();
 
 	const { ...modelsList_X } = useInvoke<ModelConfigMap>(EVENT_NAMES.list_available_models, {});
 	const { ...currentModel_X } = useInvoke<string>(EVENT_NAMES.get_current_model, "");
@@ -107,7 +110,7 @@ export function Inputer({ className, onChat }: { className?: string; onChat: (e:
 		<InputGroup className={cn(className, "rounded-xl", "has-[[data-slot=input-group-control]:focus-visible]:border-ring/70 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/7")}>
 			{selected.text && (
 				<InputGroupAddon align="block-start">
-					<SelectedText onChat={onChat} />
+					<SelectedText onChat={(e) => { append(chatMessageToUIMessage(e)) }} />
 				</InputGroupAddon>
 			)}
 			<InputGroupTextarea
@@ -122,7 +125,7 @@ export function Inputer({ className, onChat }: { className?: string; onChat: (e:
 						e.preventDefault();
 						if (!value.trim()) return;
 						setValue("");
-						onChat({ content: value, })
+						append(chatMessageToUIMessage({ content: value, }))
 					}
 					if (e.key === "Enter" && e.shiftKey) {
 						e.preventDefault();
@@ -169,7 +172,7 @@ export function Inputer({ className, onChat }: { className?: string; onChat: (e:
 						}
 						if (!value.trim()) return;
 						setValue("");
-						onChat({ content: value, })
+						append(chatMessageToUIMessage({ content: value, }))
 					}}
 				>
 					{loadingChat_X.state ? <Icons.stop /> : <Icons.arrowUp />}
