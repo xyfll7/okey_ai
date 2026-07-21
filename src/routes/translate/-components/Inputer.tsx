@@ -19,13 +19,13 @@ import Copyed from "@/components/Copyed";
 import { EVENT_NAMES, useInvoke } from "@/lib/events";
 import { getModelProviderShowName } from "@/lib/types";
 import { cn, speak } from "@/lib/utils";
-import { handleStream, s_Selected } from "@/store";
+import { s_Selected } from "@/store";
 import { Icons } from "@/components/icon";
 import { m } from "@/paraglide/messages.js";
 import type { ModelConfigMap, PromptTag } from "@/@types";
 import { PromptTags } from "@/components/PromptTags";
 
-function SelectedText() {
+function SelectedText({ onChat }: { onChat: (e: PromptTag) => void }) {
 	const selected = useStore(s_Selected, (state) => state);
 	const { ...loadingChat_X } = useInvoke<boolean>(EVENT_NAMES.get_chatting_state, false, false, undefined, EVENT_NAMES.CHATTING_STATE_CHANGE);
 	const { state: promptTags, invokeState: refreshPromptTags } = useInvoke<PromptTag[]>(EVENT_NAMES.get_prompt_tags, []);
@@ -80,7 +80,7 @@ function SelectedText() {
 							key={e.id}
 							disabled={loadingChat_X.state}
 							onClick={() => {
-								void handleStream({ raw: selected.text, label: e.label, content: e.content, id: e.id, });
+								onChat({ raw: selected.text, label: e.label, content: e.content, id: e.id, });
 							}}
 						>
 							{e.label}
@@ -94,7 +94,7 @@ function SelectedText() {
 	);
 }
 
-export function Inputer({ className }: { className?: string; }) {
+export function Inputer({ className, onChat }: { className?: string; onChat: (e: PromptTag) => void }) {
 	const [value, setValue] = useState("");
 	const selected = useStore(s_Selected, (state) => state);
 
@@ -107,7 +107,7 @@ export function Inputer({ className }: { className?: string; }) {
 		<InputGroup className={cn(className, "rounded-xl", "has-[[data-slot=input-group-control]:focus-visible]:border-ring/70 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/7")}>
 			{selected.text && (
 				<InputGroupAddon align="block-start">
-					<SelectedText />
+					<SelectedText onChat={onChat} />
 				</InputGroupAddon>
 			)}
 			<InputGroupTextarea
@@ -122,7 +122,7 @@ export function Inputer({ className }: { className?: string; }) {
 						e.preventDefault();
 						if (!value.trim()) return;
 						setValue("");
-						await handleStream({ content: value, })
+						onChat({ content: value, })
 					}
 					if (e.key === "Enter" && e.shiftKey) {
 						e.preventDefault();
@@ -169,7 +169,7 @@ export function Inputer({ className }: { className?: string; }) {
 						}
 						if (!value.trim()) return;
 						setValue("");
-						await handleStream({ content: value, })
+						onChat({ content: value, })
 					}}
 				>
 					{loadingChat_X.state ? <Icons.stop /> : <Icons.arrowUp />}

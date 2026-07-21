@@ -43,7 +43,7 @@ function RouteComponent() {
 				<SelectionFloatingButton containerRef={chatListRef} />
 			</div>
 			<div className="px-2 pb-2">
-				<Inputer />
+				<Inputer onChat={()=> {}}/>
 			</div>
 			<LanguageSelector />
 		</div>

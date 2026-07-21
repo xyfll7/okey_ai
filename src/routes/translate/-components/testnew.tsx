@@ -44,40 +44,12 @@ function getMessageText(message: UIMessage) {
 export function TanStackAiHelperDemoNew() {
     const { messages, append, status, setMessages, sendMessage } = useChat({
         initialMessages: [],
-        connection: createMockAdapter({ wordDelay: 100, withThinking: true }),
+        connection: createMockAdapter(),
     })
-    console.log("abc:::",messages)
     useEffect(() => {
         invoke<ChatMessage[]>(EVENT_NAMES.get_current_history).then((history) => {
             setMessages(chatMessagesToUIMessages(history))
         })
-
-        // const unlistenResponse = listen<ChatMessage[]>(
-        //     EVENT_NAMES.CHAT_HISTORY_UPDATE,
-        //     ({ payload }) => {
-        //         const chat = payload.at(-1)?.role === "user" ? payload.at(-1) : payload.at(-2)
-        //         if (chat?.raw && chat.role === "user") {
-        //             s_Selected.setState(() => ({
-        //                 text: chat.raw!,
-        //                 raw: chat.content,
-        //             }));
-        //         }
-        //         // setMessages(chatMessagesToUIMessages(payload))
-        //     },
-        // );
-        // const unlistenError = listen<string>(EVENT_NAMES.AI_ERROR, (event) => {
-        //     const errorPayload: ChatMessage = {
-        //         role: "assistant",
-        //         content: event.payload,
-        //     };
-        //     void append(chatMessageToUIMessage(errorPayload))
-        // });
-        // emit(EVENT_NAMES.PAGE_LOADED, { ok: true });
-        // return () => {
-        //     unlistenResponse.then((fn) => fn());
-        //     unlistenError.then((fn) => fn());
-        // };
-
     }, [setMessages])
 
     const isBusy = status === "submitted" || status === "streaming"
