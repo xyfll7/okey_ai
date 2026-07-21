@@ -8,7 +8,8 @@ import {
 } from "@tanstack/ai/client";
 import { Channel, invoke } from "@tauri-apps/api/core";
 import { EVENT_NAMES } from "@/lib/events";
-import type { PromptTag } from "@/@types";
+import type { ChatMessage } from "@/lib/types";
+
 
 /** 后端 `chat_stream` 通过 Tauri Channel 推送的事件(与 store/index.ts 中的 handleStream 保持一致) */
 type StreamEvent =
@@ -18,7 +19,7 @@ type StreamEvent =
 
 interface MockAdapterOptions {
     /** 直接指定后端所需的 prompt_tag,缺省时从最后一条用户消息文本推导 */
-    promptTag?: PromptTag;
+    promptTag?: ChatMessage;
 }
 
 /**
@@ -70,8 +71,8 @@ export function createMockAdapter(options: MockAdapterOptions = {}): ConnectionA
         const model = "backend-model";
         const now = () => Date.now();
         const userText = extractLastUserText(messages);
-        const promptTag: PromptTag = options.promptTag ?? { content: userText };
-
+        const promptTag: ChatMessage = options.promptTag ?? { content: userText };
+        
         // 事件队列:由 Tauri Channel 回调填充,再由生成器消费
         // (生成器中的 yield 不能出现在回调里,所以用队列中转)
         const queue: StreamEvent[] = [];

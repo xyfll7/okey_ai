@@ -3,10 +3,13 @@
  * Corresponds to the Rust struct in src-tauri/src/types.rs
  */
 export interface ChatMessage {
-	role: "system" | "user" | "assistant";
-	content: string;
+	role?: "system" | "user" | "assistant";
+	content?: string;
 	raw?: string;
+	id?: number;
+	label?: string;
 }
+
 
 export interface ChatMessageHistory {
 	messages: ChatMessage[];

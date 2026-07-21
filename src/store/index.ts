@@ -1,6 +1,6 @@
 import { EVENT_NAMES } from "@/lib/events";
 import type { ChatMessage } from "@/lib/types";
-import type { PromptTag } from "@/@types";
+
 import { Store } from "@tanstack/react-store";
 import { Channel, invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
@@ -14,7 +14,7 @@ type StreamEvent =
     | { event: "done"; data?: unknown }
     | { event: "error"; data: { message: string } };
 
-export const handleStream = async (promptTag: PromptTag) => {
+export const handleStream = async (promptTag: ChatMessage) => {
 	let accumulated = "";
 	const channel = new Channel<StreamEvent>();
 	channel.onmessage = (message) => {

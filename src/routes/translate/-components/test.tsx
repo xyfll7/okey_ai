@@ -63,7 +63,7 @@ export function TanStackAiHelperDemo() {
 				if (chat?.role === "user") {
 					s_Selected.setState(() => ({
 						text: chat.raw!,
-						raw: chat.content,
+						raw: chat.content!,
 					}))
 				}
 				setMessages(chatMessagesToUIMessages(payload))

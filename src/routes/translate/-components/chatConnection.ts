@@ -22,10 +22,10 @@ export type ChatUIMessage = UIMessage & {
 export function chatMessageToUIMessage(msg: ChatMessage, id?: string): ChatUIMessage {
 	return {
 		id: id ?? generateMessageId(),
-		role: msg.role,
+		role: msg.role!,
 		parts: [{ type: "text", content: msg.raw ?? msg.content } as TextPart],
 		raw: msg.raw,
-		content: msg.content,
+		content: msg.content!,
 	};
 }
 

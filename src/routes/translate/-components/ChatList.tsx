@@ -29,7 +29,7 @@ const MessageItem = React.memo(function MessageItem({ chat, className, index }: 
 	const containerRef = useRef<HTMLDivElement>(null);
 	const { handleMouseEnter, handleMouseLeave, handleMouseUp } = useContainerSelection(
 		containerRef,
-		(text) => s_Selected.setState(() => ({ text, raw: chat.content })),
+		(text) => s_Selected.setState(() => ({ text, raw: chat.content! })),
 	);
 
 	return (
@@ -73,7 +73,7 @@ export function ChatList({ className }: { className?: string; }) {
 				if (chat?.raw && chat.role === "user") {
 					s_Selected.setState(() => ({
 						text: chat.raw!,
-						raw: chat.content,
+						raw: chat.content!,
 					}));
 				}
 
