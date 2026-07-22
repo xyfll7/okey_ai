@@ -8,7 +8,7 @@ import { Header } from "./-components/Header";
 import { Inputer } from "./-components/Inputer";
 import LanguageSelector from "./-components/LanguageSelector";
 import { SelectionFloatingButton } from "./-components/SelectionFloatingButton";
-import { TanStackAiHelperDemoNew } from "./-components/testnew";
+import { TanStackAiHelperDemoNew } from "./-components/chatList";
 import { ChatProvider } from "./-components/chatProvider";
 // import { TanStackAiHelperDemo } from "./-components/test";
 // import { TanStackAiHelperDemoNew } from "./-components/testnew";
