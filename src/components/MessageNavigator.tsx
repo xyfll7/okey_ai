@@ -211,8 +211,8 @@ const MessageNavigator = () => {
 						<NavTick
 							key={index}
 							isActive={index === clampedActive}
-							role={item.role}
-							content={item.raw ?? item.content}
+							role={item.role!}
+							content={item.raw ?? item.content!}
 							onClick={() => scrollToIndex(index)}
 						/>
 					))}

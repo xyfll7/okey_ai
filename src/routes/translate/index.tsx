@@ -5,7 +5,6 @@ import { type as ostype } from "@tauri-apps/plugin-os";
 import { cn } from "@/lib/utils";
 import MessageNavigator from "@/components/MessageNavigator";
 import { Header } from "./-components/Header";
-// import { ChatList } from "./-components/ChatList";
 import { Inputer } from "./-components/Inputer";
 import LanguageSelector from "./-components/LanguageSelector";
 import { SelectionFloatingButton } from "./-components/SelectionFloatingButton";
