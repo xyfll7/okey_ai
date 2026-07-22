@@ -60,7 +60,7 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
         if !should_use_existing_window {
             translation_manager.create_session().await;
         }
-        println!("abc--------{:#}", translation_prompt);
+
         let messages = translation_manager.add_get_user_message(None, &translation_prompt, Some(selected_text.clone()), Role::User).await.unwrap_or_default();
         let _ = app_handle.emit(event_names::BUBBLE_AUTO_SPEAK, &messages);
         let _ = app_handle.emit(event_names::CHAT_HISTORY_UPDATE, &messages);
@@ -74,7 +74,6 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
         } else if display_type == DisplayType::Bubble {
             my_windows::window_translate_bubble_show(&app_handle, None as Option<fn()>);
         }
-        println!("abc--------111{:#}", translation_prompt);
 
         let app_handle_for_stream = app_handle.clone();
         let is_bubble = display_type == DisplayType::Bubble;
