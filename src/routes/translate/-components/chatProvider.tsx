@@ -27,9 +27,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         invoke<ChatMessage[]>(EVENT_NAMES.get_current_history).then((history) => {
             setMessages(chatMessagesToUIMessages(history))
         })
-        listen<string>(EVENT_NAMES.START_CHAT_STREAM, () => {
-            // append(chatMessageToUIMessage({role: "user", content: "我今天很开心啊1111", }))
-            sendMessage("我就是来试试聊天功能")
+        listen<string>(EVENT_NAMES.START_CHAT_STREAM, (e) => {
+            sendMessage(e.payload)
         });
     }, [setMessages, append, sendMessage])
 
