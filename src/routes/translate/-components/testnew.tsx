@@ -2,10 +2,8 @@
 import { type UIMessage } from "@tanstack/ai-react"
 import {
     MessageCircleDashedIcon,
-    RotateCwIcon,
 } from "lucide-react"
 
-import { Button } from "@/components/ui/button"
 
 
 import {
@@ -24,7 +22,6 @@ import {
     MessageScrollerProvider,
     MessageScrollerViewport,
 } from "@/components/ui/message-scroller"
-import { chatMessageToUIMessage } from "./chatConnection"
 import { useChatContext } from "./chatProvider"
 
 
@@ -36,29 +33,11 @@ function getMessageText(message: UIMessage) {
 }
 
 export function TanStackAiHelperDemoNew() {
-    const { messages, append, status, setMessages, sendMessage } = useChatContext()
+    const { messages, status } = useChatContext()
 
     const isBusy = status === "submitted" || status === "streaming"
     return (
         <MessageScrollerProvider >
-            <div className="flex items-center">
-                <Button variant="outline" size="icon" aria-label="Reset conversation" onClick={() => setMessages([])} disabled={isBusy}><RotateCwIcon /></Button>
-                <Button onClick={() => { sendMessage("你吃饭了吗？吃了什么？") }}>你吃饭了吗？吃了什么？</Button>
-                <Button onClick={() => {
-                    const abc = chatMessageToUIMessage({
-                        role: "user",
-                        content: "你好啊",
-                    })
-                    append(abc)
-                }}>你好啊</Button>
-                <Button onClick={() => {
-                    const abc = chatMessageToUIMessage({
-                        role: "user",
-                        content: "错误测试",
-                    })
-                    append(abc)
-                }}>错误测试</Button>
-            </div>
             {messages.length === 0 ? (
                 <Empty className="h-full">
                     <EmptyHeader>
