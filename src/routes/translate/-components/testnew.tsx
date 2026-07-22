@@ -43,7 +43,7 @@ export function TanStackAiHelperDemoNew() {
         <MessageScrollerProvider >
             <div className="flex items-center">
                 <Button variant="outline" size="icon" aria-label="Reset conversation" onClick={() => setMessages([])} disabled={isBusy}><RotateCwIcon /></Button>
-                <Button onClick={() => { sendMessage("123213") }}>111</Button>
+                <Button onClick={() => { sendMessage("你吃饭了吗？吃了什么？") }}>你吃饭了吗？吃了什么？</Button>
                 <Button onClick={() => {
                     const abc = chatMessageToUIMessage({
                         role: "user",

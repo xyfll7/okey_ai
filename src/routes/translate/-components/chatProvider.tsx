@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, type ReactNode } from "react"
 import { useChat } from "@tanstack/ai-react"
 import { createMockAdapter } from "./mockAdapter"
-import { chatMessagesToUIMessages, chatMessageToUIMessage } from "./chatConnection"
+import { chatMessagesToUIMessages } from "./chatConnection"
 import { invoke } from "@tauri-apps/api/core"
 import { EVENT_NAMES } from "@/lib/events"
 import type { ChatMessage } from "@/lib/types"
@@ -21,16 +21,17 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         initialMessages: [],
         connection: createMockAdapter(),
     })
-    const { setMessages,append } = chat
+    const { setMessages, append, sendMessage } = chat
 
     useEffect(() => {
         invoke<ChatMessage[]>(EVENT_NAMES.get_current_history).then((history) => {
             setMessages(chatMessagesToUIMessages(history))
         })
         listen<string>(EVENT_NAMES.START_CHAT_STREAM, () => {
-            append(chatMessageToUIMessage({ content: "我今天很开心啊", }))
+            // append(chatMessageToUIMessage({role: "user", content: "我今天很开心啊1111", }))
+            sendMessage("我就是来试试聊天功能")
         });
-    }, [setMessages,append])
+    }, [setMessages, append, sendMessage])
 
     return (
         <ChatContext.Provider value={chat}>{children}</ChatContext.Provider>
