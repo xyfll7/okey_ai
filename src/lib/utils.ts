@@ -1,3 +1,4 @@
+import { setLocale } from "@/paraglide/runtime.js";
 import { invoke } from "@tauri-apps/api/core";
 import { Store } from "@tauri-apps/plugin-store";
 import { type ClassValue, clsx } from "clsx";
@@ -30,4 +31,10 @@ export async function get_app_config() {
 	if (config) {
 		return config;
 	}
+}
+
+export async function initLocale() {
+	const localeResult = await invoke<string>(EVENT_NAMES.get_locale);
+
+	setLocale(localeResult as "en" | "zh-CN");
 }

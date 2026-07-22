@@ -6,7 +6,10 @@ import { routeTree } from "./routeTree.gen";
 
 import "./index.css";
 
+import { initLocale } from "@/lib/utils";
 import reportWebVitals from "./reportWebVitals.ts";
+
+initLocale();
 
 // Create a new router instance
 const router = createRouter({
