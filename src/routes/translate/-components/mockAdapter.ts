@@ -72,7 +72,7 @@ export function createMockAdapter(options: MockAdapterOptions = {}): ConnectionA
         const now = () => Date.now();
         const userText = extractLastUserText(messages);
         const promptTag: ChatMessage = options.promptTag ?? { content: userText };
-        
+
         // 事件队列:由 Tauri Channel 回调填充,再由生成器消费
         // (生成器中的 yield 不能出现在回调里,所以用队列中转)
         const queue: StreamEvent[] = [];
@@ -101,7 +101,17 @@ export function createMockAdapter(options: MockAdapterOptions = {}): ConnectionA
             if (message.event === "done" || message.event === "error") finished = true;
             notify();
         };
-
+    
+        void invoke(EVENT_NAMES.chat_stream, {
+            prompt_tag: promptTag,
+            on_event: channel,
+        }).catch((err) => {
+            if (aborted) return; // 已中止,忽略后续到达的错误
+            finished = true;
+            errored = true;
+            queue.push({ event: "error", data: { message: String(err) } });
+            notify();
+        });
         try {
             yield {
                 type: EventType.RUN_STARTED,
@@ -119,17 +129,7 @@ export function createMockAdapter(options: MockAdapterOptions = {}): ConnectionA
                 timestamp: now(),
             } satisfies StreamChunk;
 
-            // 调用真实后端流式接口
-            void invoke(EVENT_NAMES.chat_stream, {
-                prompt_tag: promptTag,
-                on_event: channel,
-            }).catch((err) => {
-                if (aborted) return; // 已中止,忽略后续到达的错误
-                finished = true;
-                errored = true;
-                queue.push({ event: "error", data: { message: String(err) } });
-                notify();
-            });
+
 
             while (!finished || queue.length > 0) {
                 if (aborted || abortSignal?.aborted) {
