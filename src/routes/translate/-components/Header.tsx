@@ -18,12 +18,15 @@ import { m } from "@/paraglide/messages.js";
 import { Icons } from "@/components/icon";
 import { HistoriesNew } from "@/components/HistoriesNew";
 import { SettingsNew } from "@/components/SettingsNew";
+import { useChatContext } from "./chatProvider";
 
 function CreateNewSession() {
+	 const { setMessages } = useChatContext()
 	const { ...loadingChat_X } = useInvoke<boolean>(EVENT_NAMES.get_chatting_state, false, false, undefined, EVENT_NAMES.CHATTING_STATE_CHANGE);
 	return <Button size={"icon-sm"} variant={"ghost"} disabled={loadingChat_X.state} onClick={async () => {
 		await invoke(EVENT_NAMES.create_new_session);
 		const history = await invoke<ChatMessage[]>(EVENT_NAMES.get_current_history);
+		setMessages([])
 		s_ChatList.setState(() => history);
 		s_Selected.setState(() => ({ text: "", raw: "" }));
 	}}>
