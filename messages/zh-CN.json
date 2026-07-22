@@ -22,6 +22,8 @@
   "translate_language_selector_self_explaining_on": "自解释:开启",
   "translate_language_selector_self_explaining_off": "自解释:关闭",
   "translate_input_placeholder": "提问、搜索或聊天...",
+  "translate_empty_title": "一键翻译",
+  "translate_empty_description": "鼠标选中什么就翻译什么，AI驱动",
   "hotkey_press_to_set_hotkey": "按下设置快捷键",
   "hotkey_recording_hotkey": "录制快捷键",
   "hotkey_set_hotkey": "设置快捷键",

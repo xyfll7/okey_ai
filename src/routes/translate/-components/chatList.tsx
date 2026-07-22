@@ -23,6 +23,7 @@ import {
     MessageScrollerViewport,
 } from "@/components/ui/message-scroller"
 import { useChatContext } from "./chatProvider"
+import { m } from "@/paraglide/messages.js"
 
 
 
@@ -44,10 +45,9 @@ export function TanStackAiHelperDemoNew() {
                         <EmptyMedia variant="icon">
                             <MessageCircleDashedIcon />
                         </EmptyMedia>
-                        <EmptyTitle>Morning, shadcn!</EmptyTitle>
+                        <EmptyTitle>{m.translate_empty_title()}</EmptyTitle>
                         <EmptyDescription>
-                            What are we working on today? Press send to start a new
-                            conversation
+                            {m.translate_empty_description()}
                         </EmptyDescription>
                     </EmptyHeader>
                 </Empty>
