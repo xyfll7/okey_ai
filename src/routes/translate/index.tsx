@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useRef } from "react";
 import { type as ostype } from "@tauri-apps/plugin-os";
-// import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import MessageNavigator from "@/components/MessageNavigator";
 import { Header } from "./-components/Header";
@@ -9,10 +8,6 @@ import { Inputer } from "./-components/Inputer";
 import LanguageSelector from "./-components/LanguageSelector";
 import { SelectionFloatingButton } from "./-components/SelectionFloatingButton";
 import { TanStackAiHelperDemoNew } from "./-components/chatList";
-import { ChatProvider } from "./-components/chatProvider";
-// import { TanStackAiHelperDemo } from "./-components/test";
-// import { TanStackAiHelperDemoNew } from "./-components/testnew";
-// import { TanStackAiHelperDemoRaw } from "./-components/test_raw";
 
 export const Route = createFileRoute("/translate/")({
 	component: RouteComponent,
@@ -24,7 +19,7 @@ function RouteComponent() {
 	const chatListRef = useRef<HTMLDivElement>(null);
 	return (
 
-		<ChatProvider>
+
 			<div className={cn(
 				{ "border rounded-xl": ["linux"].includes(_ostype) },
 				"bg-background", "h-full", "flex-coh")}>
@@ -47,6 +42,6 @@ function RouteComponent() {
 			</div>
 			<LanguageSelector />
 		</div>
-		</ChatProvider>
+	
 	);
 }
