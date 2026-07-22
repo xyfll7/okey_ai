@@ -34,11 +34,11 @@ function getMessageText(message: UIMessage) {
 
 export function TanStackAiHelperDemoNew() {
     const { messages, status } = useChatContext()
-
+    const msg = messages.filter(e => e.role != "system")
     const isBusy = status === "submitted" || status === "streaming"
     return (
         <MessageScrollerProvider >
-            {messages.length === 0 ? (
+            {msg.length === 0 ? (
                 <Empty className="h-full">
                     <EmptyHeader>
                         <EmptyMedia variant="icon">
@@ -58,7 +58,7 @@ export function TanStackAiHelperDemoNew() {
                             aria-busy={isBusy}
                             className="p-4 scroll-fade"
                         >
-                            {messages.map((message) => (
+                            {msg.map((message) => (
                                 <MessageScrollerItem key={message.id} scrollAnchor={message.role === "user"}>
                                     {getMessageText(message)}
                                 </MessageScrollerItem>
