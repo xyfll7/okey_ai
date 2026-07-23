@@ -128,7 +128,6 @@ where
 {
     if let Some(window) = app.get_webview_window("translate_bubble") {
         let _ = window.hide();
-        let _ = app.emit(event_names::BUBBLE_CLEAN, {});
     }
 
     if let Some(window) = app.get_webview_window("translate") {

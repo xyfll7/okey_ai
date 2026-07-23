@@ -129,7 +129,6 @@ impl ClickOutsideHandler {
 
                     if !inside {
                         let _ = window.hide();
-                        let _ = app.emit(event_names::BUBBLE_CLEAN, {});
                     }
                 }
             }

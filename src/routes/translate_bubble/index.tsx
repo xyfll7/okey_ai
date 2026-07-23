@@ -17,9 +17,6 @@ export const Route = createFileRoute("/translate_bubble/")({
 function RouteComponent() {
 	const [chatHistory, setChatHistory] = useState<ChatMessage[]>();
 	useEffect(() => {
-		const unlistenClean = listen<ChatMessage[]>(EVENT_NAMES.BUBBLE_CLEAN, () =>
-			setChatHistory(undefined),
-		);
 		const unlistenSpeak = listen<ChatMessage[]>(
 			EVENT_NAMES.BUBBLE_AUTO_SPEAK,
 			({ payload }) => {
@@ -44,7 +41,6 @@ function RouteComponent() {
 		);
 		const unlistenError = listen<string>(EVENT_NAMES.AI_ERROR, () => { });
 		return () => {
-			unlistenClean.then((fn) => fn());
 			unlistenSpeak.then((fn) => fn());
 			unlistenResponse.then((fn) => fn());
 			unlistenError.then((fn) => fn());
