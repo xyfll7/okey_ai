@@ -8,6 +8,7 @@ import { Inputer } from "./-components/Inputer";
 import LanguageSelector from "./-components/LanguageSelector";
 import { SelectionFloatingButton } from "./-components/SelectionFloatingButton";
 import { TanStackAiHelperDemoNew } from "./-components/chatList";
+import { useABC } from "./-components/chatContext";
 
 export const Route = createFileRoute("/translate/")({
 	component: RouteComponent,
@@ -15,17 +16,30 @@ export const Route = createFileRoute("/translate/")({
 
 
 function RouteComponent() {
+
+
+
+
+
+
+
+	useABC()
+
+
+
+
+
 	const _ostype = ostype();
 	const chatListRef = useRef<HTMLDivElement>(null);
 	return (
 
 
-			<div className={cn(
-				{ "border rounded-xl": ["linux"].includes(_ostype) },
-				"bg-background", "h-full", "flex-coh")}>
-				<Header className="p-1" />
+		<div className={cn(
+			{ "border rounded-xl": ["linux"].includes(_ostype) },
+			"bg-background", "h-full", "flex-coh")}>
+			<Header className="p-1" />
 
-				<div className="relative h-full flex-coh">
+			<div className="relative h-full flex-coh">
 				{/* <div ref={chatListRef} className="h-full flex-coh">
 					<ScrollArea className="h-full flex-coh">
 						<ChatList className="px-2 pt-2" />
@@ -42,6 +56,6 @@ function RouteComponent() {
 			</div>
 			<LanguageSelector />
 		</div>
-	
+
 	);
 }

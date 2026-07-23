@@ -1,5 +1,10 @@
-import { createContext, useContext } from "react"
+import { createContext, useContext, useEffect, useRef } from "react"
 import type { useChat } from "@tanstack/ai-react"
+import { listen, type UnlistenFn } from "@tauri-apps/api/event"
+import { chatMessagesToUIMessages, chatMessageToUIMessage } from "./chatConnection"
+import { EVENT_NAMES } from "@/lib/events"
+import { invoke } from "@tauri-apps/api/core"
+import type { ChatMessage } from "@/lib/types"
 
 /**
  * useChat 的完整返回值类型,作为全局 Context 的共享值类型。
@@ -22,4 +27,33 @@ export function useChatContext() {
 		throw new Error("useChatContext must be used within a <ChatProvider>")
 	}
 	return ctx
+}
+
+
+
+
+export function useABC() {
+	const { append, setMessages } = useChatContext()
+	const unlistener = useRef<UnlistenFn | null>(null)
+	console.log("ChatProvider_loaded111")
+	// useSyncExternalStore(() => {
+
+	// 	return () => { console.log("我卸载了"); }
+	// }, () => { });
+
+
+
+	useEffect(() => {
+		console.log("START_CHAT_STREAM__actioned---------------",)
+		invoke<ChatMessage[]>(EVENT_NAMES.get_current_history).then((history) => {
+			setMessages(chatMessagesToUIMessages(history))
+		});
+		(async () => {
+			unlistener.current = await listen<string>(EVENT_NAMES.START_CHAT_STREAM, (e) => {
+				console.log("START_CHAT_STREAM__actioned", e.payload)
+				append(chatMessageToUIMessage({ role: "user", content: e.payload, }))
+			})
+		})();
+		return () => { unlistener.current?.() }
+	}, [append, setMessages])
 }
