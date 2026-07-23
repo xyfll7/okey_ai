@@ -1,4 +1,3 @@
-use crate::my_events::event_names;
 use crate::my_windows;
 use crate::utils::text_translation::{self, DisplayType};
 use rdev::{listen, Button, Event, EventType, Key};
@@ -7,7 +6,6 @@ use std::thread;
 use std::time::Duration;
 use std::time::Instant;
 use tauri::AppHandle;
-use tauri::Emitter;
 use tauri::Manager;
 
 struct GlobalState {
