@@ -24,7 +24,7 @@ import { Icons } from "@/components/icon";
 import { m } from "@/paraglide/messages.js";
 import type { ModelConfigMap, } from "@/@types";
 import { PromptTags } from "@/components/PromptTags";
-import { useChatContext } from "./chatProvider";
+import { useChatContext } from "./chatContext";
 import { chatMessageToUIMessage } from "./chatConnection";
 
 function SelectedText({ onChat }: { onChat: (e: ChatMessage) => void }) {

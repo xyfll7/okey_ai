@@ -72,7 +72,7 @@ export function createMockAdapter(options: MockAdapterOptions = {}): ConnectionA
         const now = () => Date.now();
         const userText = extractLastUserText(messages);
         const promptTag: ChatMessage = options.promptTag ?? { content: userText };
-
+        console.log(11111237111)
         // 事件队列:由 Tauri Channel 回调填充,再由生成器消费
         // (生成器中的 yield 不能出现在回调里,所以用队列中转)
         const queue: StreamEvent[] = [];
@@ -97,11 +97,12 @@ export function createMockAdapter(options: MockAdapterOptions = {}): ConnectionA
 
         const channel = new Channel<StreamEvent>();
         channel.onmessage = (message) => {
+            console.log("sssssssssss", message)
             queue.push(message);
             if (message.event === "done" || message.event === "error") finished = true;
             notify();
         };
-    
+
         void invoke(EVENT_NAMES.chat_stream, {
             prompt_tag: promptTag,
             on_event: channel,
