@@ -17,18 +17,17 @@ export const Route = createFileRoute("/translate_bubble/")({
 function RouteComponent() {
 	const [chatHistory, setChatHistory] = useState<ChatMessage[]>();
 	useEffect(() => {
-		const unlistenSpeak = listen<ChatMessage[]>(
+		const unlistenSpeak = listen<string>(
 			EVENT_NAMES.BUBBLE_AUTO_SPEAK,
 			({ payload }) => {
-				const chat = payload.at(-1);
-				const content = chat?.raw ?? chat?.content ?? "";
+				
 				invoke<AutoSpeakState>(EVENT_NAMES.get_auto_speak_state).then((res) => {
-					const isSingleWord = content.trim().split(/\s+/).length === 1;
+					const isSingleWord = payload.trim().split(/\s+/).length === 1;
 					if (
 						(res === AutoSpeakState.Single && isSingleWord) ||
-						(res === AutoSpeakState.All && content.trim().length > 0)
+						(res === AutoSpeakState.All && payload.trim().length > 0)
 					) {
-						speak(content);
+						speak(payload);
 					}
 				});
 			},

@@ -62,7 +62,7 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
         }
 
         // let messages = translation_manager.add_get_user_message(None).await.unwrap_or_default();
-        // let _ = app_handle.emit(event_names::BUBBLE_AUTO_SPEAK, &messages);
+        let _ = app_handle.emit(event_names::BUBBLE_AUTO_SPEAK, &selected_text);
         // let _ = app_handle.emit(event_names::CHAT_HISTORY_UPDATE, &messages);
 
         if should_use_existing_window {
