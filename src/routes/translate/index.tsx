@@ -8,7 +8,6 @@ import { Inputer } from "./-components/Inputer";
 import LanguageSelector from "./-components/LanguageSelector";
 import { SelectionFloatingButton } from "./-components/SelectionFloatingButton";
 import { TanStackAiHelperDemoNew } from "./-components/chatList";
-import { useABC } from "./-components/chatContext";
 
 export const Route = createFileRoute("/translate/")({
 	component: RouteComponent,
@@ -23,7 +22,6 @@ function RouteComponent() {
 
 
 
-	useABC()
 
 
 
@@ -32,7 +30,7 @@ function RouteComponent() {
 	const _ostype = ostype();
 	const chatListRef = useRef<HTMLDivElement>(null);
 	return (
-
+	
 
 		<div className={cn(
 			{ "border rounded-xl": ["linux"].includes(_ostype) },
@@ -56,6 +54,6 @@ function RouteComponent() {
 			</div>
 			<LanguageSelector />
 		</div>
-
+		
 	);
 }
