@@ -44,7 +44,6 @@ pub async fn chat_stream(app: AppHandle, prompt_tag: PromptTag, on_event: Channe
     let chatting_state = app.state::<ChattingState>().inner().clone();
     let on_event_clone = on_event.clone();
     let chatting_state_clone = chatting_state.clone();
-    println!("看看我执行了几次11");
     let messages = if prompt_tag.content.as_deref().unwrap_or_default().trim().is_empty() {
         translation_manager.get_current_history().await.unwrap_or_default()
     } else {

@@ -65,14 +65,15 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
         // let _ = app_handle.emit(event_names::BUBBLE_AUTO_SPEAK, &messages);
         // let _ = app_handle.emit(event_names::CHAT_HISTORY_UPDATE, &messages);
 
-        let _ = app_handle.emit(event_names::START_CHAT_STREAM, &selected_text);
         if should_use_existing_window {
-            // 若翻译窗口已置顶(pin)，则同时唤起 translate 主窗口
+            let _ = app_handle.emit_to("translate", event_names::START_CHAT_STREAM, &selected_text);
+
             if app_handle.state::<AppConfigState>().read().is_pin_translate_window {
                 my_windows::window_translate_show(&app_handle, None as Option<fn()>);
             }
             return;
         } else if display_type == DisplayType::Bubble {
+            let _ = app_handle.emit_to("translate_bubble", event_names::START_CHAT_STREAM, &selected_text);
             my_windows::window_translate_bubble_show(&app_handle, None as Option<fn()>);
         }
     });
