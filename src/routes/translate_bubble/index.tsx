@@ -1,26 +1,34 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { useEffect, useState } from "react";
+import { useEffect, } from "react";
 import Copyed from "@/components/Copyed";
 import { Button } from "@/components/ui/button";
 import { EVENT_NAMES } from "@/lib/events";
 import { type as ostype } from "@tauri-apps/plugin-os";
-import { AutoSpeakState, type ChatMessage } from "@/lib/types";
+import { AutoSpeakState, } from "@/lib/types";
 import { cn, speak } from "@/lib/utils";
 import { Icons } from "@/components/icon";
-
+import { useChatContext } from "../translate/-components/chatContext";
+import { type UIMessage } from "@tanstack/ai-react"
 export const Route = createFileRoute("/translate_bubble/")({
 	component: RouteComponent,
 });
-
+function getMessageText(message: UIMessage) {
+	return message.parts
+		.map((part) => (part.type === "text" ? part.content : ""))
+		.join("")
+}
 function RouteComponent() {
-	const [chatHistory, setChatHistory] = useState<ChatMessage[]>();
+	const { messages, isLoading } = useChatContext()
+	const chat = (() => {
+		const item = messages?.at(-1);
+		return item?.role === "assistant" ? item : undefined
+	})()
 	useEffect(() => {
 		const unlistenSpeak = listen<string>(
 			EVENT_NAMES.BUBBLE_AUTO_SPEAK,
 			({ payload }) => {
-				
 				invoke<AutoSpeakState>(EVENT_NAMES.get_auto_speak_state).then((res) => {
 					const isSingleWord = payload.trim().split(/\s+/).length === 1;
 					if (
@@ -32,23 +40,14 @@ function RouteComponent() {
 				});
 			},
 		);
-		const unlistenResponse = listen<ChatMessage[]>(
-			EVENT_NAMES.CHAT_HISTORY_UPDATE,
-			({ payload }) => {
-				setChatHistory(payload);
-			},
-		);
+
 		const unlistenError = listen<string>(EVENT_NAMES.AI_ERROR, () => { });
 		return () => {
 			unlistenSpeak.then((fn) => fn());
-			unlistenResponse.then((fn) => fn());
 			unlistenError.then((fn) => fn());
 		};
 	}, []);
-	const chat = (() => {
-		const item = chatHistory?.at(-1);
-		return item?.role === "assistant" ? item : undefined
-	})()
+
 	const _ostype = ostype();
 	return (
 		<div
@@ -87,16 +86,22 @@ function RouteComponent() {
 					</Button>
 				</div>
 				<div className="flex overflow-hidden text-nowrap flex-1">
-					<div >{chat ? (chat?.raw ?? chat?.content) : <span data-loading="..."> "..."</span>} </div>
-					{chat?.content ? (
-						<span
-							className="truncate text-transparent selection:bg-transparent cursor-grab hover:cursor-grabbing"
-							data-tauri-drag-region
-						>
-							.........................
-						</span>
+					{isLoading ? (
+						<span data-loading="..."> "..."</span>
 					) : (
-						""
+						<>
+							<div>{chat && getMessageText(chat)}</div>
+							{chat && getMessageText(chat) ? (
+								<span
+									className="truncate text-transparent selection:bg-transparent cursor-grab hover:cursor-grabbing"
+									data-tauri-drag-region
+								>
+									.........................
+								</span>
+							) : (
+								""
+							)}
+						</>
 					)}
 				</div>
 			</div>
@@ -106,15 +111,15 @@ function RouteComponent() {
 					size={"icon-sm"}
 					variant={"ghost"}
 				>
-					<Copyed text={chat?.content} />
+					<Copyed text={chat ? getMessageText(chat) : ""} />
 				</Button>
 				<Button
 					className={cn("")}
 					size={"icon-sm"}
 					variant={"ghost"}
 					onClick={() => {
-						const chat_user = chatHistory?.at(-2);
-						speak(chat_user?.raw ?? chat_user?.content ?? "")
+						const chat_user = messages?.at(-2);
+						if (chat_user) speak(getMessageText(chat_user))
 					}}
 				>
 					<Icons.volumeHigh />
@@ -124,9 +129,9 @@ function RouteComponent() {
 					size={"icon-sm"}
 					variant={"ghost"}
 					onClick={async () => {
-						if (!chatHistory) return;
+						if (!messages) return;
 						await invoke(EVENT_NAMES.window_translate_show, {
-							chat_message: chatHistory,
+							chat_message: messages,
 						});
 					}}
 				>
