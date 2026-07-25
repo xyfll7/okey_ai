@@ -72,7 +72,7 @@ function startChatStream(
         prompt_tag: promptTag,
         on_event: channel,
     }).catch((err) => {
-        if (state.aborted) return; 
+        if (state.aborted) return;
         state.finished = true;
         state.errored = true;
         queue.push({ event: "error", data: { message: String(err) } });
@@ -89,7 +89,7 @@ export function chatAdapter(options: MockAdapterOptions = {}): ConnectionAdapter
         const now = () => Date.now();
         const userText = extractLastUserText(messages);
         const promptTag: ChatMessage = options.promptTag ?? { content: userText };
-      
+
         const queue: StreamEvent[] = [];
         const state: ChatStreamState = { finished: false, errored: false, aborted: false };
         let accumulated = "";
@@ -152,7 +152,7 @@ export function chatAdapter(options: MockAdapterOptions = {}): ConnectionAdapter
                     }
                     case "error": {
                         state.errored = true;
-                   
+
                         yield {
                             type: EventType.TEXT_MESSAGE_END,
                             messageId,

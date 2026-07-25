@@ -10,7 +10,7 @@ import { AutoSpeakState, } from "@/lib/types";
 import { cn, speak } from "@/lib/utils";
 import { Icons } from "@/components/icon";
 import { useChatContext } from "@/components/chat/chatContext";
-import { getMessageText } from "@/components/chat/getMessageText";
+import { getMessageText } from "@/components/chat/chatUtils";
 export const Route = createFileRoute("/translate_bubble/")({
 	component: RouteComponent,
 });

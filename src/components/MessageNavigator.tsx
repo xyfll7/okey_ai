@@ -6,7 +6,7 @@ import {
 	HoverCardContent,
 } from "@/components/ui/hover-card";
 import { useChatContext } from "./chat/chatContext";
-import { getMessageText } from "./chat/getMessageText";
+import { getMessageText } from "./chat/chatUtils";
 
 const MIN_MESSAGES = 4;
 const MAX_MESSAGES = 10;

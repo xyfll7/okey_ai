@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/message-scroller"
 import type {  RefObject } from "react"
 import { useChatContext } from "@/components/chat/chatContext"
-import { getMessageText } from "@/components/chat/getMessageText"
+import { getMessageText } from "@/components/chat/chatUtils"
 import { m } from "@/paraglide/messages.js"
 import { Marker, MarkerContent } from "@/components/ui/marker"
 import { cn } from "@/lib/utils"

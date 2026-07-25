@@ -16,7 +16,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils"
 import { m } from "@/paraglide/messages.js"
 import { useChatContext } from "./chat/chatContext";
-import { chatMessagesToUIMessages } from "./chat/chatConnection";
+import { chatMessagesToUIMessages } from "./chat/chatUtils";
 
 
 

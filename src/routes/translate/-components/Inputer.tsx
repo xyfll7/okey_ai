@@ -25,7 +25,7 @@ import { m } from "@/paraglide/messages.js";
 import type { ModelConfigMap, } from "@/@types";
 import { PromptTags } from "@/components/PromptTags";
 import { useChatContext } from "@/components/chat/chatContext";
-import { chatMessageToUIMessage } from "@/components/chat/chatConnection";
+import { chatMessageToUIMessage } from "@/components/chat/chatUtils";
 
 function SelectedText({ onChat }: { onChat: (e: ChatMessage) => void }) {
 	const selected = useStore(s_Selected, (state) => state);
@@ -110,7 +110,8 @@ export function Inputer({ className, }: { className?: string; }) {
 		<InputGroup className={cn(className, "rounded-xl", "has-[[data-slot=input-group-control]:focus-visible]:border-ring/70 has-[[data-slot=input-group-control]:focus-visible]:ring-ring/7")}>
 			{selected.text && (
 				<InputGroupAddon align="block-start">
-					<SelectedText onChat={(e) => { append(chatMessageToUIMessage(e)) }} />
+					<SelectedText onChat={(e) => { 
+						append(chatMessageToUIMessage({...e,role:"user"})) }} />
 				</InputGroupAddon>
 			)}
 			<InputGroupTextarea

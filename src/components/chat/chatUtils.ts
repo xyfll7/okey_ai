@@ -13,12 +13,17 @@ export function chatMessageToUIMessage(msg: ChatMessage, id?: string): UIMessage
 	};
 }
 
-export function uiMessageToChatMessage(msg: UIMessage): UIMessage {
-	return msg
-}
 
 /** Convert an array of ChatMessages to ChatUIMessages. Uses index-based IDs for stability. */
 export function chatMessagesToUIMessages(msgs: ChatMessage[]): UIMessage[] {
 	return msgs.map((msg, index) => chatMessageToUIMessage(msg, `msg-${index}`));
+}
+
+
+/** Extract the concatenated text content from a UIMessage's text parts. */
+export function getMessageText(message: UIMessage) {
+	return message.parts
+		.map((part) => (part.type === "text" ? part.content : ""))
+		.join("");
 }
 

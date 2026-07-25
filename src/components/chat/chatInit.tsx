@@ -1,5 +1,5 @@
 import { type ReactNode, useEffect } from "react"
-import { chatMessagesToUIMessages } from "./chatConnection"
+import { chatMessagesToUIMessages } from "./chatUtils"
 import { EVENT_NAMES } from "@/lib/events"
 import { invoke } from "@tauri-apps/api/core"
 import { getCurrentWindow } from "@tauri-apps/api/window"
