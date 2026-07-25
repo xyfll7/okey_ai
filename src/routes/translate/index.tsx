@@ -7,7 +7,7 @@ import { Header } from "./-components/Header";
 import { Inputer } from "./-components/Inputer";
 import LanguageSelector from "./-components/LanguageSelector";
 import { SelectionFloatingButton } from "./-components/SelectionFloatingButton";
-import { TanStackAiHelperDemoNew } from "./-components/chatList";
+import { ChatList } from "./-components/chatList";
 
 export const Route = createFileRoute("/translate/")({
 	component: RouteComponent,
@@ -23,7 +23,7 @@ function RouteComponent() {
 			"bg-background", "h-full", "flex-coh")}>
 			<Header className="p-1" />
 			<div className="relative h-full flex-coh">
-				<TanStackAiHelperDemoNew />
+				<ChatList />
 				<MessageNavigator />
 				<SelectionFloatingButton containerRef={chatListRef} />
 			</div>

@@ -33,7 +33,7 @@ function getMessageText(message: UIMessage) {
         .join("")
 }
 
-export function TanStackAiHelperDemoNew() {
+export function ChatList() {
     const { messages, status } = useChatContext()
     const msg = messages.filter(e => e.role != "system")
     const isBusy = status === "submitted" || status === "streaming"
