@@ -1,13 +1,12 @@
 use crate::my_api::traits::APIConfig;
+use crate::my_windows;
 use crate::states::app_config::{AutoSpeakState, Language, ModelProvider, PromptTag};
 use crate::states::app_state::AppConfigState;
 use crate::states::chatting_state::ChattingState;
 use crate::utils::chat_message::{ChatMessage, ChatMessageHistory, Role};
 use crate::utils::{language_detection, translation_manager};
-use crate::{my_events::event_names, my_windows};
-
 use serde::{Deserialize, Serialize};
-use tauri::{ipc::Channel, AppHandle, Emitter, Manager};
+use tauri::{ipc::Channel, AppHandle, Manager};
 
 #[tauri::command]
 pub async fn abort_chat_stream(app: AppHandle) -> Result<(), String> {
@@ -67,7 +66,7 @@ pub async fn chat_stream(app: AppHandle, prompt_tag: PromptTag, on_event: Channe
         })
         .await;
     match chat_histories {
-        Ok(chat_histories) => {
+        Ok(_chat_histories) => {
             chatting_state.set(false);
             let _ = on_event.send(StreamEvent::Done);
         }
