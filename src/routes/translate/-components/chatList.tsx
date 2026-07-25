@@ -1,9 +1,6 @@
 import {
     MessageCircleDashedIcon,
 } from "lucide-react"
-
-
-
 import {
     Empty,
     EmptyDescription,
@@ -20,17 +17,18 @@ import {
     MessageScrollerProvider,
     MessageScrollerViewport,
 } from "@/components/ui/message-scroller"
-import type { RefObject } from "react"
+import type {  RefObject } from "react"
 import { useChatContext } from "@/components/chat/chatContext"
 import { getMessageText } from "@/components/chat/getMessageText"
 import { m } from "@/paraglide/messages.js"
 import { Marker, MarkerContent } from "@/components/ui/marker"
 import { cn } from "@/lib/utils"
+import { MessageItem } from "./MessageItem"
 
 export function ChatList({
-	containerRef,
+    containerRef,
 }: {
-	containerRef?: RefObject<HTMLDivElement | null>
+    containerRef?: RefObject<HTMLDivElement | null>
 }) {
     const { messages, status, } = useChatContext()
     const msg = messages.filter(e => e.role != "system")
@@ -59,7 +57,7 @@ export function ChatList({
                         >
                             {msg.map((message, index) => (
                                 <MessageScrollerItem key={message.id} scrollAnchor={message.role === "user"} data-index={index}>
-                                    {getMessageText(message)}
+                                    <MessageItem>{getMessageText(message)}</MessageItem>
                                     {msg.length - 1 === index &&
                                         <Marker role="banner" className={cn(isBusy && !getMessageText(message).length ? "" : "sr-only")} >
                                             <MarkerContent className="shimmer">
