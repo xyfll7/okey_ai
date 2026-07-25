@@ -9,7 +9,7 @@ import { type as ostype } from "@tauri-apps/plugin-os";
 import { AutoSpeakState, } from "@/lib/types";
 import { cn, speak } from "@/lib/utils";
 import { Icons } from "@/components/icon";
-import { useChatContext } from "../translate/-components/chatContext";
+import { useChatContext } from "@/components/chat/chatContext";
 import { type UIMessage } from "@tanstack/ai-react"
 export const Route = createFileRoute("/translate_bubble/")({
 	component: RouteComponent,

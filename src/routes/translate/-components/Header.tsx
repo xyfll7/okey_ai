@@ -18,7 +18,7 @@ import { m } from "@/paraglide/messages.js";
 import { Icons } from "@/components/icon";
 import { HistoriesNew } from "@/components/HistoriesNew";
 import { SettingsNew } from "@/components/SettingsNew";
-import { useChatContext } from "./chatContext";
+import { useChatContext } from "@/components/chat/chatContext";
 
 function CreateNewSession() {
 	 const { setMessages } = useChatContext()

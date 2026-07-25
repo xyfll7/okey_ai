@@ -22,7 +22,7 @@ import {
     MessageScrollerProvider,
     MessageScrollerViewport,
 } from "@/components/ui/message-scroller"
-import { useChatContext } from "./chatContext"
+import { useChatContext } from "@/components/chat/chatContext"
 import { m } from "@/paraglide/messages.js"
 
 

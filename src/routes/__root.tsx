@@ -1,7 +1,7 @@
 import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { ThemeProvider } from "@/components/theme-provider";
-import { ChatProvider } from "./translate/-components/chatProvider";
-import { ChatInit } from "./translate/-components/chatInit";
+import { ChatProvider } from "../components/chat/chatProvider";
+import { ChatInit } from "../components/chat/chatInit";
 
 export const Route = createRootRoute({
 	component: () => (

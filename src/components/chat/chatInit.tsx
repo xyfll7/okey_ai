@@ -4,7 +4,7 @@ import { EVENT_NAMES } from "@/lib/events"
 import { invoke } from "@tauri-apps/api/core"
 import { getCurrentWindow } from "@tauri-apps/api/window"
 import type { ChatMessage } from "@/lib/types"
-import { useChatContext } from "./chatContext"
+import { useChatContext } from "@/components/chat/chatContext"
 
 export function ChatInit({ children }: { children: ReactNode }) {
 	const { append, setMessages } = useChatContext()
