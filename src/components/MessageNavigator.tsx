@@ -6,15 +6,10 @@ import {
 	HoverCardContent,
 } from "@/components/ui/hover-card";
 import { useChatContext } from "./chat/chatContext";
-import type { UIMessage } from "@tanstack/ai-react";
+import { getMessageText } from "./chat/getMessageText";
 
 const MIN_MESSAGES = 4;
 const MAX_MESSAGES = 10;
-function getMessageText(message: UIMessage) {
-	return message.parts
-		.map((part) => (part.type === "text" ? part.content : ""))
-		.join("")
-}
 const NavTick = ({
 	isActive,
 	role,

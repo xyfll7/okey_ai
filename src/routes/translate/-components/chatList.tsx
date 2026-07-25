@@ -1,5 +1,3 @@
-
-import { type UIMessage } from "@tanstack/ai-react"
 import {
     MessageCircleDashedIcon,
 } from "lucide-react"
@@ -23,16 +21,11 @@ import {
     MessageScrollerViewport,
 } from "@/components/ui/message-scroller"
 import { useChatContext } from "@/components/chat/chatContext"
+import { getMessageText } from "@/components/chat/getMessageText"
 import { m } from "@/paraglide/messages.js"
 import { Button } from "@base-ui/react"
 
 
-
-function getMessageText(message: UIMessage) {
-    return message.parts
-        .map((part) => (part.type === "text" ? part.content : ""))
-        .join("")
-}
 
 export function ChatList() {
     const { messages, status, sendMessage } = useChatContext()

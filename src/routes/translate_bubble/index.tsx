@@ -10,15 +10,10 @@ import { AutoSpeakState, } from "@/lib/types";
 import { cn, speak } from "@/lib/utils";
 import { Icons } from "@/components/icon";
 import { useChatContext } from "@/components/chat/chatContext";
-import { type UIMessage } from "@tanstack/ai-react"
+import { getMessageText } from "@/components/chat/getMessageText";
 export const Route = createFileRoute("/translate_bubble/")({
 	component: RouteComponent,
 });
-function getMessageText(message: UIMessage) {
-	return message.parts
-		.map((part) => (part.type === "text" ? part.content : ""))
-		.join("")
-}
 function RouteComponent() {
 	const { messages, isLoading } = useChatContext()
 	const chat = (() => {
