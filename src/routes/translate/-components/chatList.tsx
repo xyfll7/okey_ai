@@ -20,13 +20,18 @@ import {
     MessageScrollerProvider,
     MessageScrollerViewport,
 } from "@/components/ui/message-scroller"
+import type { RefObject } from "react"
 import { useChatContext } from "@/components/chat/chatContext"
 import { getMessageText } from "@/components/chat/getMessageText"
 import { m } from "@/paraglide/messages.js"
 import { Marker, MarkerContent } from "@/components/ui/marker"
 import { cn } from "@/lib/utils"
 
-export function ChatList() {
+export function ChatList({
+	containerRef,
+}: {
+	containerRef?: RefObject<HTMLDivElement | null>
+}) {
     const { messages, status, } = useChatContext()
     const msg = messages.filter(e => e.role != "system")
     const isBusy = status === "submitted" || status === "streaming"
@@ -46,7 +51,7 @@ export function ChatList() {
                 </Empty>
             ) : (
                 <MessageScroller className="">
-                    <MessageScrollerViewport className="scrollbar-area">
+                    <MessageScrollerViewport ref={containerRef} className="scrollbar-area">
                         <MessageScrollerContent
                             aria-busy={isBusy}
                             className="p-4 scroll-fade"

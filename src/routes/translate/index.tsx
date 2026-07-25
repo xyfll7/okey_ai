@@ -23,7 +23,7 @@ function RouteComponent() {
 			"bg-background", "h-full", "flex-coh")}>
 			<Header className="p-1" />
 			<div className="relative h-full flex-coh">
-				<ChatList />
+				<ChatList containerRef={chatListRef} />
 				<MessageNavigator />
 				<SelectionFloatingButton containerRef={chatListRef} />
 			</div>
@@ -32,6 +32,6 @@ function RouteComponent() {
 			</div>
 			<LanguageSelector />
 		</div>
-		
+
 	);
 }
