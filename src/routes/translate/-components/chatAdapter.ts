@@ -82,7 +82,7 @@ function startChatStream(
     });
 }
 
-export function createMockAdapter(options: MockAdapterOptions = {}): ConnectionAdapter {
+export function chatAdapter(options: MockAdapterOptions = {}): ConnectionAdapter {
     return stream(async function* (messages, _data, abortSignal) {
         const runId = `run-${Date.now()}`;
         const threadId = `thread-${Date.now()}`;

@@ -49,7 +49,7 @@ function extractLastUserText(
 }
 
 
-export function createMockAdapter(options: MockAdapterOptions = {}): ConnectionAdapter {
+export function chatAdapter(options: MockAdapterOptions = {}): ConnectionAdapter {
   const {
     wordDelay = 40,
     firstByteDelay = 300,
