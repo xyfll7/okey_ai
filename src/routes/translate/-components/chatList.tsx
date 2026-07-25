@@ -54,10 +54,11 @@ export function ChatList({
                     <MessageScrollerViewport ref={containerRef} className="scrollbar-area">
                         <MessageScrollerContent
                             aria-busy={isBusy}
+                            data-chat-container
                             className="p-4 scroll-fade"
                         >
                             {msg.map((message, index) => (
-                                <MessageScrollerItem key={message.id} scrollAnchor={message.role === "user"}>
+                                <MessageScrollerItem key={message.id} scrollAnchor={message.role === "user"} data-index={index}>
                                     {getMessageText(message)}
                                     {msg.length - 1 === index &&
                                         <Marker role="banner" className={cn(isBusy && !getMessageText(message).length ? "" : "sr-only")} >

@@ -68,7 +68,7 @@ const getScrollElements = () => {
 		"[data-chat-container]",
 	);
 	const viewport = container?.closest<HTMLElement>(
-		'[data-slot="scroll-area-viewport"]',
+		'[data-slot="message-scroller-viewport"]',
 	);
 	return { container, viewport };
 };
