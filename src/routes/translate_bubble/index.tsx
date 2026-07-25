@@ -67,6 +67,7 @@ function RouteComponent() {
 						className={cn(
 							"hover:text-current",
 							"hover:bg-transparent dark:hover:bg-transparent cursor-grab ",
+							"active:translate-y-0!",
 						)}
 						size={"icon-sm"}
 						variant={"ghost"}
