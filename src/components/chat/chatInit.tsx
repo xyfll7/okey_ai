@@ -14,7 +14,7 @@ export function ChatInit({ children }: { children: ReactNode }) {
 			setMessages(chatMessagesToUIMessages(history))
 		});
 		const unlisten = getCurrentWindow().listen<string>(EVENT_NAMES.START_CHAT_STREAM, (e) => {
-			s_Selected.setState(() => ({ text: e.payload, raw: "ddddd" }));
+			s_Selected.setState(() => ({ text: e.payload, }));
 			sendMessage(e.payload)
 		})
 		return () => { unlisten.then((fn) => fn()) }

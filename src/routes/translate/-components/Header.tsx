@@ -28,7 +28,7 @@ function CreateNewSession() {
 		await invoke(EVENT_NAMES.create_new_session);
 		const history = await invoke<ChatMessage[]>(EVENT_NAMES.get_current_history);
 		setMessages(chatMessagesToUIMessages(history))
-		s_Selected.setState(() => ({ text: "", raw: "" }));
+		s_Selected.setState(() => ({ text: "", }));
 	}}>
 		<Icons.chat />
 	</Button>;
