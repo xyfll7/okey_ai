@@ -39,7 +39,6 @@ export function ChatList() {
     const msg = messages.filter(e => e.role != "system")
     const isBusy = status === "submitted" || status === "streaming"
     console.log("sdfasdf", status,)
-    const laoding = messages.at(-1)?.role == "user"
 
     return (
         <MessageScrollerProvider >
