@@ -1,16 +1,20 @@
-import { useStore } from "@tanstack/react-store";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
-import { s_ChatList } from "@/store";
 import {
 	HoverCard,
 	HoverCardTrigger,
 	HoverCardContent,
 } from "@/components/ui/hover-card";
+import { useChatContext } from "./chat/chatContext";
+import type { UIMessage } from "@tanstack/ai-react";
 
 const MIN_MESSAGES = 4;
 const MAX_MESSAGES = 10;
-
+function getMessageText(message: UIMessage) {
+	return message.parts
+		.map((part) => (part.type === "text" ? part.content : ""))
+		.join("")
+}
 const NavTick = ({
 	isActive,
 	role,
@@ -104,10 +108,10 @@ const computeActiveIndex = (
 };
 
 const MessageNavigator = () => {
-	const chatList = useStore(s_ChatList, (state) =>
-		state.filter((e) => e.role !== "system").slice(0, MAX_MESSAGES),
-	);
-	const total = chatList.length;
+	const { messages } = useChatContext()
+	const msg = messages.filter(e => e.role != "system").slice(0, MAX_MESSAGES)
+
+	const total = msg.length;
 	const [activeIndex, setActiveIndex] = useState(0);
 
 	// Single mode flag: 'auto' means the scrollspy is free to update
@@ -207,12 +211,12 @@ const MessageNavigator = () => {
 				</button>
 
 				<div className="flex flex-col items-end gap-0">
-					{chatList.map((item, index) => (
+					{msg.map((item, index) => (
 						<NavTick
 							key={index}
 							isActive={index === clampedActive}
 							role={item.role!}
-							content={item.raw ?? item.content!}
+							content={getMessageText(item)}
 							onClick={() => scrollToIndex(index)}
 						/>
 					))}

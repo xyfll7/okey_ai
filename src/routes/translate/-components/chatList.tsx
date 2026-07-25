@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/message-scroller"
 import { useChatContext } from "@/components/chat/chatContext"
 import { m } from "@/paraglide/messages.js"
+import { Button } from "@base-ui/react"
 
 
 
@@ -34,11 +35,15 @@ function getMessageText(message: UIMessage) {
 }
 
 export function ChatList() {
-    const { messages, status } = useChatContext()
+    const { messages, status, isLoading,sendMessage } = useChatContext()
     const msg = messages.filter(e => e.role != "system")
     const isBusy = status === "submitted" || status === "streaming"
+    console.log("sdfasdf", messages, status, isLoading)
     return (
         <MessageScrollerProvider >
+            <div>
+                <Button onClick={()=> {sendMessage("123123")}}>fasdf</Button>
+            </div>
             {msg.length === 0 ? (
                 <Empty className="h-full">
                     <EmptyHeader>

@@ -100,7 +100,7 @@ export function Inputer({ className, }: { className?: string; }) {
 	const [value, setValue] = useState("");
 	const selected = useStore(s_Selected, (state) => state);
 
-	const { append } = useChatContext();
+	const { append, sendMessage } = useChatContext();
 
 	const { ...modelsList_X } = useInvoke<ModelConfigMap>(EVENT_NAMES.list_available_models, {});
 	const { ...currentModel_X } = useInvoke<string>(EVENT_NAMES.get_current_model, "");
@@ -125,7 +125,8 @@ export function Inputer({ className, }: { className?: string; }) {
 						e.preventDefault();
 						if (!value.trim()) return;
 						setValue("");
-						append(chatMessageToUIMessage({ content: value, }))
+
+						sendMessage(value)
 					}
 					if (e.key === "Enter" && e.shiftKey) {
 						e.preventDefault();
@@ -172,7 +173,7 @@ export function Inputer({ className, }: { className?: string; }) {
 						}
 						if (!value.trim()) return;
 						setValue("");
-						append(chatMessageToUIMessage({ content: value, }))
+						sendMessage(value)
 					}}
 				>
 					{loadingChat_X.state ? <Icons.stop /> : <Icons.arrowUp />}

@@ -15,11 +15,13 @@ import { Icons } from "@/components/icon"
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils"
 import { m } from "@/paraglide/messages.js"
-import { s_ChatList } from "@/store"
+import { useChatContext } from "./chat/chatContext";
+import { chatMessagesToUIMessages } from "./chat/chatConnection";
 
 
 
 export function HistoriesNew({ className }: { className?: string }) {
+    const { setMessages } = useChatContext()
     const { ...histories_X } = useInvoke<[string, ChatMessageHistory][]>(EVENT_NAMES.get_histories, []);
     const [isOpen, setIsOpen] = useState(false);
     const { ...loadingChat_X } = useInvoke<boolean>(EVENT_NAMES.get_chatting_state, false, false, undefined, EVENT_NAMES.CHATTING_STATE_CHANGE);
@@ -40,22 +42,22 @@ export function HistoriesNew({ className }: { className?: string }) {
                 <Icons.list />
             </Button>
         </DrawerTrigger>
-        <DrawerContent className={cn("h-[80vh]  overflow-hidden","pb-2 [&_.bg-muted.mx-auto.mt-4.hidden.h-1.w-[100px].shrink-0.rounded-full]:hidden")}>
+        <DrawerContent className={cn("h-[80vh]  overflow-hidden", "pb-2 [&_.bg-muted.mx-auto.mt-4.hidden.h-1.w-[100px].shrink-0.rounded-full]:hidden")}>
             <DrawerHeader className="" data-tauri-drag-region>
                 <DrawerTitle className=" flex justify-start select-none" data-tauri-drag-region>{m.common_history()}</DrawerTitle>
                 <DrawerDescription className="sr-only" />
             </DrawerHeader>
-            <ScrollArea className={cn("h-full","overflow-hidden")}>
+            <ScrollArea className={cn("h-full", "overflow-hidden")}>
                 <div className="max-w-screen flex-coh items-start px-2">
                     {histories_X.state.filter(([, item]) => Boolean(item.messages.at(1))).map(([key, item]) => {
-                        return <Button 
-                            className="w-full cursor-pointer" 
-                            key={key} 
+                        return <Button
+                            className="w-full cursor-pointer"
+                            key={key}
                             variant={"ghost"}
                             onClick={async () => {
                                 await invoke(EVENT_NAMES.set_current_session, { session_id: key });
                                 const history = await invoke<ChatMessage[]>(EVENT_NAMES.get_current_history);
-                                s_ChatList.setState(() => history);
+                                setMessages(chatMessagesToUIMessages(history))
                                 setIsOpen(false);
                             }}
                         >
