@@ -81,7 +81,6 @@ pub struct ChatMessageHistory {
 }
 
 impl ChatMessageHistory {
-    /// Creates a new empty ChatMessageHistory
     pub fn new() -> Self {
         ChatMessageHistory { messages: Vec::new() }
     }

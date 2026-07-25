@@ -27,7 +27,6 @@ function extractLastUserText(
     for (let i = messages.length - 1; i >= 0; i--) {
         const m = messages[i];
 
-        // ModelMessage: { role, content }
         if ("content" in m && m.role === "user") {
             const { content } = m;
             if (typeof content === "string") return content;
@@ -38,7 +37,6 @@ function extractLastUserText(
             }
         }
 
-        // UIMessage: { role, parts }
         if ("parts" in m && m.role === "user") {
             return m.parts
                 .map((part) => (part.type === "text" ? part.content : ""))
