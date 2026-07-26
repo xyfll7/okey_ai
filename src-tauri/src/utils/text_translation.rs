@@ -4,8 +4,15 @@ use crate::states::app_config::Language;
 use crate::states::app_state::AppConfigState;
 use crate::states::chatting_state::ChattingState;
 use crate::utils::{language_detection, translation_manager};
+use serde::Serialize;
 use tauri::AppHandle;
 use tauri::{async_runtime, Emitter, Manager};
+
+#[derive(Clone, Serialize)]
+struct TranslationPayload {
+    translation_prompt: String,
+    selected_text: String,
+}
 
 fn build_translation_prompt(app_config_state: &AppConfigState, detected_lang: &str, selected_text: &str) -> String {
     let app_config_read = app_config_state.read();
@@ -41,15 +48,16 @@ pub fn translate_selected_text(app_handle: &AppHandle) {
         let translation_prompt = build_translation_prompt(&app_handle.state::<AppConfigState>(), &language_detection::detect_language(&selected_text), &selected_text);
 
         let _ = app_handle.emit(event_names::BUBBLE_AUTO_SPEAK, &selected_text);
-
+        let payload = TranslationPayload { translation_prompt: translation_prompt.clone(), selected_text: selected_text.clone() };
         if my_windows::should_use_existing_translate_window(app_handle.clone()) {
-            let _ = app_handle.emit_to("translate", event_names::START_CHAT_STREAM, &translation_prompt);
+            let _ = app_handle.emit_to("translate", event_names::START_CHAT_STREAM, &payload);
             my_windows::window_translate_show(&app_handle, None as Option<fn()>);
             return;
         } else {
             let translation_manager = app_handle.state::<translation_manager::TranslationManager>();
             translation_manager.create_session().await;
-            let _ = app_handle.emit_to("translate_bubble", event_names::START_CHAT_STREAM, &translation_prompt);
+
+            let _ = app_handle.emit_to("translate_bubble", event_names::START_CHAT_STREAM, &payload);
             my_windows::window_translate_bubble_show(&app_handle, None as Option<fn()>);
             return;
         }

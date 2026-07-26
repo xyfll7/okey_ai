@@ -48,7 +48,7 @@ export function SelectedText({ onChat }: { onChat: (e: ChatMessage) => void }) {
 				)}
 				{selected.text?.trim() && (
 					<Button size={"icon-sm"} variant={"ghost"} onClick={() => {
-						s_Selected.setState(() => ({ text: "", raw: "" }))
+						s_Selected.setState(() => ({ text: "" }))
 					}}>
 						<Icons.x />
 					</Button>

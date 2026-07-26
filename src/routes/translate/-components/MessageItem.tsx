@@ -10,7 +10,7 @@ export function MessageItem({ children }: { children: string }) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const { handleMouseEnter, handleMouseLeave, handleMouseUp } = useContainerSelection(
 		containerRef,
-		(text) => s_Selected.setState(() => ({ text, })),
+		(text) => s_Selected.setState(() => ({ text })),
 	);
 
 	return (
