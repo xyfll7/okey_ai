@@ -8,7 +8,6 @@ import {
 } from "@tanstack/ai/client";
 import { Channel, invoke } from "@tauri-apps/api/core";
 import { EVENT_NAMES } from "@/lib/events";
-import type { ChatMessage } from "@/lib/types";
 
 
 type StreamEvent =
@@ -16,9 +15,7 @@ type StreamEvent =
     | { event: "done"; data?: unknown }
     | { event: "error"; data: { message: string } };
 
-interface MockAdapterOptions {
-    promptTag?: ChatMessage;
-}
+
 
 
 function extractLastUserText(
@@ -55,7 +52,7 @@ interface ChatStreamState {
 
 
 function startChatStream(
-    promptTag: ChatMessage,
+    promptText: string,
     queue: StreamEvent[],
     state: ChatStreamState,
     notify: () => void,
@@ -69,7 +66,7 @@ function startChatStream(
         notify();
     };
     void invoke(EVENT_NAMES.chat_stream, {
-        prompt_tag: promptTag,
+        prompt_text: promptText,
         on_event: channel,
     }).catch((err) => {
         if (state.aborted) return;
@@ -80,7 +77,7 @@ function startChatStream(
     });
 }
 
-export function chatAdapter(options: MockAdapterOptions = {}): ConnectionAdapter {
+export function chatAdapter(): ConnectionAdapter {
     return stream(async function* (messages, _data, abortSignal) {
         const runId = `run-${Date.now()}`;
         const threadId = `thread-${Date.now()}`;
@@ -88,8 +85,8 @@ export function chatAdapter(options: MockAdapterOptions = {}): ConnectionAdapter
         const model = "backend-model";
         const now = () => Date.now();
         const userText = extractLastUserText(messages);
-        const promptTag: ChatMessage = options.promptTag ?? { content: userText };
-
+   
+      
         const queue: StreamEvent[] = [];
         const state: ChatStreamState = { finished: false, errored: false, aborted: false };
         let accumulated = "";
@@ -105,8 +102,6 @@ export function chatAdapter(options: MockAdapterOptions = {}): ConnectionAdapter
             notify();
         };
         abortSignal?.addEventListener("abort", onAbort);
-
-
         try {
             yield {
                 type: EventType.RUN_STARTED,
@@ -115,7 +110,7 @@ export function chatAdapter(options: MockAdapterOptions = {}): ConnectionAdapter
                 model,
                 timestamp: now(),
             } satisfies StreamChunk;
-            startChatStream(promptTag, queue, state, notify);
+            startChatStream(userText, queue, state, notify);
             yield {
                 type: EventType.TEXT_MESSAGE_START,
                 messageId,

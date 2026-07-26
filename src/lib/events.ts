@@ -51,6 +51,7 @@ export const EVENT_NAMES = {
   set_current_session: "set_current_session",
   create_new_session: "create_new_session",
   get_chatting_state: "get_chatting_state",
+  assemble_prompt: "assemble_prompt",
 } as const;
 
 // Type for event names to provide type safety

@@ -38,27 +38,28 @@ pub fn close_main_window(app: AppHandle) -> Result<(), String> {
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub async fn chat_stream(app: AppHandle, prompt_tag: PromptTag, on_event: Channel<StreamEvent>) -> Result<(), String> {
+pub fn assemble_prompt(app: AppHandle, prompt_tag: PromptTag) -> Result<String, String> {
+    let raw = prompt_tag.raw.clone().unwrap_or_default();
+    let content_template = prompt_tag.content.as_deref().unwrap_or_default();
+    let detected_lang = if raw.is_empty() {
+        String::new()
+    } else {
+        let detected = language_detection::detect_language(&raw);
+        Language::from_locale(detected).to_display_name().to_string()
+    };
+    let local = app.state::<AppConfigState>().read().local_language.effective_language().to_display_name().to_string();
+    let assembled = content_template.replace("{detected_lang}", &detected_lang).replace("{local}", &local).replace("{text}", &raw);
+    Ok(assembled)
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub async fn chat_stream(app: AppHandle, prompt_text: String, on_event: Channel<StreamEvent>) -> Result<(), String> {
     let translation_manager = app.state::<translation_manager::TranslationManager>();
     let chatting_state = app.state::<ChattingState>().inner().clone();
     let on_event_clone = on_event.clone();
     let chatting_state_clone = chatting_state.clone();
-    let messages = if prompt_tag.content.as_deref().unwrap_or_default().trim().is_empty() {
-        translation_manager.get_current_history().await.unwrap_or_default()
-    } else {
-        let raw = prompt_tag.raw.clone().unwrap_or_default();
-        let content_template = prompt_tag.content.as_deref().unwrap_or_default();
-        let detected_lang = if raw.is_empty() {
-            String::new()
-        } else {
-            let detected = language_detection::detect_language(&raw);
-            Language::from_locale(detected).to_display_name().to_string()
-        };
-        let local = app.state::<AppConfigState>().read().local_language.effective_language().to_display_name().to_string();
-        let assembled = content_template.replace("{detected_lang}", &detected_lang).replace("{local}", &local).replace("{text}", &raw);
-        let messages = translation_manager.add_get_user_message(None, &assembled, None, Role::User).await.unwrap_or_default();
-        messages
-    };
+
+    let messages = translation_manager.add_get_user_message(None, &prompt_text, None, Role::User).await.unwrap_or_default();
     chatting_state_clone.set(true);
     let chat_histories = translation_manager
         .translate_stream(None, messages, move |chunk_content| {

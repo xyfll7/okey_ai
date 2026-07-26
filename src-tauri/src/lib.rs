@@ -53,6 +53,7 @@ pub fn run() {
             my_command::chat_stream,
             my_command::abort_chat_stream,
             my_command::get_chatting_state,
+            my_command::assemble_prompt,
             my_command::detect_language,
             my_command::get_histories,
             my_command::get_current_history,
