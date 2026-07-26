@@ -1,5 +1,5 @@
 use crate::my_windows;
-use crate::utils::text_translation::{self, DisplayType};
+use crate::utils::text_translation;
 use rdev::{listen, Button, Event, EventType, Key};
 use std::sync::{Arc, Mutex};
 use std::thread;
@@ -91,7 +91,7 @@ impl TranslateBubbleHandler {
 
     fn trigger_double_click(&self, app: &AppHandle) {
         let app_clone = app.clone();
-        text_translation::translate_selected_text(&app_clone, DisplayType::Bubble);
+        text_translation::translate_selected_text(&app_clone);
     }
 
     fn trigger_triple_click(&self, _app: &AppHandle) {

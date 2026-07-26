@@ -7,36 +7,25 @@ use crate::utils::{language_detection, translation_manager};
 use tauri::AppHandle;
 use tauri::{async_runtime, Emitter, Manager};
 
-#[derive(Debug, Clone, PartialEq)]
-pub enum DisplayType {
-    Normal,
-    Bubble,
-}
-
 fn build_translation_prompt(app_config_state: &AppConfigState, detected_lang: &str, selected_text: &str) -> String {
     let app_config_read = app_config_state.read();
     let detected_language = Language::from_locale(detected_lang);
     if app_config_read.self_explaining_model {
-        // let target = detected_language.to_display_name().to_string();
-        // prompts.explain_prompt.replace("{target}", &target).replace("{text}", selected_text)
         "".to_string()
     } else {
         let effective_local_language: Language = app_config_read.local_language.effective_language();
         let effective_target_language = app_config_read.target_language.effective_language();
 
-        // 从 prompt_tags 中获取 translate_into 提示词（id 为 2）
         let translate_into = app_config_read.prompt_tags.iter().find(|tag| tag.id == Some(2)).and_then(|tag| tag.content.clone()).unwrap_or_default();
 
         match detected_language {
-            // Translate the local language into the target language.
             lang if lang == effective_local_language => translate_into.replace("{target}", &effective_target_language.to_display_name().to_string()).replace("{text}", selected_text),
-            // Translate any other language into the local language.
             _ => translate_into.replace("{target}", &effective_local_language.to_display_name().to_string()).replace("{text}", selected_text),
         }
     }
 }
 
-pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType) {
+pub fn translate_selected_text(app_handle: &AppHandle) {
     let app_handle = app_handle.clone();
     let chatting_state = app_handle.state::<ChattingState>();
     if chatting_state.get() {
@@ -52,7 +41,7 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
 
         let app_config_state = app_handle.state::<AppConfigState>();
         let translation_prompt = build_translation_prompt(&app_config_state, &detected_lang, &selected_text);
-        println!("translation_prompt{:#?}", translation_prompt);
+
         let translation_manager = app_handle.state::<translation_manager::TranslationManager>();
         let should_use_existing_window = my_windows::should_use_existing_translate_window(app_handle.clone());
 
@@ -60,19 +49,17 @@ pub fn translate_selected_text(app_handle: &AppHandle, display_type: DisplayType
             translation_manager.create_session().await;
         }
 
-        // let messages = translation_manager.add_get_user_message(None).await.unwrap_or_default();
         let _ = app_handle.emit(event_names::BUBBLE_AUTO_SPEAK, &selected_text);
 
         if should_use_existing_window {
-            let _ = app_handle.emit_to("translate", event_names::START_CHAT_STREAM, &selected_text);
+            let _ = app_handle.emit_to("translate", event_names::START_CHAT_STREAM, &translation_prompt);
 
-            if app_handle.state::<AppConfigState>().read().is_pin_translate_window {
-                my_windows::window_translate_show(&app_handle, None as Option<fn()>);
-            }
+            my_windows::window_translate_show(&app_handle, None as Option<fn()>);
             return;
-        } else if display_type == DisplayType::Bubble {
-            let _ = app_handle.emit_to("translate_bubble", event_names::START_CHAT_STREAM, &selected_text);
+        } else {
+            let _ = app_handle.emit_to("translate_bubble", event_names::START_CHAT_STREAM, &translation_prompt);
             my_windows::window_translate_bubble_show(&app_handle, None as Option<fn()>);
+            return;
         }
     });
 }

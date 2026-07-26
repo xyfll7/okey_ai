@@ -1,7 +1,6 @@
 use crate::states::app_config::Shortcut;
 use crate::states::app_state::AppConfigState;
 use crate::utils::text_translation;
-use crate::utils::text_translation::DisplayType;
 use tauri::AppHandle;
 use tauri::Manager;
 use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
@@ -10,7 +9,7 @@ use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
 pub fn register_hotkey_okey_ai(app: AppHandle, new_hotkey: String) -> Result<(), String> {
     match app.global_shortcut().on_shortcut(new_hotkey.as_str(), move |app, _shortcut, event| {
         if event.state == ShortcutState::Pressed {
-            text_translation::translate_selected_text(&app, DisplayType::Normal);
+            text_translation::translate_selected_text(&app);
         }
     }) {
         Ok(_) => log::info!("Successfully registered new_hotkey: {}", new_hotkey),
@@ -63,7 +62,7 @@ pub fn init_shortcuts(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>>
         match app.global_shortcut().on_shortcut(hot_key.as_str(), move |app, _, event| {
             if event.state == ShortcutState::Pressed {
                 if name == "okey_ai" {
-                    text_translation::translate_selected_text(&app, DisplayType::Normal);
+                    text_translation::translate_selected_text(&app);
                 }
             }
         }) {
