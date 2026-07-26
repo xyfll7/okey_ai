@@ -37,26 +37,18 @@ pub fn translate_selected_text(app_handle: &AppHandle) {
             my_windows::window_translate_show(&app_handle, None as Option<fn()>);
             return;
         }
-        let detected_lang = language_detection::detect_language(&selected_text);
 
-        let app_config_state = app_handle.state::<AppConfigState>();
-        let translation_prompt = build_translation_prompt(&app_config_state, &detected_lang, &selected_text);
-
-        let translation_manager = app_handle.state::<translation_manager::TranslationManager>();
-        let should_use_existing_window = my_windows::should_use_existing_translate_window(app_handle.clone());
-
-        if !should_use_existing_window {
-            translation_manager.create_session().await;
-        }
+        let translation_prompt = build_translation_prompt(&app_handle.state::<AppConfigState>(), &language_detection::detect_language(&selected_text), &selected_text);
 
         let _ = app_handle.emit(event_names::BUBBLE_AUTO_SPEAK, &selected_text);
 
-        if should_use_existing_window {
+        if my_windows::should_use_existing_translate_window(app_handle.clone()) {
             let _ = app_handle.emit_to("translate", event_names::START_CHAT_STREAM, &translation_prompt);
-
             my_windows::window_translate_show(&app_handle, None as Option<fn()>);
             return;
         } else {
+            let translation_manager = app_handle.state::<translation_manager::TranslationManager>();
+            translation_manager.create_session().await;
             let _ = app_handle.emit_to("translate_bubble", event_names::START_CHAT_STREAM, &translation_prompt);
             my_windows::window_translate_bubble_show(&app_handle, None as Option<fn()>);
             return;
