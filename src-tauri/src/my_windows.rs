@@ -195,7 +195,7 @@ where
                         } {
                             #[cfg(target_os = "macos")]
                             {
-                                _win.hide().ok();
+                                _win.destroy().ok();
                             }
                             #[cfg(not(target_os = "macos"))]
                             {
