@@ -17,7 +17,7 @@ import {
     MessageScrollerProvider,
     MessageScrollerViewport,
 } from "@/components/ui/message-scroller"
-import type {  RefObject } from "react"
+import type { RefObject } from "react"
 import { useChatContext } from "@/components/chat/chatContext"
 import { getMessageText } from "@/components/chat/chatUtils"
 import { m } from "@/paraglide/messages.js"
@@ -33,6 +33,7 @@ export function ChatList({
     const { messages, status, } = useChatContext()
     const msg = messages.filter(e => e.role != "system")
     const isBusy = status === "submitted" || status === "streaming"
+    // console.log("abc:::", messages);
     return (
         <MessageScrollerProvider >
             {msg.length === 0 ? (

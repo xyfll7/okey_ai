@@ -26,7 +26,12 @@ impl TranslationManager {
 
         let system_prompt = {
             let app_config_read = self.app_config_state.read();
-            app_config_read.prompts.system_prompt.clone()
+            app_config_read
+                .prompt_tags
+                .iter()
+                .find(|tag| tag.id == Some(0))
+                .and_then(|tag| tag.content.clone())
+                .unwrap_or_default()
         };
 
         self.chat_histories.add_message(&session_id, Role::System, system_prompt, None).await;
