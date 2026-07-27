@@ -76,7 +76,7 @@ impl Language {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct PromptTag {
     pub raw: Option<String>,
     pub label: Option<String>,

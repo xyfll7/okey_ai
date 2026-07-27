@@ -39,16 +39,34 @@ pub fn close_main_window(app: AppHandle) -> Result<(), String> {
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn assemble_prompt(app: AppHandle, prompt_tag: PromptTag) -> Result<String, String> {
-    let raw = prompt_tag.raw.clone().unwrap_or_default();
-    let content_template = prompt_tag.content.as_deref().unwrap_or_default();
-    let detected_lang = if raw.is_empty() {
-        String::new()
-    } else {
-        let detected = language_detection::detect_language(&raw);
-        Language::from_locale(detected).to_display_name().to_string()
-    };
-    let local = app.state::<AppConfigState>().read().local_language.effective_language().to_display_name().to_string();
-    let assembled = content_template.replace("{detected_lang}", &detected_lang).replace("{local}", &local).replace("{text}", &raw);
+    let raw = prompt_tag.raw.unwrap_or_default();
+
+    let app_config_state = app.state::<AppConfigState>();
+    let app_config_read = app_config_state.read();
+
+    let content_template = prompt_tag.content.unwrap_or_else(|| app_config_read.prompt_tags.iter().find(|tag| tag.id == if app_config_read.self_explaining_model { Some(3) } else { Some(2) }).and_then(|tag| tag.content.clone()).unwrap_or_default());
+
+    let detected_language = if raw.is_empty() { None } else { Some(Language::from_locale(language_detection::detect_language(&raw))) };
+    let detected_lang = detected_language.as_ref().map(|lang| lang.to_display_name().to_string()).unwrap_or_default();
+
+    let effective_local_language = app_config_read.local_language.effective_language();
+    let effective_target_language = app_config_read.target_language.effective_language();
+    let local = effective_local_language.to_display_name().to_string();
+
+    let target_lang = match detected_language {
+        Some(detected) if detected == effective_local_language => effective_target_language,
+        Some(_) => effective_local_language,
+        None => effective_target_language,
+    }
+    .to_display_name()
+    .to_string();
+
+    #[rustfmt::skip]
+    let assembled = content_template
+        .replace("{text}", &raw)
+        .replace("{detected_lang}", &detected_lang)
+        .replace("{target}", &target_lang)
+        .replace("{local}", &local);
     Ok(assembled)
 }
 

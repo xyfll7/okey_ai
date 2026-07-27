@@ -1,9 +1,9 @@
+use crate::my_command;
 use crate::my_events::event_names;
 use crate::my_windows;
-use crate::states::app_config::Language;
-use crate::states::app_state::AppConfigState;
+use crate::states::app_config::PromptTag;
 use crate::states::chatting_state::ChattingState;
-use crate::utils::{language_detection, translation_manager};
+use crate::utils::translation_manager;
 use serde::Serialize;
 use tauri::AppHandle;
 use tauri::{async_runtime, Emitter, Manager};
@@ -12,26 +12,6 @@ use tauri::{async_runtime, Emitter, Manager};
 struct TranslationPayload {
     translation_prompt: String,
     selected_text: String,
-}
-
-fn build_translation_prompt(app_config_state: &AppConfigState, selected_text: &str) -> String {
-    let app_config_read = app_config_state.read();
-    let detected_lang = language_detection::detect_language(selected_text);
-    let detected_language = Language::from_locale(detected_lang);
-    if app_config_read.self_explaining_model {
-        let self_explaining_prompt = app_config_read.prompt_tags.iter().find(|tag| tag.id == Some(3)).and_then(|tag| tag.content.clone()).unwrap_or_default();
-        self_explaining_prompt.replace("{detected_lang}", &detected_language.to_display_name().to_string()).replace("{text}", selected_text)
-    } else {
-        let effective_local_language: Language = app_config_read.local_language.effective_language();
-        let effective_target_language = app_config_read.target_language.effective_language();
-
-        let translate_into = app_config_read.prompt_tags.iter().find(|tag| tag.id == Some(2)).and_then(|tag| tag.content.clone()).unwrap_or_default();
-
-        match detected_language {
-            lang if lang == effective_local_language => translate_into.replace("{target}", &effective_target_language.to_display_name().to_string()).replace("{text}", selected_text),
-            _ => translate_into.replace("{target}", &effective_local_language.to_display_name().to_string()).replace("{text}", selected_text),
-        }
-    }
 }
 
 pub fn translate_selected_text(app_handle: &AppHandle) {
@@ -47,7 +27,8 @@ pub fn translate_selected_text(app_handle: &AppHandle) {
             return;
         }
 
-        let translation_prompt = build_translation_prompt(&app_handle.state::<AppConfigState>(), &selected_text);
+        // 不传 content，由 assemble_prompt 内部按配置回退查找模板
+        let translation_prompt = my_command::assemble_prompt(app_handle.clone(), PromptTag { raw: Some(selected_text.clone()), ..Default::default() }).unwrap_or_default();
 
         #[rustfmt::skip]
         let payload = TranslationPayload { 
