@@ -1,12 +1,16 @@
-import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
 	HoverCard,
 	HoverCardTrigger,
 	HoverCardContent,
 } from "@/components/ui/hover-card";
+import {
+	useMessageScroller,
+	useMessageScrollerVisibility,
+} from "@/components/ui/message-scroller";
 import { useChatContext } from "./chat/chatContext";
 import { getMessageText } from "./chat/chatUtils";
+import { Icons } from "@/components/icon";
 
 const MIN_MESSAGES = 4;
 const MAX_MESSAGES = 10;
@@ -58,130 +62,31 @@ const NavTick = ({
 	);
 };
 
-/**
- * Finds the DOM elements for the currently rendered chat container/viewport.
- * Re-queried on demand rather than cached, since the container isn't owned
- * by this component and can be remounted elsewhere.
- */
-const getScrollElements = () => {
-	const container = document.querySelector<HTMLElement>(
-		"[data-chat-container]",
-	);
-	const viewport = container?.closest<HTMLElement>(
-		'[data-slot="message-scroller-viewport"]',
-	);
-	return { container, viewport };
-};
-
-/**
- * Scrollspy: walks messages top-to-bottom and returns the index of the
- * last one whose top edge is at or above the viewport's top edge (plus a
- * small offset). This mirrors where `scrollIntoView({ block: "start" })`
- * lands, so programmatic and organic scrolling agree on the same answer.
- *
- * Reads layout synchronously via getBoundingClientRect — no async
- * batching, no staleness, no "has it settled yet" question to answer.
- */
-const computeActiveIndex = (
-	container: HTMLElement,
-	viewportTop: number,
-	total: number,
-	offset = 8,
-): number => {
-	let active = 0;
-	for (let i = 0; i < total; i++) {
-		const el = container.querySelector<HTMLElement>(`[data-index="${i}"]`);
-		if (!el) break;
-		const top = el.getBoundingClientRect().top;
-		if (top - viewportTop <= offset) {
-			active = i;
-		} else {
-			break;
-		}
-	}
-	return active;
-};
-
 const MessageNavigator = () => {
 	const { messages } = useChatContext()
 	const msg = messages.filter(e => e.role != "system").slice(0, MAX_MESSAGES)
 
 	const total = msg.length;
-	const [activeIndex, setActiveIndex] = useState(0);
 
-	// Single mode flag: 'auto' means the scrollspy is free to update
-	// activeIndex from scroll position. 'manual' means a click just set
-	// the index and it should stick until the user genuinely scrolls by
-	// hand (wheel/touch/pointer) — a real input event, not a timer or
-	// frame count standing in for one.
-	const modeRef = useRef<"auto" | "manual">("auto");
-	const rafPendingRef = useRef(false);
+	const { scrollToMessage } = useMessageScroller();
+	const { currentAnchorId, visibleMessageIds } = useMessageScrollerVisibility();
 
-	// Pure derivation: collapse activeIndex back to 0 once the nav drops
-	// below the visibility threshold. Per https://react.dev/learn/you-might-not-need-an-effect
-	// this belongs in render, not an effect, since it's just state
-	// derived from state and must only fire once per crossing.
-	if (total <= MIN_MESSAGES && activeIndex !== 0) {
-		setActiveIndex(0);
-	}
-
-	useEffect(() => {
-		if (total <= MIN_MESSAGES) return;
-
-		const { container, viewport } = getScrollElements();
-		if (!container || !viewport) return;
-
-		const recompute = () => {
-			rafPendingRef.current = false;
-			if (modeRef.current === "manual") return;
-			const viewportTop = viewport.getBoundingClientRect().top;
-			const next = computeActiveIndex(container, viewportTop, total);
-			setActiveIndex((prev) => (prev === next ? prev : next));
-		};
-
-		const onScroll = () => {
-			if (rafPendingRef.current) return;
-			rafPendingRef.current = true;
-			requestAnimationFrame(recompute);
-		};
-
-		// Any of these is unambiguous evidence the user is scrolling by
-		// hand right now, so hand control back to the scrollspy
-		// immediately — no cooldown or guesswork needed.
-		const onUserInput = () => {
-			modeRef.current = "auto";
-		};
-
-		viewport.addEventListener("scroll", onScroll, { passive: true });
-		viewport.addEventListener("wheel", onUserInput, { passive: true });
-		viewport.addEventListener("touchstart", onUserInput, { passive: true });
-		viewport.addEventListener("pointerdown", onUserInput, { passive: true });
-		window.addEventListener("resize", onScroll);
-
-		// Establish the initial position.
-		recompute();
-
-		return () => {
-			viewport.removeEventListener("scroll", onScroll);
-			viewport.removeEventListener("wheel", onUserInput);
-			viewport.removeEventListener("touchstart", onUserInput);
-			viewport.removeEventListener("pointerdown", onUserInput);
-			window.removeEventListener("resize", onScroll);
-		};
-	}, [total]);
+	// Derive the active message from the scroller's own visibility tracking
+	// instead of a hand-rolled scroll spy. `currentAnchorId` is the sticky
+	// "where am I" anchor (stays set after it scrolls above the viewport);
+	// fall back to the topmost visible message when the anchor isn't in our
+	// (sliced) window.
+	const visibleSet = new Set(visibleMessageIds);
+	const activeId =
+		(currentAnchorId && msg.some((m) => m.id === currentAnchorId)
+			? currentAnchorId
+			: msg.find((m) => visibleSet.has(m.id))?.id) ?? msg[0]?.id;
+	const activeIndex = msg.findIndex((m) => m.id === activeId);
 
 	const scrollToIndex = (index: number) => {
-		if (index < 0 || index >= total) return;
-		const { container } = getScrollElements();
-		const target = container?.querySelector(`[data-index="${index}"]`);
+		const target = msg[index];
 		if (!target) return;
-
-		// Lock immediately: the click is the source of truth for the new
-		// index. Nothing recomputes or overrides it until the user
-		// actually scrolls by hand (see onUserInput above).
-		modeRef.current = "manual";
-		setActiveIndex(index);
-		target.scrollIntoView({ behavior: "smooth", block: "start" });
+		scrollToMessage(target.id);
 	};
 
 	if (total <= MIN_MESSAGES) return null;
@@ -200,9 +105,7 @@ const MessageNavigator = () => {
 					disabled={!canGoPrev}
 					onClick={() => scrollToIndex(clampedActive - 1)}
 				>
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="stroke-2">
-						<path d="M18 15L12 9L6 15" stroke="currentColor" strokeLinecap="square" />
-					</svg>
+					<Icons.arrowUp01 className="size-4" />
 				</button>
 
 				<div className="flex flex-col items-end gap-0">
@@ -224,9 +127,7 @@ const MessageNavigator = () => {
 					disabled={!canGoNext}
 					onClick={() => scrollToIndex(clampedActive + 1)}
 				>
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="stroke-2">
-						<path d="M6 9L12 15L18 9" stroke="currentColor" strokeLinecap="square" />
-					</svg>
+					<Icons.arrowDown01 className="size-4" />
 				</button>
 			</div>
 		</div>

@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils"
 import { getMessageText } from "@/components/chat/chatUtils"
 // import { MessageScrollerGroupChat } from "./Test"
 import { createChat } from "@shadcn/helpers/ai-sdk"
+import MessageNavigator from "@/components/MessageNavigator"
 function handleChatSelection(e: MouseEvent<HTMLElement>) {
     const selection = window.getSelection();
     const text = selection?.toString().trim();
@@ -63,6 +64,7 @@ export function ChatList({
     const isBusy = status === "submitted" || status === "streaming"
     return (
         <MessageScrollerProvider >
+            <MessageNavigator />
             {msg.length === 0 ? (
                 <Empty className="h-full">
                     <EmptyHeader>

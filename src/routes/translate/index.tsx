@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useRef } from "react";
 import { type as ostype } from "@tauri-apps/plugin-os";
 import { cn } from "@/lib/utils";
-import MessageNavigator from "@/components/MessageNavigator";
 import { Header } from "./-components/Header";
 import { Inputer } from "./-components/Inputer";
 import LanguageSelector from "./-components/LanguageSelector";
@@ -24,7 +23,6 @@ function RouteComponent() {
 			<Header className="p-1" />
 			<div className="relative h-full flex-coh">
 				<ChatList containerRef={chatListRef} />
-				<MessageNavigator />
 				<SelectionFloatingButton containerRef={chatListRef} />
 			</div>
 			<div className="px-2 pb-2">
