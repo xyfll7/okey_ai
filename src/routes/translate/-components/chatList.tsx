@@ -13,10 +13,11 @@ import {
     MessageScroller,
     MessageScrollerButton,
     MessageScrollerContent,
+    MessageScrollerItem,
     MessageScrollerProvider,
     MessageScrollerViewport,
 } from "@/components/ui/message-scroller"
-import type { MouseEvent, RefObject } from "react"
+import { type MouseEvent, type RefObject } from "react"
 import { useChatContext } from "@/components/chat/chatContext"
 import { m } from "@/paraglide/messages.js"
 import { MessageBubble, } from "./MessageBubble"
@@ -24,6 +25,7 @@ import { s_Selected } from "@/store"
 import { Marker, MarkerContent } from "@/components/ui/marker"
 import { cn } from "@/lib/utils"
 import { getMessageText } from "@/components/chat/chatUtils"
+// import { MessageScrollerGroupChat } from "./Test"
 
 function handleChatSelection(e: MouseEvent<HTMLElement>) {
     const selection = window.getSelection();
@@ -66,17 +68,21 @@ export function ChatList({
                             onMouseUp={handleChatSelection}
                             className="p-4 scroll-fade "
                         >
-                            {msg.map((message, index) => (
-                                <>
-                                    <MessageBubble message={message} key={message.id} messageId={message.id} scrollAnchor={message.role === "user"} />
+                            {msg.map((item, index) => (
+                                <MessageScrollerItem
+                                    className="[content-visibility:visible!]"
+                                    key={item.id}
+                                    messageId={item.id}
+                                    scrollAnchor={item.role === "user"} >
+                                    <MessageBubble message={item} />
                                     {msg.length - 1 === index &&
-                                        <Marker role="banner" className={cn(isBusy && !getMessageText(message).length ? "" : "sr-only")} >
+                                        <Marker role="banner" className={cn(isBusy && !getMessageText(item).length ? "" : "sr-only")} >
                                             <MarkerContent className="shimmer">
-                                                <span className="font-medium">loading</span>...
+                                                <span className="font-medium">{m.translate_loading()}</span>...
                                             </MarkerContent>
                                         </Marker>
                                     }
-                                </>
+                                </MessageScrollerItem>
                             ))}
                         </MessageScrollerContent>
                     </MessageScrollerViewport>

@@ -24,6 +24,7 @@
   "translate_input_placeholder": "Ask, Search or Chat...",
   "translate_empty_title": "One-Click Translate",
   "translate_empty_description": "Translate whatever you select with your mouse — AI-powered",
+  "translate_loading": "loading",
   "hotkey_press_to_set_hotkey": "Press to Set Hotkey",
   "hotkey_recording_hotkey": "recording hotkey",
   "hotkey_set_hotkey": "set hotkey",
