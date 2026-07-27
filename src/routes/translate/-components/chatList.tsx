@@ -17,7 +17,7 @@ import {
     MessageScrollerProvider,
     MessageScrollerViewport,
 } from "@/components/ui/message-scroller"
-import { type MouseEvent, type RefObject } from "react"
+import { useRef, type MouseEvent } from "react"
 import { useChatContext } from "@/components/chat/chatContext"
 import { m } from "@/paraglide/messages.js"
 import { MessageBubble, } from "./MessageBubble"
@@ -28,6 +28,7 @@ import { getMessageText } from "@/components/chat/chatUtils"
 // import { MessageScrollerGroupChat } from "./Test"
 import { createChat } from "@shadcn/helpers/ai-sdk"
 import MessageNavigator from "@/components/MessageNavigator"
+import { SelectionFloatingButton } from "./SelectionFloatingButton"
 function handleChatSelection(e: MouseEvent<HTMLElement>) {
     const selection = window.getSelection();
     const text = selection?.toString().trim();
@@ -54,17 +55,15 @@ createChat()
     )
   })
 
-export function ChatList({
-    containerRef,
-}: {
-    containerRef?: RefObject<HTMLDivElement | null>
-}) {
+export function ChatList() {
+    const chatListRef = useRef<HTMLDivElement>(null);
     const { messages, status, } = useChatContext()
     const msg = messages.filter(e => e.role != "system")
     const isBusy = status === "submitted" || status === "streaming"
     return (
         <MessageScrollerProvider >
             <MessageNavigator />
+            <SelectionFloatingButton containerRef={chatListRef} />
             {msg.length === 0 ? (
                 <Empty className="h-full">
                     <EmptyHeader>
@@ -79,7 +78,7 @@ export function ChatList({
                 </Empty>
             ) : (
                 <MessageScroller className="">
-                    <MessageScrollerViewport ref={containerRef} className="scrollbar-area">
+                    <MessageScrollerViewport ref={chatListRef} className="scrollbar-area">
                         <MessageScrollerContent
                             aria-busy={isBusy}
                             data-chat-container
