@@ -1,5 +1,4 @@
 pub mod event_names {
-    pub const BUBBLE_AUTO_SPEAK: &str = "BUBBLE_AUTO_SPEAK";
     // pub const AI_ERROR: &str = "AI_ERROR";
     pub const PAGE_LOADED: &str = "PAGE_LOADED";
     pub const START_CHAT_STREAM: &str = "START_CHAT_STREAM";

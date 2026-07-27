@@ -6,7 +6,6 @@ import Copyed from "@/components/Copyed";
 import { Button } from "@/components/ui/button";
 import { EVENT_NAMES } from "@/lib/events";
 import { type as ostype } from "@tauri-apps/plugin-os";
-import { AutoSpeakState, } from "@/lib/types";
 import { cn, speak } from "@/lib/utils";
 import { Icons } from "@/components/icon";
 import { useChatContext } from "@/components/chat/chatContext";
@@ -21,24 +20,8 @@ function RouteComponent() {
 		return item?.role === "assistant" ? item : undefined
 	})()
 	useEffect(() => {
-		const unlistenSpeak = listen<string>(
-			EVENT_NAMES.BUBBLE_AUTO_SPEAK,
-			({ payload }) => {
-				invoke<AutoSpeakState>(EVENT_NAMES.get_auto_speak_state).then((res) => {
-					const isSingleWord = payload.trim().split(/\s+/).length === 1;
-					if (
-						(res === AutoSpeakState.Single && isSingleWord) ||
-						(res === AutoSpeakState.All && payload.trim().length > 0)
-					) {
-						speak(payload);
-					}
-				});
-			},
-		);
-
 		const unlistenError = listen<string>(EVENT_NAMES.AI_ERROR, () => { });
 		return () => {
-			unlistenSpeak.then((fn) => fn());
 			unlistenError.then((fn) => fn());
 		};
 	}, []);

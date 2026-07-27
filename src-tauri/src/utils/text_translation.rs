@@ -14,19 +14,13 @@ struct TranslationPayload {
     selected_text: String,
 }
 
-fn build_translation_prompt(app_config_state: &AppConfigState, detected_lang: &str, selected_text: &str) -> String {
+fn build_translation_prompt(app_config_state: &AppConfigState, selected_text: &str) -> String {
     let app_config_read = app_config_state.read();
+    let detected_lang = language_detection::detect_language(selected_text);
     let detected_language = Language::from_locale(detected_lang);
     if app_config_read.self_explaining_model {
-        let self_explaining_prompt = app_config_read
-            .prompt_tags
-            .iter()
-            .find(|tag| tag.id == Some(3))
-            .and_then(|tag| tag.content.clone())
-            .unwrap_or_default();
-        self_explaining_prompt
-            .replace("{detected_lang}", &detected_language.to_display_name().to_string())
-            .replace("{text}", selected_text)
+        let self_explaining_prompt = app_config_read.prompt_tags.iter().find(|tag| tag.id == Some(3)).and_then(|tag| tag.content.clone()).unwrap_or_default();
+        self_explaining_prompt.replace("{detected_lang}", &detected_language.to_display_name().to_string()).replace("{text}", selected_text)
     } else {
         let effective_local_language: Language = app_config_read.local_language.effective_language();
         let effective_target_language = app_config_read.target_language.effective_language();
@@ -53,10 +47,13 @@ pub fn translate_selected_text(app_handle: &AppHandle) {
             return;
         }
 
-        let translation_prompt = build_translation_prompt(&app_handle.state::<AppConfigState>(), &language_detection::detect_language(&selected_text), &selected_text);
+        let translation_prompt = build_translation_prompt(&app_handle.state::<AppConfigState>(), &selected_text);
 
-        let _ = app_handle.emit(event_names::BUBBLE_AUTO_SPEAK, &selected_text);
-        let payload = TranslationPayload { translation_prompt: translation_prompt.clone(), selected_text: selected_text.clone() };
+        #[rustfmt::skip]
+        let payload = TranslationPayload { 
+            translation_prompt: translation_prompt.clone(), 
+            selected_text: selected_text.clone() 
+        };
         if my_windows::should_use_existing_translate_window(app_handle.clone()) {
             let _ = app_handle.emit_to("translate", event_names::START_CHAT_STREAM, &payload);
             my_windows::window_translate_show(&app_handle, None as Option<fn()>);

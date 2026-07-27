@@ -13,7 +13,6 @@ export const EVENT_NAMES = {
   // to backend
   PAGE_LOADED: "PAGE_LOADED",
   // from backend
-  BUBBLE_AUTO_SPEAK: "BUBBLE_AUTO_SPEAK",
   AI_ERROR: "AI_ERROR",
 
   START_CHAT_STREAM: "START_CHAT_STREAM",
