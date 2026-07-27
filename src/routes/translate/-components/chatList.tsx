@@ -13,17 +13,24 @@ import {
     MessageScroller,
     MessageScrollerButton,
     MessageScrollerContent,
-    MessageScrollerItem,
     MessageScrollerProvider,
     MessageScrollerViewport,
 } from "@/components/ui/message-scroller"
-import type { RefObject } from "react"
+import type { MouseEvent, RefObject } from "react"
 import { useChatContext } from "@/components/chat/chatContext"
-import { getMessageText } from "@/components/chat/chatUtils"
 import { m } from "@/paraglide/messages.js"
-import { Marker, MarkerContent } from "@/components/ui/marker"
-import { cn } from "@/lib/utils"
-import { MessageItem } from "./MessageItem"
+import { MessageBubble, } from "./MessageBubble"
+import { s_Selected } from "@/store"
+
+function handleChatSelection(e: MouseEvent<HTMLElement>) {
+    const selection = window.getSelection();
+    const text = selection?.toString().trim();
+    if (!text || !selection || selection.rangeCount === 0) return;
+    const range = selection.getRangeAt(0);
+    if (e.currentTarget.contains(range.commonAncestorContainer)) {
+        s_Selected.setState(() => ({ text }));
+    }
+}
 
 export function ChatList({
     containerRef,
@@ -33,7 +40,6 @@ export function ChatList({
     const { messages, status, } = useChatContext()
     const msg = messages.filter(e => e.role != "system")
     const isBusy = status === "submitted" || status === "streaming"
-    // console.log("abc:::", messages);
     return (
         <MessageScrollerProvider >
             {msg.length === 0 ? (
@@ -54,19 +60,11 @@ export function ChatList({
                         <MessageScrollerContent
                             aria-busy={isBusy}
                             data-chat-container
-                            className="p-4 scroll-fade"
+                            onMouseUp={handleChatSelection}
+                            className="p-4 scroll-fade "
                         >
-                            {msg.map((message, index) => (
-                                <MessageScrollerItem key={message.id} scrollAnchor={message.role === "user"} data-index={index}>
-                                    <MessageItem>{getMessageText(message)}</MessageItem>
-                                    {msg.length - 1 === index &&
-                                        <Marker role="banner" className={cn(isBusy && !getMessageText(message).length ? "" : "sr-only")} >
-                                            <MarkerContent className="shimmer">
-                                                <span className="font-medium">loading</span>...
-                                            </MarkerContent>
-                                        </Marker>
-                                    }
-                                </MessageScrollerItem>
+                            {msg.map((message) => (
+                                <MessageBubble message={message} key={message.id} messageId={message.id} scrollAnchor={message.role === "user"} />
                             ))}
                         </MessageScrollerContent>
                     </MessageScrollerViewport>
