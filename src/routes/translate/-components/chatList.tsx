@@ -61,7 +61,7 @@ export function ChatList() {
     const msg = messages.filter(e => e.role != "system")
     const isBusy = status === "submitted" || status === "streaming"
     return (
-        <MessageScrollerProvider >
+        <MessageScrollerProvider>
             <MessageNavigator />
             <SelectionFloatingButton containerRef={chatListRef} />
             {msg.length === 0 ? (
