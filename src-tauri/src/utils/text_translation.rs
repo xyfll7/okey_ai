@@ -18,7 +18,15 @@ fn build_translation_prompt(app_config_state: &AppConfigState, detected_lang: &s
     let app_config_read = app_config_state.read();
     let detected_language = Language::from_locale(detected_lang);
     if app_config_read.self_explaining_model {
-        "".to_string()
+        let self_explaining_prompt = app_config_read
+            .prompt_tags
+            .iter()
+            .find(|tag| tag.id == Some(3))
+            .and_then(|tag| tag.content.clone())
+            .unwrap_or_default();
+        self_explaining_prompt
+            .replace("{detected_lang}", &detected_language.to_display_name().to_string())
+            .replace("{text}", selected_text)
     } else {
         let effective_local_language: Language = app_config_read.local_language.effective_language();
         let effective_target_language = app_config_read.target_language.effective_language();
