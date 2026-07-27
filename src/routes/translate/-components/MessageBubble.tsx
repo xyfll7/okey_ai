@@ -8,6 +8,7 @@ import {
 import type { UIMessage } from "@tanstack/ai-react"
 import { getMessageText } from "@/components/chat/chatUtils"
 import { Message, MessageContent, MessageHeader } from "@/components/ui/message"
+import { cn } from "@/lib/utils"
 
 export function MessageBubble({ message }: { message: UIMessage }) {
 	return (
@@ -19,6 +20,9 @@ export function MessageBubble({ message }: { message: UIMessage }) {
 						<>
 							<Bubble variant={"outline"} align="end" >
 								<BubbleContent>{getMessageText(message)}</BubbleContent>
+								<BubbleReactions className={cn("sr-only")} align="start" role="img" aria-label="Reaction: thumbs up">
+									<span>👍</span>
+								</BubbleReactions>
 							</Bubble>
 						</>
 					}
@@ -28,7 +32,7 @@ export function MessageBubble({ message }: { message: UIMessage }) {
 								<BubbleContent>
 									<Markdown className="mb-2">{getMessageText(message)}</Markdown>
 								</BubbleContent>
-								<BubbleReactions role="img" aria-label="Reaction: thumbs up">
+								<BubbleReactions className={cn("sr-only","translate-y-4/4")} align="start" role="img" aria-label="Reaction: thumbs up">
 									<span>👍</span>
 								</BubbleReactions>
 							</Bubble>
