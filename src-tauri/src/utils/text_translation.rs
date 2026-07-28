@@ -27,7 +27,6 @@ pub fn translate_selected_text(app_handle: &AppHandle) {
             return;
         }
 
-        // 不传 content，由 assemble_prompt 内部按配置回退查找模板
         let translation_prompt = my_command::assemble_prompt(app_handle.clone(), PromptTag { raw: Some(selected_text.clone()), ..Default::default() }).unwrap_or_default();
 
         #[rustfmt::skip]
