@@ -23,7 +23,7 @@ interface UserTurn {
     prompt: string;
 }
 
-function extractLastUserTurn(
+export function extractLastUserTurn(
     messages: Array<UIMessage> | Array<ModelMessage>,
 ): UserTurn {
     for (let i = messages.length - 1; i >= 0; i--) {

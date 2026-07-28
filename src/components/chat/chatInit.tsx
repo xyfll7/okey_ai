@@ -7,6 +7,7 @@ import { useChatContext } from "@/components/chat/chatContext"
 import { s_Selected } from "@/store"
 import { speak } from "@/lib/utils"
 import type { UIMessage } from "@tanstack/ai-react"
+import { extractLastUserTurn } from "./chatAdapter"
 
 function maybeAutoSpeak(selectedText: string) {
 	invoke<AutoSpeakState>(EVENT_NAMES.get_auto_speak_state).then((res) => {
@@ -24,6 +25,7 @@ export function ChatInit({ children }: { children: ReactNode }) {
 	const { append, setMessages, sendMessage } = useChatContext()
 	useEffect(() => {
 		invoke<UIMessage[]>(EVENT_NAMES.get_current_history).then((history) => {
+			s_Selected.setState(() => ({ text: extractLastUserTurn(history).raw  }));
 			setMessages(history)
 		});
 		const unlisten = getCurrentWindow().listen<{ translation_prompt: string; selected_text: string }>(
