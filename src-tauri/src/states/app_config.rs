@@ -119,13 +119,13 @@ impl Default for AppConfig {
             self_explaining_model: false,
             #[rustfmt::skip]
             prompt_tags: vec![
-                PromptTag { raw: None, label: Some("系统提示词".to_string()), content: Some("You are a professional translation assistant. Please accurately translate the language, preserving the original meaning and tone.".to_string()), id: Some(0) },
-                PromptTag { raw: None, label: Some("总结".to_string()), content: Some("Please analyze the following text and provide a summary:\n\n{text}".to_string()), id: Some(1) },
-                PromptTag { raw: None, label: Some("右Ctrl".to_string()), content: Some("Please translate the following text into {target}:\n\n{text}".to_string()), id: Some(2) },
-                PromptTag { raw: None, label: Some("自解释".to_string()), content: Some("Please explain the following text in {detected_lang}, as if explaining to a language learner:\n\n{text}.".to_string()), id: Some(3) },
-                PromptTag { raw: None, label: Some("单词详解".to_string()), content: Some("Please use {local} to explain the word {text} in detail.".to_string()), id: Some(4) },
-                PromptTag { raw: None, label: Some("在句中的含义".to_string()), content: Some("Please use {local} to explain the meaning of {text} in the sentence.".to_string()), id: Some(5) },
-                PromptTag { raw: None, label: Some("详解".to_string()), content: Some("Please explain the following content in detail in {local}: {text}".to_string()), id: Some(6) },
+                PromptTag { raw: None, label: Some("System Prompt".to_string()), content: Some("You are a professional translation assistant. Please accurately translate the language, preserving the original meaning and tone.".to_string()), id: Some(0) },
+                PromptTag { raw: None, label: Some("Summary".to_string()), content: Some("Please analyze the following text and provide a summary:\n\n{text}".to_string()), id: Some(1) },
+                PromptTag { raw: None, label: Some("Right Ctrl".to_string()), content: Some("Please translate the following text into {target}:\n\n{text}".to_string()), id: Some(2) },
+                PromptTag { raw: None, label: Some("Self-Explanation".to_string()), content: Some("Please explain the following text in {detected_lang}, as if explaining to a language learner:\n\n{text}.".to_string()), id: Some(3) },
+                PromptTag { raw: None, label: Some("Word Details".to_string()), content: Some("Please use {local} to explain the word {text} in detail.".to_string()), id: Some(4) },
+                PromptTag { raw: None, label: Some("Meaning in Context".to_string()), content: Some("Please use {local} to explain the meaning of {text} in the sentence.".to_string()), id: Some(5) },
+                PromptTag { raw: None, label: Some("Detailed Explanation".to_string()), content: Some("Please explain the following content in detail in {local}: {text}".to_string()), id: Some(6) },
             ],
         }
     }
