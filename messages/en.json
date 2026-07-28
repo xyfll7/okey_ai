@@ -38,5 +38,6 @@
   "prompts_title": "Prompts",
   "prompts_label_placeholder": "Label",
   "prompts_content_placeholder": "Content",
-  "prompts_add": "Add"
+  "prompts_add": "Add",
+  "prompts_edit": "Edit"
 }

@@ -297,6 +297,21 @@ pub fn add_prompt_tag(app: AppHandle, label: String, content: String) -> Result<
 }
 
 #[tauri::command(rename_all = "snake_case")]
+pub fn update_prompt_tag(app: AppHandle, id: u32, label: String, content: String) -> Result<Vec<PromptTag>, String> {
+    let app_state = app.state::<AppConfigState>();
+    app_state
+        .update(|config| {
+            if let Some(tag) = config.prompt_tags.iter_mut().find(|tag| tag.id == Some(id)) {
+                tag.label = Some(label);
+                tag.content = Some(content);
+            }
+        })
+        .map_err(|e| e.to_string())?;
+    let tags = app_state.read().prompt_tags.clone();
+    Ok(tags)
+}
+
+#[tauri::command(rename_all = "snake_case")]
 pub fn set_self_explaining_model(app: AppHandle, enabled: bool) -> Result<bool, String> {
     let app_state = app.state::<AppConfigState>();
     app_state

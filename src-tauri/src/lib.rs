@@ -48,6 +48,7 @@ pub fn run() {
             my_command::get_prompt_tags,
             my_command::delete_prompt_tag,
             my_command::add_prompt_tag,
+            my_command::update_prompt_tag,
             my_command::window_translate_show,
             my_command::close_main_window,
             my_command::chat_stream,

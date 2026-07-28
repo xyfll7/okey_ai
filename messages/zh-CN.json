@@ -38,5 +38,6 @@
   "prompts_title": "提示词",
   "prompts_label_placeholder": "标签",
   "prompts_content_placeholder": "内容",
-  "prompts_add": "添加"
+  "prompts_add": "添加",
+  "prompts_edit": "修改"
 }

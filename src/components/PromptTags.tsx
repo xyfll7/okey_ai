@@ -16,10 +16,11 @@ import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle }
 import { m } from "@/paraglide/messages.js";
 import type { ChatMessage } from "@/lib/types";
 
-export function PromptTags({ className, prompts, onDelete, onAdd }: { className?: string; prompts: ChatMessage[]; onDelete?: (id: number) => void; onAdd?: (label: string, content: string) => void }) {
+export function PromptTags({ className, prompts, onDelete, onAdd, onEdit }: { className?: string; prompts: ChatMessage[]; onDelete?: (id: number) => void; onAdd?: (label: string, content: string) => void; onEdit?: (id: number, label: string, content: string) => void }) {
     const [isOpen, setIsOpen] = useState(false)
     const [newLabel, setNewLabel] = useState("")
     const [newContent, setNewContent] = useState("")
+    const [editingId, setEditingId] = useState<number | null>(null)
 
     useEffect(() => {
         if (!isOpen) return;
@@ -29,12 +30,31 @@ export function PromptTags({ className, prompts, onDelete, onAdd }: { className?
         }
     }, [isOpen]);
 
+    const resetForm = () => {
+        setNewLabel("");
+        setNewContent("");
+        setEditingId(null);
+    };
+
     const handleAdd = () => {
         const label = newLabel.trim();
         if (!label) return;
         onAdd?.(label, newContent.trim() || label);
-        setNewLabel("");
-        setNewContent("");
+        resetForm();
+    };
+
+    const handleEdit = () => {
+        if (editingId === null) return;
+        const label = newLabel.trim();
+        if (!label) return;
+        onEdit?.(editingId, label, newContent.trim() || label);
+        resetForm();
+    };
+
+    const startEdit = (id: number, label: string, content: string) => {
+        setEditingId(id);
+        setNewLabel(label);
+        setNewContent(content);
     };
 
     return <Drawer open={isOpen} onOpenChange={setIsOpen} >
@@ -65,14 +85,11 @@ export function PromptTags({ className, prompts, onDelete, onAdd }: { className?
                     onChange={(e) => setNewContent(e.target.value)}
                 />
                 <div className="flex justify-end gap-2">
-                    <Button size={"xs"} variant={"ghost"} onClick={() => {
-                        setNewLabel("");
-                        setNewContent("");
-                    }}>
-                        {m.common_cancel()}
+                    <Button size={"xs"} variant={"ghost"} disabled={editingId === null} onClick={handleEdit}>
+                        {m.prompts_edit()}
                     </Button>
-                    <Button size={"xs"} variant={"default"} onClick={handleAdd}>
-                        {m.prompts_add()}
+                    <Button size={"xs"} variant={"default"} onClick={editingId === null ? handleAdd : resetForm}>
+                        {editingId === null ? m.prompts_add() : m.common_cancel()}
                     </Button>
                 </div>
             </div>
@@ -85,6 +102,14 @@ export function PromptTags({ className, prompts, onDelete, onAdd }: { className?
                                 <ItemDescription>{e.content}</ItemDescription>
                             </ItemContent>
                             <ItemActions>
+                                <Button
+                                    size={"icon-xs"}
+                                    variant={"ghost"}
+                                    className="h-4 w-4"
+                                    onClick={() => startEdit(e.id!, e.label ?? "", e.content ?? "")}
+                                >
+                                    <Icons.pen />
+                                </Button>
                                 <Button
                                     size={"icon-xs"}
                                     variant={"ghost"}

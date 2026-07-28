@@ -45,6 +45,7 @@ export const EVENT_NAMES = {
   get_prompt_tags: "get_prompt_tags",
   delete_prompt_tag: "delete_prompt_tag",
   add_prompt_tag: "add_prompt_tag",
+  update_prompt_tag: "update_prompt_tag",
   get_locale: "get_locale",
   set_locale: "set_locale",
   set_current_session: "set_current_session",

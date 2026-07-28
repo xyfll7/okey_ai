@@ -23,6 +23,11 @@ export function SelectedText({ onChat }: { onChat: (e: ChatMessage) => void }) {
 		await invoke<ChatMessage[]>(EVENT_NAMES.add_prompt_tag, { label, content });
 		await promptTags_X.invokeState();
 	};
+
+	const handleEditPromptTag = async (id: number, label: string, content: string) => {
+		await invoke<ChatMessage[]>(EVENT_NAMES.update_prompt_tag, { id, label, content });
+		await promptTags_X.invokeState();
+	};
 	if (!selected.text) return "";
 	return (
 		<div className="w-full">
@@ -70,7 +75,7 @@ export function SelectedText({ onChat }: { onChat: (e: ChatMessage) => void }) {
 							{e.label}
 						</Button>
 					))}
-					<PromptTags prompts={promptTags_X.state} onDelete={handleDeletePromptTag} onAdd={handleAddPromptTag} />
+					<PromptTags prompts={promptTags_X.state} onDelete={handleDeletePromptTag} onAdd={handleAddPromptTag} onEdit={handleEditPromptTag} />
 				</div>
 			)
 			}
