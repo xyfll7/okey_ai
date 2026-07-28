@@ -25,8 +25,6 @@ import { s_Selected } from "@/store"
 import { Marker, MarkerContent } from "@/components/ui/marker"
 import { cn } from "@/lib/utils"
 import { getMessageText } from "@/components/chat/chatUtils"
-// import { MessageScrollerGroupChat } from "./Test"
-import { createChat } from "@shadcn/helpers/ai-sdk"
 import MessageNavigator from "@/components/MessageNavigator"
 import { SelectionFloatingButton } from "./SelectionFloatingButton"
 function handleChatSelection(e: MouseEvent<HTMLElement>) {
@@ -40,20 +38,7 @@ function handleChatSelection(e: MouseEvent<HTMLElement>) {
 }
 
 
-createChat()
-  .user(
-    "I'm building a chat for our app and the scroll behavior is driving me nuts. Every time the AI streams a reply, the whole thread jumps around."
-  )
-  .sleep(1000)
-  .assistant(({ writer }) => {
-    writer.reasoning(
-      "They are describing a streaming transcript that keeps taking control of the viewport. I should explain when auto-scroll follows and when it stops."
-    )
-    writer.sleep(1000)
-    writer.text(
-      "That's the classic streaming scroll problem. Wrap your message list in `MessageScroller` and turn on `autoScroll` — the viewport pins to the bottom as tokens arrive, so users always see the latest text land in place.\n\nThe important part: it only auto-scrolls while the reader is already at the bottom. The moment they scroll up to read something earlier, auto-scroll backs off and their position is preserved. You get smooth streaming without fighting the user's intent."
-    )
-  })
+
 
 export function ChatList() {
     const chatListRef = useRef<HTMLDivElement>(null);
