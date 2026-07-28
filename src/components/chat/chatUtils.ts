@@ -24,6 +24,5 @@ export function chatMessagesToUIMessages(msgs: ChatMessage[]): UIMessage[] {
 export function getMessageText(message: UIMessage) {
 	return message.parts
 		.map((part) => (part.type === "text" ? part.content : ""))
-		.join("");
 }
 

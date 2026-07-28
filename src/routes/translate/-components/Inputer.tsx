@@ -40,8 +40,13 @@ export function Inputer({ className, }: { className?: string; }) {
 				<InputGroupAddon align="block-start">
 					<SelectedText onChat={(e) => {
 						console.log("eee", e)
-						invoke<string>(EVENT_NAMES.assemble_prompt,{  prompt_tag: e}).then((e) => {
-							sendMessage(e)
+						invoke<string>(EVENT_NAMES.assemble_prompt, { prompt_tag: e }).then((ee) => {
+							sendMessage({
+								content: [
+									{ type: 'text', content: e.raw! },
+									{ type: 'text', content: ee },
+								],
+							})
 						});
 					}} />
 				</InputGroupAddon>

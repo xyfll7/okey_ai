@@ -114,7 +114,7 @@ const MessageNavigator = () => {
 							key={index}
 							isActive={index === clampedActive}
 							role={item.role!}
-							content={getMessageText(item)}
+							content={getMessageText(item)[0]}
 							onClick={() => scrollToIndex(index)}
 						/>
 					))}

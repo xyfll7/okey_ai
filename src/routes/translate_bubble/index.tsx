@@ -69,8 +69,8 @@ function RouteComponent() {
 						<span data-loading="..."> "..."</span>
 					) : (
 						<>
-							<div>{chat && getMessageText(chat)}</div>
-							{chat && getMessageText(chat) ? (
+							<div>{chat && getMessageText(chat).join("")}</div>
+							{chat && getMessageText(chat).join("") ? (
 								<span
 									className="truncate text-transparent selection:bg-transparent cursor-grab hover:cursor-grabbing"
 									data-tauri-drag-region
@@ -90,7 +90,7 @@ function RouteComponent() {
 					size={"icon-sm"}
 					variant={"ghost"}
 				>
-					<Copyed text={chat ? getMessageText(chat) : ""} />
+					<Copyed text={chat ? getMessageText(chat).join("") : ""} />
 				</Button>
 				<Button
 					className={cn("")}
@@ -98,7 +98,7 @@ function RouteComponent() {
 					variant={"ghost"}
 					onClick={() => {
 						const chat_user = messages?.at(-2);
-						if (chat_user) speak(getMessageText(chat_user))
+						if (chat_user) speak(getMessageText(chat_user).join(""))
 					}}
 				>
 					<Icons.volumeHigh />

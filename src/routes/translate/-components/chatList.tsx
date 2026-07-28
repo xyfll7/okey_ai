@@ -93,7 +93,7 @@ export function ChatList() {
                                     scrollAnchor={item.role === "user"} >
                                     <MessageBubble message={item} />
                                     {msg.length - 1 === index &&
-                                        <Marker role="banner" className={cn(isBusy && !getMessageText(item).length ? "" : "sr-only")} >
+                                        <Marker role="banner" className={cn(isBusy && !getMessageText(item).join("").length ? "" : "sr-only")} >
                                             <MarkerContent className="shimmer">
                                                 <span className="font-medium">{m.translate_loading()}</span>...
                                             </MarkerContent>

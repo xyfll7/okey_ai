@@ -32,7 +32,12 @@ export function ChatInit({ children }: { children: ReactNode }) {
 				maybeAutoSpeak(e.payload.selected_text);
 
 				s_Selected.setState(() => ({ text: e.payload.selected_text, }));
-				sendMessage(e.payload.translation_prompt)
+				sendMessage({
+					content: [
+						{ type: 'text', content: e.payload.selected_text },
+						{ type: 'text', content: e.payload.translation_prompt },
+					],
+				})
 			})
 		return () => { unlisten.then((fn) => fn()) }
 	}, [append, setMessages, sendMessage])
