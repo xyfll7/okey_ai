@@ -108,10 +108,7 @@ function RouteComponent() {
 					size={"icon-sm"}
 					variant={"ghost"}
 					onClick={async () => {
-						if (!messages) return;
-						await invoke(EVENT_NAMES.window_translate_show, {
-							chat_message: messages,
-						});
+						await invoke(EVENT_NAMES.window_translate_show);
 					}}
 				>
 					<Icons.arrowExpand />
