@@ -14,9 +14,9 @@ import { cn } from "@/lib/utils";
 import { ScrollArea } from "./ui/scroll-area";
 import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemTitle } from "./ui/item";
 import { m } from "@/paraglide/messages.js";
-import type { ChatMessage } from "@/lib/types";
+import type { PromptTag } from "@/lib/types";
 
-export function PromptTags({ className, prompts, onDelete, onAdd, onEdit }: { className?: string; prompts: ChatMessage[]; onDelete?: (id: number) => void; onAdd?: (label: string, content: string) => void; onEdit?: (id: number, label: string, content: string) => void }) {
+export function PromptTags({ className, prompts, onDelete, onAdd, onEdit }: { className?: string; prompts: PromptTag[]; onDelete?: (id: number) => void; onAdd?: (label: string, content: string) => void; onEdit?: (id: number, label: string, content: string) => void }) {
     const [isOpen, setIsOpen] = useState(false)
     const [newLabel, setNewLabel] = useState("")
     const [newContent, setNewContent] = useState("")

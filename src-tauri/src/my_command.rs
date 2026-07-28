@@ -3,7 +3,7 @@ use crate::my_windows;
 use crate::states::app_config::{AutoSpeakState, Language, ModelProvider, PromptTag};
 use crate::states::app_state::AppConfigState;
 use crate::states::chatting_state::ChattingState;
-use crate::utils::chat_message::{ChatMessage, ChatMessageHistory, Role};
+use crate::utils::chat_message::{ChatMessageHistory, Role, UIMessage};
 use crate::utils::{language_detection, translation_manager};
 use serde::{Deserialize, Serialize};
 use tauri::{ipc::Channel, AppHandle, Manager};
@@ -77,7 +77,7 @@ pub async fn chat_stream(app: AppHandle, prompt_text: String, on_event: Channel<
     let on_event_clone = on_event.clone();
     let chatting_state_clone = chatting_state.clone();
 
-    let messages = translation_manager.add_get_user_message(None, &prompt_text, None, Role::User).await.unwrap_or_default();
+    let messages = translation_manager.add_get_user_message(None, &prompt_text, Role::User).await.unwrap_or_default();
     chatting_state_clone.set(true);
     let chat_histories = translation_manager
         .translate_stream(None, messages, move |chunk_content| {
@@ -207,7 +207,7 @@ pub async fn get_histories(app: AppHandle) -> Result<Vec<(String, ChatMessageHis
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub async fn get_current_history(app: AppHandle) -> Result<Vec<ChatMessage>, String> {
+pub async fn get_current_history(app: AppHandle) -> Result<Vec<UIMessage>, String> {
     let translation_manager = app.state::<translation_manager::TranslationManager>();
     let histories = translation_manager.get_histories().await;
     if histories.is_empty() {

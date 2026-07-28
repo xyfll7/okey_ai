@@ -11,7 +11,8 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { EVENT_NAMES, useInvoke } from "@/lib/events";
-import { AutoSpeakState, type ChatMessage } from "@/lib/types";
+import { AutoSpeakState } from "@/lib/types";
+import type { UIMessage } from "@tanstack/ai/client";
 import { cn, get_app_config } from "@/lib/utils";
 import { s_Selected } from "@/store";
 import { m } from "@/paraglide/messages.js";
@@ -19,15 +20,14 @@ import { Icons } from "@/components/icon";
 import { HistoriesNew } from "@/components/HistoriesNew";
 import { SettingsNew } from "@/components/SettingsNew";
 import { useChatContext } from "@/components/chat/chatContext";
-import { chatMessagesToUIMessages } from "@/components/chat/chatUtils";
 
 function CreateNewSession() {
 	const { setMessages } = useChatContext()
 	const { ...loadingChat_X } = useInvoke<boolean>(EVENT_NAMES.get_chatting_state, false, false, undefined, EVENT_NAMES.CHATTING_STATE_CHANGE);
 	return <Button size={"icon-sm"} variant={"ghost"} disabled={loadingChat_X.state} onClick={async () => {
 		await invoke(EVENT_NAMES.create_new_session);
-		const history = await invoke<ChatMessage[]>(EVENT_NAMES.get_current_history);
-		setMessages(chatMessagesToUIMessages(history))
+		const history = await invoke<UIMessage[]>(EVENT_NAMES.get_current_history);
+		setMessages(history)
 		s_Selected.setState(() => ({ text: "", }));
 	}}>
 		<Icons.chat />

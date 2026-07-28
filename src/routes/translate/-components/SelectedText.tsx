@@ -3,29 +3,29 @@ import { invoke } from "@tauri-apps/api/core";
 import { Button } from "@/components/ui/button";
 import Copyed from "@/components/Copyed";
 import { EVENT_NAMES, useInvoke } from "@/lib/events";
-import { type ChatMessage } from "@/lib/types";
+import { type PromptTag } from "@/lib/types";
 import { cn, speak } from "@/lib/utils";
 import { s_Selected } from "@/store";
 import { Icons } from "@/components/icon";
 import { PromptTags } from "@/components/PromptTags";
 
-export function SelectedText({ onChat }: { onChat: (e: ChatMessage) => void }) {
+export function SelectedText({ onChat }: { onChat: (e: PromptTag) => void }) {
 	const selected = useStore(s_Selected, (state) => state);
 	const { ...loadingChat_X } = useInvoke<boolean>(EVENT_NAMES.get_chatting_state, false, false, undefined, EVENT_NAMES.CHATTING_STATE_CHANGE);
-	const { ...promptTags_X } = useInvoke<ChatMessage[]>(EVENT_NAMES.get_prompt_tags, []);
+	const { ...promptTags_X } = useInvoke<PromptTag[]>(EVENT_NAMES.get_prompt_tags, []);
 
 	const handleDeletePromptTag = async (id: number) => {
-		await invoke<ChatMessage[]>(EVENT_NAMES.delete_prompt_tag, { id });
+		await invoke<PromptTag[]>(EVENT_NAMES.delete_prompt_tag, { id });
 		await  promptTags_X.invokeState();
 	};
 
 	const handleAddPromptTag = async (label: string, content: string) => {
-		await invoke<ChatMessage[]>(EVENT_NAMES.add_prompt_tag, { label, content });
+		await invoke<PromptTag[]>(EVENT_NAMES.add_prompt_tag, { label, content });
 		await promptTags_X.invokeState();
 	};
 
 	const handleEditPromptTag = async (id: number, label: string, content: string) => {
-		await invoke<ChatMessage[]>(EVENT_NAMES.update_prompt_tag, { id, label, content });
+		await invoke<PromptTag[]>(EVENT_NAMES.update_prompt_tag, { id, label, content });
 		await promptTags_X.invokeState();
 	};
 	if (!selected.text) return "";

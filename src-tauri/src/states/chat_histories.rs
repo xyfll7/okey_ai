@@ -1,4 +1,4 @@
-use crate::utils::chat_message::{ChatMessage, ChatMessageHistory, Role};
+use crate::utils::chat_message::{ChatMessageHistory, Role, UIMessage};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::sync::Arc;
@@ -18,14 +18,14 @@ impl ChatHistoriesState {
     }
 
     /// Add a message to a specific chat history
-    pub async fn add_message(&self, key: &str, role: Role, content: String, raw: Option<String>) -> &Self {
+    pub async fn add_message(&self, key: &str, role: Role, content: String) -> &Self {
         let mut state = self.0.write().await;
-        state.histories.entry(key.to_string()).or_insert_with(ChatMessageHistory::new).add_message(role, content, raw);
+        state.histories.entry(key.to_string()).or_insert_with(ChatMessageHistory::new).add_message(role, content);
         self
     }
 
     /// Get messages from a specific chat history
-    pub async fn get_messages(&self, key: &str) -> Option<Vec<ChatMessage>> {
+    pub async fn get_messages(&self, key: &str) -> Option<Vec<UIMessage>> {
         let state = self.0.read().await;
         state.histories.get(key).map(|h| h.to_vec())
     }

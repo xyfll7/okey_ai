@@ -1,12 +1,12 @@
 import { type ReactNode, useEffect } from "react"
-import { chatMessagesToUIMessages } from "./chatUtils"
 import { EVENT_NAMES } from "@/lib/events"
 import { invoke } from "@tauri-apps/api/core"
 import { getCurrentWindow } from "@tauri-apps/api/window"
-import { AutoSpeakState, type ChatMessage } from "@/lib/types"
+import { AutoSpeakState } from "@/lib/types"
 import { useChatContext } from "@/components/chat/chatContext"
 import { s_Selected } from "@/store"
 import { speak } from "@/lib/utils"
+import type { UIMessage } from "@tanstack/ai-react"
 
 function maybeAutoSpeak(selectedText: string) {
 	invoke<AutoSpeakState>(EVENT_NAMES.get_auto_speak_state).then((res) => {
@@ -23,8 +23,8 @@ function maybeAutoSpeak(selectedText: string) {
 export function ChatInit({ children }: { children: ReactNode }) {
 	const { append, setMessages, sendMessage } = useChatContext()
 	useEffect(() => {
-		invoke<ChatMessage[]>(EVENT_NAMES.get_current_history).then((history) => {
-			setMessages(chatMessagesToUIMessages(history))
+		invoke<UIMessage[]>(EVENT_NAMES.get_current_history).then((history) => {
+			setMessages(history)
 		});
 		const unlisten = getCurrentWindow().listen<{ translation_prompt: string; selected_text: string }>(
 			EVENT_NAMES.START_CHAT_STREAM,

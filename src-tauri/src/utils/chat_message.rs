@@ -6,18 +6,38 @@ pub struct LLMChatMessage {
     pub role: Role,
     pub content: String,
 }
-/// Represents a chat message with a role and content
+/// A part of a UIMessage, mirrors the `MessagePart` type of @tanstack/ai
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ChatMessage {
-    pub role: Role,
-    pub content: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub raw: Option<String>,
+#[serde(tag = "type", rename_all = "lowercase")]
+pub enum MessagePart {
+    Text { content: String },
 }
 
-impl ChatMessage {
+/// Mirrors the `UIMessage` type of @tanstack/ai, so the frontend can consume it directly
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UIMessage {
+    pub id: String,
+    pub role: Role,
+    pub parts: Vec<MessagePart>,
+}
+
+impl UIMessage {
+    pub fn new_text(id: String, role: Role, content: String) -> Self {
+        UIMessage { id, role, parts: vec![MessagePart::Text { content }] }
+    }
+
+    /// Concatenated text content of all text parts
+    pub fn text(&self) -> String {
+        self.parts
+            .iter()
+            .map(|part| match part {
+                MessagePart::Text { content } => content.as_str(),
+            })
+            .collect()
+    }
+
     pub fn as_llm(&self) -> LLMChatMessage {
-        LLMChatMessage { role: self.role.clone(), content: self.content.clone() }
+        LLMChatMessage { role: self.role.clone(), content: self.text() }
     }
 }
 
@@ -74,10 +94,10 @@ impl<'a> From<&'a str> for Role {
     }
 }
 
-/// Manages a list of ChatMessage for multi-turn conversations
+/// Manages a list of UIMessage for multi-turn conversations
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChatMessageHistory {
-    pub messages: Vec<ChatMessage>,
+    pub messages: Vec<UIMessage>,
 }
 
 impl ChatMessageHistory {
@@ -85,15 +105,15 @@ impl ChatMessageHistory {
         ChatMessageHistory { messages: Vec::new() }
     }
 
-    /// Adds a new message to the history
-    pub fn add_message(&mut self, role: Role, content: String, raw: Option<String>) -> &mut Self {
-        let message = ChatMessage { role, content, raw };
-        self.messages.push(message);
+    /// Adds a new text message to the history (index-based stable id)
+    pub fn add_message(&mut self, role: Role, content: String) -> &mut Self {
+        let id = format!("msg-{}", self.messages.len());
+        self.messages.push(UIMessage::new_text(id, role, content));
         self
     }
 
-    /// Converts the history to a vector of ChatMessage
-    pub fn to_vec(&self) -> Vec<ChatMessage> {
+    /// Converts the history to a vector of UIMessage
+    pub fn to_vec(&self) -> Vec<UIMessage> {
         self.messages.clone()
     }
 }

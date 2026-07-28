@@ -1,18 +1,20 @@
+import type { UIMessage } from "@tanstack/ai/client";
+
 /**
- * TypeScript interface definition for ChatMessage
- * Corresponds to the Rust struct in src-tauri/src/types.rs
+ * Corresponds to the Rust struct PromptTag in src-tauri/src/states/app_config.rs
  */
-export interface ChatMessage {
-	role?: "system" | "user" | "assistant";
-	content?: string;
-	raw?: string;
+export interface PromptTag {
 	id?: number;
 	label?: string;
+	content?: string;
+	raw?: string;
 }
 
-
+/**
+ * Corresponds to the Rust struct ChatMessageHistory in src-tauri/src/utils/chat_message.rs
+ */
 export interface ChatMessageHistory {
-	messages: ChatMessage[];
+	messages: UIMessage[];
 }
 
 export const AutoSpeakState = {

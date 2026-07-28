@@ -3,7 +3,7 @@ use crate::my_api::traits::ChatCompletionRequest;
 use crate::states::app_config::ModelProvider;
 use crate::states::app_state::AppConfigState;
 use crate::states::chat_histories::ChatHistoriesState;
-use crate::utils::chat_message::{ChatMessage, ChatMessageHistory, Role};
+use crate::utils::chat_message::{ChatMessageHistory, Role, UIMessage};
 use std::collections::BTreeMap;
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -34,7 +34,7 @@ impl TranslationManager {
                 .unwrap_or_default()
         };
 
-        self.chat_histories.add_message(&session_id, Role::System, system_prompt, None).await;
+        self.chat_histories.add_message(&session_id, Role::System, system_prompt).await;
 
         let mut active_id = self.active_session_id.write().await;
         *active_id = Some(session_id.clone());
@@ -47,7 +47,7 @@ impl TranslationManager {
         model_type
     }
 
-    pub async fn add_get_user_message(&self, session_id: Option<&str>, content: &str, raw: Option<String>, role: Role) -> Option<Vec<ChatMessage>> {
+    pub async fn add_get_user_message(&self, session_id: Option<&str>, content: &str, role: Role) -> Option<Vec<UIMessage>> {
         let session_id = match session_id {
             Some(id) => id.to_string(),
             None => {
@@ -56,12 +56,12 @@ impl TranslationManager {
             }
         };
 
-        self.chat_histories.add_message(&session_id, role, content.to_string(), raw).await;
+        self.chat_histories.add_message(&session_id, role, content.to_string()).await;
 
         self.chat_histories.get_messages(&session_id).await
     }
 
-    pub async fn translate_stream<StreamCallback>(&self, session_id: Option<&str>, messages: Vec<ChatMessage>, stream_callback: StreamCallback) -> Result<Vec<ChatMessage>, String>
+    pub async fn translate_stream<StreamCallback>(&self, session_id: Option<&str>, messages: Vec<UIMessage>, stream_callback: StreamCallback) -> Result<Vec<UIMessage>, String>
     where
         StreamCallback: Fn(String) + Send + 'static,
     {
@@ -81,7 +81,7 @@ impl TranslationManager {
 
         let request = ChatCompletionRequest {
             model: current_client_config.model,
-            messages: messages.iter().map(ChatMessage::as_llm).collect::<Vec<_>>(),
+            messages: messages.iter().map(UIMessage::as_llm).collect::<Vec<_>>(),
             temperature: Some(0.1),
             max_tokens: Some(5000),
             top_p: Some(1.0),
@@ -108,7 +108,7 @@ impl TranslationManager {
             return Err(err);
         }
         let final_content = content_chunks.lock().unwrap().clone();
-        self.chat_histories.add_message(&session_id, Role::Assistant, final_content, None).await;
+        self.chat_histories.add_message(&session_id, Role::Assistant, final_content).await;
         self.chat_histories.get_messages(&session_id).await.ok_or_else(|| "Failed to retrieve translation history after streaming".to_string())
     }
 
@@ -116,7 +116,7 @@ impl TranslationManager {
         self.chat_histories.clone().get_all_histories().await
     }
 
-    pub async fn get_current_history(&self) -> Option<Vec<ChatMessage>> {
+    pub async fn get_current_history(&self) -> Option<Vec<UIMessage>> {
         let active_id = self.active_session_id.read().await;
         let session_id = active_id.as_ref()?;
         self.chat_histories.get_messages(session_id).await
