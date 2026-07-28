@@ -12,16 +12,16 @@ import { PromptTags } from "@/components/PromptTags";
 export function SelectedText({ onChat }: { onChat: (e: ChatMessage) => void }) {
 	const selected = useStore(s_Selected, (state) => state);
 	const { ...loadingChat_X } = useInvoke<boolean>(EVENT_NAMES.get_chatting_state, false, false, undefined, EVENT_NAMES.CHATTING_STATE_CHANGE);
-	const { state: promptTags, invokeState: refreshPromptTags } = useInvoke<ChatMessage[]>(EVENT_NAMES.get_prompt_tags, []);
+	const { ...promptTags_X } = useInvoke<ChatMessage[]>(EVENT_NAMES.get_prompt_tags, []);
 
 	const handleDeletePromptTag = async (id: number) => {
 		await invoke<ChatMessage[]>(EVENT_NAMES.delete_prompt_tag, { id });
-		await refreshPromptTags();
+		await  promptTags_X.invokeState();
 	};
 
 	const handleAddPromptTag = async (label: string, content: string) => {
 		await invoke<ChatMessage[]>(EVENT_NAMES.add_prompt_tag, { label, content });
-		await refreshPromptTags();
+		await promptTags_X.invokeState();
 	};
 	if (!selected.text) return "";
 	return (
@@ -56,7 +56,7 @@ export function SelectedText({ onChat }: { onChat: (e: ChatMessage) => void }) {
 			</div>
 			{selected.text?.trim() && (
 				<div className="flex flex-wrap">
-					{promptTags.map((e) => (
+					{promptTags_X.state.slice(3).map((e) => (
 						<Button
 							className="mr-1 mb-1"
 							size={"xs"}
@@ -70,7 +70,7 @@ export function SelectedText({ onChat }: { onChat: (e: ChatMessage) => void }) {
 							{e.label}
 						</Button>
 					))}
-					<PromptTags prompts={promptTags} onDelete={handleDeletePromptTag} onAdd={handleAddPromptTag} />
+					<PromptTags prompts={promptTags_X.state} onDelete={handleDeletePromptTag} onAdd={handleAddPromptTag} />
 				</div>
 			)
 			}
