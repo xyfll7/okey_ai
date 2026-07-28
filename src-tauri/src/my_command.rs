@@ -3,7 +3,7 @@ use crate::my_windows;
 use crate::states::app_config::{AutoSpeakState, Language, ModelProvider, PromptTag};
 use crate::states::app_state::AppConfigState;
 use crate::states::chatting_state::ChattingState;
-use crate::utils::chat_message::{ChatMessageHistory, Role, UIMessage};
+use crate::utils::chat_message::{ChatMessageHistory, Role, UIMessage, UserTurn};
 use crate::utils::{language_detection, translation_manager};
 use serde::{Deserialize, Serialize};
 use tauri::{ipc::Channel, AppHandle, Manager};
@@ -71,13 +71,15 @@ pub fn assemble_prompt(app: AppHandle, prompt_tag: PromptTag) -> Result<String, 
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub async fn chat_stream(app: AppHandle, prompt_text: String, on_event: Channel<StreamEvent>) -> Result<(), String> {
+/// Receives a single user turn: `raw` is the original source text (optional,
+/// kept for display) and `prompt` is the assembled text forwarded to the model.
+pub async fn chat_stream(app: AppHandle, raw: String, prompt: String, on_event: Channel<StreamEvent>) -> Result<(), String> {
     let translation_manager = app.state::<translation_manager::TranslationManager>();
     let chatting_state = app.state::<ChattingState>().inner().clone();
     let on_event_clone = on_event.clone();
     let chatting_state_clone = chatting_state.clone();
 
-    let messages = translation_manager.add_get_user_message(None, &prompt_text, Role::User).await.unwrap_or_default();
+    let messages = translation_manager.add_get_user_message(None, UserTurn { raw, prompt }, Role::User).await.unwrap_or_default();
     chatting_state_clone.set(true);
     let chat_histories = translation_manager
         .translate_stream(None, messages, move |chunk_content| {

@@ -1,4 +1,4 @@
-use crate::utils::chat_message::{ChatMessageHistory, Role, UIMessage};
+use crate::utils::chat_message::{ChatMessageHistory, MessagePart, Role, UIMessage};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::sync::Arc;
@@ -21,6 +21,13 @@ impl ChatHistoriesState {
     pub async fn add_message(&self, key: &str, role: Role, content: String) -> &Self {
         let mut state = self.0.write().await;
         state.histories.entry(key.to_string()).or_insert_with(ChatMessageHistory::new).add_message(role, content);
+        self
+    }
+
+    /// Adds a message built from explicit parts (e.g. raw text + assembled prompt)
+    pub async fn add_message_parts(&self, key: &str, role: Role, parts: Vec<MessagePart>) -> &Self {
+        let mut state = self.0.write().await;
+        state.histories.entry(key.to_string()).or_insert_with(ChatMessageHistory::new).add_message_parts(role, parts);
         self
     }
 

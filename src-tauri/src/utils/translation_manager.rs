@@ -3,7 +3,7 @@ use crate::my_api::traits::ChatCompletionRequest;
 use crate::states::app_config::ModelProvider;
 use crate::states::app_state::AppConfigState;
 use crate::states::chat_histories::ChatHistoriesState;
-use crate::utils::chat_message::{ChatMessageHistory, Role, UIMessage};
+use crate::utils::chat_message::{ChatMessageHistory, MessagePart, Role, UIMessage, UserTurn};
 use std::collections::BTreeMap;
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -47,7 +47,7 @@ impl TranslationManager {
         model_type
     }
 
-    pub async fn add_get_user_message(&self, session_id: Option<&str>, content: &str, role: Role) -> Option<Vec<UIMessage>> {
+    pub async fn add_get_user_message(&self, session_id: Option<&str>, turn: UserTurn, role: Role) -> Option<Vec<UIMessage>> {
         let session_id = match session_id {
             Some(id) => id.to_string(),
             None => {
@@ -56,7 +56,12 @@ impl TranslationManager {
             }
         };
 
-        self.chat_histories.add_message(&session_id, role, content.to_string()).await;
+        let mut parts = Vec::new();
+        if !turn.raw.is_empty() {
+            parts.push(MessagePart::Text { content: turn.raw });
+        }
+        parts.push(MessagePart::Text { content: turn.prompt });
+        self.chat_histories.add_message_parts(&session_id, role, parts).await;
 
         self.chat_histories.get_messages(&session_id).await
     }

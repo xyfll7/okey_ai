@@ -13,6 +13,15 @@ pub enum MessagePart {
     Text { content: String },
 }
 
+/// A single user turn: the original source text (`raw`, optional, kept for
+/// display) and the `prompt` that is actually forwarded to the model.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct UserTurn {
+    #[serde(default)]
+    pub raw: String,
+    pub prompt: String,
+}
+
 /// Mirrors the `UIMessage` type of @tanstack/ai, so the frontend can consume it directly
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UIMessage {
@@ -22,22 +31,24 @@ pub struct UIMessage {
 }
 
 impl UIMessage {
-    pub fn new_text(id: String, role: Role, content: String) -> Self {
-        UIMessage { id, role, parts: vec![MessagePart::Text { content }] }
+    pub fn new_parts(id: String, role: Role, parts: Vec<MessagePart>) -> Self {
+        UIMessage { id, role, parts }
     }
 
-    /// Concatenated text content of all text parts
-    pub fn text(&self) -> String {
-        self.parts
-            .iter()
-            .map(|part| match part {
-                MessagePart::Text { content } => content.as_str(),
-            })
-            .collect()
-    }
-
+    /// Build the LLM message. For user messages the **last** part is the
+    /// assembled prompt that is actually sent to the model; earlier parts
+    /// (e.g. the raw source text) are display-only metadata and must not be
+    /// duplicated into the request.
     pub fn as_llm(&self) -> LLMChatMessage {
-        LLMChatMessage { role: self.role.clone(), content: self.text() }
+        let content = self
+            .parts
+            .iter()
+            .rev()
+            .find_map(|part| match part {
+                MessagePart::Text { content } => Some(content.clone()),
+            })
+            .unwrap_or_default();
+        LLMChatMessage { role: self.role.clone(), content }
     }
 }
 
@@ -105,10 +116,15 @@ impl ChatMessageHistory {
         ChatMessageHistory { messages: Vec::new() }
     }
 
-    /// Adds a new text message to the history (index-based stable id)
+    /// Adds a new single-text message to the history (index-based stable id)
     pub fn add_message(&mut self, role: Role, content: String) -> &mut Self {
+        self.add_message_parts(role, vec![MessagePart::Text { content }])
+    }
+
+    /// Adds a message built from explicit parts, e.g. `[raw, assembled_prompt]`
+    pub fn add_message_parts(&mut self, role: Role, parts: Vec<MessagePart>) -> &mut Self {
         let id = format!("msg-{}", self.messages.len());
-        self.messages.push(UIMessage::new_text(id, role, content));
+        self.messages.push(UIMessage::new_parts(id, role, parts));
         self
     }
 

@@ -18,29 +18,34 @@ type StreamEvent =
 
 
 
-function extractLastUserText(
+interface UserTurn {
+    raw: string;
+    prompt: string;
+}
+
+function extractLastUserTurn(
     messages: Array<UIMessage> | Array<ModelMessage>,
-): string {
+): UserTurn {
     for (let i = messages.length - 1; i >= 0; i--) {
         const m = messages[i];
+        if (m.role !== "user") continue;
 
-        if ("content" in m && m.role === "user") {
-            const { content } = m;
-            if (typeof content === "string") return content;
-            if (Array.isArray(content)) {
-                return content
-                    .map((part) => ("text" in part && typeof part.text === "string" ? part.text : ""))
-                    .join("");
-            }
+        let parts: Array<{ type: string; content: string }> = [];
+        if ("content" in m && Array.isArray(m.content)) {
+            parts = m.content.map((part) =>
+                "text" in part
+                    ? { type: "text", content: String(part.text) }
+                    : (part as { type: string; content: string }),
+            );
+        } else if ("parts" in m && Array.isArray((m as UIMessage).parts)) {
+            parts = (m as UIMessage).parts as Array<{ type: string; content: string }>;
         }
 
-        if ("parts" in m && m.role === "user") {
-            return m.parts
-                .map((part) => (part.type === "text" ? part.content : ""))
-                .join("");
-        }
+        const prompt = parts.length ? parts[parts.length - 1].content : "";
+        const raw = parts.length > 1 ? parts[0].content : "";
+        return { raw, prompt };
     }
-    return "";
+    return { raw: "", prompt: "" };
 }
 
 
@@ -52,7 +57,7 @@ interface ChatStreamState {
 
 
 function startChatStream(
-    promptText: string,
+    turn: UserTurn,
     queue: StreamEvent[],
     state: ChatStreamState,
     notify: () => void,
@@ -66,7 +71,8 @@ function startChatStream(
         notify();
     };
     void invoke(EVENT_NAMES.chat_stream, {
-        prompt_text: promptText,
+        raw: turn.raw,
+        prompt: turn.prompt,
         on_event: channel,
     }).catch((err) => {
         if (state.aborted) return;
@@ -84,7 +90,8 @@ export function chatAdapter(): ConnectionAdapter {
         const messageId = `msg-${Date.now()}`;
         const model = "backend-model";
         const now = () => Date.now();
-        const userText = extractLastUserText(messages);
+        const userTurn = extractLastUserTurn(messages);
+        const userText = userTurn.prompt;
    
       
         const queue: StreamEvent[] = [];
@@ -110,7 +117,7 @@ export function chatAdapter(): ConnectionAdapter {
                 model,
                 timestamp: now(),
             } satisfies StreamChunk;
-            startChatStream(userText, queue, state, notify);
+            startChatStream(userTurn, queue, state, notify);
             yield {
                 type: EventType.TEXT_MESSAGE_START,
                 messageId,
