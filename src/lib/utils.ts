@@ -12,16 +12,16 @@ export function cn(...inputs: ClassValue[]) {
 export async function speak(text: string) {
 	if ("speechSynthesis" in window) {
 		const utterance = new SpeechSynthesisUtterance(text);
-		utterance.rate = 1.0; // 语速
-		utterance.pitch = 1.0; // 音调
-		utterance.volume = 1.0; // 音量
+		utterance.rate = 1.0; // Speaking speed
+		utterance.pitch = 1.0; // Tone
+		utterance.volume = 1.0; // Volume
 		utterance.lang = await invoke<"en" | "zh-CN">(
 			EVENT_NAMES.detect_language,
 			{ text },
-		); // 语言
+		); // language
 		speechSynthesis.speak(utterance);
 	} else {
-		console.error("浏览器不支持 TTS");
+		console.error("The browser does not support TTS.");
 	}
 }
 
@@ -35,6 +35,5 @@ export async function get_app_config() {
 
 export async function initLocale() {
 	const localeResult = await invoke<string>(EVENT_NAMES.get_current_locale);
-	console.log("lllll", localeResult)
 	setLocale(localeResult as "en" | "zh-CN");
 }
