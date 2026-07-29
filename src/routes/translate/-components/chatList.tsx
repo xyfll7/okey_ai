@@ -50,7 +50,7 @@ export function ChatList() {
             <MessageNavigator />
             <SelectionFloatingButton containerRef={chatListRef} />
             {msg.length === 0 ? (
-                <Empty className="h-full">
+                <Empty className="h-full" onMouseUp={handleChatSelection}>
                     <EmptyHeader>
                         <EmptyMedia variant="icon">
                             <MessageCircleDashedIcon />
@@ -62,12 +62,11 @@ export function ChatList() {
                     </EmptyHeader>
                 </Empty>
             ) : (
-                <MessageScroller className="">
+                <MessageScroller className="" onMouseUp={handleChatSelection}>
                     <MessageScrollerViewport ref={chatListRef} className="scrollbar-area">
                         <MessageScrollerContent
                             aria-busy={isBusy}
                             data-chat-container
-                            onMouseUp={handleChatSelection}
                             className="p-4 scroll-fade "
                         >
                             {msg.map((item, index) => (
