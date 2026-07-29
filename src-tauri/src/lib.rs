@@ -65,8 +65,8 @@ pub fn run() {
             my_api::commands::switch_model,
             my_api::commands::get_current_model,
             my_api::commands::list_available_models,
-            utils::i18n::get_locale,
-            utils::i18n::set_locale,
+            utils::i18n::get_current_locale,
+            utils::i18n::set_current_locale,
         ])
         .setup(|app| {
             if cfg!(debug_assertions) {

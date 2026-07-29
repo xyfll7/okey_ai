@@ -34,7 +34,7 @@ export async function get_app_config() {
 }
 
 export async function initLocale() {
-	const localeResult = await invoke<string>(EVENT_NAMES.get_locale);
+	const localeResult = await invoke<string>(EVENT_NAMES.get_current_locale);
 
 	setLocale(localeResult as "en" | "zh-CN");
 }

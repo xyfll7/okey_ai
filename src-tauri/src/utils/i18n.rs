@@ -3,12 +3,12 @@ use crate::states::app_config::Language;
 use crate::states::app_state::AppConfigState;
 
 #[tauri::command]
-pub fn get_locale() -> String {
+pub fn get_current_locale() -> String {
     rust_i18n::locale().to_string()
 }
 
 #[tauri::command]
-pub fn set_locale(app_handle: tauri::AppHandle, locale: String, app_config_state: tauri::State<AppConfigState>) {
+pub fn set_current_locale(app_handle: tauri::AppHandle, locale: String, app_config_state: tauri::State<AppConfigState>) {
     rust_i18n::set_locale(&locale);
 
     // Map locale string to Language enum

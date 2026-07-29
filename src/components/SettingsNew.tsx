@@ -179,12 +179,12 @@ export function LanguageSelector({
     ...props
 }: React.ComponentProps<"div">) {
     const { ...currentLocale_X } = useInvoke<"en" | "zh-CN">(
-        EVENT_NAMES.get_locale,
+        EVENT_NAMES.get_current_locale,
         "en",
         false,
         (locale) => {
             if (!locale) return;
-            invoke(EVENT_NAMES.set_locale, { locale });
+            invoke(EVENT_NAMES.set_current_locale, { locale });
             setLocale(locale);
         },
     );
