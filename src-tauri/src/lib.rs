@@ -77,7 +77,6 @@ pub fn run() {
             state_manager.clear_store_dev(app.handle());
             let app_config_state = state_manager.init_app_config_state(app.handle())?;
 
-            // 应用用户保存的语言设置
             let config = app_config_state.read();
             rust_i18n::set_locale(&config.language.to_locale());
             drop(config);

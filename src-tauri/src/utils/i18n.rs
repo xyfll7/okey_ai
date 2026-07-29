@@ -24,8 +24,14 @@ pub fn set_current_locale(app_handle: tauri::AppHandle, locale: String, app_conf
 
 pub fn get_default_locale() -> String {
     let lang = tauri_plugin_os::locale()
-        // "en" / "zh-CN"  / "zh-TW" / "ja-JP" / "fr-FR"
-        .and_then(|full_locale| full_locale.split('-').next().map(|s| s.to_string()))
+        .map(|full_locale| {
+            let prefix = full_locale.split('-').next().unwrap_or("");
+            if prefix.eq_ignore_ascii_case("zh") {
+                "zh-CN".to_string()
+            } else {
+                "en".to_string()
+            }
+        })
         .unwrap_or_else(|| "en".to_string());
     lang
 }
