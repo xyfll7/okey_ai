@@ -99,9 +99,25 @@ pub struct AppConfig {
     pub prompt_tags: Vec<PromptTag>,
 }
 
+/// Build the default prompt tags localized for the given locale.
+/// Labels and contents are loaded from the i18n locale files so a fresh
+/// install (no `store.json`) starts in the user's system language.
+fn default_prompt_tags(locale: &str) -> Vec<PromptTag> {
+    vec![
+        PromptTag { raw: None, label: Some(rust_i18n::t!("prompt_tag_system_label", locale = locale).to_string()), content: Some(rust_i18n::t!("prompt_tag_system_content", locale = locale).to_string()), id: Some(0) },
+        PromptTag { raw: None, label: Some(rust_i18n::t!("prompt_tag_summary_label", locale = locale).to_string()), content: Some(rust_i18n::t!("prompt_tag_summary_content", locale = locale).to_string()), id: Some(1) },
+        PromptTag { raw: None, label: Some(rust_i18n::t!("prompt_tag_right_ctrl_label", locale = locale).to_string()), content: Some(rust_i18n::t!("prompt_tag_right_ctrl_content", locale = locale).to_string()), id: Some(2) },
+        PromptTag { raw: None, label: Some(rust_i18n::t!("prompt_tag_self_explanation_label", locale = locale).to_string()), content: Some(rust_i18n::t!("prompt_tag_self_explanation_content", locale = locale).to_string()), id: Some(3) },
+        PromptTag { raw: None, label: Some(rust_i18n::t!("prompt_tag_word_details_label", locale = locale).to_string()), content: Some(rust_i18n::t!("prompt_tag_word_details_content", locale = locale).to_string()), id: Some(4) },
+        PromptTag { raw: None, label: Some(rust_i18n::t!("prompt_tag_meaning_context_label", locale = locale).to_string()), content: Some(rust_i18n::t!("prompt_tag_meaning_context_content", locale = locale).to_string()), id: Some(5) },
+        PromptTag { raw: None, label: Some(rust_i18n::t!("prompt_tag_detailed_explanation_label", locale = locale).to_string()), content: Some(rust_i18n::t!("prompt_tag_detailed_explanation_content", locale = locale).to_string()), id: Some(6) },
+    ]
+}
+
 impl Default for AppConfig {
     fn default() -> Self {
         dotenvy::dotenv().ok();
+        let locale = crate::utils::i18n::get_default_locale();
         let mut api_configs = HashMap::new();
         api_configs.insert(ModelProvider::OpenAI, APIConfig { api_key: std::env::var("OPENAI_API_KEY").unwrap_or_else(|_| "".to_string()), base_url: "https://api.openai.com/v1".to_string(), model: "gpt-4".to_string(), index: 0 });
         api_configs.insert(ModelProvider::Qwen, APIConfig { api_key: std::env::var("QWEN_API_KEY").unwrap_or_else(|_| "".to_string()), base_url: "https://dashscope.aliyuncs.com".to_string(), model: "qwen3.6-plus".to_string(), index: 1 });
@@ -117,16 +133,7 @@ impl Default for AppConfig {
             local_language: if cfg!(debug_assertions) { Language::ZhCn } else { Language::Auto.effective_language() },
             target_language: Language::Auto.effective_language(),
             self_explaining_model: false,
-            #[rustfmt::skip]
-            prompt_tags: vec![
-                PromptTag { raw: None, label: Some("System Prompt".to_string()), content: Some("You are a professional translation assistant. Please accurately translate the language, preserving the original meaning and tone.".to_string()), id: Some(0) },
-                PromptTag { raw: None, label: Some("Summary".to_string()), content: Some("Please analyze the following text and provide a summary:\n\n{text}".to_string()), id: Some(1) },
-                PromptTag { raw: None, label: Some("Right Ctrl".to_string()), content: Some("Please translate the following text into {target}:\n\n{text}".to_string()), id: Some(2) },
-                PromptTag { raw: None, label: Some("Self-Explanation".to_string()), content: Some("Please explain the following text in {detected_lang}, as if explaining to a language learner:\n\n{text}.".to_string()), id: Some(3) },
-                PromptTag { raw: None, label: Some("Word Details".to_string()), content: Some("Please use {local} to explain the word {text} in detail.".to_string()), id: Some(4) },
-                PromptTag { raw: None, label: Some("Meaning in Context".to_string()), content: Some("Please use {local} to explain the meaning of {text} in the sentence.".to_string()), id: Some(5) },
-                PromptTag { raw: None, label: Some("Detailed Explanation".to_string()), content: Some("Please explain the following content in detail in {local}: {text}".to_string()), id: Some(6) },
-            ],
+            prompt_tags: default_prompt_tags(&locale),
         }
     }
 }
