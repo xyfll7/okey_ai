@@ -102,8 +102,9 @@ pub struct AppConfig {
 /// Build the default prompt tags localized for the given locale.
 /// Labels and contents are loaded from the i18n locale files so a fresh
 /// install (no `store.json`) starts in the user's system language.
-fn default_prompt_tags(locale: &str) -> Vec<PromptTag> {
-    vec![
+pub fn default_prompt_tags_for_locale(locale: &str) -> Vec<PromptTag> {
+    #[rustfmt::skip]
+    let tags = vec![
         PromptTag { raw: None, label: Some(rust_i18n::t!("prompt_tag_system_label", locale = locale).to_string()), content: Some(rust_i18n::t!("prompt_tag_system_content", locale = locale).to_string()), id: Some(0) },
         PromptTag { raw: None, label: Some(rust_i18n::t!("prompt_tag_summary_label", locale = locale).to_string()), content: Some(rust_i18n::t!("prompt_tag_summary_content", locale = locale).to_string()), id: Some(1) },
         PromptTag { raw: None, label: Some(rust_i18n::t!("prompt_tag_right_ctrl_label", locale = locale).to_string()), content: Some(rust_i18n::t!("prompt_tag_right_ctrl_content", locale = locale).to_string()), id: Some(2) },
@@ -111,13 +112,14 @@ fn default_prompt_tags(locale: &str) -> Vec<PromptTag> {
         PromptTag { raw: None, label: Some(rust_i18n::t!("prompt_tag_word_details_label", locale = locale).to_string()), content: Some(rust_i18n::t!("prompt_tag_word_details_content", locale = locale).to_string()), id: Some(4) },
         PromptTag { raw: None, label: Some(rust_i18n::t!("prompt_tag_meaning_context_label", locale = locale).to_string()), content: Some(rust_i18n::t!("prompt_tag_meaning_context_content", locale = locale).to_string()), id: Some(5) },
         PromptTag { raw: None, label: Some(rust_i18n::t!("prompt_tag_detailed_explanation_label", locale = locale).to_string()), content: Some(rust_i18n::t!("prompt_tag_detailed_explanation_content", locale = locale).to_string()), id: Some(6) },
-    ]
+    ];
+    tags
 }
 
 impl Default for AppConfig {
     fn default() -> Self {
         dotenvy::dotenv().ok();
-        let locale = crate::utils::i18n::get_default_locale();
+
         let mut api_configs = HashMap::new();
         api_configs.insert(ModelProvider::OpenAI, APIConfig { api_key: std::env::var("OPENAI_API_KEY").unwrap_or_else(|_| "".to_string()), base_url: "https://api.openai.com/v1".to_string(), model: "gpt-4".to_string(), index: 0 });
         api_configs.insert(ModelProvider::Qwen, APIConfig { api_key: std::env::var("QWEN_API_KEY").unwrap_or_else(|_| "".to_string()), base_url: "https://dashscope.aliyuncs.com".to_string(), model: "qwen3.6-plus".to_string(), index: 1 });
@@ -133,7 +135,7 @@ impl Default for AppConfig {
             local_language: if cfg!(debug_assertions) { Language::ZhCn } else { Language::Auto.effective_language() },
             target_language: Language::Auto.effective_language(),
             self_explaining_model: false,
-            prompt_tags: default_prompt_tags(&locale),
+            prompt_tags: default_prompt_tags_for_locale(&crate::utils::i18n::get_default_locale()),
         }
     }
 }

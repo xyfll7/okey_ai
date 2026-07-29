@@ -18,6 +18,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import type { ModelConfigMap } from "@/@types";
 import { getModelProviderShowName } from "@/lib/types";
+import type { PromptTag } from "@/lib/types";
 import {
     Field,
     FieldDescription,
@@ -70,7 +71,7 @@ export function SettingsNew({ className }: { className?: string }) {
                 <Icons.settings />
             </Button>
         </DrawerTrigger>
-        <DrawerContent className={cn("h-[80vh]  overflow-hidden","pb-2 [&_.bg-muted.mx-auto.mt-4.hidden.h-1.w-[100px].shrink-0.rounded-full]:hidden")}>
+        <DrawerContent className={cn("h-[80vh]  overflow-hidden", "pb-2 [&_.bg-muted.mx-auto.mt-4.hidden.h-1.w-[100px].shrink-0.rounded-full]:hidden")}>
             <DrawerHeader className="" data-tauri-drag-region>
                 <DrawerTitle className={cn("flex justify-between select-none", "")} data-tauri-drag-region>
                     {m.common_settings()}
@@ -82,7 +83,7 @@ export function SettingsNew({ className }: { className?: string }) {
                 </DrawerTitle>
                 <DrawerDescription className="sr-only" />
             </DrawerHeader>
-            <ScrollArea className={cn("h-full","overflow-hidden")}>
+            <ScrollArea className={cn("h-full", "overflow-hidden")}>
                 <div className="max-w-screen flex-coh items-start px-2">
                     <ModelConfigurationForm />
                 </div>
@@ -178,13 +179,16 @@ function ModelConfigurationForm() {
 export function LanguageSelector({
     ...props
 }: React.ComponentProps<"div">) {
+    const { ...promptTags_X } = useInvoke<PromptTag[]>(EVENT_NAMES.get_prompt_tags, []);
     const { ...currentLocale_X } = useInvoke<"en" | "zh-CN">(
         EVENT_NAMES.get_current_locale,
         "en",
         false,
-        (locale) => {
+        async (locale) => {
             if (!locale) return;
             invoke(EVENT_NAMES.set_current_locale, { locale });
+            await invoke(EVENT_NAMES.set_prompt_language);
+            await promptTags_X.invokeState();
             setLocale(locale);
         },
     );
@@ -210,7 +214,7 @@ export function LanguageSelector({
                         >
                             <span className="text-nowrap">{displayLabel}</span>
                             <span className="text-xs text-muted-foreground">
-                              {label}
+                                {label}
                             </span>
                         </DropdownMenuCheckboxItem>
 

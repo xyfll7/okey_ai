@@ -1,6 +1,6 @@
 use crate::my_api::traits::APIConfig;
 use crate::my_windows;
-use crate::states::app_config::{AutoSpeakState, Language, ModelProvider, PromptTag};
+use crate::states::app_config::{default_prompt_tags_for_locale, AutoSpeakState, Language, ModelProvider, PromptTag};
 use crate::states::app_state::AppConfigState;
 use crate::states::chatting_state::ChattingState;
 use crate::utils::chat_message::{ChatMessageHistory, Role, UIMessage, UserTurn};
@@ -322,4 +322,30 @@ pub fn set_self_explaining_model(app: AppHandle, enabled: bool) -> Result<bool, 
         })
         .map_err(|e| e.to_string())?;
     Ok(enabled)
+}
+
+/// Rebuild the built-in prompt tags (ids 0..=6) in the current UI locale so
+/// they follow the language selected via `set_current_locale`. User-added
+/// custom tags are preserved.
+#[tauri::command(rename_all = "snake_case")]
+pub fn set_prompt_language(app: AppHandle) -> Result<Vec<PromptTag>, String> {
+    let app_state = app.state::<AppConfigState>();
+    let locale = {
+        let config = app_state.read();
+        config.language.to_locale()
+    };
+    let localized_defaults = default_prompt_tags_for_locale(&locale);
+    let default_ids: std::collections::HashSet<u32> = localized_defaults.iter().filter_map(|t| t.id).collect();
+    app_state
+        .update(|config| {
+            // Keep custom tags (those not part of the built-in set), then
+            // prepend the freshly localized built-in tags.
+            let custom_tags: Vec<PromptTag> = config.prompt_tags.iter().filter(|t| t.id.map(|id| !default_ids.contains(&id)).unwrap_or(true)).cloned().collect();
+            let mut new_tags = localized_defaults;
+            new_tags.extend(custom_tags);
+            config.prompt_tags = new_tags;
+        })
+        .map_err(|e| e.to_string())?;
+    let tags = app_state.read().prompt_tags.clone();
+    Ok(tags)
 }

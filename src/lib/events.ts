@@ -48,6 +48,7 @@ export const EVENT_NAMES = {
   update_prompt_tag: "update_prompt_tag",
   get_current_locale: "get_current_locale",
   set_current_locale: "set_current_locale",
+  set_prompt_language: "set_prompt_language",
   set_current_session: "set_current_session",
   create_new_session: "create_new_session",
   get_chatting_state: "get_chatting_state",
