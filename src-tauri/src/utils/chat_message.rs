@@ -52,6 +52,18 @@ impl UIMessage {
     }
 }
 
+/// Retrieve the plain text content of the last assistant message in the history.
+pub fn last_assistant_text(histories: &[UIMessage]) -> Option<String> {
+    histories.iter().rev().find(|m| m.role == Role::Assistant).map(|m| {
+        m.parts
+            .iter()
+            .filter_map(|p| match p {
+                MessagePart::Text { content } => Some(content.clone()),
+            })
+            .collect::<String>()
+    })
+}
+
 /// Represents the role of a participant in the conversation
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]

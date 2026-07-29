@@ -3,10 +3,10 @@ use crate::my_windows;
 use crate::states::app_config::{default_prompt_tags_for_locale, AutoSpeakState, Language, ModelProvider, PromptTag};
 use crate::states::app_state::AppConfigState;
 use crate::states::chatting_state::ChattingState;
-use crate::utils::chat_message::{ChatMessageHistory, Role, UIMessage, UserTurn};
-use crate::utils::{language_detection, translation_manager};
+use crate::utils::chat_message::{last_assistant_text, ChatMessageHistory, Role, UIMessage, UserTurn};
+use crate::utils::{calculate_text_width, language_detection, translation_manager};
 use serde::{Deserialize, Serialize};
-use tauri::{ipc::Channel, AppHandle, Manager};
+use tauri::{ipc::Channel, AppHandle, LogicalSize, Manager};
 
 #[tauri::command]
 pub async fn abort_chat_stream(app: AppHandle) -> Result<(), String> {
@@ -87,9 +87,22 @@ pub async fn chat_stream(app: AppHandle, raw: String, prompt: String, on_event: 
         })
         .await;
     match chat_histories {
-        Ok(_chat_histories) => {
+        Ok(histories) => {
             chatting_state.set(false);
             let _ = on_event.send(StreamEvent::Done);
+
+            // When the current window is translate_bubble,
+            // adjust the bubble width according to the total length of the output text.
+            if !my_windows::should_use_existing_translate_window(app.clone()) {
+                if let Some(output_text) = last_assistant_text(&histories) {
+                    let size = calculate_text_width::calculate_text_width(&output_text);
+                    if let Some(window) = app.get_webview_window("translate_bubble") {
+                        let _ = window.set_size(size);
+                        let _ = window.set_min_size(Some(size));
+                        let _ = window.set_max_size(Some(LogicalSize::new(10_000.0, size.height)));
+                    }
+                }
+            }
         }
         Err(err) => {
             chatting_state.set(false);
