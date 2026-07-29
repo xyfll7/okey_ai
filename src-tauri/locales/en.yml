@@ -6,6 +6,11 @@ autostart: "Autostart"
 notification_title: "okey.ai"
 notification_body: "okey.ai is running!"
 
+# Language display names
+language_auto: "Auto"
+language_chinese: "Chinese"
+language_english: "English"
+
 # Default prompt tags
 prompt_tag_system_label: "System Prompt"
 prompt_tag_system_content: "You are a professional translation assistant. Please accurately translate the language, preserving the original meaning and tone."

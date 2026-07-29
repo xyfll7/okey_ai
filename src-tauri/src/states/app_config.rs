@@ -52,11 +52,11 @@ impl Language {
         }
     }
 
-    pub fn to_display_name(&self) -> &'static str {
+    pub fn to_display_name(&self) -> String {
         match self {
-            Language::Auto => "Auto",
-            Language::ZhCn => "Chinese",
-            Language::En => "English",
+            Language::Auto => rust_i18n::t!("language_auto").to_string(),
+            Language::ZhCn => rust_i18n::t!("language_chinese").to_string(),
+            Language::En => rust_i18n::t!("language_english").to_string(),
         }
     }
 
