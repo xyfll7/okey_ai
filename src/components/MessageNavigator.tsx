@@ -14,7 +14,7 @@ import { getMessageText } from "./chat/chatUtils";
 import { Icons } from "@/components/icon";
 
 const MIN_MESSAGES = 4;
-const MAX_MESSAGES = 10;
+const MAX_MESSAGES = 17;
 const NavTick = ({
 	isActive,
 	role,
