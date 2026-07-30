@@ -37,6 +37,7 @@ rust-i18n = "3.1.5"
 dotenvy = "0.15"
 tauri-plugin-shell = "2"
 tauri-plugin-autostart = "2"
+rig = "0.41.0"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-global-shortcut = "2"
