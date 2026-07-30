@@ -27,7 +27,7 @@ pub fn run() {
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
             app.notification().builder().title(TRKey::NotificationTitle.t()).body(TRKey::NotificationBody.t()).show().unwrap();
         }))
-        .manage(my_api::manager::GlobalAPIManager(api_manager))
+        .manage(api_manager)
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_os::init())
         .plugin(tauri_plugin_http::init())
@@ -111,7 +111,7 @@ fn setup_translation_manager(app: &mut tauri::App) -> Result<(), Box<dyn std::er
     let chat_history = app.state::<chat_histories::ChatHistoriesState>();
     let api_manager = app.state::<my_api::manager::GlobalAPIManager>();
     let app_config_state = app.state::<states::app_state::AppConfigState>();
-    let translation_mgr = utils::translation_manager::TranslationManager::new(chat_history.inner(), api_manager.0.clone(), app_config_state.inner().clone());
+    let translation_mgr = utils::translation_manager::TranslationManager::new(chat_history.inner(), api_manager.inner().clone(), app_config_state.inner().clone());
     app.manage(translation_mgr);
     Ok(())
 }

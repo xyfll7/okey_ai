@@ -1,9 +1,6 @@
 pub mod commands;
-pub mod m_deepseek;
-pub mod m_openai;
-pub mod m_qwen;
-pub mod m_zai;
 pub mod manager;
+pub mod provider;
 pub mod traits;
 
 use tauri::{AppHandle, Manager};
@@ -16,7 +13,7 @@ pub async fn refresh_api_clients_from_app_config(app: &AppHandle) {
         let config_guard = app_config_state.read();
         config_guard.api_configs.clone()
     };
-    api_manager_state.0.write().await.initialize_default_clients(config_map).await;
+    api_manager_state.inner().write().await.initialize_default_clients(config_map).await;
 }
 
 pub fn setup_api_manager(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
