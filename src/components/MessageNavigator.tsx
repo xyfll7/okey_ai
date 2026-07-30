@@ -96,7 +96,7 @@ const MessageNavigator = () => {
 	const canGoNext = clampedActive < total - 1;
 
 	return (
-		<div className="absolute right-3 top-1/2 -translate-y-1/2 z-20">
+		<div className="absolute right-2 top-1/2 -translate-y-1/2 z-20">
 			<div className="group flex flex-col items-center gap-1">
 				<button
 					className="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium leading-[normal] cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-60 disabled:cursor-not-allowed [&_svg]:shrink-0 select-none text-fg-secondary hover:bg-button-ghost-hover hover:text-fg-primary disabled:hover:bg-transparent border border-transparent h-8 gap-1.5 rounded-full overflow-hidden w-8 px-1.5 py-1.5 opacity-0! transition-all duration-200 group-hover:opacity-100! disabled:group-hover:opacity-60! -me-2 translate-y-1 group-hover:translate-y-0"
