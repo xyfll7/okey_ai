@@ -39,5 +39,6 @@
   "[rust]": {
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "rust-lang.rust-analyzer"
-  }
+  },
+  "makefile.configureOnOpen": false
 }
