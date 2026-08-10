@@ -32,7 +32,9 @@
   "editor.codeActionsOnSave": {
     "source.organizeImports.biome": "explicit"
   },
-  "tailwindCSS.files.exclude": ["**/src/components/ui/**"],
+  "tailwindCSS.files.exclude": [
+    "**/src/components/ui/**"
+  ],
   "files.associations": {
     "*.css": "tailwindcss"
   },
@@ -40,5 +42,6 @@
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "rust-lang.rust-analyzer"
   },
-  "makefile.configureOnOpen": false
+  "makefile.configureOnOpen": false,
+  "rust-analyzer.server.path": "/Users/xyf/.rustup/toolchains/stable-aarch64-apple-darwin/bin/rust-analyzer"
 }
