@@ -12,6 +12,7 @@ import {
 import { useChatContext } from "./chat/chatContext";
 import { getMessageText } from "./chat/chatUtils";
 import { Icons } from "@/components/icon";
+import "./MessageNavigator.css";
 
 const MIN_MESSAGES = 4;
 const MAX_MESSAGES = 17;
